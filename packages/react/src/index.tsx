@@ -12,6 +12,8 @@ export { Input, type InputProps } from "./input";
 export { Switch, type SwitchProps } from "./switch";
 export { Tooltip, type TooltipProps } from "./tooltip";
 export * from "./modal";
+export { Select, type SelectProps } from "./select";
+export { Badge, type BadgeProps } from "./badge";
 export { ConfigProvider, useConfigContext, type ConfigContextProps } from "./config-provider";
 
 
