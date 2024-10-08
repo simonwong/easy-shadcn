@@ -70,7 +70,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
       >
         {
           (title || content) && (
-            <AlertDialogHeader>
+            <AlertDialogHeader className="w-full overflow-auto whitespace-break-spaces">
               {title && <AlertDialogTitle>{title}</AlertDialogTitle>}
               {content && (<AlertDialogDescription>{content}</AlertDialogDescription>)}
             </AlertDialogHeader>
