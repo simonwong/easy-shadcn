@@ -159,9 +159,10 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
                   value={opt.value as string}
                   onSelect={() => handleSelect(opt)}
                 >
+                  {opt.label}
                   <CheckIcon
                     className={cn(
-                      'mr-2 h-4 w-4',
+                      'ml-auto h-4 w-4',
                       (
                         Array.isArray(innerValue)
                           ? innerValue.includes(opt.value)
@@ -171,7 +172,6 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
                         : 'opacity-0'
                     )}
                   />
-                  {opt.label}
                 </CommandItem>
               ))}
             </CommandGroup>
