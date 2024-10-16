@@ -3,6 +3,9 @@
   "compilerOptions": {
     "moduleResolution": "Bundler",
     "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": ["."]
 }
