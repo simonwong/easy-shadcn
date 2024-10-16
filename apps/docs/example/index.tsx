@@ -5,13 +5,13 @@ import React from "react";
 export default {
   "alert-modal-action": {
     component: React.lazy(() => import("./alert-modal-action")),
-    codeString: `import { Button, alertModalAction } from '@easy-shadcn/react'
+    codeString: `import { Button, modalAction } from '@easy-shadcn/react'
 
 const Demo = () => {
   return (
     <Button
       onClick={() => {
-        alertModalAction.confirm({
+        modalAction.confirm({
           title: 'Tips',
           content: 'If onConfirm or onCancel is asynchronous events, the button will automatically display loading',
           onCancel: () => {
@@ -428,8 +428,8 @@ const Demo = () => {
                 onClick={
                   form.handleSubmit((data) => {
                     modalAction.confirm({
-                      title: '是否确认提交',
-                      content: '提交后关闭表单弹窗',
+                      title: 'Are you sure to submit',
+                      content: 'Close the form pop-up after submission',
                       onConfirm: () => {
                         console.log('data', data)
                         modal.close()
