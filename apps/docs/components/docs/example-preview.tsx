@@ -1,26 +1,22 @@
-"use client";
+'use client';
 
-import { Tabs } from "@easy-shadcn/react";
-import React, { PropsWithChildren, useRef } from "react";
-import ExampleSet from "@/example";
+import { Tabs } from '@easy-shadcn/react';
+import React, { PropsWithChildren } from 'react';
+import ExampleSet from '@/example';
 
 export interface ExamplePreviewProps {
-  name: keyof typeof ExampleSet
+  name: keyof typeof ExampleSet;
 }
 
-export const ExamplePreview: React.FC<PropsWithChildren<ExamplePreviewProps>> = ({
-  name
-}) => {
-  const example = ExampleSet[name]
-
-  if (!example) {
-    return <div>Not Found Example: {name}</div>
+export const ExamplePreview: React.FC<PropsWithChildren<ExamplePreviewProps>> = ({ name }) => {
+  if (!(name in ExampleSet)) {
+    return <div>Not Found Example: {name}</div>;
   }
-
-  const Preview = example.component
+  const example = ExampleSet[name];
+  const Preview = example.component;
 
   return (
-    <div>
+    <div className="not-prose">
       <Tabs
         defaultValue="preview"
         option={[
@@ -28,19 +24,15 @@ export const ExamplePreview: React.FC<PropsWithChildren<ExamplePreviewProps>> = 
             title: 'Preview',
             value: 'preview',
             content: (
-              <div className="rounded-md border p-5 bg-[radial-gradient(#00000020_1px,transparent_1px)] [background-size:16px_16px]">
+              <div className="rounded-md border bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]">
                 {<Preview />}
               </div>
-            )
+            ),
           },
           {
             title: 'Code',
             value: 'code',
-            content: (
-              <pre className="m-0">
-                {example.codeString}
-              </pre>
-            )
+            content: <pre className="m-0">{example.codeString}</pre>,
           },
         ]}
       />

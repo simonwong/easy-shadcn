@@ -17,6 +17,14 @@ type BaseOption = {
   label: string;
 };
 
+type SelectValue<OPT extends BaseOption, IsMultiple extends boolean> = IsMultiple extends true
+  ? OPT['value'][]
+  : OPT['value'];
+
+type SelectOPT<OPT extends BaseOption, IsMultiple extends boolean> = IsMultiple extends true
+  ? OPT[]
+  : OPT;
+
 export interface SelectProps<OPT extends BaseOption, IsMultiple extends boolean> {
   placeholder?: ReactNode;
   buttonProps?: ButtonProps;
@@ -25,9 +33,9 @@ export interface SelectProps<OPT extends BaseOption, IsMultiple extends boolean>
   contentProps?: ComponentProps<typeof PopoverContent>;
   empty?: ReactNode;
   options: OPT[];
-  value?: IsMultiple extends true ? OPT['value'][] : OPT['value'];
+  value?: SelectValue<OPT, IsMultiple>;
   width?: number | string;
-  onChange?: (val?: IsMultiple extends true ? OPT['value'][] : OPT['value'], opt?: OPT) => void;
+  onChange?: (val?: SelectValue<OPT, IsMultiple>, opt?: OPT) => void;
   allowClear?: boolean;
   multiple?: IsMultiple;
 }
@@ -47,15 +55,13 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
   multiple,
 }: SelectProps<OPT, IsMultiple>) => {
   const [open, setOpen] = React.useState(false);
-  const [innerValue, setInnerValue] = React.useState<
-    (IsMultiple extends true ? OPT['value'][] : OPT['value']) | undefined
-  >(value);
-  const [innerOption, setInnerOption] = React.useState<
-    (IsMultiple extends true ? OPT[] : OPT) | undefined
-  >(
+  const [innerValue, setInnerValue] = React.useState<SelectValue<OPT, IsMultiple> | undefined>(
+    value
+  );
+  const [innerOption, setInnerOption] = React.useState<SelectOPT<OPT, IsMultiple> | undefined>(
     (Array.isArray(value)
       ? options.filter((opt) => value.includes(opt.value))
-      : options.find((opt) => opt.value === value)) as IsMultiple extends true ? OPT[] : OPT
+      : options.find((opt) => opt.value === value)) as SelectOPT<OPT, IsMultiple>
   );
 
   useEffect(() => {
@@ -63,7 +69,7 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
     setInnerOption(
       (Array.isArray(value)
         ? options.filter((opt) => value.includes(opt.value))
-        : options.find((opt) => opt.value === value)) as IsMultiple extends true ? OPT[] : OPT
+        : options.find((opt) => opt.value === value)) as SelectOPT<OPT, IsMultiple>
     );
   }, [value, options]);
 
@@ -92,21 +98,21 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
           ? innerOption.filter((o) => o.value !== opt.value)
           : [...innerOption, opt]
         : [opt];
-      setInnerValue(newValue as IsMultiple extends true ? OPT['value'][] : OPT['value']);
-      setInnerOption(newOpt as IsMultiple extends true ? OPT[] : OPT);
-      onChange?.(newValue as IsMultiple extends true ? OPT['value'][] : OPT['value'], opt);
+      setInnerValue(newValue as SelectValue<OPT, IsMultiple>);
+      setInnerOption(newOpt as SelectOPT<OPT, IsMultiple>);
+      onChange?.(newValue as SelectValue<OPT, IsMultiple>, opt);
     } else {
       if (opt.value === innerValue) {
         return;
       }
-      setInnerValue(opt.value as IsMultiple extends true ? OPT['value'][] : OPT['value']);
-      setInnerOption(opt as IsMultiple extends true ? OPT[] : OPT);
-      onChange?.(opt.value as IsMultiple extends true ? OPT['value'][] : OPT['value'], opt);
+      setInnerValue(opt.value as SelectValue<OPT, IsMultiple>);
+      setInnerOption(opt as SelectOPT<OPT, IsMultiple>);
+      onChange?.(opt.value as SelectValue<OPT, IsMultiple>, opt);
       setOpen(false);
     }
   };
 
-  const hasSelected = !!innerValue && Array.isArray(innerValue) && innerValue.length > 0;
+  const hasSelected = !!innerValue || (Array.isArray(innerValue) && innerValue.length > 0);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -122,7 +128,14 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
             ...buttonProps?.style,
           }}
         >
-          <span className="flex-1 truncate text-left">{selectedLabelNode}</span>
+          <span
+            className={cn(
+              'flex-1 truncate text-left',
+              hasSelected ? undefined : 'text-muted-foreground'
+            )}
+          >
+            {selectedLabelNode}
+          </span>
           <span className="relative">
             <ChevronsUpDownIcon className={cn('ml-2 size-4 shrink-0 text-gray-500')} />
             {allowClear && hasSelected && (

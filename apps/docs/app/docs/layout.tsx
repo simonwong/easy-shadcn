@@ -1,25 +1,25 @@
-import { allDocs } from "contentlayer/generated"
-import { DocsSidebarNav } from "@/components/sidebar-nav"
+import { allDocs } from 'contentlayer/generated';
+import { DocsSidebarNav } from '@/components/sidebar-nav';
 
 interface DocsLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
-async function getComponentMenuItems() {
+function getComponentMenuItems() {
   return allDocs
-    .filter(item => item.slugAsParams.startsWith('components/'))
-    .map(item => ({
+    .filter((item) => item.slugAsParams.startsWith('components/'))
+    .map((item) => ({
       title: item.title,
-      href: `/docs/${item.slugAsParams}`
-    }))
+      href: `/docs/${item.slugAsParams}`,
+    }));
 }
 
-export default async function DocsLayout({ children }: DocsLayoutProps) {
-  const componentMenuItems = await getComponentMenuItems()
+export default function DocsLayout({ children }: DocsLayoutProps) {
+  const componentMenuItems = getComponentMenuItems();
 
   return (
     <div className="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
-      <aside className="w-full h-full">
+      <aside className="size-full">
         <div className="h-full py-6 pr-6 lg:py-8">
           <DocsSidebarNav
             config={[
@@ -28,17 +28,17 @@ export default async function DocsLayout({ children }: DocsLayoutProps) {
                 items: [
                   {
                     title: 'Introduction',
-                    href: "/docs/guide",
+                    href: '/docs/guide',
                   },
                   {
                     title: 'Installation',
-                    href: "/docs/guide/installation",
-                  }
-                ]
+                    href: '/docs/guide/installation',
+                  },
+                ],
               },
               {
                 title: 'Components',
-                items: componentMenuItems
+                items: componentMenuItems,
               },
             ]}
           />
@@ -46,5 +46,5 @@ export default async function DocsLayout({ children }: DocsLayoutProps) {
       </aside>
       {children}
     </div>
-  )
+  );
 }
