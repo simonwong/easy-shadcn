@@ -35,6 +35,27 @@ export default Demo
 `
   },
 
+  "badge-demo": {
+    component: React.lazy(() => import("./badge-demo")),
+    codeString: `import { Badge } from '@easy-shadcn/react';
+
+const Demo = () => {
+  return (
+    <div>
+      <div className="mb-2 flex gap-2">
+        <Badge>default</Badge>
+        <Badge variant="secondary">secondary</Badge>
+        <Badge variant="destructive">destructive</Badge>
+        <Badge variant="outline">outline</Badge>
+      </div>
+    </div>
+  );
+};
+
+export default Demo;
+`
+  },
+
   "button-async-action": {
     component: React.lazy(() => import("./button-async-action")),
     codeString: `import { Button } from "@easy-shadcn/react"
@@ -530,6 +551,120 @@ const Demo = () => {
 }
 
 export default Demo
+`
+  },
+
+  "select-demo": {
+    component: React.lazy(() => import("./select-demo")),
+    codeString: `import { Select } from '@easy-shadcn/react';
+
+const Demo = () => {
+  return (
+    <div>
+      <div className="mb-2 flex gap-2">
+        <Select
+          width={200}
+          options={[
+            {
+              value: 1,
+              label: 'Option 1',
+            },
+            {
+              value: 2,
+              label: 'Option 2',
+            },
+            {
+              value: 3,
+              label: 'Option 3',
+            },
+          ]}
+          placeholder="please select"
+        />
+        <Select
+          width={200}
+          allowClear
+          options={[
+            {
+              value: 1,
+              label: 'Option 1',
+            },
+            {
+              value: 2,
+              label: 'Option 2',
+            },
+            {
+              value: 3,
+              label: 'Option 3',
+            },
+          ]}
+          placeholder="allow clear"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Demo;
+`
+  },
+
+  "select-multiple-demo": {
+    component: React.lazy(() => import("./select-multiple-demo")),
+    codeString: `import { Select } from '@easy-shadcn/react';
+
+const Demo = () => {
+  const options = [
+    {
+      value: 1,
+      label: 'Option 1',
+    },
+    {
+      value: 2,
+      label: 'Option 2',
+    },
+    {
+      value: 3,
+      label: 'Option 3',
+    },
+    {
+      value: 4,
+      label: 'Option 4',
+    },
+    {
+      value: 5,
+      label: 'Option 5',
+    },
+  ];
+  return (
+    <div>
+      <div className="mb-2 flex gap-2">
+        <Select width={200} multiple options={options} placeholder="please multiple" />
+        <Select width={200} multiple allowClear options={options} placeholder="allow clear" />
+      </div>
+    </div>
+  );
+};
+
+export default Demo;
+`
+  },
+
+  "switch-demo": {
+    component: React.lazy(() => import("./switch-demo")),
+    codeString: `import { Switch } from '@easy-shadcn/react';
+
+const Demo = () => {
+  return (
+    <div>
+      <div className="mb-2 flex gap-2">
+        <Switch label="Normal" />
+        <Switch label="Controlled" checked />
+      </div>
+    </div>
+  );
+};
+
+export default Demo;
 `
   },
 

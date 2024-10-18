@@ -17,7 +17,7 @@
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
     "@storybook/react": "^8.2.9",
-    "@yueqing/eslint-config-ts": "^0.0.1",
+    "@yueqing/eslint-config-ts": "^0.0.2",
     "@yueqing/prettier-config": "^0.0.2",
     "eslint": "^9.12.0",
     "prettier": "^3.2.5",
