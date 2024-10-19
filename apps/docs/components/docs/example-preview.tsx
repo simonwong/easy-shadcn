@@ -3,6 +3,7 @@
 import { Tabs } from '@easy-shadcn/react';
 import React, { PropsWithChildren } from 'react';
 import ExampleSet from '@/example';
+import { PreBlock, CodePreview } from '../code-preview';
 
 export interface ExamplePreviewProps {
   name: keyof typeof ExampleSet;
@@ -16,7 +17,7 @@ export const ExamplePreview: React.FC<PropsWithChildren<ExamplePreviewProps>> = 
   const Preview = example.component;
 
   return (
-    <div className="not-prose">
+    <div>
       <Tabs
         defaultValue="preview"
         option={[
@@ -24,7 +25,7 @@ export const ExamplePreview: React.FC<PropsWithChildren<ExamplePreviewProps>> = 
             title: 'Preview',
             value: 'preview',
             content: (
-              <div className="rounded-md border bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]">
+              <div className="not-prose rounded-md border bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]">
                 {<Preview />}
               </div>
             ),
@@ -32,7 +33,11 @@ export const ExamplePreview: React.FC<PropsWithChildren<ExamplePreviewProps>> = 
           {
             title: 'Code',
             value: 'code',
-            content: <pre className="m-0">{example.codeString}</pre>,
+            content: (
+              <PreBlock>
+                <CodePreview>{example.codeString}</CodePreview>
+              </PreBlock>
+            ),
           },
         ]}
       />
