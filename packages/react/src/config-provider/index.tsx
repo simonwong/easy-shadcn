@@ -1,21 +1,16 @@
-import { Locale } from 'date-fns'
-import React, { PropsWithChildren, useContext } from 'react'
+import { Locale } from 'date-fns';
+import React, { PropsWithChildren, useContext } from 'react';
 
 export type ConfigContextProps = {
-  dateLocal?: Locale
-}
+  dateLocal?: Locale;
+};
 
-const ConfigContext = React.createContext<ConfigContextProps>({
-})
+const ConfigContext = React.createContext<ConfigContextProps>({});
 
 export const useConfigContext = () => {
-  return useContext(ConfigContext)
-}
+  return useContext(ConfigContext);
+};
 
 export const ConfigProvider = ({ children, ...props }: PropsWithChildren<ConfigContextProps>) => {
-  return (
-    <ConfigContext.Provider value={{...props}}>
-      {children}
-    </ConfigContext.Provider>
-  )
-}
+  return <ConfigContext.Provider value={{ ...props }}>{children}</ConfigContext.Provider>;
+};
