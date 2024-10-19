@@ -1,5 +1,21 @@
 # @easy-shadcn/react
 
+## 0.1.0
+
+### Minor Changes
+
+- [#28](https://github.com/simonwong/easy-shadcn/pull/28) [`877bbd7`](https://github.com/simonwong/easy-shadcn/commit/877bbd710ab61263a1c2dcf8f8729b0cc81bce17) Thanks [@simonwong](https://github.com/simonwong)! - Modify the structure of the construction product.
+
+### Patch Changes
+
+- [#28](https://github.com/simonwong/easy-shadcn/pull/28) [`48b4d73`](https://github.com/simonwong/easy-shadcn/commit/48b4d734c342c55c477a51bb5ab5e95722f07dd7) Thanks [@simonwong](https://github.com/simonwong)! - Select support Clear& multiple select
+
+- [#28](https://github.com/simonwong/easy-shadcn/pull/28) [`2e27ce7`](https://github.com/simonwong/easy-shadcn/commit/2e27ce7845e26c873d84b40ce1718e281096ae81) Thanks [@simonwong](https://github.com/simonwong)! - set placeholder style
+
+- [#28](https://github.com/simonwong/easy-shadcn/pull/28) [`9c64abe`](https://github.com/simonwong/easy-shadcn/commit/9c64abecb64fc81702ca06445a452369703964f9) Thanks [@simonwong](https://github.com/simonwong)! - Add Select
+
+- [#28](https://github.com/simonwong/easy-shadcn/pull/28) [`414d1de`](https://github.com/simonwong/easy-shadcn/commit/414d1dee7a0577fd1849359751e704dd6de5fd86) Thanks [@simonwong](https://github.com/simonwong)! - Add badge
+
 ## 0.0.13
 
 ### Patch Changes
