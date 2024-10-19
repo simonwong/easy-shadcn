@@ -44,65 +44,68 @@ const useAllModeProps = ({
   const [multiDate, setMultiDate] = React.useState<Date[]>();
   const [rangeDate, setRangeDate] = React.useState<DateRange>();
 
-  const singleProps = {
-    mode: 'single',
-    selected: (selected as Date) || singleDate,
-    defaultMonth: (selected as Date) || singleDate,
-    onSelect: (onSelect as SelectSingleEventHandler) || setSingleDate,
-  } satisfies DayPickerSingleProps;
-
-  const multiProps = {
-    mode: 'multiple',
-    selected: (selected as Date[]) || multiDate,
-    defaultMonth: ((selected as Date[]) || multiDate)?.at(-1),
-    onSelect: (onSelect as SelectMultipleEventHandler) || setMultiDate,
-  } satisfies DayPickerMultipleProps;
-
-  const rangeProps = {
-    mode: 'range',
-    selected: (selected as DateRange) || rangeDate,
-    defaultMonth: ((selected as DateRange) || rangeDate)?.to,
-    onSelect: (onSelect as SelectRangeEventHandler) || setRangeDate,
-  } satisfies DayPickerRangeProps;
-
-  const modeMap = {
-    single: {
-      props: singleProps,
-      hasValue: !!singleProps.selected,
-      renderText: () => {
-        return singleProps.selected ? format(singleProps.selected, dateFormat) : null;
-      },
-    },
-    multiple: {
-      props: multiProps,
-      hasValue: multiProps.selected && multiProps.selected.length > 0,
-      renderText: () => {
-        return multiProps.selected
-          ? multiProps.selected.map((dt) => format(dt, dateFormat)).join(', ')
-          : null;
-      },
-    },
-    range: {
-      props: rangeProps,
-      hasValue: !!rangeProps.selected && !!rangeProps.selected.from,
-      renderText: () => {
-        return rangeProps.selected ? (
-          rangeProps.selected.from ? (
-            rangeProps.selected.to ? (
-              <>
-                {format(rangeProps.selected.from, dateFormat)} -{' '}
-                {format(rangeProps.selected.to, dateFormat)}
-              </>
-            ) : (
-              format(rangeProps.selected.from, dateFormat)
-            )
-          ) : null
-        ) : null;
-      },
-    },
-  };
-
-  return modeMap[mode];
+  switch (mode) {
+    case 'single': {
+      const singleProps = {
+        mode: 'single',
+        selected: (selected as Date) || singleDate,
+        defaultMonth: (selected as Date) || singleDate,
+        onSelect: (onSelect as SelectSingleEventHandler) || setSingleDate,
+      } satisfies DayPickerSingleProps;
+      return {
+        props: singleProps,
+        hasValue: !!singleProps.selected,
+        renderText: () => {
+          return singleProps.selected ? format(singleProps.selected, dateFormat) : null;
+        },
+      };
+    }
+    case 'multiple': {
+      const multiProps = {
+        mode: 'multiple',
+        selected: (selected as Date[]) || multiDate,
+        defaultMonth: ((selected as Date[]) || multiDate)?.at(-1),
+        onSelect: (onSelect as SelectMultipleEventHandler) || setMultiDate,
+      } satisfies DayPickerMultipleProps;
+      return {
+        props: multiProps,
+        hasValue: multiProps.selected && multiProps.selected.length > 0,
+        renderText: () => {
+          return multiProps.selected
+            ? multiProps.selected.map((dt) => format(dt, dateFormat)).join(', ')
+            : null;
+        },
+      };
+    }
+    case 'range': {
+      const rangeProps = {
+        mode: 'range',
+        selected: (selected as DateRange) || rangeDate,
+        defaultMonth: ((selected as DateRange) || rangeDate)?.to,
+        onSelect: (onSelect as SelectRangeEventHandler) || setRangeDate,
+      } satisfies DayPickerRangeProps;
+      return {
+        props: rangeProps,
+        hasValue: !!rangeProps.selected && !!rangeProps.selected.from,
+        renderText: () => {
+          return rangeProps.selected ? (
+            rangeProps.selected.from ? (
+              rangeProps.selected.to ? (
+                <>
+                  {format(rangeProps.selected.from, dateFormat)} -{' '}
+                  {format(rangeProps.selected.to, dateFormat)}
+                </>
+              ) : (
+                format(rangeProps.selected.from, dateFormat)
+              )
+            ) : null
+          ) : null;
+        },
+      };
+    }
+    default:
+      return {};
+  }
 };
 
 export const DatePicker: React.FC<DatePickerProps> = ({
@@ -138,7 +141,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         )}
       >
         <CalendarIcon className="mr-2 size-4" />
-        {allMode.renderText() || <span>{placeholder}</span>}
+        {allMode.renderText?.() || <span>{placeholder}</span>}
       </Button>
     </Popover>
   );
