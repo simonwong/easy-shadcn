@@ -15,7 +15,6 @@ import {
 import { Popover } from '../popover';
 import { Button } from '../button';
 import { Calendar } from '../calendar';
-import { useConfigContext } from '../config-provider';
 
 type DatePickerMode = 'single' | 'multiple' | 'range';
 
@@ -48,18 +47,21 @@ const useAllModeProps = ({
   const singleProps = {
     mode: 'single',
     selected: (selected as Date) || singleDate,
+    defaultMonth: (selected as Date) || singleDate,
     onSelect: (onSelect as SelectSingleEventHandler) || setSingleDate,
   } satisfies DayPickerSingleProps;
 
   const multiProps = {
     mode: 'multiple',
     selected: (selected as Date[]) || multiDate,
+    defaultMonth: ((selected as Date[]) || multiDate)?.at(-1),
     onSelect: (onSelect as SelectMultipleEventHandler) || setMultiDate,
   } satisfies DayPickerMultipleProps;
 
   const rangeProps = {
     mode: 'range',
     selected: (selected as DateRange) || rangeDate,
+    defaultMonth: ((selected as DateRange) || rangeDate)?.to,
     onSelect: (onSelect as SelectRangeEventHandler) || setRangeDate,
   } satisfies DayPickerRangeProps;
 
@@ -112,7 +114,6 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   onSelect,
   ...resetProps
 }) => {
-  const { dateLocal } = useConfigContext();
   const allMode = useAllModeProps({
     mode,
     dateFormat,
@@ -126,7 +127,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         className: 'w-auto p-0',
         align: 'start',
       }}
-      content={<Calendar initialFocus locale={dateLocal} {...resetProps} {...allMode.props} />}
+      content={<Calendar initialFocus {...resetProps} {...allMode.props} />}
     >
       <Button
         variant={'outline'}
