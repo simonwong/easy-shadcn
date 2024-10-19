@@ -1,5 +1,13 @@
 # @easy-shadcn/react
 
+## 0.1.1
+
+### Patch Changes
+
+- [#31](https://github.com/simonwong/easy-shadcn/pull/31) [`dff3c14`](https://github.com/simonwong/easy-shadcn/commit/dff3c14ce2bc3410b1f20f81acccff7d63007334) Thanks [@simonwong](https://github.com/simonwong)! - [Popover]: default align start
+
+- [#31](https://github.com/simonwong/easy-shadcn/pull/31) [`0cf4eff`](https://github.com/simonwong/easy-shadcn/commit/0cf4eff67eee02cc82f3e91f6c8835d27dcb9d5e) Thanks [@simonwong](https://github.com/simonwong)! - [Datepicker]: open show default month panel
+
 ## 0.1.0
 
 ### Minor Changes
