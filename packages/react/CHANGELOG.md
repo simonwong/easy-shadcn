@@ -1,5 +1,11 @@
 # @easy-shadcn/react
 
+## 0.1.2
+
+### Patch Changes
+
+- [#33](https://github.com/simonwong/easy-shadcn/pull/33) [`1725107`](https://github.com/simonwong/easy-shadcn/commit/17251078741e2ea271f1ed0f32b0a136ca7ca78a) Thanks [@simonwong](https://github.com/simonwong)! - [Datepicker]: Fix different defualtMoth values in different modes
+
 ## 0.1.1
 
 ### Patch Changes
