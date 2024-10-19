@@ -254,6 +254,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.19
         version: 18.2.19
+      glob:
+        specifier: ^11.0.0
+        version: 11.0.0
       react:
         specifier: ^18.2.0
         version: 18.2.0

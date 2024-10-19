@@ -1,13 +1,9 @@
-import { Form as FormComp, type FormProps, type FormFC } from './form'
-import * as ReactHookForm from 'react-hook-form'
-export { FormItem, type FormItemProps } from './form-item'
-export * from 'react-hook-form'
+import * as ReactHookForm from 'react-hook-form';
+import { Form as FormComp, type FormProps, type FormFC } from './form';
+export { FormItem, type FormItemProps } from './form-item';
 
-const Form = FormComp as (FormFC & typeof ReactHookForm)
+const Form = FormComp as FormFC & typeof ReactHookForm;
 
-Object.assign(Form, ReactHookForm)
+Object.assign(Form, ReactHookForm);
 
-export {
-  Form,
-  FormProps
-}
+export { Form, FormProps };

@@ -20,7 +20,7 @@ See [shadcn/ui Manual Installation](https://ui.shadcn.com/docs/installation/manu
 
 ### Msodify tailwind.config.js
 
-Add `'./node_modules/@easy-shadcn/react/dist/**/*.{js,ts,jsx,tsx}'` to content
+Add `'./node_modules/@easy-shadcn/react/dist/**/*.{js,mjs}'` to content
 
 ```js {7}
 // tailwind.config
@@ -29,7 +29,7 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   content: [
     // ...
-    './node_modules/@easy-shadcn/react/dist/**/*.{js,ts,jsx,tsx}'
+    './node_modules/@easy-shadcn/react/dist/**/*.{js,mjs}'
   ],
   // ....
 };

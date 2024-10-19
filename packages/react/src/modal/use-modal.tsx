@@ -1,34 +1,34 @@
-import { useState } from 'react'
-import { Modal, type ModalProps } from './modal'
+import { useState } from 'react';
+import { Modal, type ModalProps } from './modal';
 
 export const useModal = () => {
-  const [open, setOpen] = useState(false)
-  const [modalProps, setModalProp] = useState<ModalProps>({})
+  const [open, setOpen] = useState(false);
+  const [modalProps, setModalProp] = useState<ModalProps>({});
   const handleClose = () => {
-    setOpen(false)
+    setOpen(false);
 
     // 防止关闭抖动
     setTimeout(() => {
-      setModalProp({})
-    }, 200)
-  }
+      setModalProp({});
+    }, 200);
+  };
   const handleOpen = (props: ModalProps) => {
-    setOpen(true)
-    setModalProp(props)
-  }
+    setOpen(true);
+    setModalProp(props);
+  };
 
   const modalHost = (
     <Modal
       open={open}
-      onOpenChange={isOp => {
-        setOpen(isOp)
+      onOpenChange={(isOp) => {
+        setOpen(isOp);
         if (!isOp) {
-          handleClose()
+          handleClose();
         }
       }}
       {...modalProps}
     />
-  )
+  );
 
   return [
     modalHost,
@@ -36,5 +36,5 @@ export const useModal = () => {
       open: handleOpen,
       close: handleClose,
     },
-  ] as const
-}
+  ] as const;
+};

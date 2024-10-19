@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Form, FormItem } from '../index';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { Meta, StoryObj } from '@storybook/react';
+import { Form, FormItem } from '../index';
 import { Button } from '../../button';
 import { Input } from '../../input';
 
@@ -20,19 +20,19 @@ export const Normal: Story = {
   render: () => {
     const formSchema = z.object({
       username: z.string().min(2, {
-        message: "Username must be at least 2 characters.",
+        message: 'Username must be at least 2 characters.',
       }),
-    })
+    });
 
     const form = Form.useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
       defaultValues: {
-        username: "",
+        username: '',
       },
-    })
+    });
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-      console.log(values)
+      console.log(values);
     }
 
     return (
@@ -41,18 +41,16 @@ export const Normal: Story = {
           control={form.control}
           name="username"
           label="User Name"
-          render={({ field }) => (
-            <Input placeholder="shadcn" {...field} />
-          )}
+          render={({ field }) => <Input placeholder="shadcn" {...field} />}
         />
         <Button
-          onClick={
-            () => {
-              form.handleSubmit(onSubmit)()
-            }
-          }
-        >asd</Button>
+          onClick={async () => {
+            await form.handleSubmit(onSubmit)();
+          }}
+        >
+          asd
+        </Button>
       </Form>
-    )
+    );
   },
 };

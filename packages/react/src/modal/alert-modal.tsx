@@ -1,5 +1,6 @@
-import React, { ComponentProps, ReactNode, useState } from "react";
-import { cn } from "@easy-shadcn/utils";
+import React, { ComponentProps, ReactNode, useState } from 'react';
+import { cn } from '@easy-shadcn/utils';
+import { Root } from '@radix-ui/react-alert-dialog';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -10,9 +11,8 @@ import {
   AlertDialogCancel,
   AlertDialogTrigger,
   AlertDialogOverlay,
-} from "../../components/ui/alert-dialog";
-import { Root } from "@radix-ui/react-alert-dialog"
-import { Button} from "../button";
+} from '../../components/ui/alert-dialog';
+import { Button } from '../button';
 
 export interface AlertModalProps extends ComponentProps<typeof Root> {
   title?: ReactNode;
@@ -48,14 +48,14 @@ export const AlertModal: React.FC<AlertModalProps> = ({
 
   const handleClose = () => {
     setOpen(false);
-    onClose?.()
+    onClose?.();
   };
 
   return (
     <AlertDialog
       onOpenChange={(op) => {
         setOpen(op);
-        onOpenChange?.(op)
+        onOpenChange?.(op);
         if (op === false) {
           handleClose();
         }
@@ -63,37 +63,36 @@ export const AlertModal: React.FC<AlertModalProps> = ({
       open={open}
       {...props}
     >
-      {children && (<AlertDialogTrigger asChild>{children}</AlertDialogTrigger>)}
-      <AlertDialogContent
-        overlayProps={overlayProps}
-        {...contentProps}
-      >
-        {
-          (title || content) && (
-            <AlertDialogHeader className="w-full overflow-auto whitespace-break-spaces">
-              {title && <AlertDialogTitle>{title}</AlertDialogTitle>}
-              {content && (<AlertDialogDescription>{content}</AlertDialogDescription>)}
-            </AlertDialogHeader>
-          )
-        }
+      {children && <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>}
+      <AlertDialogContent overlayProps={overlayProps} {...contentProps}>
+        {(title || content) && (
+          <AlertDialogHeader className="w-full overflow-auto whitespace-break-spaces">
+            {title && <AlertDialogTitle>{title}</AlertDialogTitle>}
+            {content && <AlertDialogDescription>{content}</AlertDialogDescription>}
+          </AlertDialogHeader>
+        )}
         <AlertDialogFooter>
           <Button
             variant="outline"
             onClick={async () => {
-              await onCancel?.()
+              await onCancel?.();
               handleClose();
             }}
-            className={cn("mt-2 sm:mt-0", cancelProps?.className)}
+            className={cn('mt-2 sm:mt-0', cancelProps?.className)}
             {...cancelProps}
-          >{cancelText}</Button>
+          >
+            {cancelText}
+          </Button>
           <Button
             variant="default"
             onClick={async () => {
-              await onConfirm?.()
+              await onConfirm?.();
               handleClose();
             }}
             {...confirmProps}
-          >{confirmText}</Button>
+          >
+            {confirmText}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

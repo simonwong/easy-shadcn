@@ -1,14 +1,13 @@
-import { AlertModalProps } from "./alert-modal";
-import { ModalProps } from "./modal";
-import { ActionModalProps, ActionModalType } from "./types";
-
+import { AlertModalProps } from './alert-modal';
+import { ModalProps } from './modal';
+import { ActionModalProps, ActionModalType } from './types';
 
 export enum SubscribeType {
   Add,
   Update,
   Delete,
 }
-type SubscriberFn = (state: ActionModalProps, type: SubscribeType) => void
+type SubscriberFn = (state: ActionModalProps, type: SubscribeType) => void;
 
 class Observer {
   #subscribers: Array<SubscriberFn>;
@@ -36,24 +35,27 @@ class Observer {
       props: data,
       type: ActionModalType.AlertModal,
       id: ++this.#modalCount,
-    }
+    };
     this.#publish(actionData, SubscribeType.Add);
 
     return {
       actionData,
       close: () => {
-        this.#publish(actionData, SubscribeType.Delete)
+        this.#publish(actionData, SubscribeType.Delete);
       },
       update: (updateData: AlertModalProps) => {
-        this.#publish({
-          ...actionData,
-          props: {
-            ...data,
-            ...updateData,
+        this.#publish(
+          {
+            ...actionData,
+            props: {
+              ...data,
+              ...updateData,
+            },
           },
-        }, SubscribeType.Update)
-      }
-    }
+          SubscribeType.Update
+        );
+      },
+    };
   };
 
   #addModal = (data: ModalProps) => {
@@ -61,21 +63,24 @@ class Observer {
       props: data,
       type: ActionModalType.Modal,
       id: ++this.#modalCount,
-    }
+    };
     this.#publish(actionData, SubscribeType.Add);
 
     return {
       actionData,
       close: () => {
-        this.#publish(actionData, SubscribeType.Delete)
+        this.#publish(actionData, SubscribeType.Delete);
       },
       update: (updateData: ModalProps) => {
-        this.#publish({
-          ...actionData,
-          props: updateData,
-        }, SubscribeType.Update)
-      }
-    }
+        this.#publish(
+          {
+            ...actionData,
+            props: updateData,
+          },
+          SubscribeType.Update
+        );
+      },
+    };
   };
 
   confirm = (data: AlertModalProps) => {
