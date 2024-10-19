@@ -20,7 +20,9 @@ export const Popover: React.FC<PropsWithChildren<PopoverProps>> = ({
   return (
     <InternalPopover {...restProps}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent {...contentProps}>{content}</PopoverContent>
+      <PopoverContent align="start" {...contentProps}>
+        {content}
+      </PopoverContent>
     </InternalPopover>
   );
 };
