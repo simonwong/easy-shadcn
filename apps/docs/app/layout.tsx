@@ -17,8 +17,8 @@ export const metadata: Metadata = {
     'React',
     'Tailwind CSS',
     'Server Components',
-    'Radix UI',
-    'Simple Radix UI',
+    'shadcn UI',
+    'Simple shadcn UI',
   ],
 };
 
