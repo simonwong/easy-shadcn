@@ -17,5 +17,12 @@ export default eslintConfig(
         'storybook-static/',
       ],
     },
+    {
+      // .stories.tsx 文件，关闭 react-hooks/rules-of-hooks 规则
+      files: ['**/*.stories.tsx'],
+      rules: {
+        'react-hooks/rules-of-hooks': 'off',
+      },
+    },
   ]
 );
