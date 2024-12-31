@@ -11,20 +11,28 @@
     "lint": "turbo lint",
     "clean": "turbo clean && rimraf .turbo",
     "ci:version": "changeset version",
-    "ci:publish": "turbo build --filter={./packages/*} && changeset publish"
+    "ci:publish": "turbo build --filter={./packages/*} && changeset publish",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
     "@storybook/react": "^8.2.9",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "@yueqing/eslint-config-ts": "^0.0.2",
     "@yueqing/prettier-config": "^0.0.2",
     "eslint": "^9.12.0",
+    "jsdom": "^25.0.1",
     "prettier": "^3.2.5",
     "rimraf": "^6.0.1",
     "tsup": "^8.2.4",
     "turbo": "^2.1.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.8"
   },
   "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b",
   "engines": {
