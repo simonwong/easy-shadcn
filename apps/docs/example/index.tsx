@@ -3,38 +3,6 @@
 import React from "react";
 
 export default {
-  "alert-modal-action": {
-    component: React.lazy(() => import("./alert-modal-action")),
-    codeString: `import { Button, modalAction } from '@easy-shadcn/react'
-
-const Demo = () => {
-  return (
-    <Button
-      onClick={() => {
-        modalAction.confirm({
-          title: 'Tips',
-          content: 'If onConfirm or onCancel is asynchronous events, the button will automatically display loading',
-          onCancel: () => {
-            console.log('cancel')
-          },
-          onConfirm: () => new Promise((resolve) => {
-            setTimeout(() => {
-              console.log('confirm')
-              resolve()
-            }, 1000)
-          })
-        })
-      }}
-    >
-      Click Confirm
-    </Button>
-  )
-}
-
-export default Demo
-`
-  },
-
   "badge-demo": {
     component: React.lazy(() => import("./badge-demo")),
     codeString: `import { Badge } from '@easy-shadcn/react';
@@ -334,37 +302,125 @@ export default Demo
 `
   },
 
-  "modal-action": {
-    component: React.lazy(() => import("./modal-action")),
-    codeString: `import { Button, modalAction } from '@easy-shadcn/react'
+  "modal-alert-demo": {
+    component: React.lazy(() => import("./modal-alert-demo")),
+    codeString: `import { Button, AlertModal } from '@easy-shadcn/react';
 
 const Demo = () => {
   return (
-    <Button
-      onClick={() => {
-        modalAction.open({
-          title: 'title',
-          content: 'Modal Content',
-          footer: 'Modal Footer'
-        })
-      }}
-    >
-      Click Open Modal
-    </Button>
-  )
-}
+    <div>
+      <AlertModal
+        title="Alert Title"
+        content={
+          <div>
+            <div>Modal Content</div>
+            <div>Modal Content</div>
+            <div>Modal Content</div>
+            <div>Modal Content</div>
+          </div>
+        }
+      >
+        <Button>Alert Modal</Button>
+      </AlertModal>
+    </div>
+  );
+};
 
-export default Demo
+export default Demo;
+`
+  },
+
+  "modal-alert-helper-demo": {
+    component: React.lazy(() => import("./modal-alert-helper-demo")),
+    codeString: `import { Button, AlertModal } from '@easy-shadcn/react';
+
+const Demo = () => {
+  return (
+    <div className="space-x-2">
+      <Button
+        onClick={() => {
+          AlertModal.alert({
+            title: 'Tips',
+            content: 'Alert Content',
+          });
+        }}
+      >
+        Click Alert
+      </Button>
+      <Button
+        onClick={() => {
+          AlertModal.confirm({
+            title: 'Tips',
+            content:
+              'If onConfirm or onCancel is asynchronous events, the button will automatically display loading',
+            onCancel: () => {
+              console.log('cancel');
+            },
+            onConfirm: () =>
+              new Promise((resolve) => {
+                setTimeout(() => {
+                  console.log('confirm');
+                  resolve();
+                }, 1000);
+              }),
+          });
+        }}
+      >
+        Click Confirm
+      </Button>
+      <Button
+        onClick={async () => {
+          await AlertModal.alert({
+            title: 'Tips1',
+            content: 'Alert Content-1',
+          });
+          await AlertModal.alert({
+            title: 'Tips2',
+            content: 'Alert Content-2',
+          });
+        }}
+      >
+        Alert Step by Step
+      </Button>
+      <Button
+        onClick={async () => {
+          await AlertModal.alert({
+            title: 'Tips1',
+            content: (
+              <div>
+                <div>Alert Content-1</div>
+                <div>Alert Content-1</div>
+                <div>Alert Content-1</div>
+                <div>Alert Content-1</div>
+                <div>Alert Content-1</div>
+              </div>
+            ),
+            onConfirm: async () => {
+              await AlertModal.alert({
+                title: 'Tips1-1',
+                content: 'Alert Content-1-1',
+              });
+            },
+          });
+        }}
+      >
+        Alert Step In Step
+      </Button>
+    </div>
+  );
+};
+
+export default Demo;
 `
   },
 
   "modal-demo": {
     component: React.lazy(() => import("./modal-demo")),
-    codeString: `import { Button, Modal } from '@easy-shadcn/react'
-import { useState } from 'react'
+    codeString: `import { Button, Modal } from '@easy-shadcn/react';
+import { useState } from 'react';
 
 const Demo = () => {
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <div>
@@ -372,167 +428,188 @@ const Demo = () => {
         open={showModal}
         onOpenChange={setShowModal}
         title="Modal Title"
-        content={(
+        content={
           <div>
             <div>Modal Content</div>
             <div>Modal Content</div>
             <div>Modal Content</div>
             <div>Modal Content</div>
           </div>
-        )}
-        footer={(
-          <div className='space-x-2'>
+        }
+        footer={
+          <div className="space-x-2">
             <Button
               variant="ghost"
               onClick={() => {
-                setShowModal(false)
+                setShowModal(false);
               }}
             >
               Cancel
             </Button>
-            <Button>
-              Save
-            </Button>
+            <Button>Save</Button>
           </div>
-        )}
+        }
       >
         <Button>Click Show Modal</Button>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default Demo
+export default Demo;
 `
   },
 
-  "modal-form-action": {
-    component: React.lazy(() => import("./modal-form-action")),
-    codeString: `import { Button, Form, FormItem, Input, modalAction } from '@easy-shadcn/react'
+  "modal-form-helper-demo": {
+    component: React.lazy(() => import("./modal-form-helper-demo")),
+    codeString: `import { AlertModal, Button, Form, FormItem, Input, Modal } from '@easy-shadcn/react';
 
-const Demo = () => {
+const FormModal = Modal.create(({ username, remark }: { username: string; remark: string }) => {
   const form = Form.useForm({
     defaultValues: {
-      username: "",
-      remark: "",
+      username,
+      remark,
     },
-  })
+  });
+
+  const modal = Modal.useModal();
 
   return (
-    <Button
-      onClick={() => {
-        const modal = modalAction.open({
-          title: 'Form Title',
-          content: (
-            <Form form={form} className='space-y-4'>
-              <FormItem
-                control={form.control}
-                name="username"
-                label="User Name"
-                render={({ field }) => (
-                  <Input placeholder="shadcn" {...field} />
-                )}
-              />
-              <FormItem
-                control={form.control}
-                name="remark"
-                label="Remark"
-                render={({ field }) => (
-                  <Input placeholder="shadcn" {...field} />
-                )}
-              />
-            </Form>
-          ),
-          footer: (
-            <div>
-              <Button
-                onClick={
-                  form.handleSubmit((data) => {
-                    modalAction.confirm({
-                      title: 'Are you sure to submit',
-                      content: 'Close the form pop-up after submission',
-                      onConfirm: () => {
-                        console.log('data', data)
-                        modal.close()
-                      }
-                    })
-                  })
-                }
-              >Confirm</Button>
-            </div>
-          )
-        })
-      }}
-    >
-      Click Open Modal Form
-    </Button>
-  )
-}
+    <Modal
+      {...modal.modalProps}
+      title="Modal Open By hooks action"
+      content={
+        <Form form={form} className="space-y-4">
+          <FormItem
+            control={form.control}
+            name="username"
+            label="User Name"
+            render={({ field }) => <Input {...field} />}
+          />
+          <FormItem
+            control={form.control}
+            name="remark"
+            label="Remark"
+            render={({ field }) => <Input {...field} />}
+          />
+        </Form>
+      }
+      footer={
+        <Button
+          onClick={form.handleSubmit((data) => {
+            AlertModal.confirm({
+              title: 'Are you sure to submit',
+              content: 'Close the form pop-up after submission',
+              onConfirm: () => {
+                console.log('data', data);
+                modal.hide();
+              },
+            });
+          })}
+        >
+          Confirm
+        </Button>
+      }
+    />
+  );
+});
 
-export default Demo
+const Demo = () => {
+  return (
+    <div>
+      <div>username: 'Simon', remark: 'This is a remark'</div>
+      <Button
+        onClick={() => {
+          Modal.show(FormModal, {
+            username: 'Simon',
+            remark: 'This is a remark',
+          });
+        }}
+      >
+        Click Open Modal Form
+      </Button>
+    </div>
+  );
+};
+
+export default Demo;
 `
   },
 
-  "modal-hooks-demo": {
-    component: React.lazy(() => import("./modal-hooks-demo")),
-    codeString: `import { Button, useModal } from '@easy-shadcn/react'
+  "modal-helper-holder-demo": {
+    component: React.lazy(() => import("./modal-helper-holder-demo")),
+    codeString: `import { useState } from 'react';
+import { Button, Modal } from '@easy-shadcn/react';
 
-const AnyModalContent = () => (
-  <div>
-    AnyModalContent
-  </div>
-)
+const ModalHelperModal = Modal.create(({ count }: { count: number }) => {
+  const modal = Modal.useModal();
 
-const Demo = () => {
-  const [modalHost, modalAction] = useModal()
-
-  const handleClick = () => {
-    modalAction.open({
-      title: 'Modal Open By hooks action',
-      content: <AnyModalContent />,
-      footer: (
-        <div className='space-x-2'>
+  return (
+    <Modal
+      {...modal.modalProps}
+      title="Modal Open By hooks action"
+      content={
+        <>
+          <p>AnyModalContent: {count}</p>
+          <p>Count will be updated in 1 second</p>
+        </>
+      }
+      footer={
+        <div className="space-x-2">
           <Button
             variant="ghost"
             onClick={() => {
-              modalAction.close()
+              modal.hide();
             }}
           >
             Cancel
           </Button>
-          <Button>
-            Save
-          </Button>
+          <Button>Save</Button>
         </div>
-      ),
-    })
-  }
+      }
+    />
+  );
+});
+
+const Demo = () => {
+  const [action, ModalHolder] = Modal.useModalHolder(ModalHelperModal);
+
+  const [count, setCount] = useState(0);
+
+  const handleClick = () => {
+    void action.show();
+
+    setTimeout(() => {
+      setCount(count + 1);
+    }, 1000);
+  };
 
   return (
     <div>
       <Button onClick={handleClick}>Click Show Modal</Button>
-      {modalHost}
+      <p>Current Count: {count}</p>
+      <ModalHolder count={count} />
     </div>
-  )
-}
+  );
+};
 
-export default Demo
+export default Demo;
 `
   },
 
-  "modal-host": {
-    component: React.lazy(() => import("./modal-host")),
-    codeString: `import { ModalHost } from '@easy-shadcn/react'
+  "modal-provider-demo": {
+    component: React.lazy(() => import("./modal-provider-demo")),
+    codeString: `import { Modal } from '@easy-shadcn/react';
 
 const App = () => {
   return (
     <div>
-      <ModalHost />
+      <Modal.Provider />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
 `
   },
 
