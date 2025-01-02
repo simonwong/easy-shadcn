@@ -1,6 +1,7 @@
-import React, { ComponentProps, ReactNode, useState } from 'react';
+import React, { ComponentProps, ReactNode, useEffect, useState } from 'react';
 import { cn } from '@easy-shadcn/utils';
 import { Root } from '@radix-ui/react-alert-dialog';
+import useAfterClose from './hooks/useAfterClose';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -25,7 +26,7 @@ export interface AlertModalProps extends ComponentProps<typeof Root> {
   confirmText?: ReactNode;
   onConfirm?: () => void | Promise<void>;
   confirmProps?: ComponentProps<typeof AlertDialogCancel>;
-  onClose?: () => void;
+  afterClose?: () => void;
 }
 
 export const AlertModal: React.FC<AlertModalProps> = ({
@@ -40,27 +41,31 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   confirmText = 'Confirm',
   onConfirm,
   confirmProps,
-  onClose,
   onOpenChange,
+  afterClose,
+  open,
   ...props
 }) => {
-  const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(open);
+
+  useEffect(() => {
+    setInnerOpen(open);
+  }, [open]);
 
   const handleClose = () => {
-    setOpen(false);
-    onClose?.();
+    setInnerOpen(false);
+    onOpenChange?.(false);
   };
+
+  useAfterClose(innerOpen, afterClose);
 
   return (
     <AlertDialog
       onOpenChange={(op) => {
-        setOpen(op);
+        setInnerOpen(op);
         onOpenChange?.(op);
-        if (op === false) {
-          handleClose();
-        }
       }}
-      open={open}
+      open={innerOpen}
       {...props}
     >
       {children && <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>}

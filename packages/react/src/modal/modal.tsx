@@ -1,6 +1,7 @@
-import React, { ComponentProps, PropsWithChildren, ReactNode } from 'react';
+import React, { ComponentProps, PropsWithChildren, ReactNode, useEffect, useRef } from 'react';
 import { DialogProps } from '@radix-ui/react-dialog';
 import { cn } from '@easy-shadcn/utils';
+import useAfterClose from './hooks/useAfterClose';
 import {
   Dialog,
   DialogContent,
@@ -20,6 +21,7 @@ export interface ModalProps extends DialogProps {
   footerProps?: ComponentProps<typeof DialogFooter>;
   content?: ReactNode;
   contentProps?: ComponentProps<typeof DialogContent>;
+  afterClose?: () => void;
 }
 
 export const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
@@ -32,24 +34,34 @@ export const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
   content,
   contentProps,
   children,
-  ...resetProps
+  open,
+  afterClose,
+  ...restProps
 }) => {
+  useAfterClose(open, afterClose);
+
   return (
-    <Dialog {...resetProps}>
+    <Dialog open={open} {...restProps}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         {...contentProps}
-        className={cn('max-h-screen grid-rows-[auto_1fr_auto] p-0 py-6', contentProps?.className)}
+        className={cn(
+          'max-h-screen grid-rows-[auto_1fr_auto] gap-0 py-3 px-0',
+          contentProps?.className
+        )}
       >
-        <DialogHeader className="px-6">
+        <DialogHeader className="px-6 py-3">
           {title && <DialogTitle {...titleProps}>{title}</DialogTitle>}
           {description && (
             <DialogDescription {...descriptionProps}>{description}</DialogDescription>
           )}
         </DialogHeader>
-        <div className="overflow-auto px-6">{content}</div>
+        <div className="overflow-auto px-6 py-3">{content}</div>
         {footer && (
-          <DialogFooter {...footerProps} className={cn('px-6', footerProps?.className)}>
+          <DialogFooter
+            {...footerProps}
+            className={cn('px-6 py-3 space-x-2', footerProps?.className)}
+          >
             {footer}
           </DialogFooter>
         )}

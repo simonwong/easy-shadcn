@@ -1,5 +1,18 @@
-export { Modal, type ModalProps } from './modal';
-export { AlertModal, type AlertModalProps } from './alert-modal';
-export { ModalHost, modalAction } from './modal-host';
-export { useModal } from './use-modal';
-export { useModalAction } from './use-modal-action';
+export type { AlertModalProps } from './alert-modal';
+export type { ModalProps } from './modal';
+export type { ModalHelperHandler } from './modal-helper';
+
+import { AlertModal as OriginalAlertModal } from './alert-modal';
+import { Modal as OriginalModal } from './modal';
+import AlertModalHelper from './alert-modal-helper';
+import ModalHelper from './modal-helper';
+
+export const AlertModal: typeof OriginalAlertModal & typeof AlertModalHelper = Object.assign(
+  OriginalAlertModal,
+  AlertModalHelper
+);
+
+export const Modal: typeof OriginalModal & typeof ModalHelper = Object.assign(
+  OriginalModal,
+  ModalHelper
+);
