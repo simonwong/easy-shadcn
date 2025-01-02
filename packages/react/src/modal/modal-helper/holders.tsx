@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { hide, register, show, unregister } from './actions';
 import { getUid, MODAL_REGISTRY } from './constants';
 import { CreateModalComponent } from './type';
@@ -35,30 +35,24 @@ export type ModalHolderActions = {
  * @param handler - The handler object to control the modal.
  * @returns
  */
-export const ModalHolder = forwardRef<
-  ModalHolderActions,
-  {
-    modal: string | CreateModalComponent;
-    [key: string]: unknown;
-  }
->(({ modal, ...restProps }, ref) => {
+export function ModalHolder<T>({
+  modal,
+  handler,
+  ...restProps
+}: {
+  modal: string | CreateModalComponent<T>;
+  handler: ModalHolderActions;
+} & T) {
   const mid = useMemo(() => getUid(), []);
-  const ModalComp = typeof modal === 'string' ? MODAL_REGISTRY[modal]?.comp : modal;
+  const ModalComp =
+    typeof modal === 'string' ? (MODAL_REGISTRY[modal]?.comp as CreateModalComponent<T>) : modal;
 
   if (!ModalComp && typeof modal === 'string') {
-    throw new Error(`No modal found for id: ${modal} in NiceModal.ModalHolder.`);
+    throw new Error(`No modal found for id: ${modal} in ModalHelper.ModalHolder.`);
   }
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      show: (args: unknown) => show(mid, args),
-      hide: () => hide(mid),
-    }),
-    [mid]
-  );
+  handler.show = useCallback((args: unknown) => show(mid, args), [mid]);
+  handler.hide = useCallback(() => hide(mid), [mid]);
 
-  return <ModalComp id={mid} {...restProps} />;
-});
-
-ModalHolder.displayName = 'ModalHolder';
+  return <ModalComp id={mid} {...(restProps as T)} />;
+}

@@ -42,7 +42,7 @@ export function show(modal: React.FC | string, args?: ModalHelperArgs<React.FC>)
   return modalCallbacks[modalId].promise;
 }
 
-export function hide<T>(modal: string | CreateModalComponent): Promise<T>;
+export function hide<T, C>(modal: string | CreateModalComponent<C>): Promise<T>;
 
 export function hide(modal: string | CreateModalComponent) {
   const modalId = getModalId(modal);
@@ -124,7 +124,8 @@ export const create = <P extends object>(Comp: React.ComponentType<P>) => {
 };
 
 // All registered modals will be rendered in modal placeholder
-export const register = <T extends CreateModalComponent>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const register = <T extends CreateModalComponent<any>>(
   id: string,
   comp: T,
   props?: Partial<ModalHelperArgs<T>>
