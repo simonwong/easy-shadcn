@@ -57,7 +57,7 @@ export const reducer = (
 };
 
 let reducerDispatch: React.Dispatch<ModalHelperAction> = () => {
-  throw new Error('No dispatch method detected, did you embed your app with NiceModal.Provider?');
+  throw new Error('No dispatch method detected, did you embed your app with ModalHelper.Provider?');
 };
 
 export const reducerActions: {

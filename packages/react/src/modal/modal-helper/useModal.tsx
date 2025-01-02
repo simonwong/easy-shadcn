@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import type {
   CreateModalComponent,
   ModalHelperArgs,
@@ -40,7 +40,7 @@ export function useModal(modal?: string | React.FC, args?: Record<string, unknow
   }
 
   // Only if contextModalId doesn't exist
-  if (!modalId) throw new Error('No modal id found in NiceModal.useModal.');
+  if (!modalId) throw new Error('No modal id found in ModalHelper.useModal.');
 
   const mid = modalId;
   // If use a component directly, register it.
@@ -119,12 +119,12 @@ export function useModal(modal?: string | React.FC, args?: Record<string, unknow
 }
 
 export function useModalHolder<T>(modal: string | CreateModalComponent<T>) {
-  const ref = useRef<ModalHolderActions | null>(null);
+  const handler = useMemo(() => ({}) as ModalHolderActions, []);
 
-  const ModalHolderCallback: React.FC<Omit<T, 'id'>> = useCallback(
-    (props) => <ModalHolder modal={modal} {...props} ref={ref} />,
-    [modal]
+  const ModalHolderCallback: React.FC<T> = useCallback(
+    (props) => <ModalHolder modal={modal} {...props} handler={handler} />,
+    [modal, handler]
   );
 
-  return [ref.current, ModalHolderCallback] as const;
+  return [handler, ModalHolderCallback] as const;
 }

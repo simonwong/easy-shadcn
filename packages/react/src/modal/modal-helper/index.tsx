@@ -11,9 +11,9 @@
  */
 
 import type { ModalHelperHandler, ShadCNModalProps } from './type';
-import { Provider } from './context';
-import { create, show } from './actions';
-import { useModal } from './useModal';
+import { Provider, reducer, ModalHelperContext } from './context';
+import { create, hide, register, remove, show } from './actions';
+import { useModal, useModalHolder } from './useModal';
 
 export const modalProps = (modal: ModalHelperHandler): ShadCNModalProps => {
   return {
@@ -34,18 +34,18 @@ export const modalProps = (modal: ModalHelperHandler): ShadCNModalProps => {
 
 const ModalHelper = {
   Provider,
-  // ModalDef,
-  // ModalHolder,
-  // NiceModalContext,
+  ModalHelperContext,
   create,
-  // register,
-  // getModal,
+  register,
   show,
-  // hide,
-  // remove,
+  hide,
+  remove,
   useModal,
-  // reducer,
+  useModalHolder,
+  reducer,
   modalProps,
 };
+
+export type { ModalHelperHandler };
 
 export default ModalHelper;
