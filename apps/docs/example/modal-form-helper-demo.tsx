@@ -33,12 +33,12 @@ const FormModal = Modal.create(({ username, remark }: { username: string; remark
       footer={
         <Button
           onClick={form.handleSubmit((data) => {
-            AlertModal.confirm({
+            void AlertModal.confirm({
               title: 'Are you sure to submit',
               content: 'Close the form pop-up after submission',
               onConfirm: () => {
                 console.log('data', data);
-                modal.hide();
+                void modal.hide();
               },
             });
           })}
@@ -53,10 +53,10 @@ const FormModal = Modal.create(({ username, remark }: { username: string; remark
 const Demo = () => {
   return (
     <div>
-      <div>{`username: 'Simon', remark: 'This is a remark'`}</div>
+      <div>username: Simon, remark: This is a remark</div>
       <Button
         onClick={() => {
-          Modal.show(FormModal, {
+          void Modal.show(FormModal, {
             username: 'Simon',
             remark: 'This is a remark',
           });

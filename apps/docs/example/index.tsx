@@ -497,12 +497,12 @@ const FormModal = Modal.create(({ username, remark }: { username: string; remark
       footer={
         <Button
           onClick={form.handleSubmit((data) => {
-            AlertModal.confirm({
+            void AlertModal.confirm({
               title: 'Are you sure to submit',
               content: 'Close the form pop-up after submission',
               onConfirm: () => {
                 console.log('data', data);
-                modal.hide();
+                void modal.hide();
               },
             });
           })}
@@ -517,10 +517,10 @@ const FormModal = Modal.create(({ username, remark }: { username: string; remark
 const Demo = () => {
   return (
     <div>
-      <div>username: 'Simon', remark: 'This is a remark'</div>
+      <div>username: Simon, remark: This is a remark</div>
       <Button
         onClick={() => {
-          Modal.show(FormModal, {
+          void Modal.show(FormModal, {
             username: 'Simon',
             remark: 'This is a remark',
           });
@@ -547,7 +547,7 @@ const ModalHelperModal = Modal.create(({ count }: { count: number }) => {
   return (
     <Modal
       {...modal.modalProps}
-      title="Modal Open By hooks action"
+      title="Modal Will Update by props"
       content={
         <>
           <p>AnyModalContent: {count}</p>
@@ -585,11 +585,11 @@ const Demo = () => {
   };
 
   return (
-    <div>
+    <Modal.Provider>
       <Button onClick={handleClick}>Click Show Modal</Button>
       <p>Current Count: {count}</p>
       <ModalHolder count={count} />
-    </div>
+    </Modal.Provider>
   );
 };
 
