@@ -1,5 +1,15 @@
 # @easy-shadcn/react
 
+## 0.2.0
+
+### Minor Changes
+
+- [#35](https://github.com/simonwong/easy-shadcn/pull/35) [`4d1630a`](https://github.com/simonwong/easy-shadcn/commit/4d1630aca355492d5b3b18217c762ef48a001abf) Thanks [@simonwong](https://github.com/simonwong)! - refactor Modal hooks, use modal helper to create modal. ModalHelper code reference [nice-modal-react](https://github.com/eBay/nice-modal-react)
+
+### Patch Changes
+
+- [#35](https://github.com/simonwong/easy-shadcn/pull/35) [`b1d77ec`](https://github.com/simonwong/easy-shadcn/commit/b1d77ec33da8a901ac369f249c46b05f24019e34) Thanks [@simonwong](https://github.com/simonwong)! - enhance button component with icon support and improve layout options
+
 ## 0.1.2
 
 ### Patch Changes
