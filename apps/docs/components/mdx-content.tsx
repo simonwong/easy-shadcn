@@ -6,10 +6,6 @@ import React from 'react';
 import { ExamplePreview } from './docs/example-preview';
 import { CodePreview, PreBlock } from './code-preview';
 
-interface MDXContentProps {
-  code: string;
-}
-
 function CustomLink({
   href,
   children,
@@ -71,7 +67,8 @@ function createHeading(level: number) {
   return Heading;
 }
 
-const components = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const components: any = {
   h1: createHeading(1),
   h2: createHeading(2),
   h3: createHeading(3),
@@ -84,12 +81,15 @@ const components = {
   ExamplePreview,
 };
 
-export function MDXContent({ code }: MDXContentProps) {
+export function MDXContent({ code }: { code: string }) {
   const Component = useMDXComponent(code);
 
   return (
     <article className="prose">
-      <Component components={components} />
+      <Component
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        components={components}
+      />
     </article>
   );
 }
