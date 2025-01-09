@@ -1,18 +1,23 @@
 import React, { MouseEvent, MouseEventHandler, ReactNode, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { cn } from '@easy-shadcn/utils';
 import {
   Button as InternalButton,
   ButtonProps as InternalButtonProps,
 } from '../../components/ui/button';
 
-export interface ButtonProps extends Omit<InternalButtonProps, 'prefix' | 'onClick'> {
+export interface ButtonProps extends Omit<InternalButtonProps, 'onClick'> {
   onClick?: (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void | Promise<void>;
   loading?: boolean;
-  prefix?: ReactNode;
+  icon?: ReactNode;
+  iconPosition?: 'start' | 'end';
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ prefix, loading, disabled, onClick, children, size, ...resetProps }, ref) => {
+  (
+    { icon, iconPosition, loading, disabled, onClick, children, size, className, ...resetProps },
+    ref
+  ) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
@@ -32,18 +37,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const innerLoading = loading || isLoading;
 
-    let prefixNode: ReactNode = null;
+    let iconNode: ReactNode = null;
     let content: ReactNode = null;
 
     if (size === 'icon') {
-      // icon without prefix
-      content = innerLoading ? <Loader2 className="size-4 animate-spin" /> : children;
+      // icon without icon
+      iconNode = innerLoading ? <Loader2 className="animate-spin" /> : children;
     } else {
-      prefixNode = innerLoading ? (
-        <Loader2 className="mr-2 size-4 animate-spin" />
-      ) : (
-        prefix && <span className="mr-2">{prefix}</span>
-      );
+      iconNode = innerLoading ? <Loader2 className="animate-spin" /> : icon;
       content = children;
     }
 
@@ -54,9 +55,20 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         size={size}
         disabled={innerLoading || disabled}
         onClick={handleClick}
+        className={cn(
+          iconPosition === 'end' && 'flex-row-reverse',
+          '[&_svg]:size-[1em]',
+          className
+        )}
       >
-        {prefixNode}
-        {content}
+        {iconNode ? (
+          <span>
+            <span role="img" className="inline-flex items-center align-[-0.125em]">
+              {iconNode}
+            </span>
+          </span>
+        ) : null}
+        {content ? <span>{content}</span> : null}
       </InternalButton>
     );
   }
