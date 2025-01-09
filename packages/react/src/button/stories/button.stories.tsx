@@ -1,5 +1,5 @@
+import { FileArchiveIcon, UploadCloudIcon } from 'lucide-react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { FileArchiveIcon, UploadCloudIcon } from "lucide-react";
 import { Button } from '../index';
 
 const meta = {
@@ -11,24 +11,12 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: [
-        'default',
-        'destructive',
-        'outline',
-        'secondary',
-        'ghost',
-        'link',
-      ]
+      options: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
     },
     size: {
       control: 'select',
-      options: [
-        'default',
-        'sm',
-        'lg',
-        'icon',
-      ]
-    }
+      options: ['default', 'sm', 'lg', 'icon'],
+    },
   },
 } satisfies Meta<typeof Button>;
 
@@ -37,7 +25,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: 'Button'
+    children: 'Button',
   },
 };
 
@@ -56,11 +44,13 @@ const AllVariantComp = () => {
         <Button size="sm">sm</Button>
         <Button size="default">default</Button>
         <Button size="lg">lg</Button>
-        <Button size="icon"><UploadCloudIcon /></Button>
+        <Button size="icon">
+          <UploadCloudIcon />
+        </Button>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export const AllVariant: Story = {
   render: AllVariantComp,
@@ -71,23 +61,22 @@ const ClickAsyncComp = () => {
   const handleAsyncClick = async () => {
     await new Promise((resolve) => {
       setTimeout(() => {
-        resolve(null)
-      }, 3000)
-    })
-  }
+        resolve(null);
+      }, 30000);
+    });
+  };
   return (
-    <div style={{ display: 'flex', gap: '6px', marginBottom: '6px' }}>
+    <div>
       <Button onClick={handleAsyncClick}>Async Click Auto Loading</Button>
-      <Button onClick={handleAsyncClick} prefix={<FileArchiveIcon />}>Witch Prefix</Button>
-      <Button
-        onClick={handleAsyncClick}
-        size="icon"
-      >
+      <Button onClick={handleAsyncClick} icon={<FileArchiveIcon />}>
+        Witch Prefix
+      </Button>
+      <Button onClick={handleAsyncClick} size="icon">
         <UploadCloudIcon />
       </Button>
     </div>
-  )
-}
+  );
+};
 
 export const ClickAsync: Story = {
   render: ClickAsyncComp,
