@@ -139,8 +139,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           !allMode.hasValue && 'text-muted-foreground',
           buttonClassName
         )}
+        icon={<CalendarIcon />}
       >
-        <CalendarIcon className="mr-2 size-4" />
         {allMode.renderText?.() || <span>{placeholder}</span>}
       </Button>
     </Popover>
