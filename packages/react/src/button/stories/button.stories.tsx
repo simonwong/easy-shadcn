@@ -29,6 +29,13 @@ export const Default: Story = {
   },
 };
 
+export const LongTextLimitWidth: Story = {
+  args: {
+    children: 'Long Long Text Long Long Text',
+    className: 'w-[200px]',
+  },
+};
+
 const AllVariantComp = () => {
   return (
     <div>
