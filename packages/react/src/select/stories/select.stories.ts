@@ -42,11 +42,28 @@ export const CanNotClear: Story = {
       },
     ],
     width: 200,
-    allowClear: false
+    allowClear: false,
   },
 };
 
-export const LongOption: Story = {
+export const LongOptionUnLimitWidth: Story = {
+  args: {
+    options: [
+      {
+        label: 'Opt1Opt1Opt1Opt1Opt1Opt1Opt1Opt1Opt1Opt1Opt1Opt1Opt1Opt1',
+        value: '1',
+      },
+      {
+        label: 'Opt2',
+        value: '2',
+      },
+    ],
+    allowClear: false,
+    placeholder: 'Select an long long long long option',
+  },
+};
+
+export const LongOptionLimitWidth: Story = {
   args: {
     options: [
       {
@@ -59,7 +76,8 @@ export const LongOption: Story = {
       },
     ],
     width: 200,
-    allowClear: false
+    allowClear: false,
+    placeholder: 'Select an long long long long option',
   },
 };
 
@@ -105,6 +123,7 @@ export const Multiple: Story = {
     ],
     width: 200,
     multiple: true,
-    allowClear: true
+    allowClear: true,
+    placeholder: 'Select multiple options',
   },
 };
