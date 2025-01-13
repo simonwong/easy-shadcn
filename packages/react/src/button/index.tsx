@@ -1,10 +1,26 @@
 import React, { MouseEvent, MouseEventHandler, ReactNode, useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { cn } from '@easy-shadcn/utils';
 import {
   Button as InternalButton,
   ButtonProps as InternalButtonProps,
 } from '../../components/ui/button';
+
+const LoadingIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+  </svg>
+);
 
 export interface ButtonProps extends Omit<InternalButtonProps, 'onClick'> {
   onClick?: (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void | Promise<void>;
@@ -42,9 +58,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     if (size === 'icon') {
       // icon without icon
-      iconNode = innerLoading ? <Loader2 className="animate-spin" /> : children;
+      iconNode = innerLoading ? <LoadingIcon className="animate-spin" /> : children;
     } else {
-      iconNode = innerLoading ? <Loader2 className="animate-spin" /> : icon;
+      iconNode = innerLoading ? <LoadingIcon className="animate-spin" /> : icon;
       content = children;
     }
 

@@ -1,5 +1,5 @@
+import { GitHubLogoIcon, FigmaLogoIcon, CookieIcon } from '@radix-ui/react-icons';
 import type { Meta, StoryObj } from '@storybook/react';
-import { GithubIcon, HandshakeIcon, Webhook } from 'lucide-react'
 import { DropdownMenu } from '../index';
 
 const meta = {
@@ -21,36 +21,36 @@ export const Default: Story = {
         key: 'profile',
         shortcut: '⇧⌘P',
         onClick: () => {
-          console.log('Profile')
-        }
+          console.log('Profile');
+        },
       },
       {
         name: 'Billing',
         key: 'billing',
         shortcut: '⌘B',
         onClick: () => {
-          console.log('Billing')
-        }
+          console.log('Billing');
+        },
       },
       {
         groupName: 'More',
         key: 'more',
         items: [
           {
-            prefix: <GithubIcon style={{ width: '16px', height: '16px' }} />,
+            prefix: <GitHubLogoIcon style={{ width: '16px', height: '16px' }} />,
             name: 'Github',
             key: 'github',
           },
           {
-            prefix: <HandshakeIcon style={{ width: '16px', height: '16px' }} />,
+            prefix: <FigmaLogoIcon style={{ width: '16px', height: '16px' }} />,
             name: 'Support',
             key: 'support',
           },
           {
-            prefix: <Webhook style={{ width: '16px', height: '16px' }} />,
+            prefix: <CookieIcon style={{ width: '16px', height: '16px' }} />,
             name: 'API',
             key: 'api',
-            disabled: true
+            disabled: true,
           },
         ],
       },
@@ -60,9 +60,7 @@ export const Default: Story = {
         shortcut: '⇧⌘Q',
       },
     ],
-    children: (
-      <div>Here</div>
-    )
+    children: <div>Here</div>,
   },
 };
 
@@ -113,9 +111,7 @@ export const AutoSeparator: Story = {
         ],
       },
     ],
-    children: (
-      <div>AutoSeparator</div>
-    )
+    children: <div>AutoSeparator</div>,
   },
 };
 
@@ -158,19 +154,17 @@ export const SubMenu: Story = {
                     name: 'sub2-group-item2',
                     key: 'sub2-group-item2',
                   },
-                ]
+                ],
               },
-            ]
+            ],
           },
-        ]
+        ],
       },
       {
         name: 'item3',
         key: 'item3',
       },
     ],
-    children: (
-      <div>SubMenu</div>
-    )
+    children: <div>SubMenu</div>,
   },
 };
