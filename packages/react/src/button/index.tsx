@@ -68,7 +68,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             </span>
           </span>
         ) : null}
-        {content ? <span>{content}</span> : null}
+        {content ? <span className="truncate">{content}</span> : null}
       </InternalButton>
     );
   }
