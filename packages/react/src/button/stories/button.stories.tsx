@@ -1,4 +1,4 @@
-import { FileArchiveIcon, UploadCloudIcon } from 'lucide-react';
+import { ShadowIcon, DashboardIcon } from '@radix-ui/react-icons';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from '../index';
 
@@ -52,7 +52,7 @@ const AllVariantComp = () => {
         <Button size="default">default</Button>
         <Button size="lg">lg</Button>
         <Button size="icon">
-          <UploadCloudIcon />
+          <DashboardIcon />
         </Button>
       </div>
     </div>
@@ -75,11 +75,11 @@ const ClickAsyncComp = () => {
   return (
     <div>
       <Button onClick={handleAsyncClick}>Async Click Auto Loading</Button>
-      <Button onClick={handleAsyncClick} icon={<FileArchiveIcon />}>
+      <Button onClick={handleAsyncClick} icon={<ShadowIcon />}>
         Witch Prefix
       </Button>
       <Button onClick={handleAsyncClick} size="icon">
-        <UploadCloudIcon />
+        <DashboardIcon />
       </Button>
     </div>
   );

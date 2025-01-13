@@ -1,5 +1,5 @@
 import React, { ComponentProps, ReactNode, useEffect } from 'react';
-import { CheckIcon, ChevronsUpDownIcon, XIcon } from 'lucide-react';
+import { CheckIcon, Cross2Icon, ChevronDownIcon } from '@radix-ui/react-icons';
 import { cn } from '@easy-shadcn/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
 import {
@@ -133,7 +133,12 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
           }}
           icon={
             <span className="relative">
-              <ChevronsUpDownIcon className={cn('size-4 shrink-0 text-gray-500')} />
+              <ChevronDownIcon
+                className={cn(
+                  'size-4 shrink-0 text-gray-500 transition-transform duration-100',
+                  open ? 'rotate-180' : undefined
+                )}
+              />
               {allowClear && hasSelected && (
                 // eslint-disable-next-line jsx-a11y/click-events-have-key-events
                 <span
@@ -147,7 +152,7 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
                   }}
                   className="absolute left-0 top-0 hidden size-4 items-center justify-center rounded-full bg-slate-400 hover:bg-slate-500 group-hover:flex"
                 >
-                  <XIcon className={cn('size-3 shrink-0 text-white')} />
+                  <Cross2Icon className={cn('size-3 shrink-0 text-white')} />
                 </span>
               )}
             </span>
@@ -178,7 +183,7 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
                   {opt.label}
                   <CheckIcon
                     className={cn(
-                      'ml-auto h-4 w-4',
+                      'ml-auto',
                       (
                         Array.isArray(innerValue)
                           ? innerValue.includes(opt.value)
