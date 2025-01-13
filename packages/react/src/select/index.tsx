@@ -122,36 +122,39 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
           role="combobox"
           aria-expanded={open}
           {...buttonProps}
-          className={cn('justify-between flex items-center group', buttonProps?.className)}
+          className={cn(
+            'group justify-between',
+            buttonProps?.className,
+            hasSelected ? undefined : 'text-muted-foreground'
+          )}
           style={{
             width,
             ...buttonProps?.style,
           }}
-        >
-          <span
-            className={cn(
-              'flex-1 truncate text-left',
-              hasSelected ? undefined : 'text-muted-foreground'
-            )}
-          >
-            {selectedLabelNode}
-          </span>
-          <span className="relative">
-            <ChevronsUpDownIcon className={cn('ml-2 size-4 shrink-0 text-gray-500')} />
-            {allowClear && hasSelected && (
-              <span className="absolute left-0 top-0 ml-2 hidden size-4 items-center justify-center rounded-full bg-slate-400 hover:bg-slate-500 group-hover:flex">
-                <XIcon
+          icon={
+            <span className="relative">
+              <ChevronsUpDownIcon className={cn('size-4 shrink-0 text-gray-500')} />
+              {allowClear && hasSelected && (
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+                <span
+                  role="button"
+                  tabIndex={-1}
                   onClick={(e) => {
                     e.stopPropagation();
                     setInnerValue(undefined);
                     setInnerOption(undefined);
                     onChange?.(undefined, undefined);
                   }}
-                  className={cn('size-3 shrink-0 text-white')}
-                />
-              </span>
-            )}
-          </span>
+                  className="absolute left-0 top-0 hidden size-4 items-center justify-center rounded-full bg-slate-400 hover:bg-slate-500 group-hover:flex"
+                >
+                  <XIcon className={cn('size-3 shrink-0 text-white')} />
+                </span>
+              )}
+            </span>
+          }
+          iconPosition="end"
+        >
+          {selectedLabelNode}
         </Button>
       </PopoverTrigger>
       <PopoverContent
