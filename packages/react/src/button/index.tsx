@@ -1,9 +1,6 @@
 import React, { MouseEvent, MouseEventHandler, ReactNode, useState } from 'react';
 import { cn } from '@easy-shadcn/utils';
-import {
-  Button as InternalButton,
-  ButtonProps as InternalButtonProps,
-} from '../../components/ui/button';
+import { RippleButton, RippleButtonProps } from '../../components/animate/ripple-button';
 
 const LoadingIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -22,7 +19,7 @@ const LoadingIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export interface ButtonProps extends Omit<InternalButtonProps, 'onClick'> {
+export interface ButtonProps extends Omit<RippleButtonProps, 'onClick'> {
   onClick?: (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void | Promise<void>;
   loading?: boolean;
   icon?: ReactNode;
@@ -65,7 +62,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return (
-      <InternalButton
+      <RippleButton
         ref={ref}
         {...resetProps}
         size={size}
@@ -85,7 +82,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           </span>
         ) : null}
         {content ? <span className="truncate">{content}</span> : null}
-      </InternalButton>
+      </RippleButton>
     );
   }
 );
