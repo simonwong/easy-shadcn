@@ -21,7 +21,7 @@ const DialogAnimateContent = React.forwardRef<
           <DialogPrimitive.Portal forceMount>
             <DialogPrimitive.Overlay forceMount asChild {...props}>
               <motion.div
-                className={cn('fixed inset-0 z-50 bg-black/80', className)}
+                className={cn('fixed inset-0 z-50 bg-black/80')}
                 exit={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 initial={{ opacity: 0 }}
