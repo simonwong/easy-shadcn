@@ -1,7 +1,7 @@
-import React, { ComponentProps, PropsWithChildren, ReactNode, useEffect, useRef } from 'react';
+import React, { ComponentProps, PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { DialogProps } from '@radix-ui/react-dialog';
 import { cn } from '@easy-shadcn/utils';
-import useAfterClose from './hooks/useAfterClose';
+import { DialogAnimateContent } from '@/components/ui/dialog-animate';
 import {
   Dialog,
   DialogContent,
@@ -36,19 +36,33 @@ export const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
   children,
   open,
   afterClose,
+  onOpenChange,
   ...restProps
 }) => {
-  useAfterClose(open, afterClose);
+  const [innerOpen, setInnerOpen] = useState(open || false);
+
+  useEffect(() => {
+    setInnerOpen(open || false);
+  }, [open]);
 
   return (
-    <Dialog open={open} {...restProps}>
+    <Dialog
+      open={innerOpen}
+      onOpenChange={(op) => {
+        setInnerOpen(op);
+        onOpenChange?.(op);
+      }}
+      {...restProps}
+    >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent
+      <DialogAnimateContent
         {...contentProps}
+        open={innerOpen}
         className={cn(
           'max-h-screen grid-rows-[auto_1fr_auto] gap-0 py-3 px-0',
           contentProps?.className
         )}
+        onExitComplete={afterClose}
       >
         <DialogHeader className="px-6 py-3">
           {title && <DialogTitle {...titleProps}>{title}</DialogTitle>}
@@ -65,7 +79,7 @@ export const Modal: React.FC<PropsWithChildren<ModalProps>> = ({
             {footer}
           </DialogFooter>
         )}
-      </DialogContent>
+      </DialogAnimateContent>
     </Dialog>
   );
 };
