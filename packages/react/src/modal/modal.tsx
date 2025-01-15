@@ -1,7 +1,7 @@
 import React, { ComponentProps, PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { DialogProps } from '@radix-ui/react-dialog';
 import { cn } from '@easy-shadcn/utils';
-import { DialogAnimateContent } from '@/components/ui/dialog-animate';
+import { DialogAnimateContent } from '@/components/animate/dialog-animate';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../../components/ui/dialog';
+} from '@/components/ui/dialog';
 
 export interface ModalProps extends DialogProps {
   title?: ReactNode;
