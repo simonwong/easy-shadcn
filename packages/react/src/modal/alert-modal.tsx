@@ -1,7 +1,7 @@
 import React, { ComponentProps, ReactNode, useEffect, useState } from 'react';
 import { cn } from '@easy-shadcn/utils';
 import { Root } from '@radix-ui/react-alert-dialog';
-import useAfterClose from './hooks/useAfterClose';
+import { AlertDialogAnimateContent } from '@/components/ui/alert-dialog-animate';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -11,7 +11,6 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogTrigger,
-  AlertDialogOverlay,
 } from '../../components/ui/alert-dialog';
 import { Button } from '../button';
 
@@ -19,7 +18,6 @@ export interface AlertModalProps extends ComponentProps<typeof Root> {
   title?: ReactNode;
   content?: ReactNode;
   contentProps?: ComponentProps<typeof AlertDialogContent>;
-  overlayProps?: ComponentProps<typeof AlertDialogOverlay>;
   cancelText?: ReactNode;
   onCancel?: () => void | Promise<void>;
   cancelProps?: ComponentProps<typeof AlertDialogCancel>;
@@ -33,7 +31,6 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   title,
   content,
   contentProps,
-  overlayProps,
   children,
   cancelText = 'Cancel',
   onCancel,
@@ -46,18 +43,16 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   open,
   ...props
 }) => {
-  const [innerOpen, setInnerOpen] = useState(open);
+  const [innerOpen, setInnerOpen] = useState(open || false);
 
   useEffect(() => {
-    setInnerOpen(open);
+    setInnerOpen(open || false);
   }, [open]);
 
   const handleClose = () => {
     setInnerOpen(false);
     onOpenChange?.(false);
   };
-
-  useAfterClose(innerOpen, afterClose);
 
   return (
     <AlertDialog
@@ -69,7 +64,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
       {...props}
     >
       {children && <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>}
-      <AlertDialogContent overlayProps={overlayProps} {...contentProps}>
+      <AlertDialogAnimateContent open={innerOpen} onExitComplete={afterClose} {...contentProps}>
         {(title || content) && (
           <AlertDialogHeader className="w-full overflow-auto whitespace-break-spaces">
             {title && <AlertDialogTitle>{title}</AlertDialogTitle>}
@@ -99,7 +94,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
             {confirmText}
           </Button>
         </AlertDialogFooter>
-      </AlertDialogContent>
+      </AlertDialogAnimateContent>
     </AlertDialog>
   );
 };
