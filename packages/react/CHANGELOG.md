@@ -1,5 +1,11 @@
 # @easy-shadcn/react
 
+## 0.2.2
+
+### Patch Changes
+
+- [#39](https://github.com/simonwong/easy-shadcn/pull/39) [`8be35a6`](https://github.com/simonwong/easy-shadcn/commit/8be35a63ee9e551a38ac0fe980ef03b9bbdc734e) Thanks [@simonwong](https://github.com/simonwong)! - remove unnecessary className prop from motion.div in DialogAnimateContent for cleaner code
+
 ## 0.2.1
 
 ### Patch Changes
