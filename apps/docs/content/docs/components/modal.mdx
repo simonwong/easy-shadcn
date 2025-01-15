@@ -22,41 +22,39 @@ import { Modal } from "@easy-shadcn/react"
 </Modal>
 ```
 
-## Modal Action Usage
+```tsx
+import { AlertModal } from '@easy-shadcn/react';
 
-Add ModalHost to APP root
+AlertModal.alert({
+  title: 'Tips',
+  content: 'Alert Content',
+});
+```
+
+## Modal Command style Usage
+
+Add Provider to App
 
 ```tsx
-import { ModalHost } from "@easy-shadcn/react"
+import { Modal } from "@easy-shadcn/react"
 
 const App = () => {
-  <div>
+  <Modal.Provider>
     {/* Other */}
-    {ModalHost}
-  </div>
+  </Modal.Provider>
 }
 ```
 
 ```tsx
-import { modalAction } from "@easy-shadcn/react"
+import { AlertModal } from '@easy-shadcn/react';
 
-modalAction.confirm({
+AlertModal.alert({
   title: 'Tips',
-  content: 'Hi here',
-  onCancel: () => {
-    console.log('cancel')
-  },
-  onConfirm: () => {
-    console.log('confirm')
-  })
-})
-
-modalAction.open({
-  title: 'title',
-  content: 'Modal Content',
-  footer: 'Modal Footer'
-})
+  content: 'Alert Content',
+});
 ```
+
+more see example
 
 ## Examples
 
