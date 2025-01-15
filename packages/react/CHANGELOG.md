@@ -1,5 +1,23 @@
 # @easy-shadcn/react
 
+## 0.2.1
+
+### Patch Changes
+
+- [#37](https://github.com/simonwong/easy-shadcn/pull/37) [`9785d03`](https://github.com/simonwong/easy-shadcn/commit/9785d03af7de59f14f8e004b228ecae0e66f0e41) Thanks [@simonwong](https://github.com/simonwong)! - update package versions and improve icon usage in components; refactor button and select components to use Radix UI icons
+
+- [#37](https://github.com/simonwong/easy-shadcn/pull/37) [`4736b15`](https://github.com/simonwong/easy-shadcn/commit/4736b15e19f3c661bc25e4bc8f778d236e5b434d) Thanks [@simonwong](https://github.com/simonwong)! - add text truncation for long content
+
+- [#37](https://github.com/simonwong/easy-shadcn/pull/37) [`38defec`](https://github.com/simonwong/easy-shadcn/commit/38defec559871df3551b617333d68776b8f802f9) Thanks [@simonwong](https://github.com/simonwong)! - integrate framer-motion for dialog and alert animations; add AlertDialogAnimateContent and DialogAnimateContent components for enhanced user experience
+
+- [#37](https://github.com/simonwong/easy-shadcn/pull/37) [`b6228b3`](https://github.com/simonwong/easy-shadcn/commit/b6228b346fbeb5c6fcb49c67de497cb3494d5668) Thanks [@simonwong](https://github.com/simonwong)! - Update DatePicker button Icon
+
+- [#37](https://github.com/simonwong/easy-shadcn/pull/37) [`8a761cd`](https://github.com/simonwong/easy-shadcn/commit/8a761cdee3fab745856cad26969613ba013217ca) Thanks [@simonwong](https://github.com/simonwong)! - update component structure and styling for Calendar, Card, Command, and Dropdown Menu
+
+- [#37](https://github.com/simonwong/easy-shadcn/pull/37) [`bc8883f`](https://github.com/simonwong/easy-shadcn/commit/bc8883f4a44f4ead5a962a638e7a4ebc96c7f477) Thanks [@simonwong](https://github.com/simonwong)! - introduce RippleButton and Ripple components for enhanced button interactions; refactor Button component to utilize RippleButton for improved visual feedback
+
+- [#37](https://github.com/simonwong/easy-shadcn/pull/37) [`5b7e7ba`](https://github.com/simonwong/easy-shadcn/commit/5b7e7ba633f0064acfffbe4955816021641c2f0e) Thanks [@simonwong](https://github.com/simonwong)! - enhance Select component with improved styling and icon handling
+
 ## 0.2.0
 
 ### Minor Changes
