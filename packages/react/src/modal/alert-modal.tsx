@@ -1,7 +1,7 @@
 import React, { ComponentProps, ReactNode, useEffect, useState } from 'react';
 import { cn } from '@easy-shadcn/utils';
 import { Root } from '@radix-ui/react-alert-dialog';
-import { AlertDialogAnimateContent } from '@/components/ui/alert-dialog-animate';
+import { AlertDialogAnimateContent } from '@/components/animate/alert-dialog-animate';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -11,7 +11,7 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogTrigger,
-} from '../../components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog';
 import { Button } from '../button';
 
 export interface AlertModalProps extends ComponentProps<typeof Root> {
