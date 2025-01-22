@@ -1,5 +1,15 @@
 # @easy-shadcn/react
 
+## 0.3.0
+
+### Minor Changes
+
+- [#41](https://github.com/simonwong/easy-shadcn/pull/41) [`d556bc1`](https://github.com/simonwong/easy-shadcn/commit/d556bc16496aa47c0a1841e615db818eb63dba54) Thanks [@simonwong](https://github.com/simonwong)! - integrate locale support into Calendar, AlertModal, and Select components; update ConfigProvider to manage locale context; enhance story examples with localized content
+
+### Patch Changes
+
+- [#41](https://github.com/simonwong/easy-shadcn/pull/41) [`6d1e6c9`](https://github.com/simonwong/easy-shadcn/commit/6d1e6c9f8afe13e2b55cd2f7000fd74d126a8e43) Thanks [@simonwong](https://github.com/simonwong)! - add localization support with English and Chinese translations; implement LocaleContext and useLocale hook for managing locale state
+
 ## 0.2.2
 
 ### Patch Changes
