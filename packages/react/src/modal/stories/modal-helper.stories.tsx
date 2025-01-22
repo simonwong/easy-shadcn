@@ -18,62 +18,62 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const formSchema = z.object({
+  username: z.string().min(2, {
+    message: 'Username must be at least 2 characters.',
+  }),
+  remark: z.string(),
+});
+
+const HelpFormModal = Modal.create(() => {
+  const { modalProps, hide } = Modal.useModal();
+  const form = Form.useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: '',
+      remark: '',
+    },
+  });
+
+  return (
+    <Modal
+      title="Form Title"
+      {...modalProps}
+      content={
+        <Form form={form} className="space-y-4">
+          <FormItem
+            control={form.control}
+            name="username"
+            label="User Name"
+            render={({ field }) => <Input placeholder="shadcn" {...field} />}
+          />
+          <FormItem
+            control={form.control}
+            name="remark"
+            label="Remark"
+            render={({ field }) => <Input placeholder="shadcn" {...field} />}
+          />
+        </Form>
+      }
+      footer={
+        <div>
+          <Button
+            onClick={form.handleSubmit((data) => {
+              console.log('data', data);
+
+              void hide();
+            })}
+          >
+            Confirm
+          </Button>
+        </div>
+      }
+    />
+  );
+});
+
 export const FormModal: Story = {
   render: () => {
-    const formSchema = z.object({
-      username: z.string().min(2, {
-        message: 'Username must be at least 2 characters.',
-      }),
-      remark: z.string(),
-    });
-
-    const HelpFormModal = Modal.create(() => {
-      const { modalProps, hide } = Modal.useModal();
-      const form = Form.useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-          username: '',
-          remark: '',
-        },
-      });
-
-      return (
-        <Modal
-          title="Form Title"
-          {...modalProps}
-          content={
-            <Form form={form} className="space-y-4">
-              <FormItem
-                control={form.control}
-                name="username"
-                label="User Name"
-                render={({ field }) => <Input placeholder="shadcn" {...field} />}
-              />
-              <FormItem
-                control={form.control}
-                name="remark"
-                label="Remark"
-                render={({ field }) => <Input placeholder="shadcn" {...field} />}
-              />
-            </Form>
-          }
-          footer={
-            <div>
-              <Button
-                onClick={form.handleSubmit((data) => {
-                  console.log('data', data);
-
-                  void hide();
-                })}
-              >
-                Confirm
-              </Button>
-            </div>
-          }
-        />
-      );
-    });
-
     return (
       <Modal.Provider>
         <Button
