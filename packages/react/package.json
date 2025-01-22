@@ -20,6 +20,18 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./locale": {
+      "types": "./dist/locale/index.d.mts",
+      "import": "./dist/locale/index.mjs",
+      "require": "./dist/locale/index.js"
+    }
+  },
   "files": [
     "dist/**"
   ],
