@@ -11,6 +11,7 @@ import {
   CommandList,
 } from '../../components/ui/command';
 import { Button, ButtonProps } from '../button';
+import useLocale from '../locale/useLocale';
 
 type BaseOption = {
   value: string | number;
@@ -54,6 +55,8 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
   allowClear,
   multiple,
 }: SelectProps<OPT, IsMultiple>) => {
+  const [locale] = useLocale('Select');
+
   const [open, setOpen] = React.useState(false);
   const [innerValue, setInnerValue] = React.useState<SelectValue<OPT, IsMultiple> | undefined>(
     value
@@ -172,7 +175,7 @@ export const Select = <OPT extends BaseOption, IsMultiple extends boolean = fals
         <Command>
           {showSearch && <CommandInput {...searchProps} />}
           <CommandList>
-            <CommandEmpty>{empty || 'No Data.'}</CommandEmpty>
+            <CommandEmpty>{empty || locale.empty}</CommandEmpty>
             <CommandGroup>
               {options.map((opt) => (
                 <CommandItem

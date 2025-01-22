@@ -13,6 +13,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '../button';
+import useLocale from '../locale/useLocale';
 
 export interface AlertModalProps extends ComponentProps<typeof Root> {
   title?: ReactNode;
@@ -32,10 +33,10 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   content,
   contentProps,
   children,
-  cancelText = 'Cancel',
+  cancelText,
   onCancel,
   cancelProps,
-  confirmText = 'Confirm',
+  confirmText,
   onConfirm,
   confirmProps,
   onOpenChange,
@@ -44,6 +45,8 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   ...props
 }) => {
   const [innerOpen, setInnerOpen] = useState(open || false);
+
+  const [locale] = useLocale('AlertModal');
 
   useEffect(() => {
     setInnerOpen(open || false);
@@ -81,7 +84,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
             className={cn('mt-2 sm:mt-0', cancelProps?.className)}
             {...cancelProps}
           >
-            {cancelText}
+            {cancelText || locale.cancelText}
           </Button>
           <Button
             variant="default"
@@ -91,7 +94,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
             }}
             {...confirmProps}
           >
-            {confirmText}
+            {confirmText || locale.okText}
           </Button>
         </AlertDialogFooter>
       </AlertDialogAnimateContent>

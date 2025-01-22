@@ -130,22 +130,20 @@ export default Demo
 
   "config-provider-demo": {
     component: React.lazy(() => import("./config-provider-demo")),
-    codeString: `import { zhCN } from 'date-fns/locale'
-import { ConfigProvider, Calendar } from "@easy-shadcn/react";
+    codeString: `import { ConfigProvider, Calendar } from '@easy-shadcn/react';
+import { zhCN } from '@easy-shadcn/react/locale';
 
 const Demo = () => {
   return (
-    <ConfigProvider
-      dateLocal={zhCN}
-    >
+    <ConfigProvider locale={zhCN}>
       <div>
         <Calendar />
       </div>
     </ConfigProvider>
-  )
-}
+  );
+};
 
-export default Demo
+export default Demo;
 `
   },
 
