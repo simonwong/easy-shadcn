@@ -4,7 +4,7 @@ import { Form as InternalForm } from '../../components/ui/form';
 
 export type FormProps<
   TFieldValues extends FieldValues,
-  TContext = any,
+  TContext = unknown,
   TTransformedValues extends FieldValues | undefined = undefined,
 > = {
   form: Omit<FormProviderProps<TFieldValues, TContext, TTransformedValues>, 'children'>;
@@ -12,7 +12,7 @@ export type FormProps<
 
 export type FormFC = <
   TFieldValues extends FieldValues,
-  TContext = any,
+  TContext = unknown,
   TTransformedValues extends FieldValues | undefined = undefined,
 >(
   props: FormProps<TFieldValues, TContext, TTransformedValues>

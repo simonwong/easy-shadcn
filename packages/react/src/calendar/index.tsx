@@ -4,7 +4,6 @@ import { Calendar as InternalCalendar, type CalendarProps } from '../../componen
 export const Calendar: React.FC<CalendarProps> = (props) => {
   const { dateLocal } = useConfigContext();
 
-  console.log('props', props);
   return <InternalCalendar locale={dateLocal} {...props} />;
 };
 

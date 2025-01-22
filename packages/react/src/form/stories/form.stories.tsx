@@ -16,7 +16,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Normal: Story = {
+export const Normal = {
+  args: {},
   render: () => {
     const formSchema = z.object({
       username: z.string().min(2, {
