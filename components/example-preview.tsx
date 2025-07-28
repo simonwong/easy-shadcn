@@ -10,14 +10,16 @@ import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import type React from 'react';
 import type { PropsWithChildren } from 'react';
 import ExampleSet from '@/components/examples';
+import { cn } from '@/lib/utils';
 
 export interface ExamplePreviewProps {
   name: keyof typeof ExampleSet;
+  previewCenter?: boolean;
 }
 
 export const ExamplePreview: React.FC<
   PropsWithChildren<ExamplePreviewProps>
-> = ({ name }) => {
+> = ({ name, previewCenter = true }) => {
   if (!(name in ExampleSet)) {
     return <div>Not Found Example: {name}</div>;
   }
@@ -26,13 +28,22 @@ export const ExamplePreview: React.FC<
 
   return (
     <div>
-      <CodeBlockTabs>
+      <CodeBlockTabs defaultValue="preview">
         <CodeBlockTabsList>
-          <CodeBlockTabsTrigger value="preview">Preview</CodeBlockTabsTrigger>
-          <CodeBlockTabsTrigger value="code">Code</CodeBlockTabsTrigger>
+          <CodeBlockTabsTrigger className="cursor-pointer" value="preview">
+            Preview
+          </CodeBlockTabsTrigger>
+          <CodeBlockTabsTrigger className="cursor-pointer" value="code">
+            Code
+          </CodeBlockTabsTrigger>
         </CodeBlockTabsList>
         <CodeBlockTab value="preview">
-          <div className="not-prose rounded-md border bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]">
+          <div
+            className={cn(
+              'not-prose rounded-md border bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]',
+              previewCenter && 'flex items-center justify-center'
+            )}
+          >
             {<Preview />}
           </div>
         </CodeBlockTab>
