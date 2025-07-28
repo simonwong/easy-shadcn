@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "card",
+  "type": "registry:component",
+  "title": "Integrated Card",
+  "description": "A integrated card component.",
+  "registryDependencies": [
+    "card"
+  ],
+  "files": [
+    {
+      "path": "registry/ui/card.tsx",
+      "content": "import type React from 'react';\nimport type { ReactNode } from 'react';\nimport {\n  CardAction,\n  CardContent,\n  CardDescription,\n  CardFooter,\n  CardHeader,\n  CardTitle,\n  Card as InternalCard,\n} from '@/components/ui/card';\nimport { cn } from '@/lib/utils';\n\nexport interface CardProps\n  extends Omit<React.ComponentProps<typeof InternalCard>, 'title'> {\n  headerClassName?: string;\n  headerProps?: React.ComponentProps<typeof CardHeader>;\n  title?: ReactNode;\n  titleClassName?: string;\n  titleProps?: React.ComponentProps<typeof CardTitle>;\n  description?: ReactNode;\n  descriptionClassName?: string;\n  descriptionProps?: React.ComponentProps<typeof CardDescription>;\n  action?: ReactNode;\n  actionClassName?: string;\n  actionProps?: React.ComponentProps<typeof CardAction>;\n  contentClassName?: string;\n  contentProps?: React.ComponentProps<typeof CardContent>;\n  footer?: ReactNode;\n  footerClassName?: string;\n  footerProps?: React.ComponentProps<typeof CardFooter>;\n}\n\nexport const Card: React.FC<CardProps> = ({\n  headerClassName,\n  headerProps,\n  title,\n  titleClassName,\n  titleProps,\n  description,\n  descriptionClassName,\n  descriptionProps,\n  action,\n  actionClassName,\n  actionProps,\n  contentClassName,\n  contentProps,\n  footer,\n  footerClassName,\n  footerProps,\n  children,\n  ...resetProps\n}) => {\n  return (\n    <InternalCard {...resetProps} className={cn(resetProps?.className)}>\n      {(title || description) && (\n        <CardHeader\n          {...headerProps}\n          className={cn(headerProps?.className, headerClassName)}\n        >\n          {title && (\n            <CardTitle\n              {...titleProps}\n              className={cn(titleProps?.className, titleClassName)}\n            >\n              {title}\n            </CardTitle>\n          )}\n          {description && (\n            <CardDescription\n              {...descriptionProps}\n              className={cn(descriptionProps?.className, descriptionClassName)}\n            >\n              {description}\n            </CardDescription>\n          )}\n          {action && (\n            <CardAction\n              {...actionProps}\n              className={cn(actionProps?.className, actionClassName)}\n            >\n              {action}\n            </CardAction>\n          )}\n        </CardHeader>\n      )}\n      {children && (\n        <CardContent\n          {...contentProps}\n          className={cn(contentProps?.className, contentClassName)}\n        >\n          {children}\n        </CardContent>\n      )}\n      {footer && (\n        <CardFooter\n          {...footerProps}\n          className={cn(footerProps?.className, footerClassName)}\n        >\n          {footer}\n        </CardFooter>\n      )}\n    </InternalCard>\n  );\n};\n\nexport default Card;\n",
+      "type": "registry:component"
+    }
+  ]
+}
