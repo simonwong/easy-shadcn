@@ -1,9 +1,12 @@
 import type { BaseLayoutProps, LinkItemType } from 'fumadocs-ui/layouts/shared';
+import { GalleryHorizontalEndIcon } from 'lucide-react';
+
+const GITHUB_URL = 'https://github.com/simonwong/easy-shadcn';
 
 export const linkItems: LinkItemType[] = [
   {
     type: 'icon',
-    url: 'https://github.com/simonwong/easy-shadcn',
+    url: GITHUB_URL,
     text: 'Github',
     icon: (
       <svg fill="currentColor" role="img" viewBox="0 0 24 24">
@@ -28,4 +31,13 @@ export const baseOptions: BaseLayoutProps = {
     ),
     transparentMode: 'top',
   },
+  githubUrl: GITHUB_URL,
+  links: [
+    {
+      icon: <GalleryHorizontalEndIcon />,
+      text: 'Composite Preview',
+      url: '/preview',
+      secondary: false,
+    },
+  ],
 };
