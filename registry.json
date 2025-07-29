@@ -1,18 +1,19 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "name": "easy",
+  "name": "easy-shadcn/ui",
   "homepage": "https://easy-shadcn.vercel.app",
   "items": [
     {
       "name": "card",
       "type": "registry:component",
       "title": "Integrated Card",
-      "description": "A integrated card component.",
+      "description": "",
       "registryDependencies": ["card"],
       "files": [
         {
           "path": "registry/ui/card.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "components/easy/card.tsx"
         }
       ]
     }
