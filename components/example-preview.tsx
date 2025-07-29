@@ -40,7 +40,7 @@ export const ExamplePreview: React.FC<
         <CodeBlockTab value="preview">
           <div
             className={cn(
-              'not-prose rounded-md border bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]',
+              'not-prose bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]',
               previewCenter && 'flex items-center justify-center'
             )}
           >
@@ -48,7 +48,7 @@ export const ExamplePreview: React.FC<
           </div>
         </CodeBlockTab>
         <CodeBlockTab value="code">
-          <DynamicCodeBlock code={example.codeString} lang="tsx" />
+          <DynamicCodeBlock code={example.codeString.trim()} lang="tsx" />
         </CodeBlockTab>
       </CodeBlockTabs>
     </div>
