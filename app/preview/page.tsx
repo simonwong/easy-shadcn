@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import Card from '@/registry/ui/card';
 
-const Overview = () => {
+const CompositePreview = () => {
   return (
     <div>
       <Card
@@ -18,4 +18,4 @@ const Overview = () => {
   );
 };
 
-export default Overview;
+export default CompositePreview;
