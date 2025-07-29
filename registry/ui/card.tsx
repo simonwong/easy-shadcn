@@ -56,12 +56,12 @@ export const Card: React.FC<CardProps> = ({
       {(title || description) && (
         <CardHeader
           {...headerProps}
-          className={cn(headerProps?.className, headerClassName)}
+          className={cn(headerClassName, headerProps?.className)}
         >
           {title && (
             <CardTitle
               {...titleProps}
-              className={cn(titleProps?.className, titleClassName)}
+              className={cn(titleClassName, titleProps?.className)}
             >
               {title}
             </CardTitle>
@@ -69,7 +69,7 @@ export const Card: React.FC<CardProps> = ({
           {description && (
             <CardDescription
               {...descriptionProps}
-              className={cn(descriptionProps?.className, descriptionClassName)}
+              className={cn(descriptionClassName, descriptionProps?.className)}
             >
               {description}
             </CardDescription>
@@ -77,7 +77,7 @@ export const Card: React.FC<CardProps> = ({
           {action && (
             <CardAction
               {...actionProps}
-              className={cn(actionProps?.className, actionClassName)}
+              className={cn(actionClassName, actionProps?.className)}
             >
               {action}
             </CardAction>
@@ -87,7 +87,7 @@ export const Card: React.FC<CardProps> = ({
       {children && (
         <CardContent
           {...contentProps}
-          className={cn(contentProps?.className, contentClassName)}
+          className={cn(contentClassName, contentProps?.className)}
         >
           {children}
         </CardContent>
@@ -95,7 +95,7 @@ export const Card: React.FC<CardProps> = ({
       {footer && (
         <CardFooter
           {...footerProps}
-          className={cn(footerProps?.className, footerClassName)}
+          className={cn(footerClassName, footerProps?.className)}
         >
           {footer}
         </CardFooter>
