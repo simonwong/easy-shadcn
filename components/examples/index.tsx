@@ -31,9 +31,8 @@ const Demo = () => {
       {/* 高级使用 - 混合使用 className 和 xxxProps */}
       <Card
         description="using both className and props"
+        dividers
         footer="Custom Card Footer"
-        footerClassName="border-t"
-        headerClassName="border-b"
         title="Custom Card Header"
       >
         <div>

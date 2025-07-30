@@ -1,106 +1,182 @@
+import { cva } from 'class-variance-authority';
 import type React from 'react';
 import type { ReactNode } from 'react';
-import {
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Card as InternalCard,
-} from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-export interface CardProps
-  extends Omit<React.ComponentProps<typeof InternalCard>, 'title'> {
-  headerClassName?: string;
-  headerProps?: React.ComponentProps<typeof CardHeader>;
+const cardVariants = cva(
+  'flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm',
+  {
+    variants: {
+      size: {
+        sm: 'gap-3 py-3',
+        default: 'gap-6 py-6',
+      },
+    },
+    defaultVariants: {
+      size: 'default',
+    },
+  }
+);
+
+const cardElementVariants = cva('', {
+  variants: {
+    element: {
+      header:
+        '@container/card-header flex items-center justify-between gap-1.5',
+      content: '',
+      footer: 'flex items-center',
+    },
+    size: {
+      sm: '',
+      default: '',
+    },
+    hasDivider: {
+      true: '',
+      false: '',
+    },
+  },
+  compoundVariants: [
+    { element: 'header', size: 'sm', class: 'px-3' },
+    { element: 'header', size: 'default', class: 'px-6' },
+    { element: 'header', size: 'sm', hasDivider: true, class: 'border-b pb-3' },
+    {
+      element: 'header',
+      size: 'default',
+      hasDivider: true,
+      class: 'border-b pb-6',
+    },
+    { element: 'content', size: 'sm', class: 'px-3' },
+    { element: 'content', size: 'default', class: 'px-6' },
+    { element: 'footer', size: 'sm', class: 'px-3' },
+    { element: 'footer', size: 'default', class: 'px-6' },
+
+    { element: 'footer', size: 'sm', hasDivider: true, class: 'border-t pt-3' },
+    {
+      element: 'footer',
+      size: 'default',
+      hasDivider: true,
+      class: 'border-t pt-6',
+    },
+  ],
+  defaultVariants: {
+    size: 'default',
+    hasDivider: false,
+  },
+});
+
+export interface CardProps extends Omit<React.ComponentProps<'div'>, 'title'> {
   title?: ReactNode;
   titleClassName?: string;
-  titleProps?: React.ComponentProps<typeof CardTitle>;
   description?: ReactNode;
   descriptionClassName?: string;
-  descriptionProps?: React.ComponentProps<typeof CardDescription>;
   action?: ReactNode;
   actionClassName?: string;
-  actionProps?: React.ComponentProps<typeof CardAction>;
   contentClassName?: string;
-  contentProps?: React.ComponentProps<typeof CardContent>;
   footer?: ReactNode;
   footerClassName?: string;
-  footerProps?: React.ComponentProps<typeof CardFooter>;
+  dividers?: boolean | { header?: boolean; footer?: boolean };
+  size?: 'sm' | 'default';
 }
 
 export const Card: React.FC<CardProps> = ({
-  headerClassName,
-  headerProps,
   title,
   titleClassName,
-  titleProps,
   description,
   descriptionClassName,
-  descriptionProps,
   action,
   actionClassName,
-  actionProps,
   contentClassName,
-  contentProps,
   footer,
   footerClassName,
-  footerProps,
   children,
+  className,
+  dividers,
+  size,
   ...resetProps
 }) => {
+  const showHeaderDivider =
+    typeof dividers === 'boolean' ? dividers : dividers?.header;
+  const showFooterDivider =
+    typeof dividers === 'boolean' ? dividers : dividers?.footer;
+
   return (
-    <InternalCard {...resetProps} className={cn(resetProps?.className)}>
-      {(title || description) && (
-        <CardHeader
-          {...headerProps}
-          className={cn(headerClassName, headerProps?.className)}
+    <div
+      {...resetProps}
+      className={cn(cardVariants({ size }), className)}
+      data-slot="card"
+    >
+      {(title || description || action) && (
+        <div
+          className={cn(
+            cardElementVariants({
+              element: 'header',
+              size,
+              hasDivider: showHeaderDivider,
+            })
+          )}
+          data-slot="card-header"
         >
-          {title && (
-            <CardTitle
-              {...titleProps}
-              className={cn(titleClassName, titleProps?.className)}
-            >
-              {title}
-            </CardTitle>
-          )}
-          {description && (
-            <CardDescription
-              {...descriptionProps}
-              className={cn(descriptionClassName, descriptionProps?.className)}
-            >
-              {description}
-            </CardDescription>
-          )}
+          <div>
+            {title && (
+              <div
+                className={cn('font-semibold leading-none', titleClassName)}
+                data-slot="card-title"
+              >
+                {title}
+              </div>
+            )}
+            {description && (
+              <div
+                className={cn(
+                  'text-muted-foreground text-sm',
+                  descriptionClassName
+                )}
+                data-slot="card-description"
+              >
+                {description}
+              </div>
+            )}
+          </div>
           {action && (
-            <CardAction
-              {...actionProps}
-              className={cn(actionClassName, actionProps?.className)}
+            <div
+              className={cn('self-start justify-self-end', actionClassName)}
+              data-slot="card-action"
             >
               {action}
-            </CardAction>
+            </div>
           )}
-        </CardHeader>
+        </div>
       )}
       {children && (
-        <CardContent
-          {...contentProps}
-          className={cn(contentClassName, contentProps?.className)}
+        <div
+          className={cn(
+            cardElementVariants({
+              element: 'content',
+              size,
+            }),
+            contentClassName
+          )}
+          data-slot="card-content"
         >
           {children}
-        </CardContent>
+        </div>
       )}
       {footer && (
-        <CardFooter
-          {...footerProps}
-          className={cn(footerClassName, footerProps?.className)}
+        <div
+          className={cn(
+            cardElementVariants({
+              element: 'footer',
+              size,
+              hasDivider: showFooterDivider,
+            }),
+            footerClassName
+          )}
+          data-slot="card-footer"
         >
           {footer}
-        </CardFooter>
+        </div>
       )}
-    </InternalCard>
+    </div>
   );
 };
 

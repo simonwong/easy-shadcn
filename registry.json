@@ -8,7 +8,7 @@
       "type": "registry:component",
       "title": "Integrated Card",
       "description": "",
-      "registryDependencies": ["card"],
+      "registryDependencies": [],
       "files": [
         {
           "path": "registry/ui/card.tsx",
