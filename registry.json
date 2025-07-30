@@ -22,7 +22,7 @@
       "type": "registry:component",
       "title": "Integrated Tabs",
       "description": "",
-      "registryDependencies": [],
+      "registryDependencies": ["@radix-ui/react-tabs"],
       "files": [
         {
           "path": "registry/ui/tabs.tsx",
@@ -36,7 +36,7 @@
       "type": "registry:component",
       "title": "Button",
       "description": "",
-      "registryDependencies": [],
+      "registryDependencies": ["@radix-ui/react-slot"],
       "files": [
         {
           "path": "registry/ui/button.tsx",
