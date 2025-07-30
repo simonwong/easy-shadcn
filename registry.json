@@ -30,6 +30,20 @@
           "target": "components/easy/tabs.tsx"
         }
       ]
+    },
+    {
+      "name": "button",
+      "type": "registry:component",
+      "title": "Button",
+      "description": "",
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/button.tsx",
+          "type": "registry:component",
+          "target": "components/easy/button.tsx"
+        }
+      ]
     }
   ]
 }
