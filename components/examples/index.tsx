@@ -5,7 +5,8 @@ import React from "react";
 export default {
   "button-demo": {
     component: React.lazy(() => import("./button-demo")),
-    codeString: `import { Button } from '@/registry/ui/button';
+    codeString: `import { XCircleIcon } from 'lucide-react';
+import { Button } from '@/registry/ui/button';
 
 const Demo = () => {
   const handleAsyncAction = async () => {
@@ -15,7 +16,14 @@ const Demo = () => {
       }, 1000);
     });
   };
-  return <Button onClick={handleAsyncAction}>Async Event Auto Loading</Button>;
+  return (
+    <div className="flex gap-2">
+      <Button onClick={handleAsyncAction}>Async Event Auto Show Loading</Button>
+      <Button onClick={handleAsyncAction} size="icon" variant="destructive">
+        <XCircleIcon />
+      </Button>
+    </div>
+  );
 };
 
 export default Demo;
