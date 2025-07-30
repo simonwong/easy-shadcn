@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '@/registry/ui/button';
 import { Card } from '@/registry/ui/card';
 import { Tabs } from '@/registry/ui/tabs';
 
