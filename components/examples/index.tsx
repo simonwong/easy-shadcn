@@ -3,9 +3,28 @@
 import React from "react";
 
 export default {
+  "button-demo": {
+    component: React.lazy(() => import("./button-demo")),
+    codeString: `import { Button } from '@/registry/ui/button';
+
+const Demo = () => {
+  const handleAsyncAction = async () => {
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(null);
+      }, 1000);
+    });
+  };
+  return <Button onClick={handleAsyncAction}>Async Event Auto Loading</Button>;
+};
+
+export default Demo;
+`
+  },
+
   "card-demo": {
     component: React.lazy(() => import("./card-demo")),
-    codeString: `import { Button } from '@/components/ui/button';
+    codeString: `import { Button } from '@/registry/ui/button';
 import { Card } from '@/registry/ui/card';
 
 const Demo = () => {
