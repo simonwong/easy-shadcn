@@ -19,7 +19,7 @@ export interface ExamplePreviewProps {
 
 export const ExamplePreview: React.FC<
   PropsWithChildren<ExamplePreviewProps>
-> = ({ name, previewCenter = true }) => {
+> = ({ name }) => {
   if (!(name in ExampleSet)) {
     return <div>Not Found Example: {name}</div>;
   }
@@ -40,8 +40,7 @@ export const ExamplePreview: React.FC<
         <CodeBlockTab value="preview">
           <div
             className={cn(
-              'not-prose bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]',
-              previewCenter && 'flex items-center justify-center'
+              'not-prose bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]'
             )}
           >
             {<Preview />}
