@@ -16,6 +16,20 @@
           "target": "components/easy/card.tsx"
         }
       ]
+    },
+    {
+      "name": "tabs",
+      "type": "registry:component",
+      "title": "Integrated Tabs",
+      "description": "",
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/ui/tabs.tsx",
+          "type": "registry:component",
+          "target": "components/easy/tabs.tsx"
+        }
+      ]
     }
   ]
 }
