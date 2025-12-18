@@ -1,15 +1,8 @@
-/* *********************************************************
- * Copyright 2021 eBay Inc.
-
- * Use of this source code is governed by an MIT-style
- * license that can be found in the LICENSE file or at
- * https://opensource.org/licenses/MIT.
-*********************************************************** */
-
 /**
- * Modification based on [@ebay/nice-modal-react](https://github.com/eBay/nice-modal-react)
+ * Originally derived from @ebay/nice-modal-react
+ * Copyright (c) 2021 eBay Inc.
+ * License: MIT
  */
-
 import { create, hide, register, remove, show } from './actions';
 import { CommandModalContext, Provider, reducer } from './context';
 import type { CommandModalHandler, ShadCNModalProps } from './type';
