@@ -5,6 +5,12 @@
     "rules": {
       "a11y": {
         "noSvgWithoutTitle": "off"
+      },
+      "performance": {
+        "noNamespaceImport": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off"
       }
     }
   }
