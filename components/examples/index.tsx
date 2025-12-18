@@ -85,14 +85,7 @@ const Demo = () => {
   return (
     <div>
       <AlertModal
-        content={
-          <div>
-            <div>Modal Content</div>
-            <div>Modal Content</div>
-            <div>Modal Content</div>
-            <div>Modal Content</div>
-          </div>
-        }
+        content="Modal Content"
         title="Alert Title"
         trigger={<Button>Alert Modal</Button>}
       />
@@ -234,11 +227,11 @@ export default Demo;
 
   "modal-helper-holder-demo": {
     component: React.lazy(() => import("./modal-helper-holder-demo")),
-    codeString: `import { useState } from 'react';
+    codeString: `import { useRef, useState } from 'react';
 import { Button } from '@/registry/ui/button';
 import { Modal } from '@/registry/ui/modal';
 
-const ModalHelperModal = Modal.create(({ count }: { count: number }) => {
+const CommandModalModal = Modal.create(({ count }: { count: number }) => {
   const modal = Modal.useModal();
 
   return (
@@ -266,15 +259,17 @@ const ModalHelperModal = Modal.create(({ count }: { count: number }) => {
 });
 
 const Demo = () => {
-  const [action, ModalHolder] = Modal.useModalHolder(ModalHelperModal);
+  const [action, ModalHolder] = Modal.useModalHolder(CommandModalModal);
 
   const [count, setCount] = useState(0);
+  const countRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleClick = () => {
+    countRef.current && clearInterval(countRef.current);
     action.show();
 
-    setTimeout(() => {
-      setCount(count + 1);
+    countRef.current = setInterval(() => {
+      setCount((c) => c + 1);
     }, 1000);
   };
 

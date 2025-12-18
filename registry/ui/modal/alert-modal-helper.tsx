@@ -1,5 +1,5 @@
 import { AlertModal, type AlertModalProps } from './alert-modal';
-import ModalHelper from './modal-helper';
+import CommandModal from '@easy-shadcn/command-modal';
 
 // TODO: modalProps will cover props
 
@@ -9,8 +9,8 @@ const alert = (
     'open' | 'onOpenChange' | 'cancelProps' | 'onCancel' | 'cancelText'
   >
 ) => {
-  const AlertModalHelper = ModalHelper.create(() => {
-    const { modalProps, resolve } = ModalHelper.useModal();
+  const AlertCommandModal = CommandModal.create(() => {
+    const { modalProps, resolve } = CommandModal.useModal();
     return (
       <AlertModal
         {...props}
@@ -26,12 +26,12 @@ const alert = (
     );
   });
 
-  return ModalHelper.show(AlertModalHelper);
+  return CommandModal.show(AlertCommandModal);
 };
 
 const confirm = (props: Omit<AlertModalProps, 'open' | 'onOpenChange'>) => {
-  const AlertModalHelper = ModalHelper.create(() => {
-    const { modalProps, resolve, reject } = ModalHelper.useModal();
+  const AlertCommandModal = CommandModal.create(() => {
+    const { modalProps, resolve, reject } = CommandModal.useModal();
 
     return (
       <AlertModal
@@ -49,7 +49,7 @@ const confirm = (props: Omit<AlertModalProps, 'open' | 'onOpenChange'>) => {
     );
   });
 
-  return ModalHelper.show(AlertModalHelper);
+  return CommandModal.show(AlertCommandModal);
 };
 
 export default {
