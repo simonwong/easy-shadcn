@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { symModalId } from './symbol';
 
 export interface CommandModalState {
@@ -96,7 +97,7 @@ export type CreateModalComponent<T = object> = React.FC<
 };
 
 export type CommandModalArgs<T> = T extends
-  | keyof jsx.IntrinsicElements
+  | keyof JSX.IntrinsicElements
   | React.JSXElementConstructor<unknown>
   ? React.ComponentProps<T>
   : Record<string, unknown>;
