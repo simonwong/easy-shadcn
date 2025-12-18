@@ -1,6 +1,6 @@
----
-"@easy-shadcn/command-modal": patch
----
+# @easy-shadcn/command-modal
+
+## 0.0.1
 
 ### Features
 
