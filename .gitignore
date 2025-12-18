@@ -13,3 +13,4 @@ public/dist
 .turbo
 storybook-static
 .source
+next-env.d.ts
