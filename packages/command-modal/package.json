@@ -1,6 +1,6 @@
 {
   "name": "@easy-shadcn/command-modal",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "use modal by command",
   "type": "module",
   "main": "./dist/index.cjs",
