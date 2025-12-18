@@ -1,5 +1,5 @@
 import { AlertModal, type AlertModalProps } from './alert-modal';
-import ModalHelper from '../../../packages/modal-helper';
+import ModalHelper from './modal-helper';
 
 // TODO: modalProps will cover props
 
