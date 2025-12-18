@@ -1,6 +1,10 @@
+'use client';
+
 import { Button } from '@/registry/ui/button';
 import { Card } from '@/registry/ui/card';
+import { Modal } from '@/registry/ui/modal';
 import { Tabs } from '@/registry/ui/tabs';
+import { InfoModal } from './features/InfoModal';
 
 const CompositePreview = () => {
   return (
@@ -36,6 +40,17 @@ const CompositePreview = () => {
           },
         ]}
       />
+
+      <Button
+        onClick={async () => {
+          await Modal.show(InfoModal, {
+            username: 'Simon',
+            remark: 'This is a remark',
+          });
+        }}
+      >
+        Open Info Modal
+      </Button>
     </div>
   );
 };

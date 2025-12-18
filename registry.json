@@ -44,6 +44,20 @@
           "target": "components/easy/button.tsx"
         }
       ]
+    },
+    {
+      "name": "locale",
+      "type": "registry:component",
+      "title": "Locale",
+      "description": "",
+      "registryDependencies": ["@radix-ui/react-slot"],
+      "files": [
+        {
+          "path": "registry/ui/locale/useLocale.ts",
+          "type": "registry:component",
+          "target": "components/easy/locale/useLocale.ts"
+        }
+      ]
     }
   ]
 }
