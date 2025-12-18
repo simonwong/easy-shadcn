@@ -1,16 +1,16 @@
 export type { AlertModalProps } from './alert-modal';
 export type { ModalProps } from './modal';
-export type { ModalHelperHandler } from './modal-helper';
+export type { CommandModalHandler } from '@easy-shadcn/command-modal';
 
 import { AlertModal as OriginalAlertModal } from './alert-modal';
-import AlertModalHelper from './alert-modal-helper';
+import AlertCommandModal from './alert-modal-helper';
 import { Modal as OriginalModal } from './modal';
-import ModalHelper from './modal-helper';
+import CommandModal from '@easy-shadcn/command-modal';
 
-export const AlertModal: typeof OriginalAlertModal & typeof AlertModalHelper =
-  Object.assign(OriginalAlertModal, AlertModalHelper);
+export const AlertModal: typeof OriginalAlertModal & typeof AlertCommandModal =
+  Object.assign(OriginalAlertModal, AlertCommandModal);
 
-export const Modal: typeof OriginalModal & typeof ModalHelper = Object.assign(
+export const Modal: typeof OriginalModal & typeof CommandModal = Object.assign(
   OriginalModal,
-  ModalHelper
+  CommandModal
 );

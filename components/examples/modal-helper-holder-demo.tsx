@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Button } from '@/registry/ui/button';
 import { Modal } from '@/registry/ui/modal';
 
-const ModalHelperModal = Modal.create(({ count }: { count: number }) => {
+const CommandModalModal = Modal.create(({ count }: { count: number }) => {
   const modal = Modal.useModal();
 
   return (
@@ -30,7 +30,7 @@ const ModalHelperModal = Modal.create(({ count }: { count: number }) => {
 });
 
 const Demo = () => {
-  const [action, ModalHolder] = Modal.useModalHolder(ModalHelperModal);
+  const [action, ModalHolder] = Modal.useModalHolder(CommandModalModal);
 
   const [count, setCount] = useState(0);
   const countRef = useRef<NodeJS.Timeout | null>(null);

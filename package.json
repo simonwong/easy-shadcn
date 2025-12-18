@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "pnpm generate-example && next dev",
     "build": "pnpm generate-example && next build",
+    "build:package": "pnpm --filter \"command-modal\" run build",
     "start": "pnpm generate-example && next start",
     "generate-example": "node scripts/genarate-example-entry.mjs",
     "lint": "ultracite lint",
@@ -12,6 +13,7 @@
     "ci:publish": "pnpm publish -r"
   },
   "dependencies": {
+    "@easy-shadcn/command-modal": "workspace:*",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",

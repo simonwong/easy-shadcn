@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@easy-shadcn/command-modal':
+        specifier: workspace:*
+        version: link:packages/command-modal
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@18.3.5(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
