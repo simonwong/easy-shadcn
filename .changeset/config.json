@@ -9,6 +9,5 @@
   "linked": [],
   "access": "public",
   "baseBranch": "main",
-  "updateInternalDependencies": "patch",
-  "ignore": ["@easy-shadcn/docs", "@easy-shadcn/storybook"]
+  "updateInternalDependencies": "patch"
 }
