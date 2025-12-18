@@ -20,8 +20,12 @@
     "build": "tsup"
   },
   "keywords": [],
-  "author": "",
+  "author": "Simon <wsj_simon@163.com>",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
     "@types/react": "^19.0.0",
     "react": "^19.0.0",
