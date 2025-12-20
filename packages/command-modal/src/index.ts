@@ -5,27 +5,7 @@
  */
 import { create, hide, register, remove, show } from './actions';
 import { CommandModalContext, Provider, reducer } from './context';
-import type { CommandModalHandler, ShadCNModalProps } from './type';
-import { useModal, useModalHolder } from './useModal';
-
-export const modalProps = (modal: CommandModalHandler): ShadCNModalProps => {
-  return {
-    open: modal.visible,
-    onOpenChange: (open) => {
-      if (open) {
-        modal.show();
-      } else {
-        modal.hide();
-      }
-    },
-    afterClose: () => {
-      modal.resolveHide();
-      if (!modal.keepMounted) {
-        modal.remove();
-      }
-    },
-  };
-};
+import { createModalProps, useModal, useModalHolder } from './useModal';
 
 const CommandModal = {
   Provider,
@@ -38,7 +18,7 @@ const CommandModal = {
   useModal,
   useModalHolder,
   reducer,
-  modalProps,
+  modalProps: createModalProps,
 };
 
 export type { CommandModalHandler } from './type';

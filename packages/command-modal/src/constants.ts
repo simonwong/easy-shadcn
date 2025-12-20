@@ -7,11 +7,19 @@ export const MODAL_REGISTRY: {
     props?: Record<string, unknown>;
   };
 } = {};
-// biome-ignore lint/suspicious/noExplicitAny: allow
-export const ALREADY_MOUNTED: Record<string, any> = {};
 
-let uidSeed = 0;
-export const getUid = () => `_nice_modal_${uidSeed++}`;
+/**
+ * Tracks which modals have been mounted at least once.
+ * Used to determine if a modal needs initial mounting or can be shown directly.
+ */
+export const ALREADY_MOUNTED: Record<string, boolean> = {};
+
+let modalIdCounter = 0;
+/**
+ * Generates a unique modal ID for auto-registration.
+ * This is used when modals are created without explicit IDs.
+ */
+export const getUid = () => `_nice_modal_${modalIdCounter++}`;
 
 export const modalCallbacks: CommandModalCallbacks = {};
 export const hideModalCallbacks: CommandModalCallbacks = {};
