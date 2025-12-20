@@ -21,5 +21,15 @@ const CommandModal = {
   modalProps: createModalProps,
 };
 
-export type { CommandModalHandler } from './type';
+// Export types
+export type {
+  CommandModalHandler,
+  CommandModalConfig,
+  ModalPropsAdapter,
+  ShadCNModalProps,
+} from './type';
+
+// Export default shadcn adapter
+export { shadcnModalAdapter } from './adapters';
+
 export default CommandModal;

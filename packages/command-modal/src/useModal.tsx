@@ -9,7 +9,11 @@ import {
   MODAL_REGISTRY,
   modalCallbacks,
 } from './constants';
-import { CommandModalContext, CommandModalIdContext } from './context';
+import {
+  CommandModalConfigContext,
+  CommandModalContext,
+  CommandModalIdContext,
+} from './context';
 import { ModalHolder, type ModalHolderActions } from './holders';
 import type {
   CreateModalComponent,
@@ -42,6 +46,7 @@ export function useModal(
 ) {
   const modals = useContext(CommandModalContext);
   const contextModalId = useContext(CommandModalIdContext);
+  const config = useContext(CommandModalConfigContext);
   let modalId: string | null = null;
   const isUseComponent = modal && typeof modal !== 'string';
   if (modal) {
@@ -105,10 +110,12 @@ export function useModal(
       resolveHide,
     };
 
-    // Use the shared createModalProps function to generate modalProps
+    // Use the configured adapter or fallback to the default shadcn adapter
+    const adapter = config?.modalPropsAdapter || createModalProps;
+
     return {
       ...handler,
-      modalProps: createModalProps(handler),
+      modalProps: adapter(handler),
     };
   }, [
     modalId,
@@ -121,6 +128,7 @@ export function useModal(
     resolveCallback,
     rejectCallback,
     resolveHide,
+    config,
   ]);
 }
 
