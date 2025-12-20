@@ -1,0 +1,746 @@
+---
+title: Command Modal
+description: Imperative modal management library for React with TypeScript support
+---
+
+## Introduction
+
+`@easy-shadcn/command-modal` is a powerful imperative modal management library that allows you to control modals through simple function calls. Built with TypeScript and designed for flexibility, it works seamlessly with any UI library.
+
+Originally inspired by [@ebay/nice-modal-react](https://github.com/eBay/nice-modal-react), this library provides an enhanced developer experience with full type safety and configurable modal adapters.
+
+## Features
+
+- **Imperative API** - Control modals with simple `show()` and `hide()` calls
+- **Type-safe** - Full TypeScript support with generic types
+- **Flexible** - Works with any modal UI library through adapters
+- **Promise-based** - Async/await support for modal workflows
+- **React Hooks** - Built-in hooks for state management
+- **Zero dependencies** - Core library has no external dependencies
+
+## Installation
+
+```bash
+npm install @easy-shadcn/command-modal
+# or
+pnpm add @easy-shadcn/command-modal
+# or
+yarn add @easy-shadcn/command-modal
+```
+
+## Quick Start
+
+### 1. Add Provider
+
+Wrap your app with the `CommandModal.Provider`:
+
+```tsx
+import CommandModal from '@easy-shadcn/command-modal';
+
+function App() {
+  return (
+    <CommandModal.Provider>
+      {/* Your app content */}
+    </CommandModal.Provider>
+  );
+}
+```
+
+### 2. Create a Modal Component
+
+Create your modal component using the `useModal` hook:
+
+```tsx
+import CommandModal from '@easy-shadcn/command-modal';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+
+interface UserFormModalProps {
+  username?: string;
+}
+
+const UserFormModal = CommandModal.create<UserFormModalProps>(({ username }) => {
+  const modal = CommandModal.useModal();
+
+  return (
+    <Dialog {...modal.modalProps}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>User Form</DialogTitle>
+          <DialogDescription>
+            {username ? `Edit user: ${username}` : 'Create new user'}
+          </DialogDescription>
+        </DialogHeader>
+        <div>
+          {/* Your form content */}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+});
+
+export default UserFormModal;
+```
+
+### 3. Show the Modal
+
+Call the modal from anywhere in your app:
+
+```tsx
+import CommandModal from '@easy-shadcn/command-modal';
+import UserFormModal from './UserFormModal';
+
+function MyComponent() {
+  const handleClick = () => {
+    CommandModal.show(UserFormModal, { username: 'John' });
+  };
+
+  return <button onClick={handleClick}>Open Modal</button>;
+}
+```
+
+## Core Concepts
+
+### Modal Lifecycle
+
+Modals have three main states:
+- **Created** - Modal is registered but not visible
+- **Visible** - Modal is shown on screen
+- **Hidden** - Modal is hidden but still mounted (unless `keepMounted: false`)
+
+### Promise-based Workflows
+
+CommandModal supports promise-based workflows for async operations:
+
+```tsx
+const ConfirmModal = CommandModal.create<{ message: string }>(({ message }) => {
+  const modal = CommandModal.useModal();
+
+  const handleConfirm = () => {
+    modal.resolve(true);
+    modal.hide();
+  };
+
+  const handleCancel = () => {
+    modal.resolve(false);
+    modal.hide();
+  };
+
+  return (
+    <Dialog {...modal.modalProps}>
+      <DialogContent>
+        <p>{message}</p>
+        <button onClick={handleConfirm}>Confirm</button>
+        <button onClick={handleCancel}>Cancel</button>
+      </DialogContent>
+    </Dialog>
+  );
+});
+
+// Usage
+const result = await CommandModal.show(ConfirmModal, {
+  message: 'Are you sure?',
+});
+
+if (result) {
+  console.log('User confirmed');
+} else {
+  console.log('User cancelled');
+}
+```
+
+## API Reference
+
+### CommandModal.Provider
+
+The root provider component that manages modal state.
+
+```tsx
+interface CommandModalProviderProps {
+  children: React.ReactNode;
+  config?: CommandModalConfig;
+}
+```
+
+**Props:**
+- `children` - Your app content
+- `config` - Optional configuration object
+
+### CommandModal.create()
+
+Creates a modal component with proper typing.
+
+```tsx
+function create<TProps = Record<string, unknown>>(
+  component: React.ComponentType<TProps>
+): React.ComponentType<TProps>
+```
+
+**Type Parameters:**
+- `TProps` - Props type for your modal component
+
+**Returns:** A wrapped component that can be used with CommandModal
+
+### CommandModal.show()
+
+Shows a modal and returns a promise.
+
+```tsx
+function show<TProps, TResult = unknown>(
+  modal: React.ComponentType<TProps>,
+  props?: TProps
+): Promise<TResult>
+```
+
+**Parameters:**
+- `modal` - Modal component created with `CommandModal.create()`
+- `props` - Props to pass to the modal
+
+**Returns:** Promise that resolves when modal calls `modal.resolve()`
+
+### CommandModal.hide()
+
+Hides a specific modal.
+
+```tsx
+function hide(modal: React.ComponentType): Promise<void>
+```
+
+**Parameters:**
+- `modal` - Modal component to hide
+
+**Returns:** Promise that resolves when modal is hidden
+
+### CommandModal.remove()
+
+Removes a modal from the DOM.
+
+```tsx
+function remove(modal: React.ComponentType): void
+```
+
+**Parameters:**
+- `modal` - Modal component to remove
+
+### CommandModal.useModal()
+
+Hook to access modal controls within a modal component.
+
+```tsx
+function useModal<TResult = unknown>(): CommandModalHandler<TResult>
+```
+
+**Returns:** Modal handler object with the following properties:
+
+- `id` - Unique modal identifier
+- `visible` - Current visibility state
+- `keepMounted` - Whether modal stays mounted when hidden
+- `show()` - Show the modal
+- `hide()` - Hide the modal
+- `remove()` - Remove the modal
+- `resolve(value)` - Resolve the modal promise with a value
+- `reject(reason)` - Reject the modal promise
+- `resolveHide()` - Called when modal animation completes
+- `modalProps` - Props object for your UI library's modal
+
+### CommandModal.useModalHolder()
+
+Hook to control a modal from outside the modal component.
+
+```tsx
+function useModalHolder<TProps>(
+  modal: React.ComponentType<TProps>
+): [React.ComponentType<TProps>, CommandModalHandler]
+```
+
+**Parameters:**
+- `modal` - Modal component created with `CommandModal.create()`
+
+**Returns:** Tuple of `[ModalComponent, handler]`
+
+**Example:**
+
+```tsx
+function MyComponent() {
+  const [UserModal, userModal] = CommandModal.useModalHolder(UserFormModal);
+
+  return (
+    <>
+      <button onClick={() => userModal.show()}>Open</button>
+      <UserModal username="John" />
+    </>
+  );
+}
+```
+
+## Advanced Usage
+
+### Custom Modal Adapters
+
+CommandModal uses adapters to work with different UI libraries. The default adapter works with shadcn/ui, but you can create custom adapters.
+
+#### Default shadcn Adapter
+
+```tsx
+import CommandModal, { shadcnModalAdapter } from '@easy-shadcn/command-modal';
+
+// The shadcn adapter is used by default
+<CommandModal.Provider>
+  <App />
+</CommandModal.Provider>
+
+// Or explicitly configure it
+<CommandModal.Provider config={{ modalPropsAdapter: shadcnModalAdapter }}>
+  <App />
+</CommandModal.Provider>
+```
+
+#### Creating Custom Adapters
+
+Create an adapter for your UI library:
+
+```tsx
+import type { ModalPropsAdapter } from '@easy-shadcn/command-modal';
+
+// Example: Ant Design adapter
+interface AntdModalProps {
+  open: boolean;
+  onCancel: () => void;
+  afterClose: () => void;
+}
+
+const antdModalAdapter: ModalPropsAdapter<AntdModalProps> = (handler) => ({
+  open: handler.visible,
+  onCancel: () => handler.hide(),
+  afterClose: () => {
+    handler.resolveHide();
+    if (!handler.keepMounted) {
+      handler.remove();
+    }
+  },
+});
+
+// Use the custom adapter
+<CommandModal.Provider config={{ modalPropsAdapter: antdModalAdapter }}>
+  <App />
+</CommandModal.Provider>
+```
+
+#### Example: Material-UI Adapter
+
+```tsx
+import type { ModalPropsAdapter } from '@easy-shadcn/command-modal';
+
+interface MuiDialogProps {
+  open: boolean;
+  onClose: () => void;
+  TransitionProps?: {
+    onExited?: () => void;
+  };
+}
+
+const muiDialogAdapter: ModalPropsAdapter<MuiDialogProps> = (handler) => ({
+  open: handler.visible,
+  onClose: () => handler.hide(),
+  TransitionProps: {
+    onExited: () => {
+      handler.resolveHide();
+      if (!handler.keepMounted) {
+        handler.remove();
+      }
+    },
+  },
+});
+```
+
+### Keep Modal Mounted
+
+By default, modals are removed from the DOM when hidden. You can keep them mounted:
+
+```tsx
+const MyModal = CommandModal.create(() => {
+  const modal = CommandModal.useModal();
+
+  // Keep modal mounted when hidden
+  modal.keepMounted = true;
+
+  return <Dialog {...modal.modalProps}>...</Dialog>;
+});
+```
+
+### Nested Modals
+
+CommandModal supports nested modals out of the box:
+
+```tsx
+const ConfirmModal = CommandModal.create(() => {
+  const modal = CommandModal.useModal();
+  return <Dialog {...modal.modalProps}>Confirm?</Dialog>;
+});
+
+const ParentModal = CommandModal.create(() => {
+  const modal = CommandModal.useModal();
+
+  const handleDelete = async () => {
+    const confirmed = await CommandModal.show(ConfirmModal);
+    if (confirmed) {
+      // Delete action
+      modal.hide();
+    }
+  };
+
+  return (
+    <Dialog {...modal.modalProps}>
+      <button onClick={handleDelete}>Delete</button>
+    </Dialog>
+  );
+});
+```
+
+### Error Handling
+
+Handle errors in modal workflows:
+
+```tsx
+const FormModal = CommandModal.create(() => {
+  const modal = CommandModal.useModal();
+
+  const handleSubmit = async () => {
+    try {
+      const result = await submitForm();
+      modal.resolve(result);
+      modal.hide();
+    } catch (error) {
+      modal.reject(error);
+      modal.hide();
+    }
+  };
+
+  return <Dialog {...modal.modalProps}>...</Dialog>;
+});
+
+// Usage
+try {
+  const result = await CommandModal.show(FormModal);
+  console.log('Success:', result);
+} catch (error) {
+  console.error('Error:', error);
+}
+```
+
+## TypeScript
+
+### Type-safe Props
+
+```tsx
+interface UserFormProps {
+  userId: string;
+  mode: 'create' | 'edit';
+}
+
+const UserForm = CommandModal.create<UserFormProps>(({ userId, mode }) => {
+  // TypeScript knows userId and mode types
+  const modal = CommandModal.useModal();
+  return <Dialog {...modal.modalProps}>...</Dialog>;
+});
+
+// Type-safe usage
+CommandModal.show(UserForm, {
+  userId: '123',
+  mode: 'edit',
+});
+
+// TypeScript error: missing required props
+// CommandModal.show(UserForm, {}); // ❌
+```
+
+### Type-safe Results
+
+```tsx
+interface FormResult {
+  name: string;
+  email: string;
+}
+
+const FormModal = CommandModal.create(() => {
+  const modal = CommandModal.useModal<FormResult>();
+
+  const handleSubmit = (data: FormResult) => {
+    modal.resolve(data); // Type-safe resolve
+    modal.hide();
+  };
+
+  return <Dialog {...modal.modalProps}>...</Dialog>;
+});
+
+// TypeScript knows the result type
+const result: FormResult = await CommandModal.show(FormModal);
+```
+
+## Best Practices
+
+### 1. Use TypeScript for Type Safety
+
+Always define prop types and result types for better IDE support and type checking.
+
+### 2. Clean Up Side Effects
+
+Clean up subscriptions and side effects when modal is hidden:
+
+```tsx
+const MyModal = CommandModal.create(() => {
+  const modal = CommandModal.useModal();
+
+  useEffect(() => {
+    if (!modal.visible) {
+      // Clean up when modal is hidden
+      return;
+    }
+
+    const subscription = subscribe();
+    return () => subscription.unsubscribe();
+  }, [modal.visible]);
+
+  return <Dialog {...modal.modalProps}>...</Dialog>;
+});
+```
+
+### 3. Separate Modal Logic
+
+Keep complex logic in custom hooks:
+
+```tsx
+function useUserForm(userId: string) {
+  const [data, setData] = useState();
+  const [loading, setLoading] = useState(false);
+
+  const submit = async () => {
+    setLoading(true);
+    // Submit logic
+    setLoading(false);
+  };
+
+  return { data, loading, submit };
+}
+
+const UserFormModal = CommandModal.create<{ userId: string }>(({ userId }) => {
+  const modal = CommandModal.useModal();
+  const form = useUserForm(userId);
+
+  return <Dialog {...modal.modalProps}>...</Dialog>;
+});
+```
+
+### 4. Avoid Blocking Operations
+
+Don't perform blocking operations in modal render:
+
+```tsx
+// ❌ Bad: Fetching in render
+const MyModal = CommandModal.create(() => {
+  const data = fetchData(); // Don't do this
+  return <Dialog>...</Dialog>;
+});
+
+// ✅ Good: Fetch in effect
+const MyModal = CommandModal.create(() => {
+  const [data, setData] = useState();
+
+  useEffect(() => {
+    fetchData().then(setData);
+  }, []);
+
+  return <Dialog>...</Dialog>;
+});
+```
+
+## Migration Guide
+
+### From @ebay/nice-modal-react
+
+CommandModal is largely compatible with nice-modal-react:
+
+```tsx
+// Before (nice-modal-react)
+import NiceModal, { useModal } from '@ebay/nice-modal-react';
+
+const MyModal = NiceModal.create(() => {
+  const modal = useModal();
+  return <Dialog {...modal.modalProps}>...</Dialog>;
+});
+
+NiceModal.show(MyModal);
+
+// After (command-modal)
+import CommandModal from '@easy-shadcn/command-modal';
+
+const MyModal = CommandModal.create(() => {
+  const modal = CommandModal.useModal();
+  return <Dialog {...modal.modalProps}>...</Dialog>;
+});
+
+CommandModal.show(MyModal);
+```
+
+**Key Differences:**
+- Must configure modal adapter through Provider config
+- Default adapter is for shadcn/ui
+- Enhanced TypeScript support
+- Configurable modal props adapters
+
+## Troubleshooting
+
+### Modal Doesn't Close
+
+Ensure you're calling `afterClose` in your modal component:
+
+```tsx
+<Dialog
+  {...modal.modalProps}
+  // Make sure afterClose is called when animation completes
+>
+  ...
+</Dialog>
+```
+
+### TypeScript Errors
+
+Make sure you're using the correct generic types:
+
+```tsx
+// Define props type
+interface MyModalProps {
+  title: string;
+}
+
+// Pass type to create
+const MyModal = CommandModal.create<MyModalProps>(({ title }) => {
+  // ...
+});
+```
+
+### Modal Not Showing
+
+1. Check that Provider is wrapping your app
+2. Verify the modal component is created with `CommandModal.create()`
+3. Check browser console for errors
+
+## Examples
+
+### Confirmation Dialog
+
+```tsx
+const ConfirmDialog = CommandModal.create<{
+  title: string;
+  message: string;
+}>(({ title, message }) => {
+  const modal = CommandModal.useModal<boolean>();
+
+  return (
+    <AlertDialog {...modal.modalProps}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{message}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => {
+            modal.resolve(false);
+            modal.hide();
+          }}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={() => {
+            modal.resolve(true);
+            modal.hide();
+          }}>
+            Confirm
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+});
+
+// Usage
+const confirmed = await CommandModal.show(ConfirmDialog, {
+  title: 'Delete item?',
+  message: 'This action cannot be undone.',
+});
+
+if (confirmed) {
+  deleteItem();
+}
+```
+
+### Form Modal with Validation
+
+```tsx
+const FormModal = CommandModal.create<{ defaultValues?: FormData }>(
+  ({ defaultValues }) => {
+    const modal = CommandModal.useModal<FormData>();
+    const [values, setValues] = useState(defaultValues || {});
+    const [errors, setErrors] = useState({});
+
+    const handleSubmit = () => {
+      const validationErrors = validate(values);
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+
+      modal.resolve(values);
+      modal.hide();
+    };
+
+    return (
+      <Dialog {...modal.modalProps}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Form</DialogTitle>
+          </DialogHeader>
+          <form>
+            {/* Form fields */}
+          </form>
+          <DialogFooter>
+            <Button onClick={() => modal.hide()}>Cancel</Button>
+            <Button onClick={handleSubmit}>Submit</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+);
+```
+
+### Multi-step Wizard
+
+```tsx
+const WizardModal = CommandModal.create(() => {
+  const modal = CommandModal.useModal();
+  const [step, setStep] = useState(1);
+
+  return (
+    <Dialog {...modal.modalProps}>
+      <DialogContent>
+        {step === 1 && <Step1 onNext={() => setStep(2)} />}
+        {step === 2 && <Step2 onNext={() => setStep(3)} onBack={() => setStep(1)} />}
+        {step === 3 && <Step3 onComplete={() => modal.hide()} onBack={() => setStep(2)} />}
+      </DialogContent>
+    </Dialog>
+  );
+});
+```
+
+## Credits
+
+This project is inspired by and built upon the patterns established by [@ebay/nice-modal-react](https://github.com/eBay/nice-modal-react). Special thanks to the original authors for their pioneering work in imperative modal management.
+
+## License
+
+MIT
