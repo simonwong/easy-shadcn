@@ -11,6 +11,7 @@ import { ALREADY_MOUNTED, MODAL_REGISTRY } from './constants';
 import {
   ActionType,
   type CommandModalAction,
+  type CommandModalConfig,
   type CommandModalStore,
 } from './type';
 
@@ -134,6 +135,14 @@ export const CommandModalContext = createContext<CommandModalStore>(initialState
  */
 export const CommandModalIdContext = createContext<string | null>(null);
 
+/**
+ * CommandModal 配置上下文
+ * 用于传递自定义的 modalPropsAdapter 等配置
+ */
+export const CommandModalConfigContext = createContext<
+  CommandModalConfig | undefined
+>(undefined);
+
 // The placeholder component is used to auto render modals when call modal.show()
 // When modal.show() is called, it means there've been modal info
 const CommandModalPlaceholder: React.FC = () => {
@@ -169,15 +178,38 @@ const CommandModalPlaceholder: React.FC = () => {
   );
 };
 
-export const Provider: React.FC<PropsWithChildren> = ({ children }) => {
+export interface CommandModalProviderProps extends PropsWithChildren {
+  /**
+   * Optional configuration for the CommandModal system.
+   * Use this to customize modal behavior, such as providing a custom modalPropsAdapter
+   * for different UI libraries (e.g., Ant Design, MUI).
+   *
+   * @example
+   * ```tsx
+   * import CommandModal, { antdModalAdapter } from '@easy-shadcn/command-modal';
+   *
+   * <CommandModal.Provider config={{ modalPropsAdapter: antdModalAdapter }}>
+   *   <App />
+   * </CommandModal.Provider>
+   * ```
+   */
+  config?: CommandModalConfig;
+}
+
+export const Provider: React.FC<CommandModalProviderProps> = ({
+  children,
+  config,
+}) => {
   const [modals, dispatch] = useReducer(reducer, initialState);
 
   reducerDispatch = dispatch;
 
   return (
-    <CommandModalContext.Provider value={modals}>
-      {children}
-      <CommandModalPlaceholder />
-    </CommandModalContext.Provider>
+    <CommandModalConfigContext.Provider value={config}>
+      <CommandModalContext.Provider value={modals}>
+        {children}
+        <CommandModalPlaceholder />
+      </CommandModalContext.Provider>
+    </CommandModalConfigContext.Provider>
   );
 };

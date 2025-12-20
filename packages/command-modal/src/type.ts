@@ -36,11 +36,52 @@ export interface CommandModalCallbacks {
   };
 }
 
+/**
+ * Standard modal props for shadcn/ui components
+ */
 export type ShadCNModalProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   afterClose?: () => void;
 };
+
+/**
+ * Adapter function that converts a modal handler to UI library-specific props.
+ * This allows the modal system to work with different UI libraries (shadcn, antd, mui, etc.)
+ *
+ * @template TModalProps - The type of props your modal library expects
+ * @param handler - The command modal handler
+ * @returns Props object compatible with your modal library
+ *
+ * @example
+ * // For shadcn/ui
+ * const shadcnAdapter: ModalPropsAdapter<ShadCNModalProps> = (handler) => ({
+ *   open: handler.visible,
+ *   onOpenChange: (open) => open ? handler.show() : handler.hide(),
+ *   afterClose: () => { handler.resolveHide(); if (!handler.keepMounted) handler.remove(); }
+ * });
+ *
+ * // For Ant Design
+ * const antdAdapter: ModalPropsAdapter<AntdModalProps> = (handler) => ({
+ *   open: handler.visible,
+ *   onCancel: () => handler.hide(),
+ *   afterClose: () => { handler.resolveHide(); if (!handler.keepMounted) handler.remove(); }
+ * });
+ */
+export type ModalPropsAdapter<TModalProps = ShadCNModalProps> = (
+  handler: CommandModalHandler
+) => TModalProps;
+
+/**
+ * Configuration for the CommandModal system
+ */
+export interface CommandModalConfig<TModalProps = ShadCNModalProps> {
+  /**
+   * Custom adapter to generate modal props.
+   * If not provided, uses the default shadcn adapter.
+   */
+  modalPropsAdapter?: ModalPropsAdapter<TModalProps>;
+}
 
 /**
  * The handler to manage a modal returned by {@link useModal | useModal} hook.
