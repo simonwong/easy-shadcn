@@ -4,6 +4,7 @@ import {
   createContext,
   type PropsWithChildren,
   useContext,
+  useMemo,
   useReducer,
 } from 'react';
 import { ALREADY_MOUNTED, MODAL_REGISTRY } from './constants';
@@ -137,22 +138,27 @@ export const CommandModalIdContext = createContext<string | null>(null);
 // When modal.show() is called, it means there've been modal info
 const CommandModalPlaceholder: React.FC = () => {
   const modals = useContext(CommandModalContext);
-  const visibleModalIds = Object.keys(modals).filter((id) => !!modals[id]);
-  for (const id of visibleModalIds) {
-    if (!(MODAL_REGISTRY[id] || ALREADY_MOUNTED[id])) {
-      console.warn(
-        `No modal found for id: ${id}. Please check the id or if it is registered or declared via JSX.`
-      );
-      return;
-    }
-  }
 
-  const toRender = visibleModalIds
-    .filter((id) => MODAL_REGISTRY[id])
-    .map((id) => ({
-      id,
-      ...MODAL_REGISTRY[id],
-    }));
+  // Memoize expensive filtering and mapping operations
+  const toRender = useMemo(() => {
+    const visibleModalIds = Object.keys(modals).filter((id) => !!modals[id]);
+
+    // Validate and filter modals, warning about invalid ones without interrupting others
+    return visibleModalIds
+      .filter((id) => {
+        if (!(MODAL_REGISTRY[id] || ALREADY_MOUNTED[id])) {
+          console.warn(
+            `No modal found for id: ${id}. Please check the id or if it is registered or declared via JSX.`
+          );
+          return false; // Skip this modal but continue processing others
+        }
+        return MODAL_REGISTRY[id]; // Only render registered modals (JSX-declared modals render themselves)
+      })
+      .map((id) => ({
+        id,
+        ...MODAL_REGISTRY[id],
+      }));
+  }, [modals]);
 
   return (
     <>

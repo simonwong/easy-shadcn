@@ -14,8 +14,46 @@ import {
   CommandModalIdContext,
   reducerActions,
 } from './context';
-import type { CreateModalComponent, CommandModalArgs } from './type';
+import type {
+  CommandModalCallbacks,
+  CreateModalComponent,
+  CommandModalArgs,
+} from './type';
 import { useModal } from './useModal';
+
+/**
+ * Helper function to create a promise with exposed resolve/reject callbacks.
+ * This is used internally to manage modal promises for show() and hide() operations.
+ *
+ * This implements the "Deferred Promise" pattern, where resolve/reject are accessible
+ * outside the Promise constructor. The non-null assertions (!) are safe here because
+ * the Promise constructor executes synchronously, guaranteeing that resolve/reject
+ * are assigned before the function returns.
+ *
+ * @param callbacksStore - The callbacks store to save the promise handlers
+ * @param modalId - The modal id to create the promise for
+ * @returns The created promise
+ */
+function createModalPromise(
+  callbacksStore: CommandModalCallbacks,
+  modalId: string
+): Promise<unknown> {
+  if (!callbacksStore[modalId]) {
+    // These variables will be assigned synchronously in the Promise constructor
+    let resolve!: (args?: unknown) => void;
+    let reject!: (args?: unknown) => void;
+    const promise = new Promise((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    callbacksStore[modalId] = {
+      resolve,
+      reject,
+      promise,
+    };
+  }
+  return callbacksStore[modalId].promise;
+}
 
 export function show<T, C, P extends Partial<CommandModalArgs<React.FC<C>>>>(
   modal: CreateModalComponent<C>,
@@ -27,6 +65,13 @@ export function show<T>(
 ): Promise<T>;
 export function show<T, P>(modal: string, args: P): Promise<T>;
 
+/**
+ * Show a modal and return a promise that resolves when the modal is resolved.
+ * Note: The promise callback is automatically cleaned up when the modal is hidden.
+ * @param modal - The modal id or component to show
+ * @param args - Arguments to pass to the modal component
+ * @returns A promise that resolves with the value passed to modal.resolve()
+ */
 export function show(
   modal: React.FC | string,
   args?: CommandModalArgs<React.FC>
@@ -37,54 +82,42 @@ export function show(
   }
   reducerActions.showModal(modalId, args);
 
-  if (!modalCallbacks[modalId]) {
-    // `!` tell ts that theResolve will be written before it is used
-    let theResolve!: (args?: unknown) => void;
-    // `!` tell ts that theResolve will be written before it is used
-    let theReject!: (args?: unknown) => void;
-    const promise = new Promise((resolve, reject) => {
-      theResolve = resolve;
-      theReject = reject;
-    });
-    modalCallbacks[modalId] = {
-      resolve: theResolve,
-      reject: theReject,
-      promise,
-    };
-  }
-  return modalCallbacks[modalId].promise;
+  return createModalPromise(modalCallbacks, modalId);
 }
 
 export function hide<T, C>(modal: string | CreateModalComponent<C>): Promise<T>;
 
+/**
+ * Hide a modal and return a promise that resolves when the modal is fully hidden.
+ * Note: This automatically cleans up the show() promise callback to prevent memory leaks.
+ * The hide promise callback is cleaned up when the modal is removed or when resolveHide is called.
+ * @param modal - The modal id or component to hide
+ * @returns A promise that resolves when the modal's afterClose callback is triggered
+ */
 export function hide(modal: string | CreateModalComponent) {
   const modalId = getModalId(modal);
   reducerActions.hideModal(modalId);
-  // Should also delete the callback for modal.resolve #35
+  // Clean up show promise callback to prevent memory leaks
   delete modalCallbacks[modalId];
-  if (!hideModalCallbacks[modalId]) {
-    // `!` tell ts that theResolve will be written before it is used
-    let theResolve!: (args?: unknown) => void;
-    // `!` tell ts that theResolve will be written before it is used
-    let theReject!: (args?: unknown) => void;
-    const promise = new Promise((resolve, reject) => {
-      theResolve = resolve;
-      theReject = reject;
-    });
-    hideModalCallbacks[modalId] = {
-      resolve: theResolve,
-      reject: theReject,
-      promise,
-    };
-  }
-  return hideModalCallbacks[modalId].promise;
+
+  return createModalPromise(hideModalCallbacks, modalId);
 }
 
+/**
+ * Remove a modal from the tree and clean up all associated resources.
+ * This includes:
+ * - Removing modal state from the store
+ * - Cleaning up pending promise callbacks to prevent memory leaks
+ * - Removing the mounted flag
+ * @param modal - The modal id or component to remove
+ */
 export const remove = (modal: string | CreateModalComponent): void => {
   const modalId = getModalId(modal);
   reducerActions.removeModal(modalId);
+  // Clean up all callbacks to prevent memory leaks
   delete modalCallbacks[modalId];
   delete hideModalCallbacks[modalId];
+  delete ALREADY_MOUNTED[modalId];
 };
 
 export const create = <P extends object>(Comp: React.ComponentType<P>) => {
@@ -158,9 +191,20 @@ export const register = <T extends CreateModalComponent<any>>(
 };
 
 /**
- * Unregister a modal.
+ * Unregister a modal and clean up all associated resources.
+ * This should be called when a modal component is permanently removed.
+ * It cleans up:
+ * - Modal registry entry
+ * - Pending promise callbacks
+ * - Modal state from the store
+ * - Mounted flag
  * @param id - The id of the modal.
  */
 export const unregister = (id: string): void => {
   delete MODAL_REGISTRY[id];
+  // Clean up all associated resources to prevent memory leaks
+  delete modalCallbacks[id];
+  delete hideModalCallbacks[id];
+  delete ALREADY_MOUNTED[id];
+  reducerActions.removeModal(id);
 };
