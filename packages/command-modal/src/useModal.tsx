@@ -55,46 +55,45 @@ export function useModal(
     throw new Error('No modal id found in CommandModal.useModal.');
   }
 
-  const mid = modalId;
   // If use a component directly, register it.
   useEffect(() => {
-    if (isUseComponent && !MODAL_REGISTRY[mid]) {
-      register(mid, modal, args);
+    if (isUseComponent && !MODAL_REGISTRY[modalId]) {
+      register(modalId, modal, args);
     }
-  }, [isUseComponent, mid, modal, args]);
+  }, [isUseComponent, modalId, modal, args]);
 
-  const modalInfo = modals[mid];
+  const modalInfo = modals[modalId];
   const showCallback = useCallback(
-    (modalArgs?: Record<string, unknown>) => show(mid, modalArgs),
-    [mid]
+    (modalArgs?: Record<string, unknown>) => show(modalId, modalArgs),
+    [modalId]
   );
-  const hideCallback = useCallback(() => hide(mid), [mid]);
-  const removeCallback = useCallback(() => remove(mid), [mid]);
+  const hideCallback = useCallback(() => hide(modalId), [modalId]);
+  const removeCallback = useCallback(() => remove(modalId), [modalId]);
   const resolveCallback = useCallback(
     (resolveArgs?: unknown) => {
-      modalCallbacks[mid]?.resolve(resolveArgs);
-      delete modalCallbacks[mid];
+      modalCallbacks[modalId]?.resolve(resolveArgs);
+      delete modalCallbacks[modalId];
     },
-    [mid]
+    [modalId]
   );
   const rejectCallback = useCallback(
     (rejectArgs?: unknown) => {
-      modalCallbacks[mid]?.reject(rejectArgs);
-      delete modalCallbacks[mid];
+      modalCallbacks[modalId]?.reject(rejectArgs);
+      delete modalCallbacks[modalId];
     },
-    [mid]
+    [modalId]
   );
   const resolveHide = useCallback(
     (resolveHideArgs?: unknown) => {
-      hideModalCallbacks[mid]?.resolve(resolveHideArgs);
-      delete hideModalCallbacks[mid];
+      hideModalCallbacks[modalId]?.resolve(resolveHideArgs);
+      delete hideModalCallbacks[modalId];
     },
-    [mid]
+    [modalId]
   );
 
-  return useMemo(
-    () => ({
-      id: mid,
+  return useMemo(() => {
+    const handler: CommandModalHandler = {
+      id: modalId,
       args: modalInfo?.args,
       visible: !!modalInfo?.visible,
       keepMounted: !!modalInfo?.keepMounted,
@@ -104,36 +103,25 @@ export function useModal(
       resolve: resolveCallback,
       reject: rejectCallback,
       resolveHide,
-      modalProps: {
-        open: modalInfo?.visible,
-        onOpenChange: (open?: boolean) => {
-          if (open) {
-            showCallback();
-          } else {
-            hideCallback();
-          }
-        },
-        afterClose: () => {
-          resolveHide();
-          if (!modalInfo?.keepMounted) {
-            removeCallback();
-          }
-        },
-      },
-    }),
-    [
-      mid,
-      modalInfo?.args,
-      modalInfo?.visible,
-      modalInfo?.keepMounted,
-      showCallback,
-      hideCallback,
-      removeCallback,
-      resolveCallback,
-      rejectCallback,
-      resolveHide,
-    ]
-  );
+    };
+
+    // Use the shared createModalProps function to generate modalProps
+    return {
+      ...handler,
+      modalProps: createModalProps(handler),
+    };
+  }, [
+    modalId,
+    modalInfo?.args,
+    modalInfo?.visible,
+    modalInfo?.keepMounted,
+    showCallback,
+    hideCallback,
+    removeCallback,
+    resolveCallback,
+    rejectCallback,
+    resolveHide,
+  ]);
 }
 
 export function useModalHolder<T>(modal: string | CreateModalComponent<T>) {
@@ -146,3 +134,30 @@ export function useModalHolder<T>(modal: string | CreateModalComponent<T>) {
 
   return [handler, ModalHolderCallback] as const;
 }
+
+/**
+ * Helper function to create modal props for shadcn modal components.
+ * This generates the standard props (open, onOpenChange, afterClose) from a modal handler.
+ * @param modal - The modal handler from useModal
+ * @returns Props object compatible with shadcn modal components
+ */
+export const createModalProps = (
+  modal: CommandModalHandler
+): ShadCNModalProps => {
+  return {
+    open: modal.visible,
+    onOpenChange: (open) => {
+      if (open) {
+        modal.show();
+      } else {
+        modal.hide();
+      }
+    },
+    afterClose: () => {
+      modal.resolveHide();
+      if (!modal.keepMounted) {
+        modal.remove();
+      }
+    },
+  };
+};

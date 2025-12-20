@@ -49,7 +49,7 @@ export function ModalHolder<T>({
   modal: string | CreateModalComponent<T>;
   handler: ModalHolderActions;
 } & T) {
-  const mid = useMemo(() => getUid(), []);
+  const modalId = useMemo(() => getUid(), []);
   const ModalComp =
     typeof modal === 'string'
       ? (MODAL_REGISTRY[modal]?.comp as CreateModalComponent<T>)
@@ -61,8 +61,11 @@ export function ModalHolder<T>({
     );
   }
 
-  handler.show = useCallback((args: unknown) => show(mid, args), [mid]);
-  handler.hide = useCallback(() => hide(mid), [mid]);
+  handler.show = useCallback(
+    (args: unknown) => show(modalId, args),
+    [modalId]
+  );
+  handler.hide = useCallback(() => hide(modalId), [modalId]);
 
-  return <ModalComp id={mid} {...(restProps as T)} />;
+  return <ModalComp id={modalId} {...(restProps as T)} />;
 }
