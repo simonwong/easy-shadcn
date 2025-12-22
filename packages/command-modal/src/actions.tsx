@@ -175,7 +175,7 @@ export const create = <P extends object>(Comp: React.ComponentType<P>) => {
 };
 
 // All registered modals will be rendered in modal placeholder
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: Required for generic component registration - CommandModalArgs<T> extracts actual props
 export const register = <T extends CreateModalComponent<any>>(
   id: string,
   comp: T,
