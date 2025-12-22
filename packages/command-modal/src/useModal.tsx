@@ -22,11 +22,8 @@ import type {
   ShadCNModalProps,
 } from "./type";
 
-export function useModal(): CommandModalHandler & {
-  modalProps: ShadCNModalProps;
-};
 export function useModal(
-  modal: string,
+  modal?: string,
   args?: Record<string, unknown>
 ): CommandModalHandler & {
   modalProps: ShadCNModalProps;

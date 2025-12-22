@@ -3,27 +3,12 @@
  * Copyright (c) 2021 eBay Inc.
  * License: MIT
  */
-import { create, hide, register, remove, show } from "./actions";
-import { CommandModalContext, Provider, reducer } from "./context";
-import { createModalProps, useModal, useModalHolder } from "./useModal";
+// Core API
+export { create, hide, register, remove, show } from "./actions";
+// Context
+export { CommandModalContext, Provider, reducer } from "./context";
 
-const CommandModal = {
-  Provider,
-  CommandModalContext,
-  create,
-  register,
-  show,
-  hide,
-  remove,
-  useModal,
-  useModalHolder,
-  reducer,
-  modalProps: createModalProps,
-};
-
-// Export default shadcn adapter
-export { shadcnModalAdapter } from "./adapters";
-// Export types
+// Types
 export type {
   CommandModalConfig,
   CommandModalHandler,
@@ -31,4 +16,5 @@ export type {
   ShadCNModalProps,
 } from "./type";
 
-export default CommandModal;
+// Hooks
+export { createModalProps, useModal, useModalHolder } from "./useModal";
