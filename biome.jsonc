@@ -1,18 +1,19 @@
 {
-	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-	"extends": ["ultracite/core", "ultracite/react", "ultracite/next"],
-	"linter": {
-		"rules": {
-			"a11y": {
-				"noSvgWithoutTitle": "off"
-			},
-			"performance": {
-				"noNamespaceImport": "off"
-			},
-			"style": {
-				"noNonNullAssertion": "off",
-				"useConsistentTypeDefinitions": "off"
-			}
-		}
-	}
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["ultracite/core", "ultracite/react", "ultracite/next"],
+  "linter": {
+    "rules": {
+      "a11y": {
+        "noSvgWithoutTitle": "off"
+      },
+      "performance": {
+        "noNamespaceImport": "off",
+        "noBarrelFile": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off",
+        "useConsistentTypeDefinitions": "off"
+      }
+    }
+  }
 }
