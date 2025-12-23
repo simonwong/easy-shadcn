@@ -1,26 +1,22 @@
 "use client";
 
+import * as CommandModal from "@easy-shadcn/command-modal";
 import { Button } from "@/registry/ui/button";
-import { AlertModal, Modal } from "@/registry/ui/modal";
+import { Modal } from "@/registry/ui/modal";
 
-export const InfoModal = Modal.create(
+export const InfoModal = CommandModal.create(
   ({ username, remark }: { username: string; remark: string }) => {
-    const modal = Modal.useModal();
+    const modal = CommandModal.useModal();
 
+    console.log("modal.modalProps", modal.modalProps);
     return (
       <Modal
         {...modal.modalProps}
         footer={
           <Button
-            onClick={() => {
-              AlertModal.confirm({
-                title: "Are you sure to submit",
-                content: "Close the form pop-up after submission",
-                onConfirm: async () => {
-                  await new Promise((resolve) => setTimeout(resolve, 1000));
-                  modal.hide();
-                },
-              });
+            onClick={async () => {
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+              modal.hide();
             }}
           >
             Confirm
