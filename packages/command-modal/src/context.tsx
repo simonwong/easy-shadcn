@@ -1,19 +1,17 @@
-'use client';
-
 import {
   createContext,
   type PropsWithChildren,
   useContext,
   useMemo,
   useReducer,
-} from 'react';
-import { ALREADY_MOUNTED, MODAL_REGISTRY } from './constants';
+} from "react";
+import { ALREADY_MOUNTED, MODAL_REGISTRY } from "./constants";
 import {
   ActionType,
   type CommandModalAction,
   type CommandModalConfig,
   type CommandModalStore,
-} from './type';
+} from "./type";
 
 // Modal reducer used in useReducer hook.
 export const reducer = (
@@ -73,7 +71,7 @@ export const reducer = (
 
 let reducerDispatch: React.Dispatch<CommandModalAction> = () => {
   throw new Error(
-    'No dispatch method detected, did you embed your app with CommandModal.Provider?'
+    "No dispatch method detected, did you embed your app with CommandModal.Provider?"
   );
 };
 
@@ -128,7 +126,8 @@ const initialState: CommandModalStore = {};
 /**
  * 全局弹窗 ID 状态上下文
  */
-export const CommandModalContext = createContext<CommandModalStore>(initialState);
+export const CommandModalContext =
+  createContext<CommandModalStore>(initialState);
 
 /**
  * 各个弹窗 ID 上下文

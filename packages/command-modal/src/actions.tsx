@@ -1,25 +1,23 @@
-'use client';
-
-import type React from 'react';
-import { useContext, useEffect } from 'react';
+import type React from "react";
+import { useContext, useEffect } from "react";
 import {
   ALREADY_MOUNTED,
   getModalId,
   hideModalCallbacks,
   MODAL_REGISTRY,
   modalCallbacks,
-} from './constants';
+} from "./constants";
 import {
   CommandModalContext,
   CommandModalIdContext,
   reducerActions,
-} from './context';
+} from "./context";
 import type {
+  CommandModalArgs,
   CommandModalCallbacks,
   CreateModalComponent,
-  CommandModalArgs,
-} from './type';
-import { useModal } from './useModal';
+} from "./type";
+import { useModal } from "./useModal";
 
 /**
  * Helper function to create a promise with exposed resolve/reject callbacks.
@@ -77,7 +75,7 @@ export function show(
   args?: CommandModalArgs<React.FC>
 ) {
   const modalId = getModalId(modal);
-  if (typeof modal !== 'string' && !MODAL_REGISTRY[modalId]) {
+  if (typeof modal !== "string" && !MODAL_REGISTRY[modalId]) {
     register(modalId, modal);
   }
   reducerActions.showModal(modalId, args);

@@ -23,7 +23,10 @@
     "es"
   ],
   "scripts": {
-    "build": "tsdown"
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "Simon <wsj_simon@163.com>",
@@ -33,10 +36,17 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^16.0.0",
     "@types/react": "^19.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "jsdom": "^24.0.0",
     "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "tsdown": "^0.20.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^2.0.0",
+    "@vitest/coverage-v8": "^2.0.0"
   },
   "peerDependencies": {
     "react": ">=17"

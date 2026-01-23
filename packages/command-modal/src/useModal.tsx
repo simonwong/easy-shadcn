@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { useCallback, useContext, useEffect, useMemo } from 'react';
-import { hide, register, remove, show } from './actions';
+import type React from "react";
+import { useCallback, useContext, useEffect, useMemo } from "react";
+import { hide, register, remove, show } from "./actions";
 import {
   getModalId,
   hideModalCallbacks,
   MODAL_REGISTRY,
   modalCallbacks,
-} from './constants';
+} from "./constants";
 import {
   CommandModalConfigContext,
   CommandModalContext,
   CommandModalIdContext,
-} from './context';
-import { ModalHolder, type ModalHolderActions } from './holders';
+} from "./context";
+import { ModalHolder, type ModalHolderActions } from "./holders";
 import type {
-  CreateModalComponent,
   CommandModalArgs,
   CommandModalHandler,
+  CreateModalComponent,
   ShadCNModalProps,
-} from './type';
+} from "./type";
 
 export function useModal(): CommandModalHandler & {
   modalProps: ShadCNModalProps;
@@ -34,7 +34,7 @@ export function useModal(
 export function useModal<C, P extends Partial<CommandModalArgs<React.FC<C>>>>(
   modal: React.FC<C>,
   args?: P
-): Omit<CommandModalHandler, 'show'> & {
+): Omit<CommandModalHandler, "show"> & {
   show: (args?: P) => Promise<unknown>;
 } & {
   modalProps: ShadCNModalProps;
@@ -48,7 +48,7 @@ export function useModal(
   const contextModalId = useContext(CommandModalIdContext);
   const config = useContext(CommandModalConfigContext);
   let modalId: string | null = null;
-  const isUseComponent = modal && typeof modal !== 'string';
+  const isUseComponent = modal && typeof modal !== "string";
   if (modal) {
     modalId = getModalId(modal);
   } else {
@@ -57,7 +57,7 @@ export function useModal(
 
   // Only if contextModalId doesn't exist
   if (!modalId) {
-    throw new Error('No modal id found in CommandModal.useModal.');
+    throw new Error("No modal id found in CommandModal.useModal.");
   }
 
   // If use a component directly, register it.

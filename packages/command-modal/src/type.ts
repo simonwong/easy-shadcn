@@ -1,5 +1,5 @@
-import type { JSX } from 'react';
-import { symModalId } from './symbol';
+import type { JSX } from "react";
+import { symModalId } from "./symbol";
 
 export interface CommandModalState {
   id: string;
@@ -14,10 +14,10 @@ export interface CommandModalStore {
 }
 
 export const ActionType = {
-  showModal: 'command-modal/show',
-  setModalFlags: 'command-modal/set-flags',
-  hideModal: 'command-modal/hide',
-  removeModal: 'command-modal/remove',
+  showModal: "command-modal/show",
+  setModalFlags: "command-modal/set-flags",
+  hideModal: "command-modal/hide",
+  removeModal: "command-modal/remove",
 } as const;
 
 export interface CommandModalAction {

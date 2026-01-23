@@ -1,5 +1,5 @@
-import { symModalId } from './symbol';
-import type { CreateModalComponent, CommandModalCallbacks } from './type';
+import { symModalId } from "./symbol";
+import type { CommandModalCallbacks, CreateModalComponent } from "./type";
 
 export const MODAL_REGISTRY: {
   [id: string]: {
@@ -30,7 +30,7 @@ export function getModal(modalId: string): CreateModalComponent | undefined {
 }
 
 export function getModalId(modal: string | CreateModalComponent): string {
-  if (typeof modal === 'string') {
+  if (typeof modal === "string") {
     return modal;
   }
   if (!modal[symModalId]) {

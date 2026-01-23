@@ -1,1 +1,1 @@
-export const symModalId = Symbol('CommandModalId');
+export const symModalId = Symbol("CommandModalId");
