@@ -3,21 +3,27 @@
   "version": "0.0.1",
   "description": "use modal by command",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./lib/index.js",
+  "module": "./es/index.js",
+  "types": "./es/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "import": {
+        "types": "./es/index.d.ts",
+        "default": "./es/index.js"
+      }
     }
   },
   "files": [
-    "dist"
+    "lib",
+    "es"
   ],
   "scripts": {
-    "build": "tsup"
+    "build": "tsdown"
   },
   "keywords": [],
   "author": "Simon <wsj_simon@163.com>",
@@ -29,7 +35,7 @@
   "devDependencies": {
     "@types/react": "^19.0.0",
     "react": "^19.0.0",
-    "tsup": "^8.5.1",
+    "tsdown": "^0.20.1",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
