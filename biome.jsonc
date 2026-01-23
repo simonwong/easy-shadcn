@@ -1,6 +1,6 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
-  "extends": ["ultracite"],
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["ultracite/biome/core", "ultracite/biome/react"],
   "linter": {
     "rules": {
       "a11y": {
@@ -10,7 +10,8 @@
         "noNamespaceImport": "off"
       },
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useConsistentTypeDefinitions": "off"
       }
     }
   }
