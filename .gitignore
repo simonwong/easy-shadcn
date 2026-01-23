@@ -14,3 +14,7 @@ public/dist
 storybook-static
 .source
 next-env.d.ts
+
+# dist
+es
+lib
