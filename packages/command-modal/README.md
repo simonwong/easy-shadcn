@@ -1,4 +1,4 @@
-# Command Modal
+# @easy-shadcn/command-modal
 
 Imperative modal management library for React with TypeScript support.
 
@@ -45,6 +45,7 @@ CommandModal.show(MyModal);
 📚 **[Full Documentation](https://your-docs-url.com/docs/packages/command-modal)**
 
 Comprehensive guides including:
+
 - API Reference
 - Advanced Usage (Custom Adapters, Nested Modals, etc.)
 - TypeScript Guide

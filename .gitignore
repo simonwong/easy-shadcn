@@ -18,3 +18,6 @@ next-env.d.ts
 # dist
 es
 lib
+
+# vitest
+coverage

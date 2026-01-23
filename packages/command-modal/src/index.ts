@@ -3,9 +3,9 @@
  * Copyright (c) 2021 eBay Inc.
  * License: MIT
  */
-import { create, hide, register, remove, show } from './actions';
-import { CommandModalContext, Provider, reducer } from './context';
-import { createModalProps, useModal, useModalHolder } from './useModal';
+import { create, hide, register, remove, show } from "./actions";
+import { CommandModalContext, Provider, reducer } from "./context";
+import { createModalProps, useModal, useModalHolder } from "./useModal";
 
 const CommandModal = {
   Provider,
@@ -21,15 +21,14 @@ const CommandModal = {
   modalProps: createModalProps,
 };
 
+// Export default shadcn adapter
+export { shadcnModalAdapter } from "./adapters";
 // Export types
 export type {
-  CommandModalHandler,
   CommandModalConfig,
+  CommandModalHandler,
   ModalPropsAdapter,
   ShadCNModalProps,
-} from './type';
-
-// Export default shadcn adapter
-export { shadcnModalAdapter } from './adapters';
+} from "./type";
 
 export default CommandModal;

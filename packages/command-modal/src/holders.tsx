@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo } from 'react';
-import { hide, register, show, unregister } from './actions';
-import { getUid, MODAL_REGISTRY } from './constants';
-import type { CreateModalComponent } from './type';
+import { useCallback, useEffect, useMemo } from "react";
+import { hide, register, show, unregister } from "./actions";
+import { getUid, MODAL_REGISTRY } from "./constants";
+import type { CreateModalComponent } from "./type";
 
 /**
  * Declarative way to register a modal.
@@ -51,11 +51,11 @@ export function ModalHolder<T>({
 } & T) {
   const modalId = useMemo(() => getUid(), []);
   const ModalComp =
-    typeof modal === 'string'
+    typeof modal === "string"
       ? (MODAL_REGISTRY[modal]?.comp as CreateModalComponent<T>)
       : modal;
 
-  if (!ModalComp && typeof modal === 'string') {
+  if (!ModalComp && typeof modal === "string") {
     throw new Error(
       `No modal found for id: ${modal} in CommandModal.ModalHolder.`
     );
