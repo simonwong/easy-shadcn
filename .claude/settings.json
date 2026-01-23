@@ -13,6 +13,13 @@
     ]
   },
   "permissions": {
-    "allow": ["mcp__context7__resolve-library-id", "mcp__context7__query-docs"]
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)",
+      "mcp__web-reader__webReader",
+      "Bash(git -C ${PROJECT_ROOT} branch -a)"
+    ]
   }
 }
