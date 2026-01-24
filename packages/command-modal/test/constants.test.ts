@@ -5,12 +5,12 @@ import type { CreateModalComponent } from "../src/type";
 
 describe("constants", () => {
   describe("getUid", () => {
-    it("should generate unique IDs with _nice_modal_ prefix", () => {
+    it("should generate unique IDs with _command_modal_ prefix", () => {
       const id1 = getUid();
       const id2 = getUid();
 
-      expect(id1).toMatch(/^_nice_modal_\d+$/);
-      expect(id2).toMatch(/^_nice_modal_\d+$/);
+      expect(id1).toMatch(/^_command_modal_\d+$/);
+      expect(id2).toMatch(/^_command_modal_\d+$/);
       expect(id1).not.toBe(id2);
     });
 
@@ -19,9 +19,9 @@ describe("constants", () => {
       const id2 = getUid();
       const id3 = getUid();
 
-      const num1 = Number.parseInt(id1.replace("_nice_modal_", ""), 10);
-      const num2 = Number.parseInt(id2.replace("_nice_modal_", ""), 10);
-      const num3 = Number.parseInt(id3.replace("_nice_modal_", ""), 10);
+      const num1 = Number.parseInt(id1.replace("_command_modal_", ""), 10);
+      const num2 = Number.parseInt(id2.replace("_command_modal_", ""), 10);
+      const num3 = Number.parseInt(id3.replace("_command_modal_", ""), 10);
 
       expect(num2).toBe(num1 + 1);
       expect(num3).toBe(num2 + 1);
@@ -49,7 +49,7 @@ describe("constants", () => {
 
       const result = getModalId(TestComponent);
 
-      expect(result).toMatch(/^_nice_modal_\d+$/);
+      expect(result).toMatch(/^_command_modal_\d+$/);
       expect(TestComponent[symModalId]).toBe(result);
     });
 

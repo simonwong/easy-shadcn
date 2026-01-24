@@ -19,7 +19,7 @@ let modalIdCounter = 0;
  * Generates a unique modal ID for auto-registration.
  * This is used when modals are created without explicit IDs.
  */
-export const getUid = () => `_nice_modal_${modalIdCounter++}`;
+export const getUid = () => `_command_modal_${modalIdCounter++}`;
 
 export const modalCallbacks: CommandModalCallbacks = {};
 export const hideModalCallbacks: CommandModalCallbacks = {};
