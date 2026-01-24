@@ -1,5 +1,5 @@
-import { Button } from '@/registry/ui/button';
-import { Card } from '@/registry/ui/card';
+import { Button } from "@/registry/ui/button";
+import { Card } from "@/registry/ui/card";
 
 const Demo = () => {
   return (

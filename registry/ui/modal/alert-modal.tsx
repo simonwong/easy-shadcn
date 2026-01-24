@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import type { Root } from '@radix-ui/react-alert-dialog';
-import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
-import type { ClassValue } from 'class-variance-authority/types';
-import type React from 'react';
+import type { Root } from "@radix-ui/react-alert-dialog";
+import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
+import type { ClassValue } from "class-variance-authority/types";
+import type React from "react";
 import {
   type ComponentProps,
   type ReactNode,
   useEffect,
   useState,
-} from 'react';
-import { cn } from '@/lib/utils';
-import useLocale from '../../hooks/useLocale';
-import { Button } from '../button';
+} from "react";
+import { cn } from "@/lib/utils";
+import useLocale from "../../hooks/useLocale";
+import { Button } from "../button";
 
 export interface AlertModalProps
-  extends Omit<ComponentProps<typeof Root>, 'children'> {
+  extends Omit<ComponentProps<typeof Root>, "children"> {
   trigger?: ReactNode;
   title?: ReactNode;
   titleClassName?: ClassValue;
@@ -53,7 +53,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
 }) => {
   const [innerOpen, setInnerOpen] = useState(open);
 
-  const [locale] = useLocale('AlertModal');
+  const [locale] = useLocale("AlertModal");
 
   useEffect(() => {
     setInnerOpen(open);
@@ -82,14 +82,14 @@ export const AlertModal: React.FC<AlertModalProps> = ({
       <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal">
         <AlertDialogPrimitive.Overlay
           className={cn(
-            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=open]:animate-in'
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=open]:animate-in"
           )}
           data-slot="alert-dialog-overlay"
           {...props}
         />
         <AlertDialogPrimitive.Content
           className={cn(
-            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in sm:max-w-lg'
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in sm:max-w-lg"
           )}
           data-slot="alert-dialog-content"
         >
@@ -99,7 +99,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
           >
             {title && (
               <AlertDialogPrimitive.Title
-                className={cn('font-semibold text-lg', titleClassName)}
+                className={cn("font-semibold text-lg", titleClassName)}
                 data-slot="alert-dialog-title"
               >
                 {title}
@@ -108,7 +108,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
             {content && (
               <AlertDialogPrimitive.Description
                 className={cn(
-                  'text-muted-foreground text-sm',
+                  "text-muted-foreground text-sm",
                   contentClassName
                 )}
                 data-slot="alert-dialog-description"
@@ -119,7 +119,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
           </div>
           <div
             className={cn(
-              'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end',
+              "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
               footerClassName
             )}
             data-slot="alert-dialog-footer"
@@ -131,7 +131,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
               }}
               variant="outline"
               {...cancelProps}
-              className={cn('mt-2 sm:mt-0', cancelProps?.className)}
+              className={cn("mt-2 sm:mt-0", cancelProps?.className)}
             >
               {cancelText || locale.cancelText}
             </Button>

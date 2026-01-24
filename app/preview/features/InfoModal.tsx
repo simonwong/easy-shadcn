@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Button } from '@/registry/ui/button';
-import { AlertModal, Modal } from '@/registry/ui/modal';
+import { Button } from "@/registry/ui/button";
+import { AlertModal, Modal } from "@/registry/ui/modal";
 
 export const InfoModal = Modal.create(
   ({ username, remark }: { username: string; remark: string }) => {
@@ -14,8 +14,8 @@ export const InfoModal = Modal.create(
           <Button
             onClick={() => {
               AlertModal.confirm({
-                title: 'Are you sure to submit',
-                content: 'Close the form pop-up after submission',
+                title: "Are you sure to submit",
+                content: "Close the form pop-up after submission",
                 onConfirm: async () => {
                   await new Promise((resolve) => setTimeout(resolve, 1000));
                   modal.hide();

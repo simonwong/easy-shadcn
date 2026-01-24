@@ -9,7 +9,7 @@
     "package:build": "pnpm -r build",
     "registry:build": "shadcn build",
     "postinstall": "fumadocs-mdx",
-    "lint": "ultracite lint",
+    "lint:fix": "ultracite fix",
     "ci:publish": "pnpm publish -r"
   },
   "dependencies": {

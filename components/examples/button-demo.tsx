@@ -1,5 +1,5 @@
-import { XCircleIcon } from 'lucide-react';
-import { Button } from '@/registry/ui/button';
+import { XCircleIcon } from "lucide-react";
+import { Button } from "@/registry/ui/button";
 
 const Demo = () => {
   const handleAsyncAction = async () => {

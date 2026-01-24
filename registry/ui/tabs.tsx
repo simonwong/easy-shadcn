@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
 import type {
   TabsProps as InternalTabsProps,
   TabsContentProps,
-} from '@radix-ui/react-tabs';
-import * as TabsPrimitive from '@radix-ui/react-tabs';
-import type { ClassValue } from 'class-variance-authority/types';
-import React, { type ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+} from "@radix-ui/react-tabs";
+import * as TabsPrimitive from "@radix-ui/react-tabs";
+import type { ClassValue } from "class-variance-authority/types";
+import React, { type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 export interface TabsProps extends InternalTabsProps {
   option: {
@@ -21,7 +21,7 @@ export interface TabsProps extends InternalTabsProps {
   tabBarLoop?: boolean;
   tabBarClassName?: ClassValue;
   triggerClassName?: ClassValue;
-  contentProps?: Omit<TabsContentProps, 'value'>;
+  contentProps?: Omit<TabsContentProps, "value">;
 }
 
 export const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
@@ -39,13 +39,13 @@ export const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
   ) => {
     return (
       <TabsPrimitive.Root
-        className={cn('flex flex-col gap-2', className)}
+        className={cn("flex flex-col gap-2", className)}
         ref={ref}
         {...props}
       >
         <TabsPrimitive.List
           className={cn(
-            'inline-flex h-9 w-fit items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground',
+            "inline-flex h-9 w-fit items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground",
             tabBarClassName
           )}
           data-slot="tabs-list"
@@ -69,7 +69,7 @@ export const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
         {option.map((opt) => (
           <TabsPrimitive.Content
             className={cn(
-              'flex-1 outline-none',
+              "flex-1 outline-none",
               opt.contentClassName,
               className
             )}
@@ -86,6 +86,6 @@ export const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
   }
 );
 
-Tabs.displayName = 'Tabs';
+Tabs.displayName = "Tabs";
 
 export default Tabs;

@@ -1,14 +1,14 @@
-import { enUS as DateEnUS } from 'date-fns/locale';
-import type { Locale } from './interface';
+import { enUS as DateEnUS } from "date-fns/locale";
+import type { Locale } from "./interface";
 
 const enUS: Locale = {
-  locale: 'en',
+  locale: "en",
   AlertModal: {
-    okText: 'OK',
-    cancelText: 'Cancel',
+    okText: "OK",
+    cancelText: "Cancel",
   },
   Select: {
-    empty: 'No Data',
+    empty: "No Data",
   },
   Calendar: DateEnUS,
 };

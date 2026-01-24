@@ -1,1 +1,1 @@
-export type { Locale } from './interface';
+export type { Locale } from "./interface";

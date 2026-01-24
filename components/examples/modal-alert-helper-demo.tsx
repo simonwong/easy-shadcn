@@ -1,5 +1,5 @@
-import { Button } from '@/registry/ui/button';
-import { AlertModal } from '@/registry/ui/modal';
+import { Button } from "@/registry/ui/button";
+import { AlertModal } from "@/registry/ui/modal";
 
 const Demo = () => {
   return (
@@ -7,8 +7,8 @@ const Demo = () => {
       <Button
         onClick={() => {
           AlertModal.alert({
-            title: 'Tips',
-            content: 'Alert Content',
+            title: "Tips",
+            content: "Alert Content",
           });
         }}
       >
@@ -17,16 +17,16 @@ const Demo = () => {
       <Button
         onClick={() => {
           AlertModal.confirm({
-            title: 'Tips',
+            title: "Tips",
             content:
-              'If onConfirm or onCancel is asynchronous events, the button will automatically display loading',
+              "If onConfirm or onCancel is asynchronous events, the button will automatically display loading",
             onCancel: () => {
-              console.log('cancel');
+              console.log("cancel");
             },
             onConfirm: () =>
               new Promise((resolve) => {
                 setTimeout(() => {
-                  console.log('confirm');
+                  console.log("confirm");
                   resolve();
                 }, 1000);
               }),
@@ -38,12 +38,12 @@ const Demo = () => {
       <Button
         onClick={async () => {
           await AlertModal.alert({
-            title: 'Tips1',
-            content: 'Alert Content-1',
+            title: "Tips1",
+            content: "Alert Content-1",
           });
           await AlertModal.alert({
-            title: 'Tips2',
-            content: 'Alert Content-2',
+            title: "Tips2",
+            content: "Alert Content-2",
           });
         }}
       >
@@ -52,7 +52,7 @@ const Demo = () => {
       <Button
         onClick={async () => {
           await AlertModal.alert({
-            title: 'Tips1',
+            title: "Tips1",
             content: (
               <div>
                 <div>Alert Content-1</div>
@@ -64,8 +64,8 @@ const Demo = () => {
             ),
             onConfirm: async () => {
               await AlertModal.alert({
-                title: 'Tips1-1',
-                content: 'Alert Content-1-1',
+                title: "Tips1-1",
+                content: "Alert Content-1-1",
               });
             },
           });

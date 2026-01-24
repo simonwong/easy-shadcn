@@ -1,10 +1,10 @@
-import * as React from 'react';
-import type { LocaleContextProps } from '../locale/context';
-import LocaleContext from '../locale/context';
-import defaultLocaleData from '../locale/en_US';
-import type { Locale } from '../locale/interface';
+import * as React from "react";
+import type { LocaleContextProps } from "../locale/context";
+import LocaleContext from "../locale/context";
+import defaultLocaleData from "../locale/en_US";
+import type { Locale } from "../locale/interface";
 
-export type LocaleComponentName = Exclude<keyof Locale, 'locale'>;
+export type LocaleComponentName = Exclude<keyof Locale, "locale">;
 
 const useLocale = <C extends LocaleComponentName = LocaleComponentName>(
   componentName: C,
@@ -18,7 +18,7 @@ const useLocale = <C extends LocaleComponentName = LocaleComponentName>(
     const defLocale = defaultLocale || defaultLocaleData[componentName];
     const localeFromContext = fullLocale?.[componentName] ?? {};
     return {
-      ...(typeof defLocale === 'function' ? defLocale() : defLocale),
+      ...(typeof defLocale === "function" ? defLocale() : defLocale),
       ...(localeFromContext || {}),
     };
   }, [componentName, defaultLocale, fullLocale]);

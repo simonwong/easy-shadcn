@@ -1,70 +1,70 @@
-import { cva } from 'class-variance-authority';
-import type React from 'react';
-import type { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { cva } from "class-variance-authority";
+import type React from "react";
+import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 const cardVariants = cva(
-  'flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm',
+  "flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm",
   {
     variants: {
       size: {
-        sm: 'gap-3 py-3',
-        default: 'gap-6 py-6',
+        sm: "gap-3 py-3",
+        default: "gap-6 py-6",
       },
     },
     defaultVariants: {
-      size: 'default',
+      size: "default",
     },
   }
 );
 
-const cardElementVariants = cva('', {
+const cardElementVariants = cva("", {
   variants: {
     element: {
       header:
-        '@container/card-header flex items-center justify-between gap-1.5',
-      content: '',
-      footer: 'flex items-center',
+        "@container/card-header flex items-center justify-between gap-1.5",
+      content: "",
+      footer: "flex items-center",
     },
     size: {
-      sm: '',
-      default: '',
+      sm: "",
+      default: "",
     },
     hasDivider: {
-      true: '',
-      false: '',
+      true: "",
+      false: "",
     },
   },
   compoundVariants: [
-    { element: 'header', size: 'sm', class: 'px-3' },
-    { element: 'header', size: 'default', class: 'px-6' },
-    { element: 'header', size: 'sm', hasDivider: true, class: 'border-b pb-3' },
+    { element: "header", size: "sm", class: "px-3" },
+    { element: "header", size: "default", class: "px-6" },
+    { element: "header", size: "sm", hasDivider: true, class: "border-b pb-3" },
     {
-      element: 'header',
-      size: 'default',
+      element: "header",
+      size: "default",
       hasDivider: true,
-      class: 'border-b pb-6',
+      class: "border-b pb-6",
     },
-    { element: 'content', size: 'sm', class: 'px-3' },
-    { element: 'content', size: 'default', class: 'px-6' },
-    { element: 'footer', size: 'sm', class: 'px-3' },
-    { element: 'footer', size: 'default', class: 'px-6' },
+    { element: "content", size: "sm", class: "px-3" },
+    { element: "content", size: "default", class: "px-6" },
+    { element: "footer", size: "sm", class: "px-3" },
+    { element: "footer", size: "default", class: "px-6" },
 
-    { element: 'footer', size: 'sm', hasDivider: true, class: 'border-t pt-3' },
+    { element: "footer", size: "sm", hasDivider: true, class: "border-t pt-3" },
     {
-      element: 'footer',
-      size: 'default',
+      element: "footer",
+      size: "default",
       hasDivider: true,
-      class: 'border-t pt-6',
+      class: "border-t pt-6",
     },
   ],
   defaultVariants: {
-    size: 'default',
+    size: "default",
     hasDivider: false,
   },
 });
 
-export interface CardProps extends Omit<React.ComponentProps<'div'>, 'title'> {
+export interface CardProps extends Omit<React.ComponentProps<"div">, "title"> {
   title?: ReactNode;
   titleClassName?: string;
   description?: ReactNode;
@@ -75,7 +75,7 @@ export interface CardProps extends Omit<React.ComponentProps<'div'>, 'title'> {
   footer?: ReactNode;
   footerClassName?: string;
   dividers?: boolean | { header?: boolean; footer?: boolean };
-  size?: 'sm' | 'default';
+  size?: "sm" | "default";
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -95,9 +95,9 @@ export const Card: React.FC<CardProps> = ({
   ...resetProps
 }) => {
   const showHeaderDivider =
-    typeof dividers === 'boolean' ? dividers : dividers?.header;
+    typeof dividers === "boolean" ? dividers : dividers?.header;
   const showFooterDivider =
-    typeof dividers === 'boolean' ? dividers : dividers?.footer;
+    typeof dividers === "boolean" ? dividers : dividers?.footer;
 
   return (
     <div
@@ -109,7 +109,7 @@ export const Card: React.FC<CardProps> = ({
         <div
           className={cn(
             cardElementVariants({
-              element: 'header',
+              element: "header",
               size,
               hasDivider: showHeaderDivider,
             })
@@ -119,7 +119,7 @@ export const Card: React.FC<CardProps> = ({
           <div>
             {title && (
               <div
-                className={cn('font-semibold leading-none', titleClassName)}
+                className={cn("font-semibold leading-none", titleClassName)}
                 data-slot="card-title"
               >
                 {title}
@@ -128,7 +128,7 @@ export const Card: React.FC<CardProps> = ({
             {description && (
               <div
                 className={cn(
-                  'text-muted-foreground text-sm',
+                  "text-muted-foreground text-sm",
                   descriptionClassName
                 )}
                 data-slot="card-description"
@@ -139,7 +139,7 @@ export const Card: React.FC<CardProps> = ({
           </div>
           {action && (
             <div
-              className={cn('self-start justify-self-end', actionClassName)}
+              className={cn("self-start justify-self-end", actionClassName)}
               data-slot="card-action"
             >
               {action}
@@ -151,7 +151,7 @@ export const Card: React.FC<CardProps> = ({
         <div
           className={cn(
             cardElementVariants({
-              element: 'content',
+              element: "content",
               size,
             }),
             contentClassName
@@ -165,7 +165,7 @@ export const Card: React.FC<CardProps> = ({
         <div
           className={cn(
             cardElementVariants({
-              element: 'footer',
+              element: "footer",
               size,
               hasDivider: showFooterDivider,
             }),

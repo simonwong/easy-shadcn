@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
-import { Button } from '@/registry/ui/button';
-import { Modal } from '@/registry/ui/modal';
+import { useRef, useState } from "react";
+import { Button } from "@/registry/ui/button";
+import { Modal } from "@/registry/ui/modal";
 
 const CommandModalModal = Modal.create(({ count }: { count: number }) => {
   const modal = Modal.useModal();

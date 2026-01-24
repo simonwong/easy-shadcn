@@ -1,33 +1,33 @@
-import { RootProvider } from 'fumadocs-ui/provider/next';
-import type { ReactNode } from 'react';
-import { baseUrl, createMetadata } from '@/lib/metadata';
-import './globals.css';
-import type { Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { RootProvider } from "fumadocs-ui/provider/next";
+import type { ReactNode } from "react";
+import { baseUrl, createMetadata } from "@/lib/metadata";
+import "./globals.css";
+import type { Viewport } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 
 export const metadata = createMetadata({
   title: {
-    template: '%s | Easy Shadcn',
-    default: 'Easy Shadcn',
+    template: "%s | Easy Shadcn",
+    default: "Easy Shadcn",
   },
-  description: 'Use Shadcn UI with ease',
+  description: "Use Shadcn UI with ease",
   metadataBase: baseUrl,
 });
 
 const geist = Geist({
-  variable: '--font-sans',
-  subsets: ['latin'],
+  variable: "--font-sans",
+  subsets: ["latin"],
 });
 
 const mono = Geist_Mono({
-  variable: '--font-mono',
-  subsets: ['latin'],
+  variable: "--font-mono",
+  subsets: ["latin"],
 });
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#0A0A0A' },
-    { media: '(prefers-color-scheme: light)', color: '#fff' },
+    { media: "(prefers-color-scheme: dark)", color: "#0A0A0A" },
+    { media: "(prefers-color-scheme: light)", color: "#fff" },
   ],
 };
 export default function Layout({ children }: { children: ReactNode }) {

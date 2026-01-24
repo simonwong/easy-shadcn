@@ -1,12 +1,12 @@
-import { AlertModal, type AlertModalProps } from './alert-modal';
-import CommandModal from '@easy-shadcn/command-modal';
+import CommandModal from "@easy-shadcn/command-modal";
+import { AlertModal, type AlertModalProps } from "./alert-modal";
 
 // TODO: modalProps will cover props
 
 const alert = (
   props: Omit<
     AlertModalProps,
-    'open' | 'onOpenChange' | 'cancelProps' | 'onCancel' | 'cancelText'
+    "open" | "onOpenChange" | "cancelProps" | "onCancel" | "cancelText"
   >
 ) => {
   const AlertCommandModal = CommandModal.create(() => {
@@ -16,7 +16,7 @@ const alert = (
         {...props}
         {...modalProps}
         cancelProps={{
-          className: 'hidden',
+          className: "hidden",
         }}
         onConfirm={async () => {
           await props.onConfirm?.();
@@ -29,7 +29,7 @@ const alert = (
   return CommandModal.show(AlertCommandModal);
 };
 
-const confirm = (props: Omit<AlertModalProps, 'open' | 'onOpenChange'>) => {
+const confirm = (props: Omit<AlertModalProps, "open" | "onOpenChange">) => {
   const AlertCommandModal = CommandModal.create(() => {
     const { modalProps, resolve, reject } = CommandModal.useModal();
 
