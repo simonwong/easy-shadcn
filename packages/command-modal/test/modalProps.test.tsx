@@ -9,9 +9,8 @@ import { describe, expect, it, vi } from "vitest";
 import { create, hide, show } from "../src/actions";
 import { hideModalCallbacks } from "../src/constants";
 import { Provider } from "../src/context";
-import { modalProps } from "../src/index";
 import type { CommandModalHandler } from "../src/type";
-import { useModal } from "../src/useModal";
+import { createModalProps as modalProps, useModal } from "../src/useModal";
 
 describe("modalProps", () => {
   describe("open property", () => {

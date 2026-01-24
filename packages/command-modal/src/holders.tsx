@@ -61,10 +61,7 @@ export function ModalHolder<T>({
     );
   }
 
-  handler.show = useCallback(
-    (args: unknown) => show(modalId, args),
-    [modalId]
-  );
+  handler.show = useCallback((args: unknown) => show(modalId, args), [modalId]);
   handler.hide = useCallback(() => hide(modalId), [modalId]);
 
   return <ModalComp id={modalId} {...(restProps as T)} />;

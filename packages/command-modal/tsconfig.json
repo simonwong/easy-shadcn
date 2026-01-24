@@ -7,7 +7,7 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "resolveJsonModule": true,
-    "moduleResolution":"bundler",
+    "moduleResolution": "bundler",
     "incremental": false,
     "strictNullChecks": true,
     "rootDir": "src",

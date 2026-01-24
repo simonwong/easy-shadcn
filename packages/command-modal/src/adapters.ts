@@ -7,7 +7,7 @@ import type {
   CommandModalHandler,
   ModalPropsAdapter,
   ShadCNModalProps,
-} from './type';
+} from "./type";
 
 /**
  * Default adapter for shadcn/ui modal components.
