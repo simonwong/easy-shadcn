@@ -60,13 +60,31 @@ describe("actions", () => {
       const TestComponent: CreateModalComponent = () => null;
       register("test-modal", TestComponent);
 
-      unregister("test-modal");
+      // unregister calls reducerActions.removeModal which requires Provider context
+      render(
+        <Provider>
+          <div />
+        </Provider>
+      );
+
+      act(() => {
+        unregister("test-modal");
+      });
 
       expect(MODAL_REGISTRY["test-modal"]).toBeUndefined();
     });
 
     it("should handle unregistering non-existent modal", () => {
-      expect(() => unregister("non-existent")).not.toThrow();
+      // unregister calls reducerActions.removeModal which requires Provider context
+      render(
+        <Provider>
+          <div />
+        </Provider>
+      );
+
+      act(() => {
+        expect(() => unregister("non-existent")).not.toThrow();
+      });
     });
   });
 
