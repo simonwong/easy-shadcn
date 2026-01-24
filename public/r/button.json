@@ -4,9 +4,7 @@
   "type": "registry:component",
   "title": "Button",
   "description": "",
-  "registryDependencies": [
-    "@radix-ui/react-slot"
-  ],
+  "registryDependencies": ["@radix-ui/react-slot"],
   "files": [
     {
       "path": "registry/ui/button.tsx",

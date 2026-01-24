@@ -1,4 +1,4 @@
-import { Modal } from '@/registry/ui/modal';
+import { Modal } from "@/registry/ui/modal";
 
 const App = () => {
   return (

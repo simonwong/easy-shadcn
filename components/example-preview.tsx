@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
 import {
   CodeBlockTab,
   CodeBlockTabs,
   CodeBlockTabsList,
   CodeBlockTabsTrigger,
-} from 'fumadocs-ui/components/codeblock';
-import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
-import type React from 'react';
-import type { PropsWithChildren } from 'react';
-import ExampleSet from '@/components/examples';
-import { cn } from '@/lib/utils';
+} from "fumadocs-ui/components/codeblock";
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
+import type React from "react";
+import type { PropsWithChildren } from "react";
+import ExampleSet from "@/components/examples";
+import { cn } from "@/lib/utils";
 
 export interface ExamplePreviewProps {
   name: keyof typeof ExampleSet;
@@ -40,7 +40,7 @@ export const ExamplePreview: React.FC<
         <CodeBlockTab value="preview">
           <div
             className={cn(
-              'not-prose bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]'
+              "not-prose bg-[radial-gradient(#00000020_1px,transparent_1px)] p-5 [background-size:16px_16px]"
             )}
           >
             {<Preview />}

@@ -1,4 +1,4 @@
-import { Tabs } from '@/registry/ui/tabs';
+import { Tabs } from "@/registry/ui/tabs";
 
 const Demo = () => {
   return (
@@ -6,8 +6,8 @@ const Demo = () => {
       defaultValue="first"
       option={[
         {
-          title: 'First',
-          value: 'first',
+          title: "First",
+          value: "first",
           content: (
             <div className="rounded-2xl border bg-accent p-6">
               First Content
@@ -15,8 +15,8 @@ const Demo = () => {
           ),
         },
         {
-          title: 'Second',
-          value: 'second',
+          title: "Second",
+          value: "second",
           content: (
             <div className="rounded-2xl border bg-accent-foreground p-6 text-accent">
               Second Content

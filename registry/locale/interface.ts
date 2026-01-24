@@ -1,4 +1,4 @@
-import type { Locale as DateLocale } from 'date-fns';
+import type { Locale as DateLocale } from "date-fns";
 
 export interface Locale {
   locale: string;

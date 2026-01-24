@@ -1,5 +1,5 @@
-import { Button } from '@/registry/ui/button';
-import { AlertModal } from '@/registry/ui/modal';
+import { Button } from "@/registry/ui/button";
+import { AlertModal } from "@/registry/ui/modal";
 
 const Demo = () => {
   return (
