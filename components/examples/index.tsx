@@ -1,11 +1,12 @@
+
 // generate this file by scripts/genarate-example-entry.mjs
 import React from "react";
 
 export default {
   "button-demo": {
     component: React.lazy(() => import("./button-demo")),
-    codeString: `import { XCircleIcon } from 'lucide-react';
-import { Button } from '@/registry/ui/button';
+    codeString: `import { XCircleIcon } from "lucide-react";
+import { Button } from "@/registry/ui/button";
 
 const Demo = () => {
   const handleAsyncAction = async () => {
@@ -26,13 +27,13 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
 
   "card-demo": {
     component: React.lazy(() => import("./card-demo")),
-    codeString: `import { Button } from '@/registry/ui/button';
-import { Card } from '@/registry/ui/card';
+    codeString: `import { Button } from "@/registry/ui/button";
+import { Card } from "@/registry/ui/card";
 
 const Demo = () => {
   return (
@@ -72,13 +73,13 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
 
   "modal-alert-demo": {
     component: React.lazy(() => import("./modal-alert-demo")),
-    codeString: `import { Button } from '@/registry/ui/button';
-import { AlertModal } from '@/registry/ui/modal';
+    codeString: `import { Button } from "@/registry/ui/button";
+import { AlertModal } from "@/registry/ui/modal";
 
 const Demo = () => {
   return (
@@ -93,13 +94,13 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
 
   "modal-alert-helper-demo": {
     component: React.lazy(() => import("./modal-alert-helper-demo")),
-    codeString: `import { Button } from '@/registry/ui/button';
-import { AlertModal } from '@/registry/ui/modal';
+    codeString: `import { Button } from "@/registry/ui/button";
+import { AlertModal } from "@/registry/ui/modal";
 
 const Demo = () => {
   return (
@@ -107,8 +108,8 @@ const Demo = () => {
       <Button
         onClick={() => {
           AlertModal.alert({
-            title: 'Tips',
-            content: 'Alert Content',
+            title: "Tips",
+            content: "Alert Content",
           });
         }}
       >
@@ -117,16 +118,16 @@ const Demo = () => {
       <Button
         onClick={() => {
           AlertModal.confirm({
-            title: 'Tips',
+            title: "Tips",
             content:
-              'If onConfirm or onCancel is asynchronous events, the button will automatically display loading',
+              "If onConfirm or onCancel is asynchronous events, the button will automatically display loading",
             onCancel: () => {
-              console.log('cancel');
+              console.log("cancel");
             },
             onConfirm: () =>
               new Promise((resolve) => {
                 setTimeout(() => {
-                  console.log('confirm');
+                  console.log("confirm");
                   resolve();
                 }, 1000);
               }),
@@ -138,12 +139,12 @@ const Demo = () => {
       <Button
         onClick={async () => {
           await AlertModal.alert({
-            title: 'Tips1',
-            content: 'Alert Content-1',
+            title: "Tips1",
+            content: "Alert Content-1",
           });
           await AlertModal.alert({
-            title: 'Tips2',
-            content: 'Alert Content-2',
+            title: "Tips2",
+            content: "Alert Content-2",
           });
         }}
       >
@@ -152,7 +153,7 @@ const Demo = () => {
       <Button
         onClick={async () => {
           await AlertModal.alert({
-            title: 'Tips1',
+            title: "Tips1",
             content: (
               <div>
                 <div>Alert Content-1</div>
@@ -164,8 +165,8 @@ const Demo = () => {
             ),
             onConfirm: async () => {
               await AlertModal.alert({
-                title: 'Tips1-1',
-                content: 'Alert Content-1-1',
+                title: "Tips1-1",
+                content: "Alert Content-1-1",
               });
             },
           });
@@ -178,14 +179,14 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
 
   "modal-demo": {
     component: React.lazy(() => import("./modal-demo")),
-    codeString: `import { useState } from 'react';
-import { Button } from '@/registry/ui/button';
-import { Modal } from '@/registry/ui/modal';
+    codeString: `import { useState } from "react";
+import { Button } from "@/registry/ui/button";
+import { Modal } from "@/registry/ui/modal";
 
 const Demo = () => {
   const [showModal, setShowModal] = useState(false);
@@ -221,14 +222,14 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
 
   "modal-helper-holder-demo": {
     component: React.lazy(() => import("./modal-helper-holder-demo")),
-    codeString: `import { useRef, useState } from 'react';
-import { Button } from '@/registry/ui/button';
-import { Modal } from '@/registry/ui/modal';
+    codeString: `import { useRef, useState } from "react";
+import { Button } from "@/registry/ui/button";
+import { Modal } from "@/registry/ui/modal";
 
 const CommandModalModal = Modal.create(({ count }: { count: number }) => {
   const modal = Modal.useModal();
@@ -282,12 +283,12 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
 
   "modal-provider-demo": {
     component: React.lazy(() => import("./modal-provider-demo")),
-    codeString: `import { Modal } from '@/registry/ui/modal';
+    codeString: `import { Modal } from "@/registry/ui/modal";
 
 const App = () => {
   return (
@@ -298,12 +299,12 @@ const App = () => {
 };
 
 export default App;
-`,
+`
   },
 
   "tabs-demo": {
     component: React.lazy(() => import("./tabs-demo")),
-    codeString: `import { Tabs } from '@/registry/ui/tabs';
+    codeString: `import { Tabs } from "@/registry/ui/tabs";
 
 const Demo = () => {
   return (
@@ -311,8 +312,8 @@ const Demo = () => {
       defaultValue="first"
       option={[
         {
-          title: 'First',
-          value: 'first',
+          title: "First",
+          value: "first",
           content: (
             <div className="rounded-2xl border bg-accent p-6">
               First Content
@@ -320,8 +321,8 @@ const Demo = () => {
           ),
         },
         {
-          title: 'Second',
-          value: 'second',
+          title: "Second",
+          value: "second",
           content: (
             <div className="rounded-2xl border bg-accent-foreground p-6 text-accent">
               Second Content
@@ -334,6 +335,6 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
-} as const;
+} as const
