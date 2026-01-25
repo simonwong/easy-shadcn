@@ -13,7 +13,7 @@ describe("reducer", () => {
   describe("showModal action", () => {
     it("should create modal state with visible=false and delayVisible=true when not mounted", () => {
       const action = {
-        type: ActionType.showModal as const,
+        type: ActionType.showModal,
         payload: {
           modalId: "test-modal",
           args: { foo: "bar" },
@@ -34,7 +34,7 @@ describe("reducer", () => {
       ALREADY_MOUNTED["test-modal"] = true;
 
       const action = {
-        type: ActionType.showModal as const,
+        type: ActionType.showModal,
         payload: {
           modalId: "test-modal",
           args: { foo: "bar" },
@@ -60,7 +60,7 @@ describe("reducer", () => {
       };
 
       const action = {
-        type: ActionType.showModal as const,
+        type: ActionType.showModal,
         payload: {
           modalId: "test-modal",
           args: { newArg: "value" },
@@ -74,7 +74,7 @@ describe("reducer", () => {
 
     it("should handle show without args", () => {
       const action = {
-        type: ActionType.showModal as const,
+        type: ActionType.showModal,
         payload: {
           modalId: "test-modal",
         },
@@ -97,7 +97,7 @@ describe("reducer", () => {
       };
 
       const action = {
-        type: ActionType.hideModal as const,
+        type: ActionType.hideModal,
         payload: {
           modalId: "test-modal",
         },
@@ -111,7 +111,7 @@ describe("reducer", () => {
 
     it("should return same state when modal does not exist", () => {
       const action = {
-        type: ActionType.hideModal as const,
+        type: ActionType.hideModal,
         payload: {
           modalId: "non-existent",
         },
@@ -137,7 +137,7 @@ describe("reducer", () => {
       };
 
       const action = {
-        type: ActionType.removeModal as const,
+        type: ActionType.removeModal,
         payload: {
           modalId: "test-modal",
         },
@@ -158,7 +158,7 @@ describe("reducer", () => {
       };
 
       const action = {
-        type: ActionType.removeModal as const,
+        type: ActionType.removeModal,
         payload: {
           modalId: "non-existent",
         },
@@ -181,7 +181,7 @@ describe("reducer", () => {
       };
 
       const action = {
-        type: ActionType.setModalFlags as const,
+        type: ActionType.setModalFlags,
         payload: {
           modalId: "test-modal",
           flags: { keepMounted: true },
@@ -203,7 +203,7 @@ describe("reducer", () => {
       };
 
       const action = {
-        type: ActionType.setModalFlags as const,
+        type: ActionType.setModalFlags,
         payload: {
           modalId: "test-modal",
           flags: { keepMounted: true, delayVisible: false },
@@ -218,7 +218,7 @@ describe("reducer", () => {
 
     it("should handle setting flags on non-existent modal (creates partial state)", () => {
       const action = {
-        type: ActionType.setModalFlags as const,
+        type: ActionType.setModalFlags,
         payload: {
           modalId: "new-modal",
           flags: { keepMounted: true },
@@ -241,7 +241,7 @@ describe("reducer", () => {
       };
 
       const action = {
-        type: "unknown-action" as const,
+        type: "unknown-action",
         payload: {
           modalId: "test-modal",
         },

@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
 import { create, hide, remove, show } from "../src/actions";
 import { hideModalCallbacks } from "../src/constants";
 import { Provider } from "../src/context";
-import CommandModal from "../src/index";
+import * as CommandModal from "../src/index";
 import { useModal } from "../src/useModal";
 
 describe("Integration Tests", () => {
@@ -561,7 +561,7 @@ describe("Integration Tests", () => {
       expect(CommandModal.useModal).toBeDefined();
       expect(CommandModal.useModalHolder).toBeDefined();
       expect(CommandModal.reducer).toBeDefined();
-      expect(CommandModal.modalProps).toBeDefined();
+      expect(CommandModal.createModalProps).toBeDefined();
     });
 
     it("should work with CommandModal.Provider and CommandModal.show", async () => {
