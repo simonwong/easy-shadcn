@@ -10,7 +10,7 @@ import { create, hide, show } from "../src/actions";
 import { hideModalCallbacks } from "../src/constants";
 import { Provider } from "../src/context";
 import type { CommandModalHandler } from "../src/type";
-import { createModalProps as modalProps, useModal } from "../src/useModal";
+import { createModalProps, useModal } from "../src/useModal";
 
 describe("modalProps", () => {
   describe("open property", () => {
@@ -27,7 +27,7 @@ describe("modalProps", () => {
         resolveHide: vi.fn(),
       };
 
-      const result = modalProps(mockHandler);
+      const result = createModalProps(mockHandler);
 
       expect(result.open).toBe(true);
     });
@@ -45,7 +45,7 @@ describe("modalProps", () => {
         resolveHide: vi.fn(),
       };
 
-      const result = modalProps(mockHandler);
+      const result = createModalProps(mockHandler);
 
       expect(result.open).toBe(false);
     });
@@ -66,7 +66,7 @@ describe("modalProps", () => {
         resolveHide: vi.fn(),
       };
 
-      const result = modalProps(mockHandler);
+      const result = createModalProps(mockHandler);
       result.onOpenChange?.(true);
 
       expect(showMock).toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe("modalProps", () => {
         resolveHide: vi.fn(),
       };
 
-      const result = modalProps(mockHandler);
+      const result = createModalProps(mockHandler);
       result.onOpenChange?.(false);
 
       expect(hideMock).toHaveBeenCalled();
@@ -108,7 +108,7 @@ describe("modalProps", () => {
         resolveHide: resolveHideMock,
       };
 
-      const result = modalProps(mockHandler);
+      const result = createModalProps(mockHandler);
       result.afterClose?.();
 
       expect(resolveHideMock).toHaveBeenCalled();
@@ -128,7 +128,7 @@ describe("modalProps", () => {
         resolveHide: vi.fn(),
       };
 
-      const result = modalProps(mockHandler);
+      const result = createModalProps(mockHandler);
       result.afterClose?.();
 
       expect(removeMock).toHaveBeenCalled();
@@ -148,7 +148,7 @@ describe("modalProps", () => {
         resolveHide: vi.fn(),
       };
 
-      const result = modalProps(mockHandler);
+      const result = createModalProps(mockHandler);
       result.afterClose?.();
 
       expect(removeMock).not.toHaveBeenCalled();
@@ -157,7 +157,7 @@ describe("modalProps", () => {
 
   describe("integration with useModal.modalProps", () => {
     it("should have same behavior as standalone modalProps function", async () => {
-      let capturedModalProps: ReturnType<typeof modalProps> | undefined;
+      let capturedModalProps: ReturnType<typeof createModalProps> | undefined;
 
       const TestModal = create(() => {
         const modal = useModal();
