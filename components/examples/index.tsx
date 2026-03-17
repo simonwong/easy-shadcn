@@ -1,4 +1,3 @@
-
 // generate this file by scripts/genarate-example-entry.mjs
 import React from "react";
 
@@ -27,7 +26,7 @@ const Demo = () => {
 };
 
 export default Demo;
-`
+`,
   },
 
   "card-demo": {
@@ -73,7 +72,7 @@ const Demo = () => {
 };
 
 export default Demo;
-`
+`,
   },
 
   "modal-alert-demo": {
@@ -94,7 +93,7 @@ const Demo = () => {
 };
 
 export default Demo;
-`
+`,
   },
 
   "modal-alert-helper-demo": {
@@ -179,7 +178,7 @@ const Demo = () => {
 };
 
 export default Demo;
-`
+`,
   },
 
   "modal-demo": {
@@ -222,7 +221,7 @@ const Demo = () => {
 };
 
 export default Demo;
-`
+`,
   },
 
   "modal-helper-holder-demo": {
@@ -283,7 +282,7 @@ const Demo = () => {
 };
 
 export default Demo;
-`
+`,
   },
 
   "modal-provider-demo": {
@@ -299,7 +298,7 @@ const App = () => {
 };
 
 export default App;
-`
+`,
   },
 
   "tabs-demo": {
@@ -335,6 +334,6 @@ const Demo = () => {
 };
 
 export default Demo;
-`
+`,
   },
-} as const
+} as const;

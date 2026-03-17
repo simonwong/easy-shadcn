@@ -1,25 +1,5 @@
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "pnpm dlx ultracite fix"
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
-    "allow": [
-      "mcp__context7__resolve-library-id",
-      "mcp__context7__query-docs",
-      "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:api.github.com)",
-      "mcp__web-reader__webReader",
-      "Bash(git -C ${PROJECT_ROOT} branch -a)"
-    ]
+    "allow": ["Bash(git add:*)", "Bash(git commit:*)"]
   }
 }
