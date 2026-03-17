@@ -18,3 +18,24 @@ export type {
 
 // Hooks
 export { createModalProps, useModal, useModalHolder } from "./useModal";
+
+// Default export
+import { create, hide, register, remove, show } from "./actions";
+import { CommandModalContext, Provider, reducer } from "./context";
+import { createModalProps, useModal, useModalHolder } from "./useModal";
+
+const CommandModal = {
+  create,
+  hide,
+  register,
+  remove,
+  show,
+  CommandModalContext,
+  Provider,
+  reducer,
+  createModalProps,
+  useModal,
+  useModalHolder,
+};
+
+export default CommandModal;

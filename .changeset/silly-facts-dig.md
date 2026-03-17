@@ -2,16 +2,17 @@
 "@easy-shadcn/command-modal": patch
 ---
 
-use Named export instead of default export
+support both named export and default export
 
-**before**:
+**usage**:
 
 ```typescript
+// Named export
+import { create, useModal, Provider } from "@easy-shadcn/command-modal";
+
+// Default export
 import CommandModal from "@easy-shadcn/command-modal";
-```
 
-**after**:
-
-```typescript
+// Namespace import
 import * as CommandModal from "@easy-shadcn/command-modal";
 ```
