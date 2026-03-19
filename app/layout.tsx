@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 import { baseUrl, createMetadata } from "@/lib/metadata";
 import "./globals.css";
 import type { Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Figtree } from "next/font/google";
+import { cn } from "@/lib/utils";
 
 export const metadata = createMetadata({
   title: {
@@ -14,10 +15,7 @@ export const metadata = createMetadata({
   metadataBase: baseUrl,
 });
 
-const geist = Geist({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
+const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
 
 const mono = Geist_Mono({
   variable: "--font-mono",
@@ -33,7 +31,7 @@ export const viewport: Viewport = {
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html
-      className={`${geist.variable} ${mono.variable}`}
+      className={cn(mono.variable, "font-sans", figtree.variable)}
       lang="en"
       suppressHydrationWarning
     >
