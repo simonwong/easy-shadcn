@@ -1,0 +1,28 @@
+---
+title: Async Button
+---
+
+AsyncButton 基于 shadcn 的 `Button` 扩展，当 `onClick` 返回 `Promise` 时自动接管 loading 状态，期间按钮会被禁用并覆盖一个 spinner。也支持通过 `loading` prop 受控。
+
+<ExamplePreview name="async-button-demo" />
+
+## Installation
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/async-button.json
+```
+
+## Props
+
+| Prop       | Type                                                          | Default | Description                                                           |
+| ---------- | ------------------------------------------------------------- | ------- | --------------------------------------------------------------------- |
+| `onClick`  | `(e: MouseEvent<HTMLButtonElement>) => void \| Promise<void>` | -       | 点击回调。返回 Promise 时，自动进入 loading 状态直到 Promise settle。 |
+| `loading`  | `boolean`                                                     | `false` | 受控 loading 状态，与内部 async loading 取或。                        |
+| `disabled` | `boolean`                                                     | `false` | 禁用按钮。loading 时按钮也会被自动禁用。                              |
+
+其余 props（`variant` / `size` / `className` 等）继承自 shadcn `Button`，会直接透传。
+
+## Notes
+
+- `onClick` 抛出的异常会被捕获并通过 `console.error` 打印，避免未处理的 Promise rejection 打断页面，同时保留可观测性。
+- Loading overlay 使用 `bg-current/10` + `backdrop-blur-[1px]`，颜色随按钮前景色自适应，适配所有 variant。

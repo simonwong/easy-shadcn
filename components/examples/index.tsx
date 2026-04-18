@@ -1,47 +1,68 @@
+
 // generate this file by scripts/genarate-example-entry.mjs
 import React from "react";
 
 export default {
-  "button-demo": {
-    component: React.lazy(() => import("./button-demo")),
+  "async-button-demo": {
+    component: React.lazy(() => import("./async-button-demo")),
     codeString: `import { XCircleIcon } from "lucide-react";
-import { Button } from "@/registry/ui/button";
+import { AsyncButton } from "@/registry/ui/async-button";
 
-const Demo = () => {
-  const handleAsyncAction = async () => {
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(null);
-      }, 1000);
-    });
-  };
-  return (
-    <div className="flex gap-2">
-      <Button onClick={handleAsyncAction}>Async Event Auto Show Loading</Button>
-      <Button onClick={handleAsyncAction} size="icon" variant="destructive">
+const wait = (ms: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+
+const Demo = () => (
+  <div className="flex flex-col gap-4">
+    <div className="flex flex-wrap items-center gap-2">
+      <AsyncButton onClick={() => wait(1000)}>
+        Async Event Auto Loading
+      </AsyncButton>
+      <AsyncButton loading>Controlled Loading</AsyncButton>
+      <AsyncButton disabled>Disabled</AsyncButton>
+      <AsyncButton onClick={() => wait(1000)} size="icon" variant="destructive">
         <XCircleIcon />
-      </Button>
+      </AsyncButton>
     </div>
-  );
-};
+
+    <div className="flex flex-wrap items-center gap-2">
+      <AsyncButton variant="default">Default</AsyncButton>
+      <AsyncButton variant="outline">Outline</AsyncButton>
+      <AsyncButton variant="secondary">Secondary</AsyncButton>
+      <AsyncButton variant="ghost">Ghost</AsyncButton>
+      <AsyncButton variant="destructive">Destructive</AsyncButton>
+      <AsyncButton variant="link">Link</AsyncButton>
+    </div>
+
+    <div className="flex flex-wrap items-center gap-2">
+      <AsyncButton size="xs">xs</AsyncButton>
+      <AsyncButton size="sm">sm</AsyncButton>
+      <AsyncButton size="default">default</AsyncButton>
+      <AsyncButton size="lg">lg</AsyncButton>
+    </div>
+  </div>
+);
 
 export default Demo;
-`,
+`
   },
 
   "card-demo": {
     component: React.lazy(() => import("./card-demo")),
-    codeString: `import { Button } from "@/registry/ui/button";
+    codeString: `import { AsyncButton } from "@/registry/ui/async-button";
 import { Card } from "@/registry/ui/card";
 
 const Demo = () => {
   return (
     <div className="space-y-4">
       <Card
-        action={<Button variant="outline">More</Button>}
+        action={<AsyncButton variant="outline">More</AsyncButton>}
         className="w-128"
         description="some descriptions"
-        footer={<Button>Button</Button>}
+        footer={<AsyncButton>Button</AsyncButton>}
         footerClassName="flex justify-end"
         title="Default Card"
       >
@@ -72,12 +93,12 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
 
   "modal-alert-demo": {
     component: React.lazy(() => import("./modal-alert-demo")),
-    codeString: `import { Button } from "@/registry/ui/button";
+    codeString: `import { AsyncButton } from "@/registry/ui/async-button";
 import { AlertModal } from "@/registry/ui/modal";
 
 const Demo = () => {
@@ -86,25 +107,25 @@ const Demo = () => {
       <AlertModal
         content="Modal Content"
         title="Alert Title"
-        trigger={<Button>Alert Modal</Button>}
+        trigger={<AsyncButton>Alert Modal</AsyncButton>}
       />
     </div>
   );
 };
 
 export default Demo;
-`,
+`
   },
 
   "modal-alert-helper-demo": {
     component: React.lazy(() => import("./modal-alert-helper-demo")),
-    codeString: `import { Button } from "@/registry/ui/button";
+    codeString: `import { AsyncButton } from "@/registry/ui/async-button";
 import { AlertModal } from "@/registry/ui/modal";
 
 const Demo = () => {
   return (
     <div className="space-x-2">
-      <Button
+      <AsyncButton
         onClick={() => {
           AlertModal.alert({
             title: "Tips",
@@ -113,8 +134,8 @@ const Demo = () => {
         }}
       >
         Click Alert
-      </Button>
-      <Button
+      </AsyncButton>
+      <AsyncButton
         onClick={() => {
           AlertModal.confirm({
             title: "Tips",
@@ -134,8 +155,8 @@ const Demo = () => {
         }}
       >
         Click Confirm
-      </Button>
-      <Button
+      </AsyncButton>
+      <AsyncButton
         onClick={async () => {
           await AlertModal.alert({
             title: "Tips1",
@@ -148,8 +169,8 @@ const Demo = () => {
         }}
       >
         Alert Step by Step
-      </Button>
-      <Button
+      </AsyncButton>
+      <AsyncButton
         onClick={async () => {
           await AlertModal.alert({
             title: "Tips1",
@@ -172,19 +193,19 @@ const Demo = () => {
         }}
       >
         Alert Step In Step
-      </Button>
+      </AsyncButton>
     </div>
   );
 };
 
 export default Demo;
-`,
+`
   },
 
   "modal-demo": {
     component: React.lazy(() => import("./modal-demo")),
     codeString: `import { useState } from "react";
-import { Button } from "@/registry/ui/button";
+import { AsyncButton } from "@/registry/ui/async-button";
 import { Modal } from "@/registry/ui/modal";
 
 const Demo = () => {
@@ -195,21 +216,21 @@ const Demo = () => {
       <Modal
         footer={
           <div className="space-x-2">
-            <Button
+            <AsyncButton
               onClick={() => {
                 setShowModal(false);
               }}
               variant="ghost"
             >
               Cancel
-            </Button>
-            <Button>Save</Button>
+            </AsyncButton>
+            <AsyncButton>Save</AsyncButton>
           </div>
         }
         onOpenChange={setShowModal}
         open={showModal}
         title="Modal Title"
-        trigger={<Button>Click Show Modal</Button>}
+        trigger={<AsyncButton>Click Show Modal</AsyncButton>}
       >
         <div>Modal Content</div>
         <div>Modal Content</div>
@@ -221,13 +242,13 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
 
   "modal-helper-holder-demo": {
     component: React.lazy(() => import("./modal-helper-holder-demo")),
     codeString: `import { useRef, useState } from "react";
-import { Button } from "@/registry/ui/button";
+import { AsyncButton } from "@/registry/ui/async-button";
 import { Modal } from "@/registry/ui/modal";
 
 const CommandModalModal = Modal.create(({ count }: { count: number }) => {
@@ -238,15 +259,15 @@ const CommandModalModal = Modal.create(({ count }: { count: number }) => {
       {...modal.modalProps}
       footer={
         <div className="space-x-2">
-          <Button
+          <AsyncButton
             onClick={() => {
               modal.hide();
             }}
             variant="ghost"
           >
             Cancel
-          </Button>
-          <Button>Save</Button>
+          </AsyncButton>
+          <AsyncButton>Save</AsyncButton>
         </div>
       }
       title="Modal Will Update by props"
@@ -274,7 +295,7 @@ const Demo = () => {
 
   return (
     <Modal.Provider>
-      <Button onClick={handleClick}>Click Show Modal</Button>
+      <AsyncButton onClick={handleClick}>Click Show Modal</AsyncButton>
       <p>Current Count: {count}</p>
       <ModalHolder count={count} />
     </Modal.Provider>
@@ -282,7 +303,7 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
 
   "modal-provider-demo": {
@@ -298,7 +319,7 @@ const App = () => {
 };
 
 export default App;
-`,
+`
   },
 
   "tabs-demo": {
@@ -334,6 +355,6 @@ const Demo = () => {
 };
 
 export default Demo;
-`,
+`
   },
-} as const;
+} as const
