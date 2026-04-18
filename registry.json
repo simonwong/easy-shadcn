@@ -32,16 +32,16 @@
       ]
     },
     {
-      "name": "button",
+      "name": "async-button",
       "type": "registry:component",
-      "title": "Button",
-      "description": "",
-      "registryDependencies": ["@radix-ui/react-slot"],
+      "title": "Async Button",
+      "description": "Button that auto-manages loading state when onClick returns a Promise.",
+      "registryDependencies": ["button"],
       "files": [
         {
-          "path": "registry/ui/button.tsx",
+          "path": "registry/ui/async-button.tsx",
           "type": "registry:component",
-          "target": "components/easy/button.tsx"
+          "target": "components/easy/async-button.tsx"
         }
       ]
     },
