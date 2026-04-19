@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Button } from "@/registry/ui/button";
+import { AsyncButton } from "@/registry/ui/async-button";
 import { Modal } from "@/registry/ui/modal";
 
 const CommandModalModal = Modal.create(({ count }: { count: number }) => {
@@ -10,15 +10,15 @@ const CommandModalModal = Modal.create(({ count }: { count: number }) => {
       {...modal.modalProps}
       footer={
         <div className="space-x-2">
-          <Button
+          <AsyncButton
             onClick={() => {
               modal.hide();
             }}
             variant="ghost"
           >
             Cancel
-          </Button>
-          <Button>Save</Button>
+          </AsyncButton>
+          <AsyncButton>Save</AsyncButton>
         </div>
       }
       title="Modal Will Update by props"
@@ -46,7 +46,7 @@ const Demo = () => {
 
   return (
     <Modal.Provider>
-      <Button onClick={handleClick}>Click Show Modal</Button>
+      <AsyncButton onClick={handleClick}>Click Show Modal</AsyncButton>
       <p>Current Count: {count}</p>
       <ModalHolder count={count} />
     </Modal.Provider>

@@ -1,16 +1,14 @@
-import { Button } from "@/registry/ui/button";
+import { AsyncButton } from "@/registry/ui/async-button";
 import { AlertModal } from "@/registry/ui/modal";
 
-const Demo = () => {
-  return (
-    <div>
-      <AlertModal
-        content="Modal Content"
-        title="Alert Title"
-        trigger={<Button>Alert Modal</Button>}
-      />
-    </div>
-  );
-};
+const Demo = () => (
+  <div>
+    <AlertModal
+      description="Modal Content"
+      title="Alert Title"
+      trigger={<AsyncButton>Alert Modal</AsyncButton>}
+    />
+  </div>
+);
 
 export default Demo;

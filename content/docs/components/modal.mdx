@@ -41,15 +41,11 @@ import { Modal } from "@easy-shadcn/react"
 <Modal
   title='Modal title'
   description='Modal description'
-  content={(
-    <div>
-      <div>Modal Content1</div>
-      <div>Modal Content2</div>
-      <div>Modal Content3</div>
-    </div>
-  )}
+  trigger={<Button>Click Open</Button>}
 >
-  <Button>Click Open</Button>
+  <div>Modal Content1</div>
+  <div>Modal Content2</div>
+  <div>Modal Content3</div>
 </Modal>
 ```
 
@@ -58,7 +54,7 @@ import { AlertModal } from '@easy-shadcn/react';
 
 AlertModal.alert({
   title: 'Tips',
-  content: 'Alert Content',
+  description: 'Alert Content',
 });
 ```
 
@@ -81,7 +77,7 @@ import { AlertModal } from '@easy-shadcn/react';
 
 AlertModal.alert({
   title: 'Tips',
-  content: 'Alert Content',
+  description: 'Alert Content',
 });
 ```
 
