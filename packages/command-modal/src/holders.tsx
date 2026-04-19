@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useMemo } from "react";
 import { hide, register, show, unregister } from "./actions";
 import { getUid, MODAL_REGISTRY } from "./constants";
