@@ -22,7 +22,7 @@
       "type": "registry:component",
       "title": "Integrated Tabs",
       "description": "",
-      "registryDependencies": ["@radix-ui/react-tabs"],
+      "registryDependencies": ["tabs"],
       "files": [
         {
           "path": "registry/ui/tabs.tsx",
