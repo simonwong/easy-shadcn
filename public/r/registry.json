@@ -1,0 +1,79 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "easy-shadcn/ui",
+  "homepage": "https://easy-shadcn.vercel.app",
+  "items": [
+    {
+      "name": "card",
+      "type": "registry:component",
+      "title": "Integrated Card",
+      "description": "",
+      "registryDependencies": ["card"],
+      "files": [
+        {
+          "path": "registry/ui/card.tsx",
+          "type": "registry:component",
+          "target": "components/easy/card.tsx"
+        }
+      ]
+    },
+    {
+      "name": "tabs",
+      "type": "registry:component",
+      "title": "Integrated Tabs",
+      "description": "",
+      "registryDependencies": ["tabs"],
+      "files": [
+        {
+          "path": "registry/ui/tabs.tsx",
+          "type": "registry:component",
+          "target": "components/easy/tabs.tsx"
+        }
+      ]
+    },
+    {
+      "name": "async-button",
+      "type": "registry:component",
+      "title": "Async Button",
+      "description": "Button that auto-manages loading state when onClick returns a Promise.",
+      "registryDependencies": ["button"],
+      "files": [
+        {
+          "path": "registry/ui/async-button.tsx",
+          "type": "registry:component",
+          "target": "components/easy/async-button.tsx"
+        }
+      ]
+    },
+    {
+      "name": "modal",
+      "type": "registry:component",
+      "title": "Integrated Modal",
+      "description": "Composable Modal and AlertModal built on shadcn base-ui Dialog / AlertDialog, plus imperative alert / confirm helpers powered by @easy-shadcn/command-modal.",
+      "registryDependencies": ["dialog", "alert-dialog", "async-button"],
+      "dependencies": ["@easy-shadcn/command-modal"],
+      "files": [
+        {
+          "path": "registry/ui/modal/index.tsx",
+          "type": "registry:component",
+          "target": "components/easy/modal/index.tsx"
+        },
+        {
+          "path": "registry/ui/modal/modal.tsx",
+          "type": "registry:component",
+          "target": "components/easy/modal/modal.tsx"
+        },
+        {
+          "path": "registry/ui/modal/alert-modal.tsx",
+          "type": "registry:component",
+          "target": "components/easy/modal/alert-modal.tsx"
+        },
+        {
+          "path": "registry/ui/modal/alert-modal-helper.tsx",
+          "type": "registry:component",
+          "target": "components/easy/modal/alert-modal-helper.tsx"
+        }
+      ]
+    }
+  ]
+}
