@@ -21,23 +21,19 @@ export default defineConfig([
     format: "cjs",
     outDir: "lib",
     fixedExtension: true,
-    outExtensions: () => {
-      return {
-        js: ".js",
-        dts: ".d.ts",
-      };
-    },
+    outExtensions: () => ({
+      js: ".js",
+      dts: ".d.ts",
+    }),
   },
   {
     ...baseConfig,
     format: "esm",
     outDir: "es",
     fixedExtension: true,
-    outExtensions: () => {
-      return {
-        js: ".js",
-        dts: ".d.ts",
-      };
-    },
+    outExtensions: () => ({
+      js: ".js",
+      dts: ".d.ts",
+    }),
   },
 ]);

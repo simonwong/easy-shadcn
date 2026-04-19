@@ -103,7 +103,9 @@ describe("ModalDef", () => {
     it("should allow showing registered modal via show()", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="def-modal">Modal via Def</div>;
       });
 
@@ -163,7 +165,9 @@ describe("ModalHolder", () => {
     it("should assign show/hide methods to handler", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="handler-modal">Handler Modal</div>;
       });
 
@@ -210,7 +214,9 @@ describe("ModalHolder", () => {
     it("should render modal component directly", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="direct-modal">Direct Modal</div>;
       });
 
@@ -244,7 +250,9 @@ describe("ModalHolder", () => {
     it("should pass props to modal component", async () => {
       const TestModal = create<{ customProp: string }>(({ customProp }) => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="props-modal">{customProp}</div>;
       });
 

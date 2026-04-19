@@ -35,7 +35,9 @@ describe("Provider", () => {
     it("should update context when modal is shown", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal">Modal</div>;
       });
 
@@ -71,7 +73,9 @@ describe("Provider", () => {
     it("should auto-mount registered modals when shown", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="auto-mounted">Auto Mounted Modal</div>;
       });
 
@@ -97,13 +101,17 @@ describe("Provider", () => {
     it("should render multiple registered modals", async () => {
       const TestModal1 = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal-1">Modal 1</div>;
       });
 
       const TestModal2 = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal-2">Modal 2</div>;
       });
 
@@ -162,7 +170,9 @@ describe("Provider", () => {
 
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="jsx-modal">JSX Modal</div>;
       });
 

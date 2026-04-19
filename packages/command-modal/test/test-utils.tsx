@@ -97,9 +97,9 @@ export const createTestModal = (testId: string) => {
 /**
  * Wrapper component that provides CommandModal context.
  */
-const AllTheProviders: React.FC<{ children: ReactNode }> = ({ children }) => {
-  return <Provider>{children}</Provider>;
-};
+const AllTheProviders: React.FC<{ children: ReactNode }> = ({ children }) => (
+  <Provider>{children}</Provider>
+);
 
 /**
  * Custom render function that wraps component with Provider.
@@ -115,7 +115,9 @@ export const renderWithProvider = (
 export const createSimpleTestModal = (testId: string) => {
   const SimpleModal: React.FC = () => {
     const modal = useModal();
-    if (!modal.visible) return null;
+    if (!modal.visible) {
+      return null;
+    }
     return <div data-testid={testId}>Simple Modal</div>;
   };
   return create(SimpleModal);
