@@ -1,11 +1,7 @@
 "use client";
 
 import type React from "react";
-import {
-  type MouseEvent,
-  type MouseEventHandler,
-  useState,
-} from "react";
+import { type MouseEvent, type MouseEventHandler, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +23,7 @@ const LoadingIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export type AsyncButtonClickHandler = (
-  e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
+  e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
 ) => void | Promise<void>;
 
 export type AsyncButtonProps = Omit<
