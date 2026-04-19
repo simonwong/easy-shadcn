@@ -46,16 +46,32 @@
       ]
     },
     {
-      "name": "locale",
+      "name": "modal",
       "type": "registry:component",
-      "title": "Locale",
-      "description": "",
-      "registryDependencies": ["@radix-ui/react-slot"],
+      "title": "Integrated Modal",
+      "description": "Composable Modal and AlertModal built on shadcn base-ui Dialog / AlertDialog, plus imperative alert / confirm helpers powered by @easy-shadcn/command-modal.",
+      "registryDependencies": ["dialog", "alert-dialog", "async-button"],
+      "dependencies": ["@easy-shadcn/command-modal"],
       "files": [
         {
-          "path": "registry/ui/locale/useLocale.ts",
+          "path": "registry/ui/modal/index.tsx",
           "type": "registry:component",
-          "target": "components/easy/locale/useLocale.ts"
+          "target": "components/easy/modal/index.tsx"
+        },
+        {
+          "path": "registry/ui/modal/modal.tsx",
+          "type": "registry:component",
+          "target": "components/easy/modal/modal.tsx"
+        },
+        {
+          "path": "registry/ui/modal/alert-modal.tsx",
+          "type": "registry:component",
+          "target": "components/easy/modal/alert-modal.tsx"
+        },
+        {
+          "path": "registry/ui/modal/alert-modal-helper.tsx",
+          "type": "registry:component",
+          "target": "components/easy/modal/alert-modal-helper.tsx"
         }
       ]
     }

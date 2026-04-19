@@ -1,11 +1,9 @@
 import { Modal } from "@/registry/ui/modal";
 
-const App = () => {
-  return (
-    <div>
-      <Modal.Provider />
-    </div>
-  );
-};
+const App = () => (
+  <div>
+    <Modal.Provider />
+  </div>
+);
 
 export default App;

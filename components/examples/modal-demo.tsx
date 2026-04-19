@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "@/registry/ui/button";
+import { AsyncButton } from "@/registry/ui/async-button";
 import { Modal } from "@/registry/ui/modal";
 
 const Demo = () => {
@@ -10,21 +10,21 @@ const Demo = () => {
       <Modal
         footer={
           <div className="space-x-2">
-            <Button
+            <AsyncButton
               onClick={() => {
                 setShowModal(false);
               }}
               variant="ghost"
             >
               Cancel
-            </Button>
-            <Button>Save</Button>
+            </AsyncButton>
+            <AsyncButton>Save</AsyncButton>
           </div>
         }
         onOpenChange={setShowModal}
         open={showModal}
         title="Modal Title"
-        trigger={<Button>Click Show Modal</Button>}
+        trigger={<AsyncButton>Click Show Modal</AsyncButton>}
       >
         <div>Modal Content</div>
         <div>Modal Content</div>
