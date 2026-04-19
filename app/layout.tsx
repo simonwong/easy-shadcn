@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { baseUrl, createMetadata } from "@/lib/metadata";
 import "./globals.css";
 import type { Viewport } from "next";
-import { Geist, Geist_Mono, Figtree } from "next/font/google";
+import { Figtree, Geist_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 
 export const metadata = createMetadata({
@@ -15,7 +15,7 @@ export const metadata = createMetadata({
   metadataBase: baseUrl,
 });
 
-const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
+const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
 const mono = Geist_Mono({
   variable: "--font-mono",

@@ -55,42 +55,40 @@ export default Demo;
     codeString: `import { AsyncButton } from "@/registry/ui/async-button";
 import { Card } from "@/registry/ui/card";
 
-const Demo = () => {
-  return (
-    <div className="space-y-4">
-      <Card
-        action={<AsyncButton variant="outline">More</AsyncButton>}
-        className="w-128"
-        description="some descriptions"
-        footer={<AsyncButton>Button</AsyncButton>}
-        footerClassName="flex justify-end"
-        title="Default Card"
-      >
-        <div>
-          <div>No dividers</div>
-          <div>No dividers</div>
-          <div>No dividers</div>
-        </div>
-      </Card>
+const Demo = () => (
+  <div className="space-y-4">
+    <Card
+      action={<AsyncButton variant="outline">More</AsyncButton>}
+      className="w-128"
+      description="some descriptions"
+      footer={<AsyncButton>Button</AsyncButton>}
+      footerClassName="flex justify-end"
+      title="Default Card"
+    >
+      <div>
+        <div>No dividers</div>
+        <div>No dividers</div>
+        <div>No dividers</div>
+      </div>
+    </Card>
 
-      <Card
-        className="w-72"
-        contentClassName="bg-white"
-        description="using className"
-        descriptionClassName="text-gray-500"
-        dividers
-        footer="Custom Card Footer"
-        size="sm"
-        title="Small Card"
-      >
-        <ul>
-          <li>Size: sm</li>
-          <li>dividers: true</li>
-        </ul>
-      </Card>
-    </div>
-  );
-};
+    <Card
+      className="w-72"
+      contentClassName="bg-white"
+      description="using className"
+      descriptionClassName="text-gray-500"
+      dividers
+      footer="Custom Card Footer"
+      size="sm"
+      title="Small Card"
+    >
+      <ul>
+        <li>Size: sm</li>
+        <li>dividers: true</li>
+      </ul>
+    </Card>
+  </div>
+);
 
 export default Demo;
 `
@@ -101,17 +99,15 @@ export default Demo;
     codeString: `import { AsyncButton } from "@/registry/ui/async-button";
 import { AlertModal } from "@/registry/ui/modal";
 
-const Demo = () => {
-  return (
-    <div>
-      <AlertModal
-        content="Modal Content"
-        title="Alert Title"
-        trigger={<AsyncButton>Alert Modal</AsyncButton>}
-      />
-    </div>
-  );
-};
+const Demo = () => (
+  <div>
+    <AlertModal
+      description="Modal Content"
+      title="Alert Title"
+      trigger={<AsyncButton>Alert Modal</AsyncButton>}
+    />
+  </div>
+);
 
 export default Demo;
 `
@@ -122,81 +118,79 @@ export default Demo;
     codeString: `import { AsyncButton } from "@/registry/ui/async-button";
 import { AlertModal } from "@/registry/ui/modal";
 
-const Demo = () => {
-  return (
-    <div className="space-x-2">
-      <AsyncButton
-        onClick={() => {
-          AlertModal.alert({
-            title: "Tips",
-            content: "Alert Content",
-          });
-        }}
-      >
-        Click Alert
-      </AsyncButton>
-      <AsyncButton
-        onClick={() => {
-          AlertModal.confirm({
-            title: "Tips",
-            content:
-              "If onConfirm or onCancel is asynchronous events, the button will automatically display loading",
-            onCancel: () => {
-              console.log("cancel");
-            },
-            onConfirm: () =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  console.log("confirm");
-                  resolve();
-                }, 1000);
-              }),
-          });
-        }}
-      >
-        Click Confirm
-      </AsyncButton>
-      <AsyncButton
-        onClick={async () => {
-          await AlertModal.alert({
-            title: "Tips1",
-            content: "Alert Content-1",
-          });
-          await AlertModal.alert({
-            title: "Tips2",
-            content: "Alert Content-2",
-          });
-        }}
-      >
-        Alert Step by Step
-      </AsyncButton>
-      <AsyncButton
-        onClick={async () => {
-          await AlertModal.alert({
-            title: "Tips1",
-            content: (
-              <div>
-                <div>Alert Content-1</div>
-                <div>Alert Content-1</div>
-                <div>Alert Content-1</div>
-                <div>Alert Content-1</div>
-                <div>Alert Content-1</div>
-              </div>
-            ),
-            onConfirm: async () => {
-              await AlertModal.alert({
-                title: "Tips1-1",
-                content: "Alert Content-1-1",
-              });
-            },
-          });
-        }}
-      >
-        Alert Step In Step
-      </AsyncButton>
-    </div>
-  );
-};
+const Demo = () => (
+  <div className="space-x-2">
+    <AsyncButton
+      onClick={() => {
+        AlertModal.alert({
+          title: "Tips",
+          description: "Alert Content",
+        });
+      }}
+    >
+      Click Alert
+    </AsyncButton>
+    <AsyncButton
+      onClick={() => {
+        AlertModal.confirm({
+          title: "Tips",
+          description:
+            "If onConfirm or onCancel is asynchronous events, the button will automatically display loading",
+          onCancel: () => {
+            console.log("cancel");
+          },
+          onConfirm: () =>
+            new Promise((resolve) => {
+              setTimeout(() => {
+                console.log("confirm");
+                resolve();
+              }, 1000);
+            }),
+        });
+      }}
+    >
+      Click Confirm
+    </AsyncButton>
+    <AsyncButton
+      onClick={async () => {
+        await AlertModal.alert({
+          title: "Tips1",
+          description: "Alert Content-1",
+        });
+        await AlertModal.alert({
+          title: "Tips2",
+          description: "Alert Content-2",
+        });
+      }}
+    >
+      Alert Step by Step
+    </AsyncButton>
+    <AsyncButton
+      onClick={async () => {
+        await AlertModal.alert({
+          title: "Tips1",
+          description: (
+            <div>
+              <div>Alert Content-1</div>
+              <div>Alert Content-1</div>
+              <div>Alert Content-1</div>
+              <div>Alert Content-1</div>
+              <div>Alert Content-1</div>
+            </div>
+          ),
+          onConfirm: async () => {
+            await AlertModal.alert({
+              title: "Tips1-1",
+              description: "Alert Content-1-1",
+            });
+          },
+        });
+      }}
+    >
+      Alert Step In Step
+    </AsyncButton>
+  </div>
+);
 
 export default Demo;
 `
@@ -310,13 +304,11 @@ export default Demo;
     component: React.lazy(() => import("./modal-provider-demo")),
     codeString: `import { Modal } from "@/registry/ui/modal";
 
-const App = () => {
-  return (
-    <div>
-      <Modal.Provider />
-    </div>
-  );
-};
+const App = () => (
+  <div>
+    <Modal.Provider />
+  </div>
+);
 
 export default App;
 `
