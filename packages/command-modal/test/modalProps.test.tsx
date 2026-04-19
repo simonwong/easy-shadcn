@@ -162,7 +162,9 @@ describe("modalProps", () => {
       const TestModal = create(() => {
         const modal = useModal();
         capturedModalProps = modal.modalProps;
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal">Content</div>;
       });
 
@@ -198,7 +200,9 @@ describe("modalProps", () => {
         const modal = useModal();
         const props = modal.modalProps;
 
-        if (!props.open) return null;
+        if (!props.open) {
+          return null;
+        }
 
         return (
           <div data-testid="dialog">
@@ -261,7 +265,9 @@ describe("modalProps", () => {
         onOpenChange?: (open: boolean) => void;
         children?: React.ReactNode;
       }> = ({ open, onOpenChange, children }) => {
-        if (!open) return null;
+        if (!open) {
+          return null;
+        }
         return (
           <div data-testid="dialog-root">
             <div

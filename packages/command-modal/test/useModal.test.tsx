@@ -59,7 +59,9 @@ describe("useModal", () => {
     it("should get modal handler by ID", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal">Modal Content</div>;
       });
 
@@ -91,7 +93,9 @@ describe("useModal", () => {
     it("should pass args when showing", async () => {
       const TestModal = create<{ message: string }>(({ message }) => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal">{message || modal.args?.message}</div>;
       });
 
@@ -128,7 +132,9 @@ describe("useModal", () => {
     it("should auto-register component", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal">Auto Registered</div>;
       });
 
@@ -210,7 +216,9 @@ describe("useModal", () => {
     it("should have hide method that hides modal", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal">Visible</div>;
       });
 
@@ -427,7 +435,9 @@ describe("useModalHolder", () => {
   it("should return handler and Holder component", () => {
     const TestModal = create(() => {
       const modal = useModal();
-      if (!modal.visible) return null;
+      if (!modal.visible) {
+        return null;
+      }
       return <div data-testid="holder-modal">Holder Modal</div>;
     });
 

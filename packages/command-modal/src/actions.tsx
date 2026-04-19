@@ -144,6 +144,18 @@ export const create = <P extends object>(Comp: React.ComponentType<P>) => {
       };
     }, [id, modalShow, defaultVisible]);
 
+    // Keep ALREADY_MOUNTED in sync with shouldMount so that a re-show after
+    // remove() works in scenarios where HocComp itself never unmounts
+    // (e.g. ModalHolder keeps rendering <ModalComp id={id} /> across shows).
+    useEffect(() => {
+      if (shouldMount) {
+        ALREADY_MOUNTED[id] = true;
+        return () => {
+          delete ALREADY_MOUNTED[id];
+        };
+      }
+    }, [shouldMount, id]);
+
     useEffect(() => {
       if (keepMounted) {
         reducerActions.setModalFlags(id, { keepMounted: true });

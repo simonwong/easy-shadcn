@@ -126,7 +126,9 @@ describe("actions", () => {
     it("should show modal with args", async () => {
       const TestModal = create<{ message: string }>(({ message }) => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal">{message}</div>;
       });
 
@@ -252,7 +254,9 @@ describe("actions", () => {
     it("should hide modal by component", () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal">Content</div>;
       });
 
@@ -314,7 +318,9 @@ describe("actions", () => {
     it("should render inner component when visible", async () => {
       const InnerComponent: React.FC = () => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="inner">Inner Content</div>;
       };
       const TestModal = create(InnerComponent);
@@ -337,7 +343,9 @@ describe("actions", () => {
     it("should handle defaultVisible prop", async () => {
       const InnerComponent: React.FC = () => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="default-visible">Default Visible</div>;
       };
       const TestModal = create(InnerComponent);
@@ -388,7 +396,9 @@ describe("actions", () => {
         customProp,
       }) => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="with-args">{customProp}</div>;
       };
       const TestModal = create(InnerComponent);
@@ -413,7 +423,9 @@ describe("actions", () => {
     it("should register ALREADY_MOUNTED on mount and clean up on unmount", async () => {
       const InnerComponent: React.FC = () => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div>Content</div>;
       };
       const TestModal = create(InnerComponent);

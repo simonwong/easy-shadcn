@@ -148,21 +148,19 @@ export function useModalHolder<T>(modal: string | CreateModalComponent<T>) {
  */
 export const createModalProps = (
   modal: CommandModalHandler
-): ShadCNModalProps => {
-  return {
-    open: modal.visible,
-    onOpenChange: (open) => {
-      if (open) {
-        modal.show();
-      } else {
-        modal.hide();
-      }
-    },
-    afterClose: () => {
-      modal.resolveHide();
-      if (!modal.keepMounted) {
-        modal.remove();
-      }
-    },
-  };
-};
+): ShadCNModalProps => ({
+  open: modal.visible,
+  onOpenChange: (open) => {
+    if (open) {
+      modal.show();
+    } else {
+      modal.hide();
+    }
+  },
+  afterClose: () => {
+    modal.resolveHide();
+    if (!modal.keepMounted) {
+      modal.remove();
+    }
+  },
+});

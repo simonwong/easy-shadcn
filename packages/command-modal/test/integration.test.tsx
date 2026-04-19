@@ -17,7 +17,9 @@ describe("Integration Tests", () => {
     it("should handle full modal lifecycle", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return (
           <div data-testid="modal">
             <span data-testid="visible">{modal.visible.toString()}</span>
@@ -58,7 +60,9 @@ describe("Integration Tests", () => {
     it("should handle show/hide/show sequence", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal">Modal Content</div>;
       });
 
@@ -192,7 +196,9 @@ describe("Integration Tests", () => {
 
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return (
           <div data-testid="modal">
             <button
@@ -244,19 +250,25 @@ describe("Integration Tests", () => {
     it("should manage multiple modals independently", async () => {
       const Modal1 = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal-1">Modal 1</div>;
       });
 
       const Modal2 = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal-2">Modal 2</div>;
       });
 
       const Modal3 = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="modal-3">Modal 3</div>;
       });
 
@@ -307,14 +319,18 @@ describe("Integration Tests", () => {
     it("should handle stacked modals (modal opening another modal)", async () => {
       const InnerModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="inner-modal">Inner Modal</div>;
       });
 
       const OuterModal = create(() => {
         const modal = useModal();
         const innerModal = useModal("inner-stack");
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return (
           <div data-testid="outer-modal">
             <button
@@ -414,7 +430,9 @@ describe("Integration Tests", () => {
     it("should remove modal from DOM when keepMounted is false", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="removable-modal">Removable</div>;
       });
 
@@ -446,7 +464,9 @@ describe("Integration Tests", () => {
     it("should automatically show modal when defaultVisible is true", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="default-visible-modal">Auto Shown</div>;
       });
 
@@ -464,7 +484,9 @@ describe("Integration Tests", () => {
     it("should not automatically show modal when defaultVisible is false/undefined", () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="not-default-visible">Not Auto Shown</div>;
       });
 
@@ -485,7 +507,9 @@ describe("Integration Tests", () => {
       const TestModal = create<{ title: string; count: number }>(
         ({ title, count }) => {
           const modal = useModal();
-          if (!modal.visible) return null;
+          if (!modal.visible) {
+            return null;
+          }
           return (
             <div data-testid="args-modal">
               <span data-testid="title">{title || modal.args?.title}</span>
@@ -514,7 +538,9 @@ describe("Integration Tests", () => {
     it("should update args when showing again with different args", async () => {
       const TestModal = create<{ value: string }>(({ value }) => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return (
           <div data-testid="update-args-modal">
             {value || modal.args?.value}
@@ -567,7 +593,9 @@ describe("Integration Tests", () => {
     it("should work with CommandModal.Provider and CommandModal.show", async () => {
       const TestModal = CommandModal.create(() => {
         const modal = CommandModal.useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="namespace-modal">Namespace Test</div>;
       });
 
@@ -615,7 +643,9 @@ describe("Integration Tests", () => {
     it("should handle rapid show/hide calls gracefully", async () => {
       const TestModal = create(() => {
         const modal = useModal();
-        if (!modal.visible) return null;
+        if (!modal.visible) {
+          return null;
+        }
         return <div data-testid="rapid-modal">Rapid Test</div>;
       });
 

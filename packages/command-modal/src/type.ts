@@ -2,11 +2,11 @@ import type { JSX } from "react";
 import { symModalId } from "./symbol";
 
 export interface CommandModalState {
-  id: string;
   args?: Record<string, unknown>;
-  visible?: boolean;
   delayVisible?: boolean;
+  id: string;
   keepMounted?: boolean;
+  visible?: boolean;
 }
 
 export interface CommandModalStore {
@@ -21,12 +21,12 @@ export const ActionType = {
 } as const;
 
 export interface CommandModalAction {
-  type: (typeof ActionType)[keyof typeof ActionType];
   payload: {
     modalId: string;
     args?: Record<string, unknown>;
     flags?: Record<string, unknown>;
   };
+  type: (typeof ActionType)[keyof typeof ActionType];
 }
 export interface CommandModalCallbacks {
   [modalId: string]: {
@@ -89,26 +89,13 @@ export interface CommandModalConfig<TModalProps = ShadCNModalProps> {
 export interface CommandModalHandler<Props = Record<string, unknown>>
   extends CommandModalState {
   /**
-   * Whether a modal is visible, it's controlled by {@link CommandModalHandler.show | show}/{@link CommandModalHandler.hide | hide} method.
-   */
-  visible: boolean;
-  /**
-   * If you don't want to remove the modal from the tree after hide when using helpers, set it to true.
-   */
-  keepMounted: boolean;
-  /**
-   * Show the modal, it will change {@link CommandModalHandler.visible | visible} state to true.
-   * @param args - an object passed to modal component as props.
-   */
-  show: (args?: Props) => Promise<unknown>;
-  /**
    * Hide the modal, it will change {@link CommandModalHandler.visible | visible} state to false.
    */
   hide: () => Promise<unknown>;
   /**
-   * Resolve the promise returned by {@link CommandModalHandler.show | show} method.
+   * If you don't want to remove the modal from the tree after hide when using helpers, set it to true.
    */
-  resolve: (args?: unknown) => void;
+  keepMounted: boolean;
   /**
    * Reject the promise returned by {@link CommandModalHandler.show | show} method.
    */
@@ -117,17 +104,30 @@ export interface CommandModalHandler<Props = Record<string, unknown>>
    * Remove the modal component from React component tree. It improves performance compared to just making a modal invisible.
    */
   remove: () => void;
+  /**
+   * Resolve the promise returned by {@link CommandModalHandler.show | show} method.
+   */
+  resolve: (args?: unknown) => void;
 
   /**
    * Resolve the promise returned by {@link CommandModalHandler.hide | hide} method.
    */
   resolveHide: (args?: unknown) => void;
+  /**
+   * Show the modal, it will change {@link CommandModalHandler.visible | visible} state to true.
+   * @param args - an object passed to modal component as props.
+   */
+  show: (args?: Props) => Promise<unknown>;
+  /**
+   * Whether a modal is visible, it's controlled by {@link CommandModalHandler.show | show}/{@link CommandModalHandler.hide | hide} method.
+   */
+  visible: boolean;
 }
 
 // Omit will not work if extends Record<string, unknown>, which is not needed here
 export interface CommandModalHocProps {
-  id: string;
   defaultVisible?: boolean;
+  id: string;
   keepMounted?: boolean;
 }
 
