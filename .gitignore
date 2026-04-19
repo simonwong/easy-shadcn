@@ -21,3 +21,8 @@ lib
 
 # vitest
 coverage
+
+tsconfig.tsbuildinfo
+
+# Claude
+.claude/settings.local.json
