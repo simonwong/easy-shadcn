@@ -7,7 +7,11 @@ import {
   MODAL_REGISTRY,
   modalCallbacks,
 } from "../src/constants";
-import { Provider } from "../src/context";
+import {
+  __resetDispatchStack,
+  __resetMultipleProvidersWarning,
+  Provider,
+} from "../src/context";
 import { useModal } from "../src/useModal";
 
 /**
@@ -21,6 +25,8 @@ export const resetRegistry = () => {
   Object.keys(hideModalCallbacks).forEach(
     (key) => delete hideModalCallbacks[key]
   );
+  __resetMultipleProvidersWarning();
+  __resetDispatchStack();
 };
 
 /**

@@ -2,10 +2,13 @@
 
 import {
   createContext,
+  type Dispatch,
   type PropsWithChildren,
   useContext,
+  useEffect,
   useMemo,
   useReducer,
+  useRef,
 } from "react";
 import { ALREADY_MOUNTED, MODAL_REGISTRY } from "./constants";
 import {
@@ -71,55 +74,123 @@ export const reducer = (
   }
 };
 
-let reducerDispatch: React.Dispatch<CommandModalAction> = () => {
-  throw new Error(
-    "No dispatch method detected, did you embed your app with CommandModal.Provider?"
-  );
+/**
+ * Stack of dispatches from currently-mounted Providers. Top-level
+ * `show/hide/remove` calls (made outside React's tree) dispatch to the top of
+ * this stack. When exactly one Provider is mounted, routing is unambiguous.
+ *
+ * **With multiple Providers mounted, the routing target is unspecified** —
+ * StrictMode's effect cleanup/setup cycles and concurrent rendering make the
+ * stack order indeterminate. For example, given nested `<Provider>` parents
+ * and children, stack order may be `[parent, child]` in production (render-
+ * phase push order) but `[child, parent]` in StrictMode dev (setup effect re-
+ * push order after the simulated cleanup/setup cycle). The one-shot dev warn
+ * surfaces this; inside the React tree, use `useModal()` or
+ * `useCommandModalDispatch()` so the dispatch is routed to the closest
+ * enclosing Provider via context (deterministic in both dev and prod).
+ */
+const dispatchStack: Dispatch<CommandModalAction>[] = [];
+
+// Exposed for tests only. Not part of the public API.
+export const __getDispatchStackSize = (): number => dispatchStack.length;
+
+// Test-only: forcibly drain the stack. Protects against a leaked push from a
+// Provider whose render aborted before its cleanup effect could pop. Not part
+// of the public API.
+export const __resetDispatchStack = (): void => {
+  dispatchStack.length = 0;
 };
 
+let hasWarnedMultipleProviders = false;
+
+// Test-only: reset the one-shot warn flag so each test can assert the warning
+// independently. Not part of the public API.
+export const __resetMultipleProvidersWarning = (): void => {
+  hasWarnedMultipleProviders = false;
+};
+
+const getFallbackDispatch = (): Dispatch<CommandModalAction> => {
+  const top = dispatchStack.at(-1);
+  if (!top) {
+    throw new Error(
+      "No dispatch method detected, did you embed your app with CommandModal.Provider?"
+    );
+  }
+  if (
+    dispatchStack.length > 1 &&
+    !hasWarnedMultipleProviders &&
+    typeof process !== "undefined" &&
+    process.env?.NODE_ENV !== "production"
+  ) {
+    hasWarnedMultipleProviders = true;
+    console.warn(
+      `[CommandModal] Multiple Providers are currently mounted (${dispatchStack.length}). Top-level show/hide/remove routes to an arbitrary Provider and should be considered undefined in multi-Provider setups. Use useModal() inside your component tree for scoped, deterministic dispatching.`
+    );
+  }
+  return top;
+};
+
+const registerProviderDispatch = (dispatch: Dispatch<CommandModalAction>) => {
+  // Idempotent by dispatch identity: in StrictMode the Provider's effect fires
+  // cleanup→setup twice, which can interleave with sibling/parent Providers.
+  // If the dispatch is already in the stack, don't push a duplicate — that
+  // would both leak and reorder the stack.
+  if (!dispatchStack.includes(dispatch)) {
+    dispatchStack.push(dispatch);
+  }
+};
+
+const unregisterProviderDispatch = (dispatch: Dispatch<CommandModalAction>) => {
+  const idx = dispatchStack.lastIndexOf(dispatch);
+  if (idx >= 0) {
+    dispatchStack.splice(idx, 1);
+  }
+};
+
+/**
+ * Factory for action creators bound to a specific dispatch. Use this when you
+ * already have a dispatch in hand (e.g. via `useCommandModalDispatch()`).
+ */
+export const createReducerActions = (
+  dispatch: Dispatch<CommandModalAction>
+) => ({
+  showModal(modalId: string, args?: Record<string, unknown>) {
+    dispatch({ type: ActionType.showModal, payload: { modalId, args } });
+  },
+  setModalFlags(modalId: string, flags: Record<string, unknown>) {
+    dispatch({ type: ActionType.setModalFlags, payload: { modalId, flags } });
+  },
+  hideModal(modalId: string) {
+    dispatch({ type: ActionType.hideModal, payload: { modalId } });
+  },
+  removeModal(modalId: string) {
+    dispatch({ type: ActionType.removeModal, payload: { modalId } });
+  },
+});
+
+/**
+ * Legacy module-level action creators. Each call resolves to the top of the
+ * current dispatch stack. Kept for backward compatibility with top-level
+ * `show/hide/remove/unregister` helpers. Prefer the hook-based scoped form
+ * (`useModal`, `useCommandModalDispatch`) in new code.
+ */
 export const reducerActions: {
   showModal: (modalId: string, args?: Record<string, unknown>) => void;
   setModalFlags: (modalId: string, flags: Record<string, unknown>) => void;
   hideModal: (modalId: string) => void;
   removeModal: (modalId: string) => void;
 } = {
-  // action creator to show a modal
-  showModal: (modalId: string, args?: Record<string, unknown>) => {
-    reducerDispatch({
-      type: ActionType.showModal,
-      payload: {
-        modalId,
-        args,
-      },
-    });
+  showModal(modalId, args) {
+    createReducerActions(getFallbackDispatch()).showModal(modalId, args);
   },
-  // action creator to set flags of a modal
-  setModalFlags: (modalId: string, flags: Record<string, unknown>) => {
-    reducerDispatch({
-      type: ActionType.setModalFlags,
-      payload: {
-        modalId,
-        flags,
-      },
-    });
+  setModalFlags(modalId, flags) {
+    createReducerActions(getFallbackDispatch()).setModalFlags(modalId, flags);
   },
-  // action creator to hide a modal
-  hideModal: (modalId: string) => {
-    reducerDispatch({
-      type: ActionType.hideModal,
-      payload: {
-        modalId,
-      },
-    });
+  hideModal(modalId) {
+    createReducerActions(getFallbackDispatch()).hideModal(modalId);
   },
-  // action creator to remove a modal
-  removeModal: (modalId: string) => {
-    reducerDispatch({
-      type: ActionType.removeModal,
-      payload: {
-        modalId,
-      },
-    });
+  removeModal(modalId) {
+    createReducerActions(getFallbackDispatch()).removeModal(modalId);
   },
 };
 
@@ -143,6 +214,22 @@ export const CommandModalIdContext = createContext<string | null>(null);
 export const CommandModalConfigContext = createContext<
   CommandModalConfig | undefined
 >(undefined);
+
+/**
+ * Scoped dispatch for the closest enclosing Provider. `null` when used outside
+ * any Provider — consumers are expected to fall back to the module-level API
+ * (which will throw unless a Provider is mounted).
+ */
+export const CommandModalDispatchContext =
+  createContext<Dispatch<CommandModalAction> | null>(null);
+
+/**
+ * Hook form: returns the dispatch of the closest enclosing Provider, or `null`
+ * when called outside of any Provider subtree.
+ */
+export const useCommandModalDispatch =
+  (): Dispatch<CommandModalAction> | null =>
+    useContext(CommandModalDispatchContext);
 
 // The placeholder component is used to auto render modals when call modal.show()
 // When modal.show() is called, it means there've been modal info
@@ -203,13 +290,42 @@ export const Provider: React.FC<CommandModalProviderProps> = ({
 }) => {
   const [modals, dispatch] = useReducer(reducer, initialState);
 
-  reducerDispatch = dispatch;
+  // Register this Provider's dispatch with the module-level stack so that
+  // top-level show/hide/remove (called from outside React) can route to it.
+  // Writing during render is intentional: child effects (e.g. the create() HOC's
+  // defaultVisible effect) run before parent effects, and those children may
+  // call top-level show() before Provider's useEffect would have fired. A ref
+  // guards against double-push under StrictMode / concurrent re-renders; the
+  // useEffect cleanup pops on unmount and resets the guard so a subsequent
+  // mount re-pushes correctly.
+  const pushedRef = useRef(false);
+  if (!pushedRef.current) {
+    pushedRef.current = true;
+    registerProviderDispatch(dispatch);
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `dispatch` from useReducer is stable across renders, so biome sees listing it as redundant; we keep it as the logical subject of this effect's register/cleanup pair.
+  useEffect(() => {
+    // StrictMode runs effect setup/cleanup twice without re-rendering, so if
+    // the simulated cleanup popped us off, re-push here rather than rely on
+    // another render pass.
+    if (!pushedRef.current) {
+      pushedRef.current = true;
+      registerProviderDispatch(dispatch);
+    }
+    return () => {
+      unregisterProviderDispatch(dispatch);
+      pushedRef.current = false;
+    };
+  }, [dispatch]);
 
   return (
     <CommandModalConfigContext.Provider value={config}>
       <CommandModalContext.Provider value={modals}>
-        {children}
-        <CommandModalPlaceholder />
+        <CommandModalDispatchContext.Provider value={dispatch}>
+          {children}
+          <CommandModalPlaceholder />
+        </CommandModalDispatchContext.Provider>
       </CommandModalContext.Provider>
     </CommandModalConfigContext.Provider>
   );

@@ -2,7 +2,12 @@
 
 import type React from "react";
 import { useCallback, useContext, useEffect, useMemo } from "react";
-import { hide, register, remove, show } from "./actions";
+import {
+  hideWithDispatch,
+  register,
+  removeWithDispatch,
+  showWithDispatch,
+} from "./actions";
 import {
   getModalId,
   hideModalCallbacks,
@@ -12,6 +17,7 @@ import {
 import {
   CommandModalConfigContext,
   CommandModalContext,
+  CommandModalDispatchContext,
   CommandModalIdContext,
 } from "./context";
 import { ModalHolder, type ModalHolderActions } from "./holders";
@@ -65,12 +71,22 @@ export function useModal(
   }, [isUseComponent, modalId, modal, args]);
 
   const modalInfo = modals[modalId];
+  // Dispatch scoped to the closest enclosing Provider (null outside any Provider,
+  // in which case the helpers fall back to the module-level stack).
+  const scopedDispatch = useContext(CommandModalDispatchContext);
   const showCallback = useCallback(
-    (modalArgs?: Record<string, unknown>) => show(modalId, modalArgs),
-    [modalId]
+    (modalArgs?: Record<string, unknown>) =>
+      showWithDispatch(modalId, modalArgs, scopedDispatch),
+    [modalId, scopedDispatch]
   );
-  const hideCallback = useCallback(() => hide(modalId), [modalId]);
-  const removeCallback = useCallback(() => remove(modalId), [modalId]);
+  const hideCallback = useCallback(
+    () => hideWithDispatch(modalId, scopedDispatch),
+    [modalId, scopedDispatch]
+  );
+  const removeCallback = useCallback(
+    () => removeWithDispatch(modalId, scopedDispatch),
+    [modalId, scopedDispatch]
+  );
   const resolveCallback = useCallback(
     (resolveArgs?: unknown) => {
       modalCallbacks[modalId]?.resolve(resolveArgs);

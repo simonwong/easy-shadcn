@@ -6,7 +6,13 @@
 // Core API
 export { create, hide, register, remove, show } from "./actions";
 // Context
-export { CommandModalContext, Provider, reducer } from "./context";
+export {
+  CommandModalContext,
+  CommandModalDispatchContext,
+  Provider,
+  reducer,
+  useCommandModalDispatch,
+} from "./context";
 
 // Types
 export type {
