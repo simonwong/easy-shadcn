@@ -68,12 +68,10 @@ describe("ModalHolder cleanup on unmount", () => {
     expect(Object.keys(ALREADY_MOUNTED).length).toBe(mountedBaseline);
   });
 
-  it("pins the show-promise-leaks-on-unmount boundary (C5 vs I7)", async () => {
-    // C5 tears down the holder's modalCallbacks on unmount. That closes the
-    // memory leak but leaves any outer `await modal.show()` hanging, because
-    // the resolver is deleted without settling. Settling the pending promise
-    // is the job of I7. This test pins the current boundary so a future I7
-    // change can flip the assertion to `.resolved`/`.rejected`.
+  it("settles an outstanding show() promise with undefined when the holder unmounts (C5 + I7)", async () => {
+    // C5 tears down the holder's modalCallbacks on unmount; I7 ensures the
+    // removeWithDispatch path resolves the show() promise first so callers
+    // awaiting `await modal.show()` observe a settlement instead of hanging.
 
     let capturedPromise: Promise<unknown> | undefined;
 
@@ -108,20 +106,22 @@ describe("ModalHolder cleanup on unmount", () => {
 
     unmount();
 
-    // Current behaviour: promise stays pending forever. Assert the resolver
-    // is gone AND that awaiting with a timeout does not observe a settlement.
     let settled = false;
+    let resolvedValue: unknown = "not-resolved";
     capturedPromise?.then(
-      () => {
+      (value) => {
         settled = true;
+        resolvedValue = value;
       },
       () => {
         settled = true;
       }
     );
-    // Flush microtasks.
+    // Flush microtasks twice — the resolve() then the .then() handler.
     await Promise.resolve();
-    expect(settled).toBe(false);
+    await Promise.resolve();
+    expect(settled).toBe(true);
+    expect(resolvedValue).toBeUndefined();
   });
 
   it("does not leak callbacks when a keyed list re-mounts ModalHolder rapidly", () => {
