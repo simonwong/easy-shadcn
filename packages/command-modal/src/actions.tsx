@@ -1,5 +1,5 @@
 import type React from "react";
-import { type Dispatch, useContext, useEffect } from "react";
+import { type Dispatch, useContext, useEffect, useRef } from "react";
 import {
   ALREADY_MOUNTED,
   getModalId,
@@ -125,7 +125,12 @@ export function removeWithDispatch(
   }
   settleAndDelete(modalCallbacks, modalId);
   settleAndDelete(hideModalCallbacks, modalId);
-  delete ALREADY_MOUNTED[modalId];
+  // Note: ALREADY_MOUNTED is owned by the HOC's own mount/unmount effect.
+  // For auto-registered modals the placeholder drops the HOC when the
+  // reducer entry is gone, so the effect cleanup clears the flag naturally.
+  // For JSX-declared modals the HOC stays mounted, so the flag stays true —
+  // that is the desired behavior (next show() avoids the delayVisible
+  // roundtrip because the component is still there).
 }
 
 export function show<T, C, P extends Partial<CommandModalArgs<React.FC<C>>>>(
@@ -185,11 +190,17 @@ export function hide(modal: string | CreateModalComponent) {
 }
 
 /**
- * Remove a modal from the tree and clean up all associated resources.
+ * Remove a modal from the tree and clean up associated module-level state.
  * This includes:
  * - Removing modal state from the store
- * - Cleaning up pending promise callbacks to prevent memory leaks
- * - Removing the mounted flag
+ * - Settling and cleaning up pending show/hide promise callbacks
+ *
+ * Note: the `ALREADY_MOUNTED` flag is owned by the HOC's mount/unmount
+ * effect and is *not* cleared here. For auto-registered modals the HOC will
+ * unmount when the placeholder drops it (naturally clearing the flag); for
+ * JSX-declared modals the HOC stays mounted and the flag stays true (so
+ * subsequent `show()` calls render without a delayVisible roundtrip).
+ *
  * @param modal - The modal id or component to remove
  */
 export const remove = (modal: string | CreateModalComponent): void => {
@@ -212,30 +223,29 @@ export const create = <P extends object>(Comp: React.ComponentType<P>) => {
     // Scoped dispatch so setModalFlags targets this Provider, not a sibling one.
     const scopedDispatch = useContext(CommandModalDispatchContext);
 
+    // Lifecycle-bound: ALREADY_MOUNTED is set on mount and cleared on unmount.
+    // It represents "this HOC instance is live in the tree" — not "the modal
+    // has state". Consolidating into a single [id]-keyed effect removes the
+    // previous race where a second effect could drop the flag when
+    // shouldMount flipped false (which caused a spurious delayVisible
+    // roundtrip on the next show in the HOC-stays-mounted case).
     useEffect(() => {
-      // If defaultVisible, show it after mounted.
-      if (defaultVisible) {
-        modalShow();
-      }
-
       ALREADY_MOUNTED[id] = true;
-
       return () => {
         delete ALREADY_MOUNTED[id];
       };
-    }, [id, modalShow, defaultVisible]);
+    }, [id]);
 
-    // Keep ALREADY_MOUNTED in sync with shouldMount so that a re-show after
-    // remove() works in scenarios where HocComp itself never unmounts
-    // (e.g. ModalHolder keeps rendering <ModalComp id={id} /> across shows).
+    // Fire defaultVisible exactly once per HOC lifecycle. A ref guard prevents
+    // an extra show() when a parent re-renders with the same `defaultVisible`
+    // prop, which the previous dep-array arrangement could queue.
+    const defaultVisibleFiredRef = useRef(false);
     useEffect(() => {
-      if (shouldMount) {
-        ALREADY_MOUNTED[id] = true;
-        return () => {
-          delete ALREADY_MOUNTED[id];
-        };
+      if (defaultVisible && !defaultVisibleFiredRef.current) {
+        defaultVisibleFiredRef.current = true;
+        modalShow();
       }
-    }, [shouldMount, id]);
+    }, [defaultVisible, modalShow]);
 
     useEffect(() => {
       if (keepMounted) {
@@ -244,15 +254,23 @@ export const create = <P extends object>(Comp: React.ComponentType<P>) => {
     }, [id, keepMounted, scopedDispatch]);
 
     const delayVisible = modals[id]?.delayVisible;
-    // If modal.show is called
-    //  1. If modal was mounted, should make it visible directly
-    //  2. If modal has not been mounted, should mount it first, then make it visible
+    // Route args through a ref so this effect does not restart on every new
+    // `args` object emitted by the reducer (each showModal action spreads a
+    // fresh object even when the semantic args are identical).
+    //
+    // Reading `argsRef.current` inside the effect is safe: `delayVisible`
+    // only flips `false → true` during the same render that assigns
+    // `argsRef.current = args`, so the effect body observes the args that
+    // accompanied the show that caused the flip.
+    const argsRef = useRef(args);
+    argsRef.current = args;
     useEffect(() => {
       if (delayVisible) {
-        // delayVisible: false => true, it means the modal.show() is called, should show it.
-        modalShow(args);
+        // delayVisible: false => true means show() was called while the
+        // component had not yet mounted — re-dispatch now with the latest args.
+        modalShow(argsRef.current);
       }
-    }, [delayVisible, args, modalShow]);
+    }, [delayVisible, modalShow]);
 
     if (!shouldMount) {
       return null;
@@ -296,7 +314,8 @@ export const unregisterWithDispatch = (
   // unmounts or a top-level `unregister()` runs while the promise is pending.
   settleAndDelete(modalCallbacks, id);
   settleAndDelete(hideModalCallbacks, id);
-  delete ALREADY_MOUNTED[id];
+  // Note: ALREADY_MOUNTED is owned by the HOC's own mount/unmount effect.
+  // See the matching note in removeWithDispatch.
   if (dispatch) {
     createReducerActions(dispatch).removeModal(id);
     return;
@@ -311,13 +330,15 @@ export const unregisterWithDispatch = (
 };
 
 /**
- * Unregister a modal and clean up all associated resources.
+ * Unregister a modal and clean up associated module-level state.
  * This should be called when a modal component is permanently removed.
  * It cleans up:
  * - Modal registry entry
- * - Pending promise callbacks
+ * - Pending show/hide promise callbacks (settled with `undefined` first)
  * - Modal state from the store
- * - Mounted flag
+ *
+ * Note: the `ALREADY_MOUNTED` flag is owned by the HOC's mount/unmount
+ * effect and is *not* cleared here. See the note on `remove()`.
  * @param id - The id of the modal.
  */
 export const unregister = (id: string): void => {
