@@ -141,7 +141,10 @@ export function useModal(
     resolveCallback,
     rejectCallback,
     resolveHide,
-    config,
+    // Depend on the adapter identity rather than the whole config object so
+    // that an inline `config={{...}}` passed from a re-rendering parent does
+    // not invalidate this memo as long as the adapter itself is stable.
+    config?.modalPropsAdapter,
   ]);
 }
 

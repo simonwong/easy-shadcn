@@ -290,6 +290,22 @@ export const Provider: React.FC<CommandModalProviderProps> = ({
 }) => {
   const [modals, dispatch] = useReducer(reducer, initialState);
 
+  // Stabilize the config context value so a parent re-render that passes a
+  // fresh inline `{ modalPropsAdapter }` object does not invalidate every
+  // downstream useModal consumer's useMemo. We key memoization on the
+  // referential identity of each field of CommandModalConfig so downstream
+  // consumers only re-derive when a field actually changes.
+  //
+  // ⚠ Keep the destructure below and the dep array in sync with
+  // `CommandModalConfig` (see type.ts). Any new field must be destructured
+  // here AND added to the dep array, otherwise it will not propagate
+  // through the context boundary when it changes.
+  const { modalPropsAdapter } = config ?? {};
+  const stableConfig = useMemo<CommandModalConfig | undefined>(
+    () => (modalPropsAdapter ? { modalPropsAdapter } : undefined),
+    [modalPropsAdapter]
+  );
+
   // Register this Provider's dispatch with the module-level stack so that
   // top-level show/hide/remove (called from outside React) can route to it.
   // Writing during render is intentional: child effects (e.g. the create() HOC's
@@ -320,7 +336,7 @@ export const Provider: React.FC<CommandModalProviderProps> = ({
   }, [dispatch]);
 
   return (
-    <CommandModalConfigContext.Provider value={config}>
+    <CommandModalConfigContext.Provider value={stableConfig}>
       <CommandModalContext.Provider value={modals}>
         <CommandModalDispatchContext.Provider value={dispatch}>
           {children}
