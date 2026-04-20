@@ -50,7 +50,7 @@
       "type": "registry:component",
       "title": "Integrated Modal",
       "description": "Composable Modal and AlertModal built on shadcn base-ui Dialog / AlertDialog, plus imperative alert / confirm helpers powered by @easy-shadcn/command-modal.",
-      "registryDependencies": ["dialog", "alert-dialog", "async-button"],
+      "registryDependencies": ["dialog", "alert-dialog", "@easy-shadcn/async-button"],
       "dependencies": ["@easy-shadcn/command-modal"],
       "files": [
         {
