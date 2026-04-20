@@ -73,7 +73,13 @@ export type ModalPropsAdapter<TModalProps = ShadCNModalProps> = (
 ) => TModalProps;
 
 /**
- * Configuration for the CommandModal system
+ * Configuration for the CommandModal system.
+ *
+ * ⚠ Whenever a new field is added to this interface, update the memo in
+ * `Provider` (see context.tsx) so the field is propagated through the
+ * config context boundary. The memo keys on each field individually to
+ * avoid invalidating downstream consumers when a caller passes an inline
+ * `{ ... }` object.
  */
 export interface CommandModalConfig<TModalProps = ShadCNModalProps> {
   /**
