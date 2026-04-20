@@ -1,8 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
-import { hide, register, show, unregister } from "./actions";
+import { useCallback, useContext, useEffect, useMemo } from "react";
+import {
+  hideWithDispatch,
+  register,
+  showWithDispatch,
+  unregisterWithDispatch,
+} from "./actions";
 import { getUid, MODAL_REGISTRY } from "./constants";
+import { CommandModalDispatchContext } from "./context";
 import type { CreateModalComponent } from "./type";
 
 /**
@@ -18,12 +24,16 @@ export const ModalDef = ({
   id: string;
   component: React.FC;
 }) => {
+  // Capture the dispatch of the enclosing Provider at setup so that the
+  // cleanup can remove state from that same Provider — not whatever happens
+  // to be on top of the global stack at unmount time.
+  const scopedDispatch = useContext(CommandModalDispatchContext);
   useEffect(() => {
     register(id, component);
     return () => {
-      unregister(id);
+      unregisterWithDispatch(id, scopedDispatch);
     };
-  }, [id, component]);
+  }, [id, component, scopedDispatch]);
   return null;
 };
 
@@ -63,8 +73,20 @@ export function ModalHolder<T>({
     );
   }
 
-  handler.show = useCallback((args: unknown) => show(modalId, args), [modalId]);
-  handler.hide = useCallback(() => hide(modalId), [modalId]);
+  const scopedDispatch = useContext(CommandModalDispatchContext);
+  handler.show = useCallback(
+    (args: unknown) =>
+      showWithDispatch(
+        modalId,
+        args as Record<string, unknown> | undefined,
+        scopedDispatch
+      ),
+    [modalId, scopedDispatch]
+  );
+  handler.hide = useCallback(
+    () => hideWithDispatch(modalId, scopedDispatch),
+    [modalId, scopedDispatch]
+  );
 
   return <ModalComp id={modalId} {...(restProps as T)} />;
 }

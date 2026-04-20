@@ -1,5 +1,5 @@
 import type React from "react";
-import { useContext, useEffect } from "react";
+import { type Dispatch, useContext, useEffect } from "react";
 import {
   ALREADY_MOUNTED,
   getModalId,
@@ -8,11 +8,15 @@ import {
   modalCallbacks,
 } from "./constants";
 import {
+  __getDispatchStackSize,
   CommandModalContext,
+  CommandModalDispatchContext,
   CommandModalIdContext,
+  createReducerActions,
   reducerActions,
 } from "./context";
 import type {
+  CommandModalAction,
   CommandModalArgs,
   CommandModalCallbacks,
   CreateModalComponent,
@@ -53,6 +57,55 @@ function createModalPromise(
   return callbacksStore[modalId].promise;
 }
 
+/**
+ * Pick the right action creators: scoped to the given dispatch when provided
+ * (i.e. called from inside a Provider tree), or the legacy fallback (which
+ * resolves to the top of the global dispatch stack) when called from outside.
+ */
+const resolveActions = (dispatch: Dispatch<CommandModalAction> | null) =>
+  dispatch ? createReducerActions(dispatch) : reducerActions;
+
+/**
+ * Internal show used by both the top-level `show()` and scoped callers such as
+ * `useModal`'s `show` callback. `dispatch` may be null, in which case the
+ * legacy fallback dispatch (top of the Provider stack) is used.
+ */
+export function showWithDispatch(
+  modal: React.FC | string,
+  args: CommandModalArgs<React.FC> | undefined,
+  dispatch: Dispatch<CommandModalAction> | null
+): Promise<unknown> {
+  const modalId = getModalId(modal);
+  if (typeof modal !== "string" && !MODAL_REGISTRY[modalId]) {
+    register(modalId, modal);
+  }
+  resolveActions(dispatch).showModal(modalId, args);
+  return createModalPromise(modalCallbacks, modalId);
+}
+
+export function hideWithDispatch(
+  modal: string | CreateModalComponent,
+  dispatch: Dispatch<CommandModalAction> | null
+): Promise<unknown> {
+  const modalId = getModalId(modal);
+  resolveActions(dispatch).hideModal(modalId);
+  // Clean up show promise callback to prevent memory leaks.
+  // (Promise-settle semantics are addressed in a later fix — see I7.)
+  delete modalCallbacks[modalId];
+  return createModalPromise(hideModalCallbacks, modalId);
+}
+
+export function removeWithDispatch(
+  modal: string | CreateModalComponent,
+  dispatch: Dispatch<CommandModalAction> | null
+): void {
+  const modalId = getModalId(modal);
+  resolveActions(dispatch).removeModal(modalId);
+  delete modalCallbacks[modalId];
+  delete hideModalCallbacks[modalId];
+  delete ALREADY_MOUNTED[modalId];
+}
+
 export function show<T, C, P extends Partial<CommandModalArgs<React.FC<C>>>>(
   modal: CreateModalComponent<C>,
   args?: P
@@ -66,6 +119,11 @@ export function show<T, P>(modal: string, args: P): Promise<T>;
 /**
  * Show a modal and return a promise that resolves when the modal is resolved.
  * Note: The promise callback is automatically cleaned up when the modal is hidden.
+ *
+ * When called from outside a Provider tree, this routes to the most recently
+ * mounted Provider. For scoped routing in multi-Provider setups, prefer
+ * `useModal(...).show()` from inside the component tree.
+ *
  * @param modal - The modal id or component to show
  * @param args - Arguments to pass to the modal component
  * @returns A promise that resolves with the value passed to modal.resolve()
@@ -74,13 +132,7 @@ export function show(
   modal: React.FC | string,
   args?: CommandModalArgs<React.FC>
 ) {
-  const modalId = getModalId(modal);
-  if (typeof modal !== "string" && !MODAL_REGISTRY[modalId]) {
-    register(modalId, modal);
-  }
-  reducerActions.showModal(modalId, args);
-
-  return createModalPromise(modalCallbacks, modalId);
+  return showWithDispatch(modal, args, null);
 }
 
 export function hide<T, C>(modal: string | CreateModalComponent<C>): Promise<T>;
@@ -93,12 +145,7 @@ export function hide<T, C>(modal: string | CreateModalComponent<C>): Promise<T>;
  * @returns A promise that resolves when the modal's afterClose callback is triggered
  */
 export function hide(modal: string | CreateModalComponent) {
-  const modalId = getModalId(modal);
-  reducerActions.hideModal(modalId);
-  // Clean up show promise callback to prevent memory leaks
-  delete modalCallbacks[modalId];
-
-  return createModalPromise(hideModalCallbacks, modalId);
+  return hideWithDispatch(modal, null);
 }
 
 /**
@@ -110,12 +157,7 @@ export function hide(modal: string | CreateModalComponent) {
  * @param modal - The modal id or component to remove
  */
 export const remove = (modal: string | CreateModalComponent): void => {
-  const modalId = getModalId(modal);
-  reducerActions.removeModal(modalId);
-  // Clean up all callbacks to prevent memory leaks
-  delete modalCallbacks[modalId];
-  delete hideModalCallbacks[modalId];
-  delete ALREADY_MOUNTED[modalId];
+  removeWithDispatch(modal, null);
 };
 
 export const create = <P extends object>(Comp: React.ComponentType<P>) => {
@@ -130,6 +172,9 @@ export const create = <P extends object>(Comp: React.ComponentType<P>) => {
     // If there's modal state, then should mount it.
     const modals = useContext(CommandModalContext);
     const shouldMount = !!modals[id];
+
+    // Scoped dispatch so setModalFlags targets this Provider, not a sibling one.
+    const scopedDispatch = useContext(CommandModalDispatchContext);
 
     useEffect(() => {
       // If defaultVisible, show it after mounted.
@@ -158,9 +203,9 @@ export const create = <P extends object>(Comp: React.ComponentType<P>) => {
 
     useEffect(() => {
       if (keepMounted) {
-        reducerActions.setModalFlags(id, { keepMounted: true });
+        resolveActions(scopedDispatch).setModalFlags(id, { keepMounted: true });
       }
-    }, [id, keepMounted]);
+    }, [id, keepMounted, scopedDispatch]);
 
     const delayVisible = modals[id]?.delayVisible;
     // If modal.show is called
@@ -201,6 +246,32 @@ export const register = <T extends CreateModalComponent<any>>(
 };
 
 /**
+ * Internal unregister variant that removes modal state via an explicit
+ * dispatch — used by `ModalDef` to ensure the correct Provider's state is
+ * cleaned up (not the top of the global stack) even during unmount.
+ */
+export const unregisterWithDispatch = (
+  id: string,
+  dispatch: Dispatch<CommandModalAction> | null
+): void => {
+  delete MODAL_REGISTRY[id];
+  delete modalCallbacks[id];
+  delete hideModalCallbacks[id];
+  delete ALREADY_MOUNTED[id];
+  if (dispatch) {
+    createReducerActions(dispatch).removeModal(id);
+    return;
+  }
+  // No scoped dispatch captured — fall back to the stack top if a Provider is
+  // still mounted, otherwise skip (there is no reducer to update). Use an
+  // explicit stack-size guard rather than try/catch so real reducer errors
+  // still surface.
+  if (__getDispatchStackSize() > 0) {
+    reducerActions.removeModal(id);
+  }
+};
+
+/**
  * Unregister a modal and clean up all associated resources.
  * This should be called when a modal component is permanently removed.
  * It cleans up:
@@ -211,10 +282,5 @@ export const register = <T extends CreateModalComponent<any>>(
  * @param id - The id of the modal.
  */
 export const unregister = (id: string): void => {
-  delete MODAL_REGISTRY[id];
-  // Clean up all associated resources to prevent memory leaks
-  delete modalCallbacks[id];
-  delete hideModalCallbacks[id];
-  delete ALREADY_MOUNTED[id];
-  reducerActions.removeModal(id);
+  unregisterWithDispatch(id, null);
 };
