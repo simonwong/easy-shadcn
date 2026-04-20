@@ -22,22 +22,22 @@ export interface TabsItem {
 
 export interface TabsProps
   extends Omit<TabsPrimitive.Root.Props, "children" | "render"> {
-  contentProps?: Omit<TabsPrimitive.Panel.Props, "value">;
+  contentClassName?: ClassValue;
   items: TabsItem[];
-  tabBarClassName?: ClassValue;
+  listClassName?: ClassValue;
   triggerClassName?: ClassValue;
 }
 
 export const Tabs = ({
   items,
-  tabBarClassName,
+  listClassName,
   triggerClassName,
-  contentProps,
+  contentClassName,
   className,
   ...rootProps
 }: TabsProps) => (
-  <TabsRoot className={cn(className)} {...rootProps}>
-    <TabsList className={cn(tabBarClassName)}>
+  <TabsRoot className={className} {...rootProps}>
+    <TabsList className={cn(listClassName)}>
       {items.map((item) => (
         <TabsTrigger
           className={cn(triggerClassName, item.triggerClassName)}
@@ -50,8 +50,7 @@ export const Tabs = ({
     </TabsList>
     {items.map((item) => (
       <TabsContent
-        {...contentProps}
-        className={cn(contentProps?.className, item.contentClassName)}
+        className={cn(contentClassName, item.contentClassName)}
         keepMounted={item.keepMounted}
         key={item.value}
         value={item.value}
