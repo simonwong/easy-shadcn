@@ -1,0 +1,57 @@
+---
+title: Installation
+description: Configure the @easy-shadcn registry and install components.
+---
+
+easy-shadcn components are distributed through the shadcn CLI. You can install them in two ways:
+
+- **Recommended**: Configure the `@easy-shadcn` namespace once, then install any component with a short command.
+- **Quick try**: Install directly via the full JSON URL — no configuration required.
+
+## Recommended: Configure the `@easy-shadcn` Namespace
+
+Add a `registries` entry to your project's `components.json`:
+
+```json title="components.json"
+{
+  "registries": {
+    "@easy-shadcn": "https://easy-shadcn.vercel.app/r/{name}.json"
+  }
+}
+```
+
+Then install any component using the namespace form:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/card
+pnpm dlx shadcn@latest add @easy-shadcn/modal
+```
+
+Cross-component dependencies (for example, `modal` depends on `async-button`) are resolved automatically through the same namespace — you don't need to install them by hand.
+
+### One-liner to patch `components.json`
+
+If you'd rather not edit the file manually, run this command once at your project root:
+
+```shell
+node -e 'const f="components.json",fs=require("fs"),c=JSON.parse(fs.readFileSync(f,"utf8"));c.registries={...c.registries,"@easy-shadcn":"https://easy-shadcn.vercel.app/r/{name}.json"};fs.writeFileSync(f,JSON.stringify(c,null,2)+"\n")'
+```
+
+## Alternative: Install via Full URL
+
+You can skip the namespace config entirely and pass the JSON URL to the shadcn CLI:
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/card.json
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/modal.json
+```
+
+Zero configuration, but you'll need to type the full URL every time.
+
+## Why Namespaced?
+
+- **Unambiguous**: `@easy-shadcn/card` clearly comes from this registry and won't be confused with shadcn's built-in `card`.
+- **Clean dependencies**: Registry items can declare internal dependencies like `@easy-shadcn/async-button`, and the CLI resolves them through the namespace mapping.
+- **Short commands**: Once configured, the install experience matches the official shadcn flow.
+
+> `@easy-shadcn` is **not** a globally registered namespace — it's just a local alias in your `components.json` that points to this registry's URL template. You can rename the alias, but the registry's internal `registryDependencies` declare `@easy-shadcn/...`, so renaming it requires updating those references too. Keeping the default is recommended.

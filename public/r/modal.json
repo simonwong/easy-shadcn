@@ -9,7 +9,7 @@
   "registryDependencies": [
     "dialog",
     "alert-dialog",
-    "async-button"
+    "@easy-shadcn/async-button"
   ],
   "files": [
     {
