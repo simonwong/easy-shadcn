@@ -66,6 +66,22 @@ const resolveActions = (dispatch: Dispatch<CommandModalAction> | null) =>
   dispatch ? createReducerActions(dispatch) : reducerActions;
 
 /**
+ * Settle any outstanding promise tracked for `modalId` in `store`, then drop
+ * the resolver. Resolving with `undefined` before deletion is what keeps
+ * `await modal.show()` / `await modal.hide()` from hanging forever whenever
+ * a teardown path (hide, remove, unregister) fires without the caller
+ * settling the promise explicitly. Resolving a promise that was already
+ * settled is a no-op per spec, so invoking this unconditionally is safe.
+ */
+const settleAndDelete = (
+  store: CommandModalCallbacks,
+  modalId: string
+): void => {
+  store[modalId]?.resolve(undefined);
+  delete store[modalId];
+};
+
+/**
  * Internal show used by both the top-level `show()` and scoped callers such as
  * `useModal`'s `show` callback. `dispatch` may be null, in which case the
  * legacy fallback dispatch (top of the Provider stack) is used.
@@ -89,9 +105,7 @@ export function hideWithDispatch(
 ): Promise<unknown> {
   const modalId = getModalId(modal);
   resolveActions(dispatch).hideModal(modalId);
-  // Clean up show promise callback to prevent memory leaks.
-  // (Promise-settle semantics are addressed in a later fix — see I7.)
-  delete modalCallbacks[modalId];
+  settleAndDelete(modalCallbacks, modalId);
   return createModalPromise(hideModalCallbacks, modalId);
 }
 
@@ -109,8 +123,8 @@ export function removeWithDispatch(
   } else if (__getDispatchStackSize() > 0) {
     reducerActions.removeModal(modalId);
   }
-  delete modalCallbacks[modalId];
-  delete hideModalCallbacks[modalId];
+  settleAndDelete(modalCallbacks, modalId);
+  settleAndDelete(hideModalCallbacks, modalId);
   delete ALREADY_MOUNTED[modalId];
 }
 
@@ -125,8 +139,15 @@ export function show<T>(
 export function show<T, P>(modal: string, args: P): Promise<T>;
 
 /**
- * Show a modal and return a promise that resolves when the modal is resolved.
- * Note: The promise callback is automatically cleaned up when the modal is hidden.
+ * Show a modal and return a promise tied to its lifecycle.
+ *
+ * Settlement contract:
+ *  - Resolves with the value passed to `modal.resolve(value)`.
+ *  - Rejects with the value passed to `modal.reject(reason)`.
+ *  - If the modal is hidden, removed, or unregistered without an explicit
+ *    resolve/reject, the promise **resolves with `undefined`** (treated as a
+ *    dismissal). Callers that need to distinguish an explicit
+ *    `resolve(undefined)` from a dismissal should use a sentinel value.
  *
  * When called from outside a Provider tree, this routes to the most recently
  * mounted Provider. For scoped routing in multi-Provider setups, prefer
@@ -134,7 +155,7 @@ export function show<T, P>(modal: string, args: P): Promise<T>;
  *
  * @param modal - The modal id or component to show
  * @param args - Arguments to pass to the modal component
- * @returns A promise that resolves with the value passed to modal.resolve()
+ * @returns A promise that settles as described above.
  */
 export function show(
   modal: React.FC | string,
@@ -146,11 +167,18 @@ export function show(
 export function hide<T, C>(modal: string | CreateModalComponent<C>): Promise<T>;
 
 /**
- * Hide a modal and return a promise that resolves when the modal is fully hidden.
- * Note: This automatically cleans up the show() promise callback to prevent memory leaks.
- * The hide promise callback is cleaned up when the modal is removed or when resolveHide is called.
+ * Hide a modal and return a promise tied to the hide lifecycle.
+ *
+ * Settlement contract:
+ *  - Resolves with the value passed to `modal.resolveHide(value)` (typically
+ *    from the modal component's `afterClose` hook).
+ *  - If the modal is removed or unregistered before `resolveHide` is called,
+ *    the promise **resolves with `undefined`**.
+ *  - Calling `hide()` also settles any outstanding `show()` promise with
+ *    `undefined` so callers awaiting `await modal.show()` are not orphaned.
+ *
  * @param modal - The modal id or component to hide
- * @returns A promise that resolves when the modal's afterClose callback is triggered
+ * @returns A promise that settles as described above.
  */
 export function hide(modal: string | CreateModalComponent) {
   return hideWithDispatch(modal, null);
@@ -263,8 +291,11 @@ export const unregisterWithDispatch = (
   dispatch: Dispatch<CommandModalAction> | null
 ): void => {
   delete MODAL_REGISTRY[id];
-  delete modalCallbacks[id];
-  delete hideModalCallbacks[id];
+  // Settle any outstanding show/hide promises before deletion so callers
+  // awaiting `modal.show()` / `modal.hide()` do not hang when a ModalDef
+  // unmounts or a top-level `unregister()` runs while the promise is pending.
+  settleAndDelete(modalCallbacks, id);
+  settleAndDelete(hideModalCallbacks, id);
   delete ALREADY_MOUNTED[id];
   if (dispatch) {
     createReducerActions(dispatch).removeModal(id);
