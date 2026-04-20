@@ -41,10 +41,10 @@ export const Card: React.FC<CardProps> = ({
   size,
   ...restProps
 }) => {
-  const showHeaderDivider =
-    typeof dividers === "boolean" ? dividers : dividers?.header;
-  const showFooterDivider =
-    typeof dividers === "boolean" ? dividers : dividers?.footer;
+  const { header: showHeaderDivider, footer: showFooterDivider } =
+    typeof dividers === "boolean"
+      ? { header: dividers, footer: dividers }
+      : { header: dividers?.header ?? false, footer: dividers?.footer ?? false };
 
   return (
     <CardBase className={className} size={size} {...restProps}>

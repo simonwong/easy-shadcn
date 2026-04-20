@@ -74,6 +74,71 @@ modal.hide()
 - **Next.js**: 文档站点
 - **Vitest + jsdom**: 单元测试
 
+## Component Design Philosophy
+
+本库对 shadcn/ui 采用 **双层架构** 封装，**新增 `registry/ui/*` 组件必须遵循以下原则**。
+
+### 分层结构
+
+- **底层原语** (`components/ui/*`)：shadcn 原生 compound component（如 `<Card><CardHeader><CardTitle>...`），保留完整组合自由度
+- **Compose 层** (`registry/ui/*`)：基于原语的扁平化封装，用 props 代替 children 结构
+
+### 核心原则：80/20
+
+Compose 层服务 **80% 常见场景**，牺牲灵活性换取易用性。复杂的 20% 场景，用户直接使用 `components/ui/*` 原语自己组合，**不在 Compose 层开口子**。这是一条硬线——每次想加 prop 时都要回到这条线上问一遍。
+
+### 新增组件时的规则
+
+**1. 扁平 props 优先于 children 结构**
+
+```tsx
+// ✅ 好：一个 prop 对应一个 slot
+<Card title="..." description="..." footer={<Btn />}>body</Card>
+
+// ❌ 差：强迫用户写嵌套
+<Card><CardHeader><CardTitle>...</CardTitle></CardHeader>...</Card>
+```
+
+**2. 每个 slot 只暴露 `xxxClassName`，不要 `xxxProps`**
+
+- 命名模式：`titleClassName`、`descriptionClassName`、`footerClassName`、`contentClassName`
+- `xxxProps` 是半灵活的陷阱——想透传任意 props 就去用原语
+
+**3. 命名对齐原语**
+
+减少用户记忆成本。例如 shadcn 叫 `TabsList`，所以用 `listClassName`（✗ `tabBarClassName`）。
+
+**4. 默认行为可以反转原语默认**
+
+如 shadcn 原生 `CardFooter` 默认带 `border-t bg-muted/50`，但 Compose 层 80% 用户不想要分隔——所以默认关闭（`border-none bg-transparent`），靠 `dividers` prop 打开。让默认观感符合 **Compose 层** 的心智模型，而不是 **原语层** 的。
+
+**5. 拒绝扩大 API 的诱惑**
+
+永远禁止：
+- ❌ `renderHeader` / `renderFooter` 这类 render prop
+- ❌ `slots` 对象（MUI 风格）
+- ❌ "在 A 和 B 中间插入自定义节点"的 prop
+- ❌ 为了 5% 场景新增的任何 prop
+
+遇到此类需求，答案永远是："**去用 `components/ui/*` 原语**"。
+
+**6. 列表型组件用 `items: Item[]`**
+
+Tabs、Breadcrumb 这种列表型组件用 `items` 数组是 80% 友好的。代价：每项结构必须同构。需要异构的用户走原语。
+
+**7. props 命名一致性**
+
+- 布尔型：`dividers`、`keepMounted`，允许 `boolean | { ... }` 的双形式（简单场景一个 bool 搞定）
+- className 覆盖：统一 `xxxClassName` 后缀
+- 内容 slot：`title`、`description`、`footer`、`action`、`content` 等语义命名，不要 `topSlot`、`bottomSlot`
+
+### 参考实现
+
+- `registry/ui/card.tsx`：嵌套 slot（title/description/action/content/footer）的扁平化
+- `registry/ui/tabs.tsx`：列表型（`items` 数组）的扁平化
+- `registry/ui/async-button.tsx`：行为增强型
+- `registry/ui/modal/`：依赖外部包（command-modal）的扁平化
+
 ## Key Configuration
 
 - **TypeScript**: 严格模式，路径别名 `@/*` 指向根目录
