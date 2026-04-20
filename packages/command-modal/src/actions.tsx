@@ -100,7 +100,15 @@ export function removeWithDispatch(
   dispatch: Dispatch<CommandModalAction> | null
 ): void {
   const modalId = getModalId(modal);
-  resolveActions(dispatch).removeModal(modalId);
+  // Use an explicit stack-size guard (mirroring unregisterWithDispatch) so
+  // that a teardown path without an active Provider — e.g. calling top-level
+  // remove() after the last Provider has unmounted — is a no-op on the
+  // reducer side but still clears the module-level stores below.
+  if (dispatch) {
+    createReducerActions(dispatch).removeModal(modalId);
+  } else if (__getDispatchStackSize() > 0) {
+    reducerActions.removeModal(modalId);
+  }
   delete modalCallbacks[modalId];
   delete hideModalCallbacks[modalId];
   delete ALREADY_MOUNTED[modalId];

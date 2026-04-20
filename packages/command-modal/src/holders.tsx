@@ -4,6 +4,7 @@ import { useCallback, useContext, useEffect, useMemo } from "react";
 import {
   hideWithDispatch,
   register,
+  removeWithDispatch,
   showWithDispatch,
   unregisterWithDispatch,
 } from "./actions";
@@ -85,6 +86,18 @@ export function ModalHolder<T>({
   );
   handler.hide = useCallback(
     () => hideWithDispatch(modalId, scopedDispatch),
+    [modalId, scopedDispatch]
+  );
+
+  // ModalHolder owns an auto-generated id that has no lifetime beyond the
+  // holder component itself. When the holder unmounts, nothing else will ever
+  // reference this id again, so tear down reducer state, promise callbacks,
+  // and the ALREADY_MOUNTED flag — otherwise a keyed list that rapidly
+  // remounts holders leaks one set of entries per lifecycle.
+  useEffect(
+    () => () => {
+      removeWithDispatch(modalId, scopedDispatch);
+    },
     [modalId, scopedDispatch]
   );
 
