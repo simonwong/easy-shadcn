@@ -28,6 +28,10 @@ pnpm add @easy-shadcn/command-modal
 yarn add @easy-shadcn/command-modal
 ```
 
+### Requirements
+
+- React `>=18` (the library uses `React.useId()` to generate SSR-stable modal ids).
+
 ## Quick Start
 
 ### 1. Add Provider
@@ -154,6 +158,59 @@ if (result) {
 }
 ```
 
+#### Promise Settlement Semantics
+
+To avoid leaked pending promises (e.g. `await modal.show()` hanging forever
+after the modal was dismissed without an explicit `resolve`), the library
+settles outstanding promises on teardown paths:
+
+- `hide(modal)` settles any pending `show()` promise with `undefined` before
+  changing visibility. Your `resolve()` / `reject()` calls still win if they
+  happened first (promises can only settle once).
+- `remove(modal)` settles any pending `hide()` promise with `undefined`.
+- When a `ModalDef` unmounts or `unregister()` fires with pending promises,
+  both are settled with `undefined`.
+
+In practice this means: if you `await modal.show()` and the user dismisses
+the modal by clicking the backdrop (which calls `hide()` via the adapter),
+your `await` resolves with `undefined` instead of hanging.
+
+## Scoped vs. Top-level API
+
+The library exposes two routing modes for `show` / `hide` / `remove`:
+
+### Hook-based (recommended)
+
+`useModal()` reads a scoped dispatch from the closest enclosing `Provider`
+via React context. This is **deterministic under all conditions** — multiple
+Providers, StrictMode double-invoke, and concurrent rendering — because the
+hook routes through context, not a module-level stack.
+
+```tsx
+function MyButton() {
+  const modal = useModal(MyModal);
+  return <button onClick={() => modal.show({ foo: 'bar' })}>Open</button>;
+}
+```
+
+### Top-level imports (legacy / imperative)
+
+The module-level `show` / `hide` / `remove` functions dispatch to whichever
+Provider is on top of an internal stack. When exactly one Provider is
+mounted, this is unambiguous. **With multiple Providers mounted the routing
+target is unspecified** — you will see a dev-only warning:
+
+```
+[CommandModal] Multiple Providers are currently mounted (N). Top-level
+show/hide/remove routes to an arbitrary Provider and should be considered
+undefined in multi-Provider setups. Use useModal() inside your component
+tree for scoped, deterministic dispatching.
+```
+
+If you need imperative access from outside a component (e.g. inside a
+Redux thunk or a library integration), prefer `useCommandModalDispatch()`
+and pass the dispatch where you need it.
+
 ## API Reference
 
 ### CommandModal.Provider
@@ -278,6 +335,27 @@ function MyComponent() {
 }
 ```
 
+### CommandModal.useCommandModalDispatch()
+
+Hook that returns the raw reducer dispatch of the closest enclosing
+`Provider`, or `null` when called outside any Provider subtree.
+
+```tsx
+function useCommandModalDispatch(): Dispatch<CommandModalAction> | null
+```
+
+Use this as an **escape hatch** when you need scoped, deterministic
+dispatch from non-component code (library integrations, middlewares,
+imperative helpers you pass into event handlers). For normal modal
+control, prefer `useModal()`.
+
+### CommandModal.CommandModalDispatchContext
+
+The React context that carries the Provider-scoped dispatch. Exposed for
+advanced use cases such as writing custom hooks that must interoperate
+with the command-modal reducer. Most callers should use
+`useCommandModalDispatch()` or `useModal()` instead.
+
 ## Advanced Usage
 
 ### Custom Modal Adapters
@@ -360,18 +438,30 @@ const muiDialogAdapter: ModalPropsAdapter<MuiDialogProps> = (handler) => ({
 
 ### Keep Modal Mounted
 
-By default, modals are removed from the DOM when hidden. You can keep them mounted:
+By default, modals are removed from the DOM after they are hidden. To keep
+a modal mounted across hide/show cycles (e.g. to preserve scroll position
+or form state), pass `keepMounted` on the JSX-declared modal instance:
 
 ```tsx
 const MyModal = CommandModal.create(() => {
   const modal = CommandModal.useModal();
-
-  // Keep modal mounted when hidden
-  modal.keepMounted = true;
-
   return <Dialog {...modal.modalProps}>...</Dialog>;
 });
+
+function App() {
+  return (
+    <CommandModal.Provider>
+      {/* Declare keepMounted on the HOC; it configures the modal itself. */}
+      <MyModal id="my-modal" keepMounted />
+      {/* ...rest of the app */}
+    </CommandModal.Provider>
+  );
+}
 ```
+
+> Do not assign `modal.keepMounted = true` inside the render body — the
+> handler returned by `useModal()` is read-only. Use the `keepMounted` prop
+> on the JSX-declared modal as shown above.
 
 ### Nested Modals
 
@@ -629,6 +719,25 @@ const MyModal = CommandModal.create<MyModalProps>(({ title }) => {
 1. Check that Provider is wrapping your app
 2. Verify the modal component is created with `CommandModal.create()`
 3. Check browser console for errors
+
+### `Multiple Providers are currently mounted` Warning
+
+This dev-only warning fires when **two or more `<Provider>` are mounted in
+the React tree simultaneously** AND top-level `show` / `hide` / `remove`
+is called. Module-level helpers route to an internal stack of Providers,
+and with more than one mounted the routing target is not guaranteed.
+
+**Fixes:**
+
+- If the nested Provider is unintentional (e.g. a page layout wraps one
+  and a demo component wraps another), remove the inner Provider and
+  share the outer one.
+- If you deliberately run multiple Providers (isolated sub-apps, design
+  system docs rendering demos), switch to `useModal()` inside each
+  sub-tree — hooks route via context and are deterministic.
+- For imperative dispatch outside components, use
+  `useCommandModalDispatch()` at the relevant subtree to grab a scoped
+  dispatch and pass it where you need it.
 
 ## Examples
 
