@@ -300,20 +300,6 @@ export default Demo;
 `
   },
 
-  "modal-provider-demo": {
-    component: React.lazy(() => import("./modal-provider-demo")),
-    codeString: `import { Modal } from "@/registry/ui/modal";
-
-const App = () => (
-  <div>
-    <Modal.Provider />
-  </div>
-);
-
-export default App;
-`
-  },
-
   "tabs-demo": {
     component: React.lazy(() => import("./tabs-demo")),
     codeString: `import { Tabs } from "@/registry/ui/tabs";
