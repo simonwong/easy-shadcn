@@ -20,9 +20,19 @@ The internal `@easy-shadcn/async-button` dependency is installed automatically a
 
 ## Usage
 
-Add Provider to App
+Add Provider to Root Component
 
-<ExamplePreview name="modal-provider-demo" />
+```tsx
+import { Modal } from "@easy-shadcn/react"
+
+const App = () => {
+  return (
+    <Modal.Provider>
+      {/* Other */}
+    </Modal.Provider>
+  )
+}
+```
 
 ### AlertModal
 
