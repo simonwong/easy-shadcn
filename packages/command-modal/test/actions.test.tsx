@@ -10,12 +10,12 @@ import {
 } from "../src/actions";
 import {
   ALREADY_MOUNTED,
+  getModalId,
   hideModalCallbacks,
   MODAL_REGISTRY,
   modalCallbacks,
 } from "../src/constants";
 import { Provider } from "../src/context";
-import { symModalId } from "../src/symbol";
 import type { CreateModalComponent } from "../src/type";
 import { useModal } from "../src/useModal";
 
@@ -108,7 +108,6 @@ describe("actions", () => {
 
     it("should auto-register component when showing by component", () => {
       const TestComponent: CreateModalComponent = () => null;
-      TestComponent[symModalId] = "auto-registered";
 
       render(
         <Provider>
@@ -120,7 +119,10 @@ describe("actions", () => {
         show(TestComponent);
       });
 
-      expect(MODAL_REGISTRY["auto-registered"]).toBeDefined();
+      // getModalId auto-generates and caches an id for the component, which
+      // show() then uses as the registry key.
+      const autoId = getModalId(TestComponent);
+      expect(MODAL_REGISTRY[autoId]).toBeDefined();
     });
 
     it("should show modal with args", async () => {
