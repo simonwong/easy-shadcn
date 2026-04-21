@@ -1,10 +1,16 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { StrictMode, useState } from "react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { create } from "../src/actions";
 import { Provider } from "../src/context";
-import { useModal, useModalHolder } from "../src/useModal";
 import type { ModalHolderActions } from "../src/holders";
+import { useModal, useModalHolder } from "../src/useModal";
 import { resetRegistry } from "./test-utils";
 
 /**
@@ -119,7 +125,7 @@ describe("ModalHolder render purity (C4)", () => {
     // only after all renders commit, so a sibling in the same render pass
     // sees handler.show as still undefined.
 
-    const observationsPerRender: Array<unknown> = [];
+    const observationsPerRender: unknown[] = [];
 
     const Sibling = ({ handler }: { handler: ModalHolderActions }) => {
       // Captured during the sibling's render phase, which runs AFTER
@@ -151,7 +157,7 @@ describe("ModalHolder render purity (C4)", () => {
   });
 
   it("keeps handler.show identity stable across parent re-renders", () => {
-    const recorded: Array<ModalHolderActions["show"] | undefined> = [];
+    const recorded: (ModalHolderActions["show"] | undefined)[] = [];
     let bumpParent!: () => void;
 
     const Parent = () => {

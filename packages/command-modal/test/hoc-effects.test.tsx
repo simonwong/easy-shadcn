@@ -56,6 +56,41 @@ describe("create() HOC effect consolidation (C7)", () => {
     expect(screen.getByTestId("c7-default-modal")).toBeInTheDocument();
   });
 
+  it("fires defaultVisible again when the same HOC instance receives a new id", async () => {
+    const TestModal = create(() => {
+      const modal = useModal();
+      if (!modal.visible) {
+        return null;
+      }
+      return <div data-testid="c7-dynamic-id-modal">{modal.id}</div>;
+    });
+
+    const Parent = ({ id }: { id: string }) => (
+      <Provider>
+        <TestModal defaultVisible id={id} />
+      </Provider>
+    );
+
+    const { rerender } = render(<Parent id="c7-dynamic-one" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("c7-dynamic-id-modal")).toHaveTextContent(
+        "c7-dynamic-one"
+      );
+    });
+
+    act(() => {
+      remove("c7-dynamic-one");
+    });
+    rerender(<Parent id="c7-dynamic-two" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("c7-dynamic-id-modal")).toHaveTextContent(
+        "c7-dynamic-two"
+      );
+    });
+  });
+
   it("re-shows correctly after remove() when the HOC never unmounts", async () => {
     const TestModal = create(() => {
       const modal = useModal();

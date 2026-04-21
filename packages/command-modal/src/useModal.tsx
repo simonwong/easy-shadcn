@@ -1,3 +1,5 @@
+// biome-ignore-all lint/style/useFilenamingConvention: Keep the existing filename to preserve generated deep import paths.
+
 "use client";
 
 import type React from "react";

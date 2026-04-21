@@ -54,6 +54,64 @@ describe("create() HOC args reserved-key filtering (C8)", () => {
     expect(observedIds).not.toContain("hijacked-id");
   });
 
+  it("does not let useModal(Component, args) registry props override the HOC id", async () => {
+    const Inner: React.FC<{ id?: string; value?: string }> = ({
+      id,
+      value,
+    }) => {
+      const modal = useModal();
+      if (!modal.visible) {
+        return null;
+      }
+      return (
+        <div data-testid="c8-registry-props">
+          inner-id:{String(id)}
+          value:{value}
+          modal-id:{modal.id}
+        </div>
+      );
+    };
+
+    const TestModal = create(Inner);
+
+    const Consumer = () => {
+      const modal = useModal(TestModal, {
+        id: "hijacked-id",
+        value: "ok",
+      });
+      return (
+        <button
+          data-testid="c8-registry-show"
+          onClick={() => {
+            modal.show();
+          }}
+          type="button"
+        >
+          show
+        </button>
+      );
+    };
+
+    render(
+      <Provider>
+        <Consumer />
+      </Provider>
+    );
+
+    act(() => {
+      screen.getByTestId("c8-registry-show").click();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("c8-registry-props")).toHaveTextContent(
+        "value:ok"
+      );
+    });
+    expect(screen.getByTestId("c8-registry-props")).not.toHaveTextContent(
+      "hijacked-id"
+    );
+  });
+
   it("does not let args toggle defaultVisible or keepMounted via spread", async () => {
     let observedKeepMounted: unknown;
 
