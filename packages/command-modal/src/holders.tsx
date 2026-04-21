@@ -4,8 +4,8 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useLayoutEffect,
-  useMemo,
 } from "react";
 import {
   hideWithDispatch,
@@ -14,7 +14,7 @@ import {
   showWithDispatch,
   unregisterWithDispatch,
 } from "./actions";
-import { getUid, MODAL_REGISTRY } from "./constants";
+import { MODAL_REGISTRY } from "./constants";
 import { CommandModalDispatchContext } from "./context";
 import type { CreateModalComponent } from "./type";
 
@@ -29,7 +29,7 @@ export const ModalDef = ({
   component,
 }: {
   id: string;
-  component: React.FC;
+  component: CreateModalComponent | React.FC;
 }) => {
   // Capture the dispatch of the enclosing Provider at setup so that the
   // cleanup can remove state from that same Provider — not whatever happens
@@ -76,7 +76,10 @@ export function ModalHolder<T>({
   modal: string | CreateModalComponent<T>;
   handler: ModalHolderActions;
 } & T) {
-  const modalId = useMemo(() => getUid(), []);
+  // useId() produces an id that is stable between SSR and hydration — unlike
+  // the old module-level counter, which cross-contaminates between concurrent
+  // SSR requests and mismatches between the server render and client render.
+  const modalId = useId();
   const ModalComp =
     typeof modal === "string"
       ? (MODAL_REGISTRY[modal]?.comp as CreateModalComponent<T>)

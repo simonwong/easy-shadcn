@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { getModal, getModalId, getUid, MODAL_REGISTRY } from "../src/constants";
-import { symModalId } from "../src/symbol";
 import type { CreateModalComponent } from "../src/type";
 
 describe("constants", () => {
@@ -34,23 +33,22 @@ describe("constants", () => {
       expect(result).toBe("my-modal-id");
     });
 
-    it("should return existing symbol ID when component has one", () => {
+    it("should assign and cache a new id when component does not have one", () => {
       const TestComponent: CreateModalComponent = () => null;
-      TestComponent[symModalId] = "existing-id";
-
-      const result = getModalId(TestComponent);
-      expect(result).toBe("existing-id");
-    });
-
-    it("should assign and return new symbol ID when component does not have one", () => {
-      const TestComponent: CreateModalComponent = () => null;
-
-      expect(TestComponent[symModalId]).toBeUndefined();
 
       const result = getModalId(TestComponent);
 
       expect(result).toMatch(/^_command_modal_\d+$/);
-      expect(TestComponent[symModalId]).toBe(result);
+      // The id is stored in an external WeakMap (not on the component
+      // itself), so calling getModalId again returns the same cached id.
+      expect(getModalId(TestComponent)).toBe(result);
+    });
+
+    it("does not mutate the component function (no extra own keys after lookup)", () => {
+      const TestComponent: CreateModalComponent = () => null;
+      const before = Reflect.ownKeys(TestComponent);
+      getModalId(TestComponent);
+      expect(Reflect.ownKeys(TestComponent)).toEqual(before);
     });
 
     it("should return same ID for same component on subsequent calls", () => {
