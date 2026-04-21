@@ -27,7 +27,8 @@ pnpm test:watch             # 监听模式
 pnpm test:coverage          # 运行测试并生成覆盖率报告
 
 # Linting
-pnpm lint                   # 使用 ultracite (Biomejs) 检查代码
+pnpm fix # 使用 ultracite (Biomejs) 修复代码，禁止使用。使用指定文件 `pnpm exec ultracite fix [files...]`
+pnpm check # 使用 ultracite (Biomejs) 检查代码，禁止使用。使用指定文件 `pnpm exec ultracite check [files...]`
 ```
 
 ## Architecture
@@ -115,6 +116,7 @@ Compose 层服务 **80% 常见场景**，牺牲灵活性换取易用性。复杂
 **5. 拒绝扩大 API 的诱惑**
 
 永远禁止：
+
 - ❌ `renderHeader` / `renderFooter` 这类 render prop
 - ❌ `slots` 对象（MUI 风格）
 - ❌ "在 A 和 B 中间插入自定义节点"的 prop
