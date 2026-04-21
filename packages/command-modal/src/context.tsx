@@ -259,9 +259,15 @@ const CommandModalPlaceholder: React.FC = () => {
 
   return (
     <>
-      {toRender.map((t) => (
-        <t.comp id={t.id} key={t.id} {...t.props} />
-      ))}
+      {toRender.map((t) => {
+        const {
+          id: _reservedId,
+          defaultVisible: _reservedDefaultVisible,
+          keepMounted: _reservedKeepMounted,
+          ...safeProps
+        } = t.props ?? {};
+        return <t.comp id={t.id} key={t.id} {...safeProps} />;
+      })}
     </>
   );
 };

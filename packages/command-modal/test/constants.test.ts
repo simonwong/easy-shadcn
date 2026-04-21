@@ -2,14 +2,16 @@ import { describe, expect, it } from "vitest";
 import { getModal, getModalId, getUid, MODAL_REGISTRY } from "../src/constants";
 import type { CreateModalComponent } from "../src/type";
 
+const COMMAND_MODAL_ID_PATTERN = /^_command_modal_\d+$/;
+
 describe("constants", () => {
   describe("getUid", () => {
     it("should generate unique IDs with _command_modal_ prefix", () => {
       const id1 = getUid();
       const id2 = getUid();
 
-      expect(id1).toMatch(/^_command_modal_\d+$/);
-      expect(id2).toMatch(/^_command_modal_\d+$/);
+      expect(id1).toMatch(COMMAND_MODAL_ID_PATTERN);
+      expect(id2).toMatch(COMMAND_MODAL_ID_PATTERN);
       expect(id1).not.toBe(id2);
     });
 
@@ -38,7 +40,7 @@ describe("constants", () => {
 
       const result = getModalId(TestComponent);
 
-      expect(result).toMatch(/^_command_modal_\d+$/);
+      expect(result).toMatch(COMMAND_MODAL_ID_PATTERN);
       // The id is stored in an external WeakMap (not on the component
       // itself), so calling getModalId again returns the same cached id.
       expect(getModalId(TestComponent)).toBe(result);

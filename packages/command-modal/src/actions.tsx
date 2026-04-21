@@ -236,16 +236,16 @@ export const create = <P extends object>(Comp: React.ComponentType<P>) => {
       };
     }, [id]);
 
-    // Fire defaultVisible exactly once per HOC lifecycle. A ref guard prevents
-    // an extra show() when a parent re-renders with the same `defaultVisible`
-    // prop, which the previous dep-array arrangement could queue.
-    const defaultVisibleFiredRef = useRef(false);
+    // Fire defaultVisible once per active id. A ref guard prevents an extra
+    // show() when a parent re-renders with the same `defaultVisible` prop, but
+    // still allows a long-lived HOC instance to switch to a new id and show it.
+    const defaultVisibleFiredIdRef = useRef<string | null>(null);
     useEffect(() => {
-      if (defaultVisible && !defaultVisibleFiredRef.current) {
-        defaultVisibleFiredRef.current = true;
+      if (defaultVisible && defaultVisibleFiredIdRef.current !== id) {
+        defaultVisibleFiredIdRef.current = id;
         modalShow();
       }
-    }, [defaultVisible, modalShow]);
+    }, [id, defaultVisible, modalShow]);
 
     useEffect(() => {
       if (keepMounted) {

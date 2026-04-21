@@ -40,12 +40,15 @@ Scoped dispatch, SSR-safe ids, and safer teardown semantics.
 - `Provider` memoizes its config context value so that an inline
   `config={{ ... }}` prop on a re-rendering parent no longer invalidates
   downstream `useModal` consumers.
-- `create()` HOC consolidates its `ALREADY_MOUNTED` effects and stops
-  redispatching on every `args` change via the delayVisible effect.
-- `create()` HOC filters the reserved keys `id` / `defaultVisible` /
-  `keepMounted` out of `args` before spreading into the inner component,
-  so `show("x", { id: "hijack" })` can no longer clobber the HOC's own
-  id / lifecycle props.
+- `create()` HOC consolidates its `ALREADY_MOUNTED` effects, stops
+  redispatching on every `args` change via the delayVisible effect, and
+  re-runs `defaultVisible` when a long-lived HOC instance receives a new
+  `id`.
+- `create()` HOC and the placeholder filter the reserved keys `id` /
+  `defaultVisible` / `keepMounted` out of both show args and registered
+  props before spreading into the inner component, so neither
+  `show("x", { id: "hijack" })` nor `useModal(Component, { id: "hijack" })`
+  can clobber the HOC's own id / lifecycle props.
 - `useModal(Component, args)` reads the latest `args` via ref, so the
   register-once effect is no longer re-scheduled on every render caused
   by a fresh inline `args` object.
