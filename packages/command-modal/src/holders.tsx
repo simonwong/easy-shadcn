@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useContext, useEffect, useMemo } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+} from "react";
 import {
   hideWithDispatch,
   register,
@@ -50,6 +56,14 @@ export type ModalHolderActions = {
  * Comparing to use the <MyNiceModal id=../> directly, this approach allows use registered modal id to find the modal component.
  * Also it avoids to create unique id for MyNiceModal.
  *
+ * Timing contract: `handler.show` and `handler.hide` are installed in a
+ * layout effect after the first commit. They are guaranteed to be defined
+ * by the time any user event can fire (events can only fire after paint),
+ * but will be `undefined` if read synchronously during the same render pass
+ * that first mounts the holder. Use them imperatively from event handlers,
+ * not from render or from effects that race with the holder's own layout
+ * effect.
+ *
  * @param modal - The modal id registered or a modal component.
  * @param handler - The handler object to control the modal.
  * @returns
@@ -75,7 +89,7 @@ export function ModalHolder<T>({
   }
 
   const scopedDispatch = useContext(CommandModalDispatchContext);
-  handler.show = useCallback(
+  const showCallback = useCallback(
     (args: unknown) =>
       showWithDispatch(
         modalId,
@@ -84,10 +98,22 @@ export function ModalHolder<T>({
       ),
     [modalId, scopedDispatch]
   );
-  handler.hide = useCallback(
+  const hideCallback = useCallback(
     () => hideWithDispatch(modalId, scopedDispatch),
     [modalId, scopedDispatch]
   );
+
+  // Mutate the externally-owned `handler` object in the commit phase, not
+  // during render. Render must stay side-effect-free (React purity rule);
+  // mutating an outside object during render is fragile under concurrent
+  // rendering and StrictMode, where renders can be discarded. useLayoutEffect
+  // runs synchronously after commit, so imperative callers that invoke
+  // `handler.show(...)` in response to a user event still see the installed
+  // methods — their events can only fire after the initial paint.
+  useLayoutEffect(() => {
+    handler.show = showCallback;
+    handler.hide = hideCallback;
+  }, [handler, showCallback, hideCallback]);
 
   // ModalHolder owns an auto-generated id that has no lifetime beyond the
   // holder component itself. When the holder unmounts, nothing else will ever
