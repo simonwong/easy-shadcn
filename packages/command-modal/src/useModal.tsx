@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useCallback, useContext, useEffect, useMemo } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import {
   hideWithDispatch,
   register,
@@ -51,7 +51,6 @@ export function useModal(
   const contextModalId = useContext(CommandModalIdContext);
   const config = useContext(CommandModalConfigContext);
   let modalId: string | null = null;
-  const isUseComponent = modal && typeof modal !== "string";
   if (modal) {
     modalId = getModalId(modal);
   } else {
@@ -63,12 +62,30 @@ export function useModal(
     throw new Error("No modal id found in CommandModal.useModal.");
   }
 
-  // If use a component directly, register it.
+  // Route the component reference and args through refs so the register
+  // effect can depend on [modalId] alone. Inline `args` objects produce a
+  // fresh identity every render; including them in deps previously caused
+  // the effect to teardown+setup each render (masked by the
+  // !MODAL_REGISTRY[id] guard, but still wasted React scheduler work and
+  // fragile if the guard ever went away).
+  const modalRef = useRef(modal);
+  modalRef.current = modal;
+  const argsRef = useRef(args);
+  argsRef.current = args;
+
+  // If use a component directly, register it once per [modalId] lifecycle,
+  // reading the freshest component and args from refs at register time.
   useEffect(() => {
-    if (isUseComponent && !MODAL_REGISTRY[modalId]) {
-      register(modalId, modal, args);
+    const currentModal = modalRef.current;
+    if (
+      modalId &&
+      currentModal &&
+      typeof currentModal !== "string" &&
+      !MODAL_REGISTRY[modalId]
+    ) {
+      register(modalId, currentModal, argsRef.current);
     }
-  }, [isUseComponent, modalId, modal, args]);
+  }, [modalId]);
 
   const modalInfo = modals[modalId];
   // Dispatch scoped to the closest enclosing Provider (null outside any Provider,
