@@ -275,9 +275,18 @@ export const create = <P extends object>(Comp: React.ComponentType<P>) => {
     if (!shouldMount) {
       return null;
     }
+    // Strip HOC-reserved keys from args before spreading into the inner
+    // component. Otherwise a caller doing `show("x", { id: "hijack" })`
+    // could overwrite id / defaultVisible / keepMounted downstream.
+    const {
+      id: _reservedId,
+      defaultVisible: _reservedDv,
+      keepMounted: _reservedKm,
+      ...safeArgs
+    } = args ?? {};
     return (
       <CommandModalIdContext.Provider value={id}>
-        <Comp {...(props as P)} {...args} />
+        <Comp {...(props as P)} {...safeArgs} />
       </CommandModalIdContext.Provider>
     );
   };
