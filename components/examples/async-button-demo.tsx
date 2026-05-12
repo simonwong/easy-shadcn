@@ -1,6 +1,12 @@
 "use client";
 
-import { RefreshCwIcon, SendIcon, Trash2Icon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  DownloadIcon,
+  RefreshCwIcon,
+  SendIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { AsyncButton } from "@/registry/ui/async-button";
 
 const wait = (ms: number) =>
@@ -34,6 +40,34 @@ const Demo = () => (
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <AsyncButton loading>Controlled Loading</AsyncButton>
+      </div>
+    </div>
+
+    <div className="flex flex-col gap-2">
+      <p className="text-muted-foreground text-sm">
+        Use <code>startIcon</code> / <code>endIcon</code>. While loading, the
+        icon slot is swapped for the spinner — no overlay needed. When both are
+        present, <code>startIcon</code> takes the spinner.
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <AsyncButton onClick={() => wait(2000)} startIcon={<SendIcon />}>
+          Send Message
+        </AsyncButton>
+        <AsyncButton
+          endIcon={<ArrowRightIcon />}
+          onClick={() => wait(2000)}
+          variant="outline"
+        >
+          Continue
+        </AsyncButton>
+        <AsyncButton
+          endIcon={<ArrowRightIcon />}
+          onClick={() => wait(2000)}
+          startIcon={<DownloadIcon />}
+          variant="secondary"
+        >
+          Download &amp; Next
+        </AsyncButton>
       </div>
     </div>
 

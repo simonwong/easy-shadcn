@@ -38,6 +38,16 @@ export type AsyncButtonProps = Omit<
    * even while an async `onClick` is in flight.
    */
   loading?: boolean;
+  /**
+   * Icon rendered before `children`. While loading, this slot is replaced by
+   * the spinner (taking precedence over `endIcon`).
+   */
+  startIcon?: React.ReactNode;
+  /**
+   * Icon rendered after `children`. While loading and `startIcon` is absent,
+   * this slot is replaced by the spinner.
+   */
+  endIcon?: React.ReactNode;
 };
 
 export const AsyncButton: React.FC<AsyncButtonProps> = ({
@@ -46,6 +56,9 @@ export const AsyncButton: React.FC<AsyncButtonProps> = ({
   onClick,
   children,
   className,
+  startIcon,
+  endIcon,
+  size,
   ...restProps
 }) => {
   const [innerLoading, setLoading] = useDelayLoading({ loading });
@@ -67,20 +80,37 @@ export const AsyncButton: React.FC<AsyncButtonProps> = ({
     }
   };
 
+  let spinnerSlot: "start" | "end" | "children" | "overlay" | null = null;
+  if (innerLoading) {
+    if (size === "icon") {
+      spinnerSlot = "children";
+    } else if (startIcon) {
+      spinnerSlot = "start";
+    } else if (endIcon) {
+      spinnerSlot = "end";
+    } else {
+      spinnerSlot = "overlay";
+    }
+  }
+
+  const spinner = <LoadingIcon className="animate-spin" />;
+
   return (
     <Button
       {...restProps}
       aria-busy={innerLoading}
       className={cn(
-        "relative",
-        innerLoading && "disabled:opacity-100",
+        spinnerSlot === "overlay" && "relative disabled:opacity-100",
         className
       )}
       disabled={innerLoading || disabled}
       onClick={handleClick}
+      size={size}
     >
-      {children}
-      {innerLoading && (
+      {spinnerSlot === "start" ? spinner : startIcon}
+      {spinnerSlot === "children" ? spinner : children}
+      {spinnerSlot === "end" ? spinner : endIcon}
+      {spinnerSlot === "overlay" && (
         <>
           <span className="absolute inset-0 rounded-[inherit] backdrop-blur-[3px]" />
           <span className="absolute inset-0 flex items-center justify-center">

@@ -2,7 +2,7 @@
 title: Async Button
 ---
 
-AsyncButton extends shadcn's `Button`: when `onClick` returns a `Promise`, the component automatically manages the loading state — the button is disabled and a spinner overlay is shown until the promise settles. You can also drive the loading state manually via the `loading` prop.
+AsyncButton extends shadcn's `Button`: when `onClick` returns a `Promise`, the component automatically manages the loading state — the button is disabled and a spinner is shown until the promise settles. You can also drive the loading state manually via the `loading` prop, and decorate the button with `startIcon` / `endIcon` slots that the spinner slides into while loading.
 
 <ExamplePreview name="async-button-demo" />
 
@@ -22,17 +22,30 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/async-button.json
 
 ## Props
 
-| Prop       | Type                                                          | Default | Description                                                                                     |
-| ---------- | ------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
-| `onClick`  | `(e: MouseEvent<HTMLButtonElement>) => void \| Promise<void>` | -       | Click handler. When it returns a Promise, the button enters the loading state until it settles. |
-| `loading`  | `boolean`                                                     | `false` | Controlled loading state, OR-ed with the internal async loading state.                          |
-| `disabled` | `boolean`                                                     | `false` | Disables the button. The button is also disabled automatically while loading.                   |
+| Prop        | Type                                                          | Default | Description                                                                                     |
+| ----------- | ------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
+| `onClick`   | `(e: MouseEvent<HTMLButtonElement>) => void \| Promise<void>` | -       | Click handler. When it returns a Promise, the button enters the loading state until it settles. |
+| `loading`   | `boolean`                                                     | `false` | Controlled loading state, OR-ed with the internal async loading state.                          |
+| `startIcon` | `ReactNode`                                                   | -       | Icon rendered before `children`. Replaced by the spinner while loading.                         |
+| `endIcon`   | `ReactNode`                                                   | -       | Icon rendered after `children`. Replaced by the spinner while loading when `startIcon` is absent. |
+| `disabled`  | `boolean`                                                     | `false` | Disables the button. The button is also disabled automatically while loading.                   |
 
 All other props (`variant`, `size`, `className`, etc.) are inherited from shadcn's `Button` and forwarded as-is.
+
+## Loading indicator placement
+
+The spinner is rendered in the most context-appropriate place, in this priority order:
+
+1. **`size="icon"`** — `children` (the lone icon) is replaced by the spinner.
+2. **`startIcon` present** — `startIcon` is replaced by the spinner; `endIcon` (if any) stays put.
+3. **Only `endIcon` present** — `endIcon` is replaced by the spinner.
+4. **No icons** — a blurred overlay covers the button and the spinner is centered on top.
+
+This means the button never grows or reflows when loading kicks in.
 
 ## Notes
 
 - Exceptions thrown from `onClick` are caught and logged via `console.error` so that unhandled promise rejections don't break the page, while still surfacing the error for observability.
-- The loading overlay uses `backdrop-blur` to blur the button content behind the spinner, so it works seamlessly with every button variant.
+- The fallback overlay uses `backdrop-blur` so it works seamlessly with every button variant when no icon slot is available.
 - While loading, the button is disabled (no clicks, no hover) but keeps its full opacity — the `disabled:opacity-50` style only applies when the button is purely disabled, not when it's loading.
 - The button sets `aria-busy={loading}` so assistive technologies can announce the loading state.
