@@ -60,6 +60,17 @@ const Demo = () => (
 
     <div className="flex flex-col gap-2">
       <p className="text-muted-foreground text-sm">
+        Anti-flash: a 50ms task still shows the spinner for at least 200ms (the
+        default <code>minDuration</code>), so the indicator never just flickers
+        past.
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <AsyncButton onClick={() => wait(50)}>Fast Save (50ms)</AsyncButton>
+      </div>
+    </div>
+
+    <div className="flex flex-col gap-2">
+      <p className="text-muted-foreground text-sm">
         Errors are caught and logged — the button recovers gracefully.
       </p>
       <div className="flex flex-wrap items-center gap-2">

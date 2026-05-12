@@ -1,9 +1,10 @@
 "use client";
 
 import type React from "react";
-import { type MouseEvent, type MouseEventHandler, useState } from "react";
+import type { MouseEvent, MouseEventHandler } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useDelayLoading } from "@/registry/hooks/use-delay-loading";
 
 const LoadingIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -31,6 +32,11 @@ export type AsyncButtonProps = Omit<
   "onClick"
 > & {
   onClick?: AsyncButtonClickHandler;
+  /**
+   * Controlled loading state. When provided, takes precedence over the
+   * auto-managed Promise loading; pass `false` to fully suppress the spinner
+   * even while an async `onClick` is in flight.
+   */
   loading?: boolean;
 };
 
@@ -42,7 +48,7 @@ export const AsyncButton: React.FC<AsyncButtonProps> = ({
   className,
   ...restProps
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [innerLoading, setLoading] = useDelayLoading({ loading });
 
   const handleClick: MouseEventHandler<HTMLElement> = (e) => {
     if (!onClick) {
@@ -50,22 +56,21 @@ export const AsyncButton: React.FC<AsyncButtonProps> = ({
     }
     const result = onClick(e as MouseEvent<HTMLButtonElement>);
     if (result instanceof Promise) {
-      setIsLoading(true);
+      setLoading(true);
       result
         .catch((err) => {
           console.error(err);
         })
         .finally(() => {
-          setIsLoading(false);
+          setLoading(false);
         });
     }
   };
 
-  const innerLoading = loading || isLoading;
-
   return (
     <Button
       {...restProps}
+      aria-busy={innerLoading}
       className={cn(
         "relative",
         innerLoading && "disabled:opacity-100",
