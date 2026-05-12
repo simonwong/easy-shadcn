@@ -66,15 +66,22 @@ export const AsyncButton: React.FC<AsyncButtonProps> = ({
   return (
     <Button
       {...restProps}
-      className={cn("relative", className)}
+      className={cn(
+        "relative",
+        innerLoading && "disabled:opacity-100",
+        className
+      )}
       disabled={innerLoading || disabled}
       onClick={handleClick}
     >
       {children}
       {innerLoading && (
-        <span className="absolute inset-0 flex items-center justify-center rounded-[inherit] bg-current/10 backdrop-blur-[1px]">
-          <LoadingIcon className="size-[1em] animate-spin" />
-        </span>
+        <>
+          <span className="absolute inset-0 rounded-[inherit] backdrop-blur-[3px]" />
+          <span className="absolute inset-0 flex items-center justify-center">
+            <LoadingIcon className="size-[1.4em] animate-spin" />
+          </span>
+        </>
       )}
     </Button>
   );
