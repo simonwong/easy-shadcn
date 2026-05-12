@@ -35,3 +35,4 @@ All other props (`variant`, `size`, `className`, etc.) are inherited from shadcn
 - Exceptions thrown from `onClick` are caught and logged via `console.error` so that unhandled promise rejections don't break the page, while still surfacing the error for observability.
 - The loading overlay uses `backdrop-blur` to blur the button content behind the spinner, so it works seamlessly with every button variant.
 - While loading, the button is disabled (no clicks, no hover) but keeps its full opacity — the `disabled:opacity-50` style only applies when the button is purely disabled, not when it's loading.
+- The button sets `aria-busy={loading}` so assistive technologies can announce the loading state.

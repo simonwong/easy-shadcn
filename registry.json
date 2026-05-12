@@ -32,11 +32,24 @@
       ]
     },
     {
+      "name": "use-delay-loading",
+      "type": "registry:hook",
+      "title": "useDelayLoading",
+      "description": "Hook that adds a minimum visible duration to a loading state, preventing the spinner from flashing on fast operations.",
+      "files": [
+        {
+          "path": "registry/hooks/use-delay-loading.ts",
+          "type": "registry:hook",
+          "target": "hooks/use-delay-loading.ts"
+        }
+      ]
+    },
+    {
       "name": "async-button",
       "type": "registry:component",
       "title": "Async Button",
       "description": "Button that auto-manages loading state when onClick returns a Promise.",
-      "registryDependencies": ["button"],
+      "registryDependencies": ["button", "@easy-shadcn/use-delay-loading"],
       "files": [
         {
           "path": "registry/ui/async-button.tsx",
