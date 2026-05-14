@@ -243,11 +243,13 @@ export default Demo;
     codeString: `"use client";
 
 import { useState } from "react";
+import type { DateRange } from "react-day-picker";
 import { DatePicker } from "@/registry/ui/date-picker";
 
 const Demo = () => {
   const [single, setSingle] = useState<Date | undefined>();
   const [multiple, setMultiple] = useState<Date[] | undefined>();
+  const [range, setRange] = useState<DateRange | undefined>();
   const [typed, setTyped] = useState<Date | undefined>();
 
   return (
@@ -268,6 +270,18 @@ const Demo = () => {
           mode="multiple"
           onChange={setMultiple}
           value={multiple}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-muted-foreground text-sm">
+          Range (single panel, format=&quot;LLL dd, y&quot;)
+        </span>
+        <DatePicker
+          format="LLL dd, y"
+          mode="range"
+          onChange={setRange}
+          value={range}
         />
       </div>
 
