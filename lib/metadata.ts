@@ -7,7 +7,6 @@ export function createMetadata(override: Metadata): Metadata {
       title: override.title ?? undefined,
       description: override.description ?? undefined,
       url: 'https://easy-shadcn.vercel.app',
-      images: '/banner.png',
       siteName: 'Easy Shadcn',
       ...override.openGraph,
     },
@@ -16,7 +15,6 @@ export function createMetadata(override: Metadata): Metadata {
       creator: '@simonwong',
       title: override.title ?? undefined,
       description: override.description ?? undefined,
-      images: '/banner.png',
       ...override.twitter,
     },
     alternates: {

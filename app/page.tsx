@@ -1,5 +1,40 @@
+import type { Metadata } from "next";
 import { Fraunces } from "next/font/google";
 import Link from "next/link";
+import { createMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = createMetadata({
+  title: {
+    absolute: "easy/shadcn — the easy way to shadcn",
+  },
+  description:
+    "Hand-stitched wrappers over shadcn/ui that swap nested children for flat props. Eighty percent of your UI ships with one tag — the other twenty, drop down to the primitive.",
+  keywords: [
+    "shadcn",
+    "shadcn/ui",
+    "react components",
+    "component library",
+    "tailwind css",
+    "radix ui",
+    "typescript",
+    "flat props",
+    "easy-shadcn",
+    "shadcn registry",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    title: "easy/shadcn — the easy way to shadcn",
+    description:
+      "Hand-stitched wrappers over shadcn/ui that swap nested children for flat props. 80% of your UI ships with one tag.",
+  },
+  twitter: {
+    title: "easy/shadcn — the easy way to shadcn",
+    description:
+      "Hand-stitched wrappers over shadcn/ui that swap nested children for flat props.",
+  },
+});
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -89,11 +124,42 @@ const principles = [
   },
 ];
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://easy-shadcn.vercel.app/#website",
+      url: "https://easy-shadcn.vercel.app/",
+      name: "easy/shadcn",
+      description:
+        "Hand-stitched wrappers over shadcn/ui that swap nested children for flat props.",
+      inLanguage: "en",
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "https://easy-shadcn.vercel.app/#library",
+      name: "easy-shadcn",
+      description:
+        "A compose layer over shadcn/ui — flat props, no render-prop carnival, your code in your repo.",
+      programmingLanguage: "TypeScript",
+      codeRepository: "https://github.com/simonwong/easy-shadcn",
+      license: "https://opensource.org/licenses/MIT",
+      author: { "@type": "Person", name: "Simon" },
+    },
+  ],
+};
+
 export default function Home() {
   return (
     <div
       className={`${fraunces.variable} landing-root relative min-h-screen w-full overflow-x-clip antialiased`}
     >
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is a static object we control
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        type="application/ld+json"
+      />
       <Masthead />
       <Hero />
       <Ticker />
