@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-delay-loading",
+  "title": "useDelayLoading",
+  "description": "Hook that adds a minimum visible duration to a loading state, preventing the spinner from flashing on fast operations.",
+  "files": [
+    {
+      "path": "registry/hooks/use-delay-loading.ts",
+      "content": "\"use client\";\n\nimport { useEffect, useRef, useState } from \"react\";\n\nexport type UseDelayLoadingOptions = {\n  /**\n   * Controlled loading source. When provided, takes precedence over the\n   * setLoading returned by this hook.\n   */\n  loading?: boolean;\n  /**\n   * Minimum visible duration (in ms) once the spinner appears. Prevents the\n   * spinner from flashing briefly when the operation completes quickly.\n   * Aligned with the `spin-delay` library convention. Set to 0 to disable.\n   * @default 200\n   */\n  minDuration?: number;\n};\n\nexport type UseDelayLoadingReturn = readonly [boolean, (next: boolean) => void];\n\nexport function useDelayLoading(\n  options?: UseDelayLoadingOptions\n): UseDelayLoadingReturn {\n  const { loading: controlled, minDuration = 200 } = options ?? {};\n\n  const initial = controlled ?? false;\n  const [internalLoading, setInternalLoading] = useState(initial);\n  const [shown, setShown] = useState(initial);\n\n  const shownAtRef = useRef<number | null>(initial ? Date.now() : null);\n  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);\n\n  const intent = controlled ?? internalLoading;\n  // Derived value — guarantees the very first render matches the spec without\n  // waiting for a post-commit effect to sync state.\n  const display = intent || shown;\n\n  useEffect(() => {\n    if (controlled !== undefined) {\n      setInternalLoading(controlled);\n    }\n  }, [controlled]);\n\n  useEffect(() => {\n    if (intent) {\n      if (hideTimerRef.current) {\n        clearTimeout(hideTimerRef.current);\n        hideTimerRef.current = null;\n      }\n      if (!shown) {\n        shownAtRef.current = Date.now();\n        setShown(true);\n      }\n      return;\n    }\n\n    if (!shown || hideTimerRef.current) {\n      return;\n    }\n\n    const elapsed = shownAtRef.current ? Date.now() - shownAtRef.current : 0;\n    const remaining = Math.max(0, minDuration - elapsed);\n    if (remaining === 0) {\n      shownAtRef.current = null;\n      setShown(false);\n      return;\n    }\n    hideTimerRef.current = setTimeout(() => {\n      hideTimerRef.current = null;\n      shownAtRef.current = null;\n      setShown(false);\n    }, remaining);\n  }, [intent, minDuration, shown]);\n\n  useEffect(\n    () => () => {\n      if (hideTimerRef.current) {\n        clearTimeout(hideTimerRef.current);\n      }\n    },\n    []\n  );\n\n  return [display, setInternalLoading] as const;\n}\n",
+      "type": "registry:hook",
+      "target": "hooks/use-delay-loading.ts"
+    }
+  ],
+  "type": "registry:hook"
+}

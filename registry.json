@@ -87,6 +87,39 @@
           "target": "components/easy/modal/alert-modal-helper.tsx"
         }
       ]
+    },
+    {
+      "name": "calendar",
+      "type": "registry:component",
+      "title": "Integrated Calendar",
+      "description": "Calendar with three-view month/year navigation (days / months / years), replacing the native dropdowns with button-grid panels.",
+      "registryDependencies": ["calendar", "button"],
+      "files": [
+        {
+          "path": "registry/ui/calendar.tsx",
+          "type": "registry:component",
+          "target": "components/easy/calendar.tsx"
+        }
+      ]
+    },
+    {
+      "name": "date-picker",
+      "type": "registry:component",
+      "title": "Integrated Date Picker",
+      "description": "Single, multiple, and range date picker built on shadcn Popover + the Integrated Calendar, with an optional inline-input mode.",
+      "registryDependencies": [
+        "popover",
+        "button",
+        "input",
+        "@easy-shadcn/calendar"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/date-picker.tsx",
+          "type": "registry:component",
+          "target": "components/easy/date-picker.tsx"
+        }
+      ]
     }
   ]
 }

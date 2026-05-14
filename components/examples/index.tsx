@@ -7,7 +7,13 @@ export default {
     component: React.lazy(() => import("./async-button-demo")),
     codeString: `"use client";
 
-import { RefreshCwIcon, SendIcon, Trash2Icon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  DownloadIcon,
+  RefreshCwIcon,
+  SendIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { AsyncButton } from "@/registry/ui/async-button";
 
 const wait = (ms: number) =>
@@ -41,6 +47,34 @@ const Demo = () => (
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <AsyncButton loading>Controlled Loading</AsyncButton>
+      </div>
+    </div>
+
+    <div className="flex flex-col gap-2">
+      <p className="text-muted-foreground text-sm">
+        Use <code>startIcon</code> / <code>endIcon</code>. While loading, the
+        icon slot is swapped for the spinner — no overlay needed. When both are
+        present, <code>startIcon</code> takes the spinner.
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <AsyncButton onClick={() => wait(2000)} startIcon={<SendIcon />}>
+          Send Message
+        </AsyncButton>
+        <AsyncButton
+          endIcon={<ArrowRightIcon />}
+          onClick={() => wait(2000)}
+          variant="outline"
+        >
+          Continue
+        </AsyncButton>
+        <AsyncButton
+          endIcon={<ArrowRightIcon />}
+          onClick={() => wait(2000)}
+          startIcon={<DownloadIcon />}
+          variant="secondary"
+        >
+          Download &amp; Next
+        </AsyncButton>
       </div>
     </div>
 
@@ -100,6 +134,66 @@ export default Demo;
 `
   },
 
+  "calendar-demo": {
+    component: React.lazy(() => import("./calendar-demo")),
+    codeString: `"use client";
+
+import { useState } from "react";
+import { Calendar } from "@/registry/ui/calendar";
+
+const Demo = () => {
+  const [single, setSingle] = useState<Date | undefined>();
+  const [monthsDate, setMonthsDate] = useState<Date | undefined>();
+  const [yearsDate, setYearsDate] = useState<Date | undefined>();
+  const [multiple, setMultiple] = useState<Date[] | undefined>();
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <span className="text-muted-foreground text-sm">
+          Days view — click month or year in the caption
+        </span>
+        <Calendar mode="single" onSelect={setSingle} selected={single} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-muted-foreground text-sm">
+          Months view (defaultView=&quot;months&quot;)
+        </span>
+        <Calendar
+          defaultView="months"
+          mode="single"
+          onSelect={setMonthsDate}
+          selected={monthsDate}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-muted-foreground text-sm">
+          Years view (defaultView=&quot;years&quot;)
+        </span>
+        <Calendar
+          defaultView="years"
+          mode="single"
+          onSelect={setYearsDate}
+          selected={yearsDate}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-muted-foreground text-sm">
+          Multiple — click multiple days to toggle selection
+        </span>
+        <Calendar mode="multiple" onSelect={setMultiple} selected={multiple} />
+      </div>
+    </div>
+  );
+};
+
+export default Demo;
+`
+  },
+
   "card-demo": {
     component: React.lazy(() => import("./card-demo")),
     codeString: `import { AsyncButton } from "@/registry/ui/async-button";
@@ -139,6 +233,53 @@ const Demo = () => (
     </Card>
   </div>
 );
+
+export default Demo;
+`
+  },
+
+  "date-picker-demo": {
+    component: React.lazy(() => import("./date-picker-demo")),
+    codeString: `"use client";
+
+import { useState } from "react";
+import { DatePicker } from "@/registry/ui/date-picker";
+
+const Demo = () => {
+  const [single, setSingle] = useState<Date | undefined>();
+  const [multiple, setMultiple] = useState<Date[] | undefined>();
+  const [typed, setTyped] = useState<Date | undefined>();
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <span className="text-muted-foreground text-sm">
+          Single (default trigger, format=&quot;PPP&quot;)
+        </span>
+        <DatePicker onChange={setSingle} value={single} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-muted-foreground text-sm">
+          Multiple (single panel, format=&quot;LLL dd, y&quot;)
+        </span>
+        <DatePicker
+          format="LLL dd, y"
+          mode="multiple"
+          onChange={setMultiple}
+          value={multiple}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-muted-foreground text-sm">
+          With input — type a date and press Enter
+        </span>
+        <DatePicker onChange={setTyped} value={typed} withInput />
+      </div>
+    </div>
+  );
+};
 
 export default Demo;
 `

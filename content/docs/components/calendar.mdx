@@ -1,0 +1,69 @@
+---
+title: Calendar
+---
+
+An enhanced Calendar built on shadcn's `Calendar` primitive (`react-day-picker`). Clicking the month or year label in the caption switches to a button-grid panel for quick navigation — no native `<select>` dropdowns. Supports all DayPicker modes (single, range, multiple) and forwards every DayPicker prop.
+
+<ExamplePreview name="calendar-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/calendar
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/calendar.json
+```
+
+The underlying shadcn `calendar` and `button` primitives (plus `react-day-picker` and `date-fns`) are installed automatically.
+
+## Usage
+
+```tsx
+import { useState } from "react"
+import { Calendar } from "@/components/easy/calendar"
+
+const [date, setDate] = useState<Date>()
+
+<Calendar mode="single" selected={date} onSelect={setDate} />
+```
+
+## Props
+
+All props from shadcn's `Calendar` (i.e. `react-day-picker`'s `DayPicker`) are forwarded. The following are the most common:
+
+| Prop               | Type                                              | Default                 | Description                                                                 |
+| ------------------ | ------------------------------------------------- | ----------------------- | --------------------------------------------------------------------------- |
+| `defaultView`      | `"days" \| "months" \| "years"`                   | `"days"`                | Initial view. Use `"months"` or `"years"` to start on that panel.           |
+| `mode`             | `"single" \| "range" \| "multiple"`               | -                       | Selection mode. Controls `selected` / `onSelect` types.                     |
+| `selected`         | `Date \| DateRange \| Date[]`                     | -                       | The selected value. Type narrows from `mode`.                               |
+| `onSelect`         | `(value) => void`                                 | -                       | Called when the selection changes.                                          |
+| `locale`           | `Locale`                                          | -                       | `date-fns` locale for month / weekday labels and format.                    |
+| `numberOfMonths`   | `number`                                          | `1`                     | Number of months shown side-by-side.                                        |
+| `defaultMonth`     | `Date`                                            | current month           | Initial month displayed.                                                    |
+| `month`            | `Date`                                            | -                       | Controlled visible month. Use with `onMonthChange`.                         |
+| `onMonthChange`    | `(month: Date) => void`                           | -                       | Called when the visible month changes.                                      |
+| `startMonth`       | `Date`                                            | today − 100 years       | Earliest navigable month. Bounds the year panel.                            |
+| `endMonth`         | `Date`                                            | today + 100 years       | Latest navigable month.                                                     |
+| `disabled`         | `Matcher \| Matcher[]`                            | -                       | Days matching the condition cannot be selected.                             |
+| `monthsClassName`  | `ClassValue`                                      | -                       | className for the months grid panel.                                        |
+| `yearsClassName`   | `ClassValue`                                      | -                       | className for the years grid panel.                                         |
+
+## Views
+
+The calendar manages three internal views:
+
+1. **Days** (default) — the standard day grid. The caption shows the month name and year as clickable buttons.
+2. **Months** — a 3×4 button grid (Jan – Dec). Click a month to jump to it and return to the day view. Click the year label at the top to switch to the years view.
+3. **Years** — a 3×4 button grid showing 12 years per page, with left/right arrows to paginate. Click a year to jump to it and enter the months view.
+
+## Notes
+
+- The month and year caption buttons replace the native `<select>` dropdowns that `react-day-picker` renders with `captionLayout="dropdown"`. This gives a consistent, styled experience across platforms.
+- The year panel defaults to ±100 years from today when `startMonth` / `endMonth` are not provided.
+- When `numberOfMonths > 1`, clicking any month's caption enters the panel view. After selecting, all months update together.

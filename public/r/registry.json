@@ -32,11 +32,24 @@
       ]
     },
     {
+      "name": "use-delay-loading",
+      "type": "registry:hook",
+      "title": "useDelayLoading",
+      "description": "Hook that adds a minimum visible duration to a loading state, preventing the spinner from flashing on fast operations.",
+      "files": [
+        {
+          "path": "registry/hooks/use-delay-loading.ts",
+          "type": "registry:hook",
+          "target": "hooks/use-delay-loading.ts"
+        }
+      ]
+    },
+    {
       "name": "async-button",
       "type": "registry:component",
       "title": "Async Button",
       "description": "Button that auto-manages loading state when onClick returns a Promise.",
-      "registryDependencies": ["button"],
+      "registryDependencies": ["button", "@easy-shadcn/use-delay-loading"],
       "files": [
         {
           "path": "registry/ui/async-button.tsx",
@@ -72,6 +85,39 @@
           "path": "registry/ui/modal/alert-modal-helper.tsx",
           "type": "registry:component",
           "target": "components/easy/modal/alert-modal-helper.tsx"
+        }
+      ]
+    },
+    {
+      "name": "calendar",
+      "type": "registry:component",
+      "title": "Integrated Calendar",
+      "description": "Calendar with three-view month/year navigation (days / months / years), replacing the native dropdowns with button-grid panels.",
+      "registryDependencies": ["calendar", "button"],
+      "files": [
+        {
+          "path": "registry/ui/calendar.tsx",
+          "type": "registry:component",
+          "target": "components/easy/calendar.tsx"
+        }
+      ]
+    },
+    {
+      "name": "date-picker",
+      "type": "registry:component",
+      "title": "Integrated Date Picker",
+      "description": "Single, multiple, and range date picker built on shadcn Popover + the Integrated Calendar, with an optional inline-input mode.",
+      "registryDependencies": [
+        "popover",
+        "button",
+        "input",
+        "@easy-shadcn/calendar"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/date-picker.tsx",
+          "type": "registry:component",
+          "target": "components/easy/date-picker.tsx"
         }
       ]
     }
