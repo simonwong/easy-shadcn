@@ -158,3 +158,7 @@ Tabs、Breadcrumb 这种列表型组件用 `items` 数组是 80% 友好的。代
 ## Code Style
 
 - 禁止使用 `if (xx) return yy` ，必须使用 block 包裹，`if (xx) { return yy }`
+
+## 禁止事项
+
+- 禁止修改 `components/ui/**`  下的任意文件
