@@ -161,4 +161,32 @@ Tabs、Breadcrumb 这种列表型组件用 `items` 数组是 80% 友好的。代
 
 ## 禁止事项
 
-- 禁止修改 `components/ui/**`  下的任意文件
+### `components/ui/**` 严格只读
+
+`components/ui/**` 下的所有文件**只能**通过 shadcn CLI 引入和更新：
+
+```bash
+pnpm dlx shadcn@latest add <component>
+pnpm dlx shadcn@latest add <component> --overwrite   # 重新覆盖
+```
+
+引入之后，**任何形式**的改动都被禁止，包括但不限于：
+
+- ❌ 直接编辑文件内容（改样式、改命名、改 props、加 className）
+- ❌ 在该目录下新建任何文件（包括手写的 primitive）
+- ❌ 删除已通过 shadcn add 添加的文件
+- ❌ 在该目录下追加 wrapper / 工具函数 / hooks
+- ❌ "只调一行样式"、"只补一个 data-attr"、"作者预留了 hook 所以可以接入" 等任何形式的合理化
+
+**没有任何例外。** 即使是 plan 已经被批准、即使存在预留命名 hook、即使只是一个字符的修改，都不允许。规则的目的就是让 `components/ui/**` 成为可被随时 `shadcn add --overwrite` 重置的、与上游完全同步的目录。
+
+### 所有自有代码都放 `registry/`
+
+任何需要在原语之上做的工作——封装、组合、状态管理、数据 helpers、特殊样式——**只能**放在：
+
+- `registry/ui/**`：Compose 组件
+- `registry/hooks/**`：自定义 hooks
+- `components/examples/**`：demo
+- `content/docs/**`：文档
+
+如果你想在 `components/ui/xxx.tsx` 上加一行样式，正确做法是：在 `registry/ui/` 下写一个 wrapper 接受 className，由用户传入。

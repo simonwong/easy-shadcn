@@ -505,6 +505,227 @@ export default Demo;
 `
   },
 
+  "select-async-demo": {
+    component: React.lazy(() => import("./select-async-demo")),
+    codeString: `"use client";
+
+import { Select, type SelectItem } from "@/registry/ui/select";
+
+const COUNTRIES: SelectItem[] = [
+  { label: "Argentina", value: "ar" },
+  { label: "Australia", value: "au" },
+  { label: "Brazil", value: "br" },
+  { label: "Canada", value: "ca" },
+  { label: "China", value: "cn" },
+  { label: "France", value: "fr" },
+  { label: "Germany", value: "de" },
+  { label: "India", value: "in" },
+  { label: "Italy", value: "it" },
+  { label: "Japan", value: "jp" },
+  { label: "Mexico", value: "mx" },
+  { label: "Netherlands", value: "nl" },
+  { label: "Spain", value: "es" },
+  { label: "United Kingdom", value: "uk" },
+  { label: "United States", value: "us" },
+];
+
+const loadCountries = async (
+  _query: string,
+  signal: AbortSignal
+): Promise<SelectItem[]> => {
+  await new Promise<void>((resolve, reject) => {
+    const t = setTimeout(resolve, 600);
+    signal.addEventListener("abort", () => {
+      clearTimeout(t);
+      reject(new DOMException("Aborted", "AbortError"));
+    });
+  });
+  return COUNTRIES;
+};
+
+const Demo = () => (
+  <div className="w-64">
+    <Select
+      clearable
+      loadItems={loadCountries}
+      loadOn="open"
+      placeholder="Search a country"
+      searchable
+    />
+  </div>
+);
+
+export default Demo;
+`
+  },
+
+  "select-demo": {
+    component: React.lazy(() => import("./select-demo")),
+    codeString: `import { Select } from "@/registry/ui/select";
+
+const items = [
+  { label: "Apple", value: "apple" },
+  { label: "Banana", value: "banana" },
+  { label: "Cherry", value: "cherry" },
+  { label: "Durian", value: "durian" },
+  { label: "Elderberry", value: "elderberry" },
+];
+
+const Demo = () => (
+  <div className="w-64">
+    <Select items={items} placeholder="Pick a fruit" />
+  </div>
+);
+
+export default Demo;
+`
+  },
+
+  "select-multiple-demo": {
+    component: React.lazy(() => import("./select-multiple-demo")),
+    codeString: `import { Select } from "@/registry/ui/select";
+
+const items = [
+  { label: "TypeScript", value: "typescript" },
+  { label: "JavaScript", value: "javascript" },
+  { label: "Python", value: "python" },
+  { label: "Rust", value: "rust" },
+  { label: "Go", value: "go" },
+  { label: "Java", value: "java" },
+  { label: "C++", value: "cpp" },
+  { label: "Ruby", value: "ruby" },
+];
+
+const Demo = () => (
+  <div className="w-80">
+    <Select items={items} multiple placeholder="Pick languages" />
+  </div>
+);
+
+export default Demo;
+`
+  },
+
+  "select-searchable-demo": {
+    component: React.lazy(() => import("./select-searchable-demo")),
+    codeString: `import { Select } from "@/registry/ui/select";
+
+const items = [
+  { label: "Afghanistan", value: "af" },
+  { label: "Albania", value: "al" },
+  { label: "Algeria", value: "dz" },
+  { label: "Argentina", value: "ar" },
+  { label: "Australia", value: "au" },
+  { label: "Austria", value: "at" },
+  { label: "Belgium", value: "be" },
+  { label: "Brazil", value: "br" },
+  { label: "Canada", value: "ca" },
+  { label: "Chile", value: "cl" },
+  { label: "China", value: "cn" },
+  { label: "Colombia", value: "co" },
+  { label: "Denmark", value: "dk" },
+  { label: "Egypt", value: "eg" },
+  { label: "Finland", value: "fi" },
+  { label: "France", value: "fr" },
+  { label: "Germany", value: "de" },
+  { label: "Greece", value: "gr" },
+  { label: "India", value: "in" },
+  { label: "Indonesia", value: "id" },
+  { label: "Italy", value: "it" },
+  { label: "Japan", value: "jp" },
+  { label: "Mexico", value: "mx" },
+  { label: "Netherlands", value: "nl" },
+  { label: "Norway", value: "no" },
+  { label: "Poland", value: "pl" },
+  { label: "Portugal", value: "pt" },
+  { label: "Russia", value: "ru" },
+  { label: "Spain", value: "es" },
+  { label: "Sweden", value: "se" },
+  { label: "Switzerland", value: "ch" },
+  { label: "United Kingdom", value: "gb" },
+  { label: "United States", value: "us" },
+];
+
+const Demo = () => (
+  <div className="w-64">
+    <Select clearable items={items} placeholder="Search a country" searchable />
+  </div>
+);
+
+export default Demo;
+`
+  },
+
+  "select-server-search-demo": {
+    component: React.lazy(() => import("./select-server-search-demo")),
+    codeString: `"use client";
+
+import { useState } from "react";
+import { Select, type SelectItem } from "@/registry/ui/select";
+
+const USERS: SelectItem[] = [
+  { label: "Ada Lovelace", value: "ada" },
+  { label: "Alan Turing", value: "alan" },
+  { label: "Barbara Liskov", value: "barbara" },
+  { label: "Donald Knuth", value: "donald" },
+  { label: "Edsger Dijkstra", value: "edsger" },
+  { label: "Grace Hopper", value: "grace" },
+  { label: "John von Neumann", value: "john" },
+  { label: "Linus Torvalds", value: "linus" },
+  { label: "Margaret Hamilton", value: "margaret" },
+  { label: "Richard Stallman", value: "richard" },
+  { label: "Tim Berners-Lee", value: "tim" },
+  { label: "Yukihiro Matsumoto", value: "yukihiro" },
+];
+
+const searchUsers = async (
+  query: string,
+  signal: AbortSignal
+): Promise<SelectItem[]> => {
+  await new Promise<void>((resolve, reject) => {
+    const t = setTimeout(resolve, 450);
+    signal.addEventListener("abort", () => {
+      clearTimeout(t);
+      reject(new DOMException("Aborted", "AbortError"));
+    });
+  });
+  const q = query.trim().toLowerCase();
+  if (!q) {
+    return USERS.slice(0, 6);
+  }
+  return USERS.filter((u) => String(u.label).toLowerCase().includes(q)).slice(
+    0,
+    8
+  );
+};
+
+const Demo = () => {
+  const [value, setValue] = useState<string[]>([]);
+  return (
+    <div className="flex w-72 flex-col gap-2">
+      <Select
+        debounceMs={250}
+        loadItems={searchUsers}
+        multiple
+        onValueChange={(next) => setValue((next as string[]) ?? [])}
+        placeholder="Search reviewers"
+        serverSideFilter
+        value={value}
+      />
+      <p className="text-muted-foreground text-xs">
+        Selected:{" "}
+        <code className="text-foreground">
+          {value.length === 0 ? "—" : value.join(", ")}
+        </code>
+      </p>
+    </div>
+  );
+};
+
+export default Demo;
+`
+  },
+
   "tabs-demo": {
     component: React.lazy(() => import("./tabs-demo")),
     codeString: `import { Tabs } from "@/registry/ui/tabs";
