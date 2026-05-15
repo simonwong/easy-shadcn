@@ -1,0 +1,204 @@
+---
+title: Select
+---
+
+A flat-props select that covers three modes — plain dropdown, searchable dropdown with fuzzy filtering, and multi-select with chips — through a single component. Built on Base UI's `Combobox` primitive.
+
+<ExamplePreview name="select-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/select
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/select.json
+```
+
+The underlying shadcn `combobox` primitive and the `useSelectItems` hook are installed automatically alongside `select`.
+
+## useSelectItems
+
+`useSelectItems` is a pure derivation hook (no state, no effects) that turns a flat `SelectItem[]` into the helper data a Combobox needs. It is exported separately so you can build a custom combobox UI on top of `components/ui/combobox` without duplicating this logic.
+
+```tsx
+import { useSelectItems } from "@/hooks/use-select-items"
+
+const { stringItems, findItem, itemToStringLabel, filterFn, selectedItems } =
+  useSelectItems({ items, value })
+
+<Combobox
+  items={stringItems}
+  itemToStringLabel={itemToStringLabel}
+  filter={filterFn}
+  value={value}
+  onValueChange={setValue}
+>
+  {/* render with components/ui/combobox primitives directly */}
+</Combobox>
+```
+
+| Return key          | Type                                              | Description                                                                                  |
+| ------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `stringItems`       | `string[]`                                        | The `value` of each item — pass to `<Combobox items>`.                                       |
+| `findItem`          | `(value: string) => SelectItem \| undefined`     | Look up an item by its string value.                                                          |
+| `itemToStringLabel` | `(value: string) => string`                       | Stringify the label of an item. Used for filtering and form submission.                       |
+| `filterFn`          | `(itemValue: string, query: string) => boolean`  | Default case-insensitive `contains` filter, honoring the user-supplied `filter` override.    |
+| `selectedItems`     | `SelectItem[]`                                    | The full `SelectItem` objects matching the current `value`. Empty array when no value.       |
+
+## Usage
+
+### Plain dropdown
+
+The default mode. A button-style trigger opens a popover with the item list. No search input is rendered.
+
+```tsx
+import { Select } from "@/components/easy/select"
+
+const items = [
+  { label: "Apple", value: "apple" },
+  { label: "Banana", value: "banana" },
+]
+
+<Select items={items} placeholder="Pick a fruit" />
+```
+
+### Searchable
+
+Pass `searchable` to render an input that filters the list as the user types. Filtering is case-insensitive `contains` against `label` by default.
+
+<ExamplePreview name="select-searchable-demo" />
+
+```tsx
+<Select items={items} searchable clearable placeholder="Search a country" />
+```
+
+### Multiple
+
+Pass `multiple` to enable chip-style multi-selection. The input below the chips lets the user keep filtering. `searchable` is implicitly `true` in this mode.
+
+<ExamplePreview name="select-multiple-demo" />
+
+```tsx
+const [value, setValue] = useState<string[]>([])
+
+<Select
+  items={items}
+  multiple
+  value={value}
+  onValueChange={(next) => setValue(next as string[])}
+/>
+```
+
+### Custom filter
+
+Override the default `contains` matching by passing a `filter` function. It receives the full `SelectItem` and the current query string.
+
+```tsx
+<Select
+  items={items}
+  searchable
+  filter={(item, query) => item.value.startsWith(query.toLowerCase())}
+/>
+```
+
+### Remote loading (eager)
+
+Pass a `loadItems` async function instead of `items` to fetch the option list on demand. By default the loader is invoked once on mount with an empty query; subsequent typing is filtered locally.
+
+Pass `loadOn="open"` to defer the first request until the popup is opened — useful when the dropdown may never be touched.
+
+<ExamplePreview name="select-async-demo" />
+
+```tsx
+const loadCountries = async (_query: string, signal: AbortSignal) => {
+  const res = await fetch("/api/countries", { signal })
+  return res.json() as Promise<SelectItem[]>
+}
+
+<Select
+  loadItems={loadCountries}
+  loadOn="open"
+  searchable
+  clearable
+  placeholder="Search a country"
+/>
+```
+
+### Server-side search
+
+Pass `serverSideFilter` to drive filtering from the server: every input change re-invokes `loadItems(query)` (debounced by `debounceMs`, default `250`). The client-side `filter` is disabled, and already-selected items are merged back into the result list so chips never lose their labels mid-search.
+
+The loader receives an `AbortSignal` so you can cancel stale requests. The component creates a new signal on every call and aborts the previous one for you — just plumb it through to `fetch`.
+
+When the fetch rejects, the popup shows an error message and a `Retry` button.
+
+<ExamplePreview name="select-server-search-demo" />
+
+```tsx
+const searchReviewers = async (query: string, signal: AbortSignal) => {
+  const res = await fetch(`/api/users?q=${encodeURIComponent(query)}`, { signal })
+  if (!res.ok) {
+    throw new Error("Failed to search reviewers")
+  }
+  return res.json() as Promise<SelectItem[]>
+}
+
+<Select
+  loadItems={searchReviewers}
+  serverSideFilter
+  debounceMs={300}
+  multiple
+  placeholder="Search reviewers"
+/>
+```
+
+## Props
+
+| Prop             | Type                                                            | Default        | Description                                                                                          |
+| ---------------- | --------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
+| `items`          | `SelectItem[]`                                                  | -              | Static option list. Each item is `{ label, value, disabled?, itemClassName? }`. Ignored when `loadItems` is provided. |
+| `loadItems`      | `(query: string, signal: AbortSignal) => Promise<SelectItem[]>` | -              | Async loader. Behavior depends on `serverSideFilter`. See **Remote loading** above.                   |
+| `loadOn`         | `"mount" \| "open"`                                             | `"mount"`      | When the first eager fetch fires. Ignored when `serverSideFilter` is `true`.                          |
+| `serverSideFilter` | `boolean`                                                     | `false`        | If `true`, every input change re-invokes `loadItems(query)`; client-side filter is disabled.          |
+| `debounceMs`     | `number`                                                        | `250`          | Debounce for `loadItems` calls in `serverSideFilter` mode.                                            |
+| `loadingMessage` | `ReactNode`                                                     | `"Loading…"`   | Shown in the popup while a fetch is pending.                                                          |
+| `errorMessage`   | `ReactNode \| (error: unknown) => ReactNode`                    | extract        | Shown when `loadItems` rejects. Default extracts `error.message` / `error.error`, falls back to `"Failed to load options"`. |
+| `value`          | `string \| string[]`                                            | -              | Controlled value. `string` in single mode, `string[]` in multi mode.                                  |
+| `defaultValue`   | `string \| string[]`                                            | -              | Uncontrolled initial value.                                                                           |
+| `onValueChange`  | `(value: string \| string[] \| undefined) => void`              | -              | Called when the selection changes. `undefined` indicates the value was cleared.                       |
+| `multiple`       | `boolean`                                                       | `false`        | Enable multi-select with chips. Implicitly enables `searchable`.                                      |
+| `searchable`     | `boolean`                                                       | `false`        | Render an input that filters the list. Ignored (treated as `true`) when `multiple` is `true`.        |
+| `clearable`      | `boolean`                                                       | `false`        | Show a clear button. Single-mode only.                                                                |
+| `placeholder`    | `string`                                                        | `"Select…"`    | Placeholder shown when no value is selected.                                                          |
+| `emptyMessage`   | `ReactNode`                                                     | `"No results"` | Content rendered when no items match the query.                                                       |
+| `disabled`       | `boolean`                                                       | `false`        | Disable all interaction.                                                                              |
+| `open`           | `boolean`                                                       | -              | Controlled popover open state.                                                                        |
+| `defaultOpen`    | `boolean`                                                       | `false`        | Uncontrolled initial open state.                                                                      |
+| `onOpenChange`   | `(open: boolean) => void`                                       | -              | Called when the popover open state changes.                                                           |
+| `filter`         | `(item: SelectItem, query: string) => boolean`                  | contains       | Custom filter predicate. Defaults to case-insensitive `contains` against `label`.                     |
+| `name`           | `string`                                                        | -              | Form field name for native form submission.                                                           |
+| `className`      | `ClassValue`                                                    | -              | Root wrapper className.                                                                               |
+| `triggerClassName` | `ClassValue`                                                  | -              | Trigger / input / chips-container className depending on mode.                                        |
+| `inputClassName` | `ClassValue`                                                    | -              | `<ComboboxInput />` className. Used in `searchable` and `multiple` modes.                             |
+| `contentClassName` | `ClassValue`                                                  | -              | Popover content className.                                                                            |
+| `itemClassName`  | `ClassValue`                                                    | -              | Default item className. Merged with each `item.itemClassName`.                                        |
+| `chipClassName`  | `ClassValue`                                                    | -              | Chip className. Used in `multiple` mode.                                                              |
+| `emptyClassName` | `ClassValue`                                                    | -              | `<ComboboxEmpty />` className.                                                                        |
+
+## Notes
+
+- **Single vs multi value type.** `value` is `string` in single mode and `string[]` in multi mode. The component does not enforce this with discriminated types — if you pass `multiple` you must also pass an array. `onValueChange` receives `undefined` when the value is cleared (e.g. via the clear button).
+- **`multiple` implies `searchable`.** A multi-select without an input would be a non-standard UX. Even if you pass `searchable={false}` alongside `multiple`, the input is still rendered.
+- **`serverSideFilter` implies an input.** A plain dropdown cannot drive a search query. When `serverSideFilter` is `true` and neither `searchable` nor `multiple` is set, the component renders the searchable input variant.
+- **`items` vs `loadItems`.** They are mutually exclusive — when both are passed, `loadItems` wins and `items` is ignored.
+- **AbortSignal contract.** `loadItems(query, signal)` receives a fresh `AbortSignal` per call; the previous request is aborted automatically when a new one starts or when the component unmounts. Pass the signal to `fetch` to get cancellation for free.
+- **Selected-item cache.** In `serverSideFilter` mode, the component caches the full `SelectItem` of every value that has appeared in a server response. Subsequent searches can return a smaller result set without dropping the chip / trigger label for previously-selected entries.
+- **Default filtering** is Base UI's case-insensitive `contains` against the string returned by `itemToStringLabel` (which the component implements as `String(item.label)`). If your `label` is JSX rather than a string, the default match will be lossy — pass a custom `filter` in that case.
+- **No grouping in this layer.** For grouped options, dividers, the “status” slot in custom shapes, or anything not covered by these props, drop down to the underlying `components/ui/combobox` primitive and compose `<ComboboxGroup>`, `<ComboboxGroupLabel>`, `<ComboboxSeparator>` yourself.
+- **Controlled vs uncontrolled.** `value === undefined` triggers uncontrolled mode (the component manages its own state via `defaultValue`). Passing `value={undefined}` keeps the component controlled.
