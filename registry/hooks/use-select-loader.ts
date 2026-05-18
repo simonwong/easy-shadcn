@@ -107,13 +107,13 @@ export function useSelectLoader({
     if (!enabled || serverSideFilter) {
       return;
     }
-    if (loadOn === "mount") {
-      fetchItems("");
+    if (hasLoadedRef.current) {
       return;
     }
-    if (open && !hasLoadedRef.current) {
-      fetchItems("");
+    if (loadOn === "open" && !open) {
+      return;
     }
+    fetchItems("");
   }, [enabled, serverSideFilter, loadOn, open, fetchItems]);
 
   // Server-side filter mode: fetch on open + on every query change (debounced).
@@ -169,11 +169,15 @@ export function useSelectLoader({
     if (arr.length === 0) {
       return;
     }
+    const itemIndex = new Map<string, SelectItem>();
+    for (const item of items) {
+      itemIndex.set(item.value, item);
+    }
     setSelectedCache((prev) => {
       let changed = false;
       const next = new Map(prev);
       for (const v of arr) {
-        const found = items.find((i) => i.value === v);
+        const found = itemIndex.get(v);
         if (found && next.get(v) !== found) {
           next.set(v, found);
           changed = true;

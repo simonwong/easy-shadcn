@@ -1,8 +1,15 @@
 "use client";
 
+import { Combobox as ComboboxPrimitive } from "@base-ui/react";
+import {
+  ArrowDown01Icon,
+  Cancel01Icon,
+  SearchList01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import type { ClassValue } from "clsx";
-import type { ReactNode } from "react";
-import { useCallback, useState } from "react";
+import type { FocusEvent, ReactNode } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Combobox,
@@ -11,13 +18,16 @@ import {
   ComboboxChipsInput,
   ComboboxContent,
   ComboboxEmpty,
-  ComboboxInput,
   ComboboxItem,
   ComboboxList,
-  ComboboxTrigger,
   ComboboxValue,
   useComboboxAnchor,
 } from "@/components/ui/combobox";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
 import type { SelectItem } from "@/registry/hooks/use-select-items";
 import { useSelectItems } from "@/registry/hooks/use-select-items";
@@ -32,7 +42,10 @@ export interface SelectProps {
   chipClassName?: ClassValue;
   /** Root wrapper className. */
   className?: ClassValue;
-  /** Show a clear button. Single (non-multiple) modes only. */
+  /**
+   * Show an inline clear button when the field has a value and the user hovers
+   * the right-side icon area. Works in all three modes.
+   */
   clearable?: boolean;
   /** Popover content className. */
   contentClassName?: ClassValue;
@@ -98,13 +111,23 @@ export interface SelectProps {
    * - `"open"`: fire the first time the popup opens.
    */
   loadOn?: "mount" | "open";
+  /**
+   * Max selectable count in `multiple` mode. When the limit is reached every
+   * unselected item is rendered as `disabled` so the user cannot exceed it.
+   * Already-selected items stay clickable for deselection. Ignored in single mode.
+   */
+  maxCount?: number;
   /** Enable multi-select with chips. */
   multiple?: boolean;
   /** Form field name for native form submission. */
   name?: string;
   /** Called when the popover open state changes. */
   onOpenChange?: (open: boolean) => void;
-  /** Called when the selection changes. `undefined` indicates the value was cleared. */
+  /**
+   * Called when the selection changes.
+   * - Single mode: `string` when a value is selected, `undefined` when cleared.
+   * - Multi mode: `string[]` — an empty array represents no selection.
+   */
   onValueChange?: (value: string | string[] | undefined) => void;
   /** Controlled popover open state. */
   open?: boolean;
@@ -126,6 +149,8 @@ export interface SelectProps {
   value?: string | string[];
 }
 
+const ITEM_PRESS_REASON = "item-press";
+
 function defaultErrorRenderer(error: unknown): ReactNode {
   if (error instanceof Error && error.message) {
     return error.message;
@@ -142,6 +167,94 @@ function defaultErrorRenderer(error: unknown): ReactNode {
   return "Failed to load options";
 }
 
+function useAdornmentState() {
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const hoverHandlers = {
+    onMouseEnter: () => setHovered(true),
+    onMouseLeave: () => setHovered(false),
+  };
+  const focusHandlers = {
+    onBlurCapture: (e: FocusEvent<HTMLElement>) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+        setFocused(false);
+      }
+    },
+    onFocusCapture: () => setFocused(true),
+  };
+  return { focusHandlers, focused, hoverHandlers, hovered };
+}
+
+type AdornmentKind = "clear" | "search" | "down";
+
+function resolveAdornment({
+  canSearch,
+  clearable,
+  focused,
+  hasValue,
+  hovered,
+}: {
+  canSearch: boolean;
+  clearable: boolean;
+  focused: boolean;
+  hasValue: boolean;
+  hovered: boolean;
+}): AdornmentKind {
+  if (clearable && hasValue && hovered) {
+    return "clear";
+  }
+  if (canSearch && focused) {
+    return "search";
+  }
+  return "down";
+}
+
+function Spinner() {
+  return (
+    <span
+      aria-hidden
+      className="inline-block size-4 animate-spin rounded-full border-2 border-current border-r-transparent text-muted-foreground"
+    />
+  );
+}
+
+function StaticIcon({ icon }: { icon: typeof ArrowDown01Icon }) {
+  return (
+    <HugeiconsIcon
+      aria-hidden
+      className="pointer-events-none size-4 text-muted-foreground"
+      icon={icon}
+      strokeWidth={2}
+    />
+  );
+}
+
+function ClearButton({ className }: { className?: ClassValue }) {
+  return (
+    <ComboboxPrimitive.Clear
+      aria-label="Clear"
+      className={cn(
+        "size-4 cursor-pointer text-muted-foreground transition-colors hover:text-foreground",
+        className
+      )}
+      data-slot="combobox-clear"
+      render={
+        <HugeiconsIcon icon={Cancel01Icon} role="button" strokeWidth={2} />
+      }
+    />
+  );
+}
+
+function Adornment({ kind }: { kind: AdornmentKind }) {
+  if (kind === "clear") {
+    return <ClearButton />;
+  }
+  if (kind === "search") {
+    return <StaticIcon icon={SearchList01Icon} />;
+  }
+  return <StaticIcon icon={ArrowDown01Icon} />;
+}
+
 export const Select = ({
   items,
   loadItems,
@@ -156,6 +269,7 @@ export const Select = ({
   multiple = false,
   searchable = false,
   clearable = false,
+  maxCount,
   placeholder = "Select…",
   emptyMessage = "No results",
   disabled,
@@ -174,6 +288,7 @@ export const Select = ({
 }: SelectProps) => {
   const isAsync = Boolean(loadItems);
   const effectiveSearchable = searchable || (isAsync && serverSideFilter);
+  const hasInput = multiple || effectiveSearchable;
 
   const [internalOpen, setInternalOpen] = useState<boolean>(
     defaultOpen ?? false
@@ -191,13 +306,31 @@ export const Select = ({
     [isOpenControlled, onOpenChange]
   );
 
+  // Mirror selection so adornment/maxCount work for uncontrolled usage too.
+  const [internalValue, setInternalValue] = useState<
+    string | string[] | undefined
+  >(defaultValue);
+  const isValueControlled = value !== undefined;
+  const currentValue = isValueControlled ? value : internalValue;
+
+  const handleValueChange = useCallback(
+    (next: string | string[] | null | undefined) => {
+      const normalized = next ?? undefined;
+      if (!isValueControlled) {
+        setInternalValue(normalized);
+      }
+      onValueChange?.(normalized);
+    },
+    [isValueControlled, onValueChange]
+  );
+
   const [inputValue, setInputValue] = useState<string>("");
   const [query, setQuery] = useState<string>("");
 
   const handleInputValueChange = useCallback(
     (next: string, details: { reason: string }) => {
       setInputValue(next);
-      if (details.reason !== "item-press") {
+      if (details.reason !== ITEM_PRESS_REASON) {
         setQuery(next);
       }
     },
@@ -211,26 +344,27 @@ export const Select = ({
     enabled: asyncEnabled,
     refresh,
   } = useSelectLoader({
+    debounceMs,
     loadItems,
     loadOn,
-    serverSideFilter,
-    debounceMs,
     open: currentOpen,
     query,
-    value,
+    serverSideFilter,
+    value: currentValue,
   });
 
   const resolvedItems = asyncEnabled ? asyncItems : (items ?? []);
 
   const { stringItems, findItem, itemToStringLabel, filterFn } = useSelectItems(
     {
-      items: resolvedItems,
-      value,
       filter,
+      items: resolvedItems,
     }
   );
 
   const anchorRef = useComboboxAnchor();
+  const { hovered, focused, hoverHandlers, focusHandlers } =
+    useAdornmentState();
 
   const renderError = useCallback(
     (e: unknown): ReactNode => {
@@ -245,6 +379,32 @@ export const Select = ({
     [errorMessage]
   );
 
+  const valueArr = useMemo(() => {
+    if (currentValue === undefined) {
+      return [];
+    }
+    return Array.isArray(currentValue) ? currentValue : [currentValue];
+  }, [currentValue]);
+
+  const adornmentKind = resolveAdornment({
+    canSearch: hasInput,
+    clearable,
+    focused,
+    hasValue: valueArr.length > 0,
+    hovered,
+  });
+
+  // multi-only: when at limit, mark every unselected item as disabled.
+  const maxReached =
+    multiple &&
+    typeof maxCount === "number" &&
+    maxCount > 0 &&
+    valueArr.length >= maxCount;
+  const selectedSet = useMemo(
+    () => (maxReached ? new Set(valueArr) : null),
+    [maxReached, valueArr]
+  );
+
   const statusContent = (() => {
     if (asyncLoading) {
       return (
@@ -252,10 +412,7 @@ export const Select = ({
           className="flex items-center justify-center gap-2 px-2 py-3 text-muted-foreground text-sm"
           data-slot="combobox-status"
         >
-          <span
-            aria-hidden
-            className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent"
-          />
+          <Spinner />
           <span>{loadingMessage}</span>
         </div>
       );
@@ -289,10 +446,12 @@ export const Select = ({
         if (!item) {
           return null;
         }
+        const disabledByMax =
+          selectedSet !== null && !selectedSet.has(itemValue);
         return (
           <ComboboxItem
             className={cn(itemClassName, item.itemClassName)}
-            disabled={item.disabled}
+            disabled={item.disabled || disabledByMax}
             key={itemValue}
             value={itemValue}
           >
@@ -307,20 +466,18 @@ export const Select = ({
     <ComboboxEmpty className={cn(emptyClassName)}>{emptyMessage}</ComboboxEmpty>
   );
 
+  // Keep list mounted across loading/error so base-ui keeps collection state.
+  const showEmpty = !(asyncLoading || asyncError);
   const popupBody = (
     <>
       {statusContent}
-      {!(asyncLoading || asyncError) && (
-        <>
-          {list}
-          {empty}
-        </>
-      )}
+      {list}
+      {showEmpty && empty}
     </>
   );
 
   const sharedRootProps = {
-    defaultOpen,
+    defaultOpen: isOpenControlled ? undefined : defaultOpen,
     disabled,
     filter: serverSideFilter ? null : filterFn,
     inputValue,
@@ -338,10 +495,11 @@ export const Select = ({
         {...sharedRootProps}
         defaultValue={defaultValue as string[] | undefined}
         multiple
-        onValueChange={(next) => onValueChange?.(next ?? undefined)}
+        onValueChange={handleValueChange}
         value={value as string[] | undefined}
       >
         <ComboboxChips
+          {...focusHandlers}
           className={cn(triggerClassName, className)}
           ref={anchorRef}
         >
@@ -357,12 +515,18 @@ export const Select = ({
                   );
                 })}
                 <ComboboxChipsInput
-                  className={cn(inputClassName)}
+                  className={cn("flex-1", inputClassName)}
                   placeholder={values.length === 0 ? placeholder : undefined}
                 />
               </>
             )}
           </ComboboxValue>
+          <span
+            {...hoverHandlers}
+            className="ml-auto inline-flex shrink-0 items-center pl-1"
+          >
+            <Adornment kind={adornmentKind} />
+          </span>
         </ComboboxChips>
         <ComboboxContent anchor={anchorRef} className={cn(contentClassName)}>
           {popupBody}
@@ -376,15 +540,23 @@ export const Select = ({
       <Combobox<string, false>
         {...sharedRootProps}
         defaultValue={defaultValue as string | undefined}
-        onValueChange={(next) => onValueChange?.(next ?? undefined)}
+        onValueChange={handleValueChange}
         value={value as string | undefined}
       >
-        <ComboboxInput
-          className={cn(triggerClassName, inputClassName, className)}
-          disabled={disabled}
-          placeholder={placeholder}
-          showClear={clearable}
-        />
+        <InputGroup
+          {...focusHandlers}
+          className={cn("w-auto", triggerClassName, className)}
+        >
+          <ComboboxPrimitive.Input
+            className={cn(inputClassName)}
+            disabled={disabled}
+            placeholder={placeholder}
+            render={<InputGroupInput />}
+          />
+          <InputGroupAddon {...hoverHandlers} align="inline-end">
+            <Adornment kind={adornmentKind} />
+          </InputGroupAddon>
+        </InputGroup>
         <ComboboxContent className={cn(contentClassName)}>
           {popupBody}
         </ComboboxContent>
@@ -392,28 +564,44 @@ export const Select = ({
     );
   }
 
+  // Trigger is a <button>; nesting another <button> (clear) is invalid HTML,
+  // so the clear button rides above as an absolute-positioned sibling.
   return (
     <Combobox<string, false>
       {...sharedRootProps}
       defaultValue={defaultValue as string | undefined}
-      onValueChange={(next) => onValueChange?.(next ?? undefined)}
+      onValueChange={handleValueChange}
       value={value as string | undefined}
     >
-      <ComboboxTrigger
-        className={cn("justify-between", className, triggerClassName)}
-        disabled={disabled}
-        render={<Button variant="outline" />}
-      >
-        <ComboboxValue placeholder={placeholder}>
-          {(selected: string | null) => {
-            if (!selected) {
-              return placeholder;
-            }
-            const item = findItem(selected);
-            return <span className="truncate">{item?.label ?? selected}</span>;
-          }}
-        </ComboboxValue>
-      </ComboboxTrigger>
+      <div {...focusHandlers} className={cn("relative", className)}>
+        <ComboboxPrimitive.Trigger
+          className={cn(
+            "w-full justify-between pr-9 [&_svg:not([class*='size-'])]:size-4",
+            triggerClassName
+          )}
+          data-slot="combobox-trigger"
+          disabled={disabled}
+          render={<Button variant="outline" />}
+        >
+          <ComboboxValue placeholder={placeholder}>
+            {(selected: string | null) => {
+              if (!selected) {
+                return placeholder;
+              }
+              const item = findItem(selected);
+              return (
+                <span className="truncate">{item?.label ?? selected}</span>
+              );
+            }}
+          </ComboboxValue>
+        </ComboboxPrimitive.Trigger>
+        <span
+          {...hoverHandlers}
+          className="absolute top-1/2 right-2 inline-flex -translate-y-1/2 items-center"
+        >
+          <Adornment kind={adornmentKind} />
+        </span>
+      </div>
       <ComboboxContent className={cn(contentClassName)}>
         {popupBody}
       </ComboboxContent>
