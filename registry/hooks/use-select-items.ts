@@ -14,14 +14,12 @@ export interface SelectItem {
 export interface UseSelectItemsOptions {
   filter?: (item: SelectItem, query: string) => boolean;
   items: SelectItem[];
-  value?: string | string[] | null;
 }
 
 export interface UseSelectItemsReturn {
   filterFn: (itemValue: string, query: string) => boolean;
   findItem: (value: string) => SelectItem | undefined;
   itemToStringLabel: (value: string) => string;
-  selectedItems: SelectItem[];
   stringItems: string[];
 }
 
@@ -37,30 +35,34 @@ function labelToString(label: ReactNode, fallback: string): string {
 
 export function useSelectItems({
   items,
-  value,
   filter,
 }: UseSelectItemsOptions): UseSelectItemsReturn {
+  const index = useMemo(() => {
+    const map = new Map<string, SelectItem>();
+    for (const item of items) {
+      map.set(item.value, item);
+    }
+    return map;
+  }, [items]);
+
   const stringItems = useMemo(() => items.map((i) => i.value), [items]);
 
-  const findItem = useCallback(
-    (v: string) => items.find((i) => i.value === v),
-    [items]
-  );
+  const findItem = useCallback((v: string) => index.get(v), [index]);
 
   const itemToStringLabel = useCallback(
     (v: string): string => {
-      const item = findItem(v);
+      const item = index.get(v);
       if (!item) {
         return v;
       }
       return labelToString(item.label, v);
     },
-    [findItem]
+    [index]
   );
 
   const filterFn = useCallback(
     (itemValue: string, query: string): boolean => {
-      const item = findItem(itemValue);
+      const item = index.get(itemValue);
       if (!item) {
         return true;
       }
@@ -70,29 +72,13 @@ export function useSelectItems({
       const labelStr = labelToString(item.label, item.value).toLowerCase();
       return labelStr.includes(query.toLowerCase());
     },
-    [findItem, filter]
+    [index, filter]
   );
-
-  const selectedItems = useMemo(() => {
-    if (value === null || value === undefined) {
-      return [];
-    }
-    const arr = Array.isArray(value) ? value : [value];
-    const result: SelectItem[] = [];
-    for (const v of arr) {
-      const item = findItem(v);
-      if (item) {
-        result.push(item);
-      }
-    }
-    return result;
-  }, [value, findItem]);
 
   return {
     stringItems,
     findItem,
     itemToStringLabel,
     filterFn,
-    selectedItems,
   };
 }
