@@ -15,7 +15,7 @@ for (const fileName of exampleFileNames) {
     contentStr += `
   "${name}": {
     component: React.lazy(() => import("./${name}")),
-    codeString: \`${codeContent}\`
+    codeString: ${JSON.stringify(codeContent)}
   },
 `;
   }

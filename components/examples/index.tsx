@@ -5,756 +5,101 @@ import React from "react";
 export default {
   "async-button-demo": {
     component: React.lazy(() => import("./async-button-demo")),
-    codeString: `"use client";
-
-import {
-  ArrowRightIcon,
-  DownloadIcon,
-  RefreshCwIcon,
-  SendIcon,
-  Trash2Icon,
-} from "lucide-react";
-import { AsyncButton } from "@/registry/ui/async-button";
-
-const wait = (ms: number) =>
-  new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, ms);
-  });
-
-const Demo = () => (
-  <div className="flex flex-col gap-6">
-    <div className="flex flex-col gap-2">
-      <p className="text-muted-foreground text-sm">
-        Click the button — loading state activates automatically while the
-        promise is pending.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <AsyncButton onClick={() => wait(2000)}>Submit Order</AsyncButton>
-        <AsyncButton onClick={() => wait(2000)} variant="outline">
-          Sync Data
-        </AsyncButton>
-        <AsyncButton onClick={() => wait(2000)} variant="secondary">
-          Export Report
-        </AsyncButton>
-      </div>
-    </div>
-
-    <div className="flex flex-col gap-2">
-      <p className="text-muted-foreground text-sm">
-        Drive loading externally via the <code>loading</code> prop.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <AsyncButton loading>Controlled Loading</AsyncButton>
-      </div>
-    </div>
-
-    <div className="flex flex-col gap-2">
-      <p className="text-muted-foreground text-sm">
-        Use <code>startIcon</code> / <code>endIcon</code>. While loading, the
-        icon slot is swapped for the spinner — no overlay needed. When both are
-        present, <code>startIcon</code> takes the spinner.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <AsyncButton onClick={() => wait(2000)} startIcon={<SendIcon />}>
-          Send Message
-        </AsyncButton>
-        <AsyncButton
-          endIcon={<ArrowRightIcon />}
-          onClick={() => wait(2000)}
-          variant="outline"
-        >
-          Continue
-        </AsyncButton>
-        <AsyncButton
-          endIcon={<ArrowRightIcon />}
-          onClick={() => wait(2000)}
-          startIcon={<DownloadIcon />}
-          variant="secondary"
-        >
-          Download &amp; Next
-        </AsyncButton>
-      </div>
-    </div>
-
-    <div className="flex flex-col gap-2">
-      <p className="text-muted-foreground text-sm">
-        Icon buttons with <code>size="icon"</code>.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <AsyncButton onClick={() => wait(2000)} size="icon">
-          <SendIcon />
-        </AsyncButton>
-        <AsyncButton onClick={() => wait(2000)} size="icon" variant="outline">
-          <RefreshCwIcon />
-        </AsyncButton>
-        <AsyncButton
-          onClick={() => wait(2000)}
-          size="icon"
-          variant="destructive"
-        >
-          <Trash2Icon />
-        </AsyncButton>
-      </div>
-    </div>
-
-    <div className="flex flex-col gap-2">
-      <p className="text-muted-foreground text-sm">
-        Anti-flash: a 50ms task still shows the spinner for at least 200ms (the
-        default <code>minDuration</code>), so the indicator never just flickers
-        past.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <AsyncButton onClick={() => wait(50)}>Fast Save (50ms)</AsyncButton>
-      </div>
-    </div>
-
-    <div className="flex flex-col gap-2">
-      <p className="text-muted-foreground text-sm">
-        Errors are caught and logged — the button recovers gracefully.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <AsyncButton
-          onClick={() =>
-            wait(1500).then(() => {
-              throw new Error("Request failed");
-            })
-          }
-          variant="destructive"
-        >
-          Simulate Failure
-        </AsyncButton>
-      </div>
-    </div>
-  </div>
-);
-
-export default Demo;
-`
+    codeString: "\"use client\";\n\nimport {\n  ArrowRightIcon,\n  DownloadIcon,\n  RefreshCwIcon,\n  SendIcon,\n  Trash2Icon,\n} from \"lucide-react\";\nimport { AsyncButton } from \"@/registry/ui/async-button\";\n\nconst wait = (ms: number) =>\n  new Promise<void>((resolve) => {\n    setTimeout(() => {\n      resolve();\n    }, ms);\n  });\n\nconst Demo = () => (\n  <div className=\"flex flex-col gap-6\">\n    <div className=\"flex flex-col gap-2\">\n      <p className=\"text-muted-foreground text-sm\">\n        Click the button — loading state activates automatically while the\n        promise is pending.\n      </p>\n      <div className=\"flex flex-wrap items-center gap-2\">\n        <AsyncButton onClick={() => wait(2000)}>Submit Order</AsyncButton>\n        <AsyncButton onClick={() => wait(2000)} variant=\"outline\">\n          Sync Data\n        </AsyncButton>\n        <AsyncButton onClick={() => wait(2000)} variant=\"secondary\">\n          Export Report\n        </AsyncButton>\n      </div>\n    </div>\n\n    <div className=\"flex flex-col gap-2\">\n      <p className=\"text-muted-foreground text-sm\">\n        Drive loading externally via the <code>loading</code> prop.\n      </p>\n      <div className=\"flex flex-wrap items-center gap-2\">\n        <AsyncButton loading>Controlled Loading</AsyncButton>\n      </div>\n    </div>\n\n    <div className=\"flex flex-col gap-2\">\n      <p className=\"text-muted-foreground text-sm\">\n        Use <code>startIcon</code> / <code>endIcon</code>. While loading, the\n        icon slot is swapped for the spinner — no overlay needed. When both are\n        present, <code>startIcon</code> takes the spinner.\n      </p>\n      <div className=\"flex flex-wrap items-center gap-2\">\n        <AsyncButton onClick={() => wait(2000)} startIcon={<SendIcon />}>\n          Send Message\n        </AsyncButton>\n        <AsyncButton\n          endIcon={<ArrowRightIcon />}\n          onClick={() => wait(2000)}\n          variant=\"outline\"\n        >\n          Continue\n        </AsyncButton>\n        <AsyncButton\n          endIcon={<ArrowRightIcon />}\n          onClick={() => wait(2000)}\n          startIcon={<DownloadIcon />}\n          variant=\"secondary\"\n        >\n          Download &amp; Next\n        </AsyncButton>\n      </div>\n    </div>\n\n    <div className=\"flex flex-col gap-2\">\n      <p className=\"text-muted-foreground text-sm\">\n        Icon buttons with <code>size=\"icon\"</code>.\n      </p>\n      <div className=\"flex flex-wrap items-center gap-2\">\n        <AsyncButton onClick={() => wait(2000)} size=\"icon\">\n          <SendIcon />\n        </AsyncButton>\n        <AsyncButton onClick={() => wait(2000)} size=\"icon\" variant=\"outline\">\n          <RefreshCwIcon />\n        </AsyncButton>\n        <AsyncButton\n          onClick={() => wait(2000)}\n          size=\"icon\"\n          variant=\"destructive\"\n        >\n          <Trash2Icon />\n        </AsyncButton>\n      </div>\n    </div>\n\n    <div className=\"flex flex-col gap-2\">\n      <p className=\"text-muted-foreground text-sm\">\n        Anti-flash: a 50ms task still shows the spinner for at least 200ms (the\n        default <code>minDuration</code>), so the indicator never just flickers\n        past.\n      </p>\n      <div className=\"flex flex-wrap items-center gap-2\">\n        <AsyncButton onClick={() => wait(50)}>Fast Save (50ms)</AsyncButton>\n      </div>\n    </div>\n\n    <div className=\"flex flex-col gap-2\">\n      <p className=\"text-muted-foreground text-sm\">\n        Errors are caught and logged — the button recovers gracefully.\n      </p>\n      <div className=\"flex flex-wrap items-center gap-2\">\n        <AsyncButton\n          onClick={() =>\n            wait(1500).then(() => {\n              throw new Error(\"Request failed\");\n            })\n          }\n          variant=\"destructive\"\n        >\n          Simulate Failure\n        </AsyncButton>\n      </div>\n    </div>\n  </div>\n);\n\nexport default Demo;\n"
   },
 
   "calendar-demo": {
     component: React.lazy(() => import("./calendar-demo")),
-    codeString: `"use client";
-
-import { useState } from "react";
-import { Calendar } from "@/registry/ui/calendar";
-
-const Demo = () => {
-  const [single, setSingle] = useState<Date | undefined>();
-  const [monthsDate, setMonthsDate] = useState<Date | undefined>();
-  const [yearsDate, setYearsDate] = useState<Date | undefined>();
-  const [multiple, setMultiple] = useState<Date[] | undefined>();
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <span className="text-muted-foreground text-sm">
-          Days view — click month or year in the caption
-        </span>
-        <Calendar mode="single" onSelect={setSingle} selected={single} />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <span className="text-muted-foreground text-sm">
-          Months view (defaultView=&quot;months&quot;)
-        </span>
-        <Calendar
-          defaultView="months"
-          mode="single"
-          onSelect={setMonthsDate}
-          selected={monthsDate}
-        />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <span className="text-muted-foreground text-sm">
-          Years view (defaultView=&quot;years&quot;)
-        </span>
-        <Calendar
-          defaultView="years"
-          mode="single"
-          onSelect={setYearsDate}
-          selected={yearsDate}
-        />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <span className="text-muted-foreground text-sm">
-          Multiple — click multiple days to toggle selection
-        </span>
-        <Calendar mode="multiple" onSelect={setMultiple} selected={multiple} />
-      </div>
-    </div>
-  );
-};
-
-export default Demo;
-`
+    codeString: "\"use client\";\n\nimport { useState } from \"react\";\nimport { Calendar } from \"@/registry/ui/calendar\";\n\nconst Demo = () => {\n  const [single, setSingle] = useState<Date | undefined>();\n  const [monthsDate, setMonthsDate] = useState<Date | undefined>();\n  const [yearsDate, setYearsDate] = useState<Date | undefined>();\n  const [multiple, setMultiple] = useState<Date[] | undefined>();\n\n  return (\n    <div className=\"flex flex-col gap-6\">\n      <div className=\"flex flex-col gap-2\">\n        <span className=\"text-muted-foreground text-sm\">\n          Days view — click month or year in the caption\n        </span>\n        <Calendar mode=\"single\" onSelect={setSingle} selected={single} />\n      </div>\n\n      <div className=\"flex flex-col gap-2\">\n        <span className=\"text-muted-foreground text-sm\">\n          Months view (defaultView=&quot;months&quot;)\n        </span>\n        <Calendar\n          defaultView=\"months\"\n          mode=\"single\"\n          onSelect={setMonthsDate}\n          selected={monthsDate}\n        />\n      </div>\n\n      <div className=\"flex flex-col gap-2\">\n        <span className=\"text-muted-foreground text-sm\">\n          Years view (defaultView=&quot;years&quot;)\n        </span>\n        <Calendar\n          defaultView=\"years\"\n          mode=\"single\"\n          onSelect={setYearsDate}\n          selected={yearsDate}\n        />\n      </div>\n\n      <div className=\"flex flex-col gap-2\">\n        <span className=\"text-muted-foreground text-sm\">\n          Multiple — click multiple days to toggle selection\n        </span>\n        <Calendar mode=\"multiple\" onSelect={setMultiple} selected={multiple} />\n      </div>\n    </div>\n  );\n};\n\nexport default Demo;\n"
   },
 
   "card-demo": {
     component: React.lazy(() => import("./card-demo")),
-    codeString: `import { AsyncButton } from "@/registry/ui/async-button";
-import { Card } from "@/registry/ui/card";
-
-const Demo = () => (
-  <div className="space-y-4">
-    <Card
-      action={<AsyncButton variant="outline">More</AsyncButton>}
-      className="w-128"
-      description="some descriptions"
-      footer={<AsyncButton>Button</AsyncButton>}
-      footerClassName="flex justify-end"
-      title="Default Card"
-    >
-      <div>
-        <div>No dividers</div>
-        <div>No dividers</div>
-        <div>No dividers</div>
-      </div>
-    </Card>
-
-    <Card
-      className="w-72"
-      contentClassName="bg-white"
-      description="using className"
-      descriptionClassName="text-gray-500"
-      dividers
-      footer="Custom Card Footer"
-      size="sm"
-      title="Small Card"
-    >
-      <ul>
-        <li>Size: sm</li>
-        <li>dividers: true</li>
-      </ul>
-    </Card>
-  </div>
-);
-
-export default Demo;
-`
+    codeString: "import { AsyncButton } from \"@/registry/ui/async-button\";\nimport { Card } from \"@/registry/ui/card\";\n\nconst Demo = () => (\n  <div className=\"space-y-4\">\n    <Card\n      action={<AsyncButton variant=\"outline\">More</AsyncButton>}\n      className=\"w-128\"\n      description=\"some descriptions\"\n      footer={<AsyncButton>Button</AsyncButton>}\n      footerClassName=\"flex justify-end\"\n      title=\"Default Card\"\n    >\n      <div>\n        <div>No dividers</div>\n        <div>No dividers</div>\n        <div>No dividers</div>\n      </div>\n    </Card>\n\n    <Card\n      className=\"w-72\"\n      contentClassName=\"bg-white\"\n      description=\"using className\"\n      descriptionClassName=\"text-gray-500\"\n      dividers\n      footer=\"Custom Card Footer\"\n      size=\"sm\"\n      title=\"Small Card\"\n    >\n      <ul>\n        <li>Size: sm</li>\n        <li>dividers: true</li>\n      </ul>\n    </Card>\n  </div>\n);\n\nexport default Demo;\n"
   },
 
   "date-picker-demo": {
     component: React.lazy(() => import("./date-picker-demo")),
-    codeString: `"use client";
-
-import { useState } from "react";
-import type { DateRange } from "react-day-picker";
-import { DatePicker } from "@/registry/ui/date-picker";
-
-const Demo = () => {
-  const [single, setSingle] = useState<Date | undefined>();
-  const [multiple, setMultiple] = useState<Date[] | undefined>();
-  const [range, setRange] = useState<DateRange | undefined>();
-  const [typed, setTyped] = useState<Date | undefined>();
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <span className="text-muted-foreground text-sm">
-          Single (default trigger, format=&quot;PPP&quot;)
-        </span>
-        <DatePicker onChange={setSingle} value={single} />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <span className="text-muted-foreground text-sm">
-          Multiple (single panel, format=&quot;LLL dd, y&quot;)
-        </span>
-        <DatePicker
-          format="LLL dd, y"
-          mode="multiple"
-          onChange={setMultiple}
-          value={multiple}
-        />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <span className="text-muted-foreground text-sm">
-          Range (single panel, format=&quot;LLL dd, y&quot;)
-        </span>
-        <DatePicker
-          format="LLL dd, y"
-          mode="range"
-          onChange={setRange}
-          value={range}
-        />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <span className="text-muted-foreground text-sm">
-          With input — type a date and press Enter
-        </span>
-        <DatePicker onChange={setTyped} value={typed} withInput />
-      </div>
-    </div>
-  );
-};
-
-export default Demo;
-`
+    codeString: "\"use client\";\n\nimport { useState } from \"react\";\nimport type { DateRange } from \"react-day-picker\";\nimport { DatePicker } from \"@/registry/ui/date-picker\";\n\nconst Demo = () => {\n  const [single, setSingle] = useState<Date | undefined>();\n  const [multiple, setMultiple] = useState<Date[] | undefined>();\n  const [range, setRange] = useState<DateRange | undefined>();\n  const [typed, setTyped] = useState<Date | undefined>();\n\n  return (\n    <div className=\"flex flex-col gap-6\">\n      <div className=\"flex flex-col gap-2\">\n        <span className=\"text-muted-foreground text-sm\">\n          Single (default trigger, format=&quot;PPP&quot;)\n        </span>\n        <DatePicker onChange={setSingle} value={single} />\n      </div>\n\n      <div className=\"flex flex-col gap-2\">\n        <span className=\"text-muted-foreground text-sm\">\n          Multiple (single panel, format=&quot;LLL dd, y&quot;)\n        </span>\n        <DatePicker\n          format=\"LLL dd, y\"\n          mode=\"multiple\"\n          onChange={setMultiple}\n          value={multiple}\n        />\n      </div>\n\n      <div className=\"flex flex-col gap-2\">\n        <span className=\"text-muted-foreground text-sm\">\n          Range (single panel, format=&quot;LLL dd, y&quot;)\n        </span>\n        <DatePicker\n          format=\"LLL dd, y\"\n          mode=\"range\"\n          onChange={setRange}\n          value={range}\n        />\n      </div>\n\n      <div className=\"flex flex-col gap-2\">\n        <span className=\"text-muted-foreground text-sm\">\n          With input — type a date and press Enter\n        </span>\n        <DatePicker onChange={setTyped} value={typed} withInput />\n      </div>\n    </div>\n  );\n};\n\nexport default Demo;\n"
   },
 
   "modal-alert-demo": {
     component: React.lazy(() => import("./modal-alert-demo")),
-    codeString: `import { AsyncButton } from "@/registry/ui/async-button";
-import { AlertModal } from "@/registry/ui/modal";
-
-const Demo = () => (
-  <div>
-    <AlertModal
-      description="Modal Content"
-      title="Alert Title"
-      trigger={<AsyncButton>Alert Modal</AsyncButton>}
-    />
-  </div>
-);
-
-export default Demo;
-`
+    codeString: "import { AsyncButton } from \"@/registry/ui/async-button\";\nimport { AlertModal } from \"@/registry/ui/modal\";\n\nconst Demo = () => (\n  <div>\n    <AlertModal\n      description=\"Modal Content\"\n      title=\"Alert Title\"\n      trigger={<AsyncButton>Alert Modal</AsyncButton>}\n    />\n  </div>\n);\n\nexport default Demo;\n"
   },
 
   "modal-alert-helper-demo": {
     component: React.lazy(() => import("./modal-alert-helper-demo")),
-    codeString: `import { AsyncButton } from "@/registry/ui/async-button";
-import { AlertModal } from "@/registry/ui/modal";
-
-const Demo = () => (
-  <div className="space-x-2">
-    <AsyncButton
-      onClick={() => {
-        AlertModal.alert({
-          title: "Tips",
-          description: "Alert Content",
-        });
-      }}
-    >
-      Click Alert
-    </AsyncButton>
-    <AsyncButton
-      onClick={() => {
-        AlertModal.confirm({
-          title: "Tips",
-          description:
-            "If onConfirm or onCancel is asynchronous events, the button will automatically display loading",
-          onCancel: () => {
-            console.log("cancel");
-          },
-          onConfirm: () =>
-            new Promise((resolve) => {
-              setTimeout(() => {
-                console.log("confirm");
-                resolve();
-              }, 1000);
-            }),
-        });
-      }}
-    >
-      Click Confirm
-    </AsyncButton>
-    <AsyncButton
-      onClick={async () => {
-        await AlertModal.alert({
-          title: "Tips1",
-          description: "Alert Content-1",
-        });
-        await AlertModal.alert({
-          title: "Tips2",
-          description: "Alert Content-2",
-        });
-      }}
-    >
-      Alert Step by Step
-    </AsyncButton>
-    <AsyncButton
-      onClick={async () => {
-        await AlertModal.alert({
-          title: "Tips1",
-          description: (
-            <div>
-              <div>Alert Content-1</div>
-              <div>Alert Content-1</div>
-              <div>Alert Content-1</div>
-              <div>Alert Content-1</div>
-              <div>Alert Content-1</div>
-            </div>
-          ),
-          onConfirm: async () => {
-            await AlertModal.alert({
-              title: "Tips1-1",
-              description: "Alert Content-1-1",
-            });
-          },
-        });
-      }}
-    >
-      Alert Step In Step
-    </AsyncButton>
-  </div>
-);
-
-export default Demo;
-`
+    codeString: "import { AsyncButton } from \"@/registry/ui/async-button\";\nimport { AlertModal } from \"@/registry/ui/modal\";\n\nconst Demo = () => (\n  <div className=\"space-x-2\">\n    <AsyncButton\n      onClick={() => {\n        AlertModal.alert({\n          title: \"Tips\",\n          description: \"Alert Content\",\n        });\n      }}\n    >\n      Click Alert\n    </AsyncButton>\n    <AsyncButton\n      onClick={() => {\n        AlertModal.confirm({\n          title: \"Tips\",\n          description:\n            \"If onConfirm or onCancel is asynchronous events, the button will automatically display loading\",\n          onCancel: () => {\n            console.log(\"cancel\");\n          },\n          onConfirm: () =>\n            new Promise((resolve) => {\n              setTimeout(() => {\n                console.log(\"confirm\");\n                resolve();\n              }, 1000);\n            }),\n        });\n      }}\n    >\n      Click Confirm\n    </AsyncButton>\n    <AsyncButton\n      onClick={async () => {\n        await AlertModal.alert({\n          title: \"Tips1\",\n          description: \"Alert Content-1\",\n        });\n        await AlertModal.alert({\n          title: \"Tips2\",\n          description: \"Alert Content-2\",\n        });\n      }}\n    >\n      Alert Step by Step\n    </AsyncButton>\n    <AsyncButton\n      onClick={async () => {\n        await AlertModal.alert({\n          title: \"Tips1\",\n          description: (\n            <div>\n              <div>Alert Content-1</div>\n              <div>Alert Content-1</div>\n              <div>Alert Content-1</div>\n              <div>Alert Content-1</div>\n              <div>Alert Content-1</div>\n            </div>\n          ),\n          onConfirm: async () => {\n            await AlertModal.alert({\n              title: \"Tips1-1\",\n              description: \"Alert Content-1-1\",\n            });\n          },\n        });\n      }}\n    >\n      Alert Step In Step\n    </AsyncButton>\n  </div>\n);\n\nexport default Demo;\n"
   },
 
   "modal-demo": {
     component: React.lazy(() => import("./modal-demo")),
-    codeString: `import { useState } from "react";
-import { AsyncButton } from "@/registry/ui/async-button";
-import { Modal } from "@/registry/ui/modal";
-
-const Demo = () => {
-  const [showModal, setShowModal] = useState(false);
-
-  return (
-    <div>
-      <Modal
-        footer={
-          <div className="space-x-2">
-            <AsyncButton
-              onClick={() => {
-                setShowModal(false);
-              }}
-              variant="ghost"
-            >
-              Cancel
-            </AsyncButton>
-            <AsyncButton>Save</AsyncButton>
-          </div>
-        }
-        onOpenChange={setShowModal}
-        open={showModal}
-        title="Modal Title"
-        trigger={<AsyncButton>Click Show Modal</AsyncButton>}
-      >
-        <div>Modal Content</div>
-        <div>Modal Content</div>
-        <div>Modal Content</div>
-        <div>Modal Content</div>
-      </Modal>
-    </div>
-  );
-};
-
-export default Demo;
-`
+    codeString: "import { useState } from \"react\";\nimport { AsyncButton } from \"@/registry/ui/async-button\";\nimport { Modal } from \"@/registry/ui/modal\";\n\nconst Demo = () => {\n  const [showModal, setShowModal] = useState(false);\n\n  return (\n    <div>\n      <Modal\n        footer={\n          <div className=\"space-x-2\">\n            <AsyncButton\n              onClick={() => {\n                setShowModal(false);\n              }}\n              variant=\"ghost\"\n            >\n              Cancel\n            </AsyncButton>\n            <AsyncButton>Save</AsyncButton>\n          </div>\n        }\n        onOpenChange={setShowModal}\n        open={showModal}\n        title=\"Modal Title\"\n        trigger={<AsyncButton>Click Show Modal</AsyncButton>}\n      >\n        <div>Modal Content</div>\n        <div>Modal Content</div>\n        <div>Modal Content</div>\n        <div>Modal Content</div>\n      </Modal>\n    </div>\n  );\n};\n\nexport default Demo;\n"
   },
 
   "modal-helper-holder-demo": {
     component: React.lazy(() => import("./modal-helper-holder-demo")),
-    codeString: `import { useRef, useState } from "react";
-import { AsyncButton } from "@/registry/ui/async-button";
-import { Modal } from "@/registry/ui/modal";
-
-const CommandModalModal = Modal.create(({ count }: { count: number }) => {
-  const modal = Modal.useModal();
-
-  return (
-    <Modal
-      {...modal.modalProps}
-      footer={
-        <div className="space-x-2">
-          <AsyncButton
-            onClick={() => {
-              modal.hide();
-            }}
-            variant="ghost"
-          >
-            Cancel
-          </AsyncButton>
-          <AsyncButton>Save</AsyncButton>
-        </div>
-      }
-      title="Modal Will Update by props"
-    >
-      <p>AnyModalContent: {count}</p>
-      <p>Count will be updated in 1 second</p>
-    </Modal>
-  );
-});
-
-const Demo = () => {
-  const [action, ModalHolder] = Modal.useModalHolder(CommandModalModal);
-
-  const [count, setCount] = useState(0);
-  const countRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleClick = () => {
-    countRef.current && clearInterval(countRef.current);
-    action.show();
-
-    countRef.current = setInterval(() => {
-      setCount((c) => c + 1);
-    }, 1000);
-  };
-
-  return (
-    <Modal.Provider>
-      <AsyncButton onClick={handleClick}>Click Show Modal</AsyncButton>
-      <p>Current Count: {count}</p>
-      <ModalHolder count={count} />
-    </Modal.Provider>
-  );
-};
-
-export default Demo;
-`
+    codeString: "import { useRef, useState } from \"react\";\nimport { AsyncButton } from \"@/registry/ui/async-button\";\nimport { Modal } from \"@/registry/ui/modal\";\n\nconst CommandModalModal = Modal.create(({ count }: { count: number }) => {\n  const modal = Modal.useModal();\n\n  return (\n    <Modal\n      {...modal.modalProps}\n      footer={\n        <div className=\"space-x-2\">\n          <AsyncButton\n            onClick={() => {\n              modal.hide();\n            }}\n            variant=\"ghost\"\n          >\n            Cancel\n          </AsyncButton>\n          <AsyncButton>Save</AsyncButton>\n        </div>\n      }\n      title=\"Modal Will Update by props\"\n    >\n      <p>AnyModalContent: {count}</p>\n      <p>Count will be updated in 1 second</p>\n    </Modal>\n  );\n});\n\nconst Demo = () => {\n  const [action, ModalHolder] = Modal.useModalHolder(CommandModalModal);\n\n  const [count, setCount] = useState(0);\n  const countRef = useRef<NodeJS.Timeout | null>(null);\n\n  const handleClick = () => {\n    countRef.current && clearInterval(countRef.current);\n    action.show();\n\n    countRef.current = setInterval(() => {\n      setCount((c) => c + 1);\n    }, 1000);\n  };\n\n  return (\n    <Modal.Provider>\n      <AsyncButton onClick={handleClick}>Click Show Modal</AsyncButton>\n      <p>Current Count: {count}</p>\n      <ModalHolder count={count} />\n    </Modal.Provider>\n  );\n};\n\nexport default Demo;\n"
   },
 
   "select-async-demo": {
     component: React.lazy(() => import("./select-async-demo")),
-    codeString: `"use client";
-
-import { Select, type SelectItem } from "@/registry/ui/select";
-
-const COUNTRIES: SelectItem[] = [
-  { label: "Argentina", value: "ar" },
-  { label: "Australia", value: "au" },
-  { label: "Brazil", value: "br" },
-  { label: "Canada", value: "ca" },
-  { label: "China", value: "cn" },
-  { label: "France", value: "fr" },
-  { label: "Germany", value: "de" },
-  { label: "India", value: "in" },
-  { label: "Italy", value: "it" },
-  { label: "Japan", value: "jp" },
-  { label: "Mexico", value: "mx" },
-  { label: "Netherlands", value: "nl" },
-  { label: "Spain", value: "es" },
-  { label: "United Kingdom", value: "uk" },
-  { label: "United States", value: "us" },
-];
-
-const loadCountries = async (
-  _query: string,
-  signal: AbortSignal
-): Promise<SelectItem[]> => {
-  await new Promise<void>((resolve, reject) => {
-    const t = setTimeout(resolve, 600);
-    signal.addEventListener("abort", () => {
-      clearTimeout(t);
-      reject(new DOMException("Aborted", "AbortError"));
-    });
-  });
-  return COUNTRIES;
-};
-
-const Demo = () => (
-  <div className="w-64">
-    <Select
-      clearable
-      loadItems={loadCountries}
-      loadOn="open"
-      placeholder="Search a country"
-      searchable
-    />
-  </div>
-);
-
-export default Demo;
-`
+    codeString: "\"use client\";\n\nimport { Select, type SelectItem } from \"@/registry/ui/select\";\n\nconst COUNTRIES: SelectItem[] = [\n  { label: \"Argentina\", value: \"ar\" },\n  { label: \"Australia\", value: \"au\" },\n  { label: \"Brazil\", value: \"br\" },\n  { label: \"Canada\", value: \"ca\" },\n  { label: \"China\", value: \"cn\" },\n  { label: \"France\", value: \"fr\" },\n  { label: \"Germany\", value: \"de\" },\n  { label: \"India\", value: \"in\" },\n  { label: \"Italy\", value: \"it\" },\n  { label: \"Japan\", value: \"jp\" },\n  { label: \"Mexico\", value: \"mx\" },\n  { label: \"Netherlands\", value: \"nl\" },\n  { label: \"Spain\", value: \"es\" },\n  { label: \"United Kingdom\", value: \"uk\" },\n  { label: \"United States\", value: \"us\" },\n];\n\nconst loadCountries = async (\n  _query: string,\n  signal: AbortSignal\n): Promise<SelectItem[]> => {\n  await new Promise<void>((resolve, reject) => {\n    const t = setTimeout(resolve, 600);\n    signal.addEventListener(\"abort\", () => {\n      clearTimeout(t);\n      reject(new DOMException(\"Aborted\", \"AbortError\"));\n    });\n  });\n  return COUNTRIES;\n};\n\nconst Demo = () => (\n  <div className=\"w-64\">\n    <Select\n      clearable\n      loadItems={loadCountries}\n      loadOn=\"open\"\n      placeholder=\"Search a country\"\n      searchable\n    />\n  </div>\n);\n\nexport default Demo;\n"
   },
 
   "select-demo": {
     component: React.lazy(() => import("./select-demo")),
-    codeString: `import { Select } from "@/registry/ui/select";
-
-const items = [
-  { label: "Apple", value: "apple" },
-  { label: "Banana", value: "banana" },
-  { label: "Cherry", value: "cherry" },
-  { label: "Durian", value: "durian" },
-  { label: "Elderberry", value: "elderberry" },
-];
-
-const Demo = () => (
-  <div className="w-64">
-    <Select items={items} placeholder="Pick a fruit" />
-  </div>
-);
-
-export default Demo;
-`
+    codeString: "import { Select } from \"@/registry/ui/select\";\n\nconst items = [\n  { label: \"Apple\", value: \"apple\" },\n  { label: \"Banana\", value: \"banana\" },\n  { label: \"Cherry\", value: \"cherry\" },\n  { label: \"Durian\", value: \"durian\" },\n  { label: \"Elderberry\", value: \"elderberry\" },\n];\n\nconst Demo = () => (\n  <div className=\"w-64\">\n    <Select items={items} placeholder=\"Pick a fruit\" />\n  </div>\n);\n\nexport default Demo;\n"
   },
 
   "select-multiple-demo": {
     component: React.lazy(() => import("./select-multiple-demo")),
-    codeString: `import { Select } from "@/registry/ui/select";
-
-const items = [
-  { label: "TypeScript", value: "typescript" },
-  { label: "JavaScript", value: "javascript" },
-  { label: "Python", value: "python" },
-  { label: "Rust", value: "rust" },
-  { label: "Go", value: "go" },
-  { label: "Java", value: "java" },
-  { label: "C++", value: "cpp" },
-  { label: "Ruby", value: "ruby" },
-];
-
-const Demo = () => (
-  <div className="w-80">
-    <Select items={items} multiple placeholder="Pick languages" />
-  </div>
-);
-
-export default Demo;
-`
+    codeString: "import { Select } from \"@/registry/ui/select\";\n\nconst items = [\n  { label: \"TypeScript\", value: \"typescript\" },\n  { label: \"JavaScript\", value: \"javascript\" },\n  { label: \"Python\", value: \"python\" },\n  { label: \"Rust\", value: \"rust\" },\n  { label: \"Go\", value: \"go\" },\n  { label: \"Java\", value: \"java\" },\n  { label: \"C++\", value: \"cpp\" },\n  { label: \"Ruby\", value: \"ruby\" },\n];\n\nconst Demo = () => (\n  <div className=\"w-80\">\n    <Select items={items} multiple placeholder=\"Pick languages\" />\n  </div>\n);\n\nexport default Demo;\n"
   },
 
   "select-searchable-demo": {
     component: React.lazy(() => import("./select-searchable-demo")),
-    codeString: `import { Select } from "@/registry/ui/select";
-
-const items = [
-  { label: "Afghanistan", value: "af" },
-  { label: "Albania", value: "al" },
-  { label: "Algeria", value: "dz" },
-  { label: "Argentina", value: "ar" },
-  { label: "Australia", value: "au" },
-  { label: "Austria", value: "at" },
-  { label: "Belgium", value: "be" },
-  { label: "Brazil", value: "br" },
-  { label: "Canada", value: "ca" },
-  { label: "Chile", value: "cl" },
-  { label: "China", value: "cn" },
-  { label: "Colombia", value: "co" },
-  { label: "Denmark", value: "dk" },
-  { label: "Egypt", value: "eg" },
-  { label: "Finland", value: "fi" },
-  { label: "France", value: "fr" },
-  { label: "Germany", value: "de" },
-  { label: "Greece", value: "gr" },
-  { label: "India", value: "in" },
-  { label: "Indonesia", value: "id" },
-  { label: "Italy", value: "it" },
-  { label: "Japan", value: "jp" },
-  { label: "Mexico", value: "mx" },
-  { label: "Netherlands", value: "nl" },
-  { label: "Norway", value: "no" },
-  { label: "Poland", value: "pl" },
-  { label: "Portugal", value: "pt" },
-  { label: "Russia", value: "ru" },
-  { label: "Spain", value: "es" },
-  { label: "Sweden", value: "se" },
-  { label: "Switzerland", value: "ch" },
-  { label: "United Kingdom", value: "gb" },
-  { label: "United States", value: "us" },
-];
-
-const Demo = () => (
-  <div className="w-64">
-    <Select clearable items={items} placeholder="Search a country" searchable />
-  </div>
-);
-
-export default Demo;
-`
+    codeString: "import { Select } from \"@/registry/ui/select\";\n\nconst items = [\n  { label: \"Afghanistan\", value: \"af\" },\n  { label: \"Albania\", value: \"al\" },\n  { label: \"Algeria\", value: \"dz\" },\n  { label: \"Argentina\", value: \"ar\" },\n  { label: \"Australia\", value: \"au\" },\n  { label: \"Austria\", value: \"at\" },\n  { label: \"Belgium\", value: \"be\" },\n  { label: \"Brazil\", value: \"br\" },\n  { label: \"Canada\", value: \"ca\" },\n  { label: \"Chile\", value: \"cl\" },\n  { label: \"China\", value: \"cn\" },\n  { label: \"Colombia\", value: \"co\" },\n  { label: \"Denmark\", value: \"dk\" },\n  { label: \"Egypt\", value: \"eg\" },\n  { label: \"Finland\", value: \"fi\" },\n  { label: \"France\", value: \"fr\" },\n  { label: \"Germany\", value: \"de\" },\n  { label: \"Greece\", value: \"gr\" },\n  { label: \"India\", value: \"in\" },\n  { label: \"Indonesia\", value: \"id\" },\n  { label: \"Italy\", value: \"it\" },\n  { label: \"Japan\", value: \"jp\" },\n  { label: \"Mexico\", value: \"mx\" },\n  { label: \"Netherlands\", value: \"nl\" },\n  { label: \"Norway\", value: \"no\" },\n  { label: \"Poland\", value: \"pl\" },\n  { label: \"Portugal\", value: \"pt\" },\n  { label: \"Russia\", value: \"ru\" },\n  { label: \"Spain\", value: \"es\" },\n  { label: \"Sweden\", value: \"se\" },\n  { label: \"Switzerland\", value: \"ch\" },\n  { label: \"United Kingdom\", value: \"gb\" },\n  { label: \"United States\", value: \"us\" },\n];\n\nconst Demo = () => (\n  <div className=\"w-64\">\n    <Select clearable items={items} placeholder=\"Search a country\" searchable />\n  </div>\n);\n\nexport default Demo;\n"
   },
 
   "select-server-search-demo": {
     component: React.lazy(() => import("./select-server-search-demo")),
-    codeString: `"use client";
+    codeString: "\"use client\";\n\nimport { useState } from \"react\";\nimport { Select, type SelectItem } from \"@/registry/ui/select\";\n\nconst USERS: SelectItem[] = [\n  { label: \"Ada Lovelace\", value: \"ada\" },\n  { label: \"Alan Turing\", value: \"alan\" },\n  { label: \"Barbara Liskov\", value: \"barbara\" },\n  { label: \"Donald Knuth\", value: \"donald\" },\n  { label: \"Edsger Dijkstra\", value: \"edsger\" },\n  { label: \"Grace Hopper\", value: \"grace\" },\n  { label: \"John von Neumann\", value: \"john\" },\n  { label: \"Linus Torvalds\", value: \"linus\" },\n  { label: \"Margaret Hamilton\", value: \"margaret\" },\n  { label: \"Richard Stallman\", value: \"richard\" },\n  { label: \"Tim Berners-Lee\", value: \"tim\" },\n  { label: \"Yukihiro Matsumoto\", value: \"yukihiro\" },\n];\n\nconst searchUsers = async (\n  query: string,\n  signal: AbortSignal\n): Promise<SelectItem[]> => {\n  await new Promise<void>((resolve, reject) => {\n    const t = setTimeout(resolve, 450);\n    signal.addEventListener(\"abort\", () => {\n      clearTimeout(t);\n      reject(new DOMException(\"Aborted\", \"AbortError\"));\n    });\n  });\n  const q = query.trim().toLowerCase();\n  if (!q) {\n    return USERS.slice(0, 6);\n  }\n  return USERS.filter((u) => String(u.label).toLowerCase().includes(q)).slice(\n    0,\n    8\n  );\n};\n\nconst Demo = () => {\n  const [value, setValue] = useState<string[]>([]);\n  return (\n    <div className=\"flex w-72 flex-col gap-2\">\n      <Select\n        debounceMs={250}\n        loadItems={searchUsers}\n        multiple\n        onValueChange={(next) => setValue((next as string[]) ?? [])}\n        placeholder=\"Search reviewers\"\n        serverSideFilter\n        value={value}\n      />\n      <p className=\"text-muted-foreground text-xs\">\n        Selected:{\" \"}\n        <code className=\"text-foreground\">\n          {value.length === 0 ? \"—\" : value.join(\", \")}\n        </code>\n      </p>\n    </div>\n  );\n};\n\nexport default Demo;\n"
+  },
 
-import { useState } from "react";
-import { Select, type SelectItem } from "@/registry/ui/select";
+  "table-demo": {
+    component: React.lazy(() => import("./table-demo")),
+    codeString: "import { defineColumns, Table } from \"@/registry/ui/table\";\n\ninterface User {\n  email: string;\n  id: string;\n  name: string;\n  role: string;\n}\n\nconst data: User[] = [\n  { email: \"ada@example.com\", id: \"1\", name: \"Ada Lovelace\", role: \"Owner\" },\n  {\n    email: \"linus@example.com\",\n    id: \"2\",\n    name: \"Linus Torvalds\",\n    role: \"Admin\",\n  },\n  { email: \"grace@example.com\", id: \"3\", name: \"Grace Hopper\", role: \"Member\" },\n];\n\nconst columns = defineColumns<User>()([\n  { dataIndex: \"name\", key: \"name\", title: \"Name\" },\n  { dataIndex: \"email\", key: \"email\", title: \"Email\" },\n  { align: \"right\", dataIndex: \"role\", key: \"role\", title: \"Role\" },\n]);\n\nconst Demo = () => (\n  <div className=\"rounded-md border\">\n    <Table\n      aria-label=\"Team members\"\n      columns={columns}\n      dataSource={data}\n      rowKey=\"id\"\n    />\n  </div>\n);\n\nexport default Demo;\n"
+  },
 
-const USERS: SelectItem[] = [
-  { label: "Ada Lovelace", value: "ada" },
-  { label: "Alan Turing", value: "alan" },
-  { label: "Barbara Liskov", value: "barbara" },
-  { label: "Donald Knuth", value: "donald" },
-  { label: "Edsger Dijkstra", value: "edsger" },
-  { label: "Grace Hopper", value: "grace" },
-  { label: "John von Neumann", value: "john" },
-  { label: "Linus Torvalds", value: "linus" },
-  { label: "Margaret Hamilton", value: "margaret" },
-  { label: "Richard Stallman", value: "richard" },
-  { label: "Tim Berners-Lee", value: "tim" },
-  { label: "Yukihiro Matsumoto", value: "yukihiro" },
-];
+  "table-loading-empty-demo": {
+    component: React.lazy(() => import("./table-loading-empty-demo")),
+    codeString: "import { useState } from \"react\";\nimport { Button } from \"@/components/ui/button\";\nimport { defineColumns, Table } from \"@/registry/ui/table\";\n\ninterface Row {\n  id: string;\n  owner: string;\n  task: string;\n}\n\nconst sample: Row[] = [\n  { id: \"t1\", owner: \"Ada\", task: \"Design table API\" },\n  { id: \"t2\", owner: \"Linus\", task: \"Ship docs\" },\n];\n\nconst columns = defineColumns<Row>()([\n  { dataIndex: \"task\", key: \"task\", title: \"Task\" },\n  { dataIndex: \"owner\", key: \"owner\", title: \"Owner\" },\n]);\n\ntype Mode = \"data\" | \"loading\" | \"empty\";\n\nconst Demo = () => {\n  const [mode, setMode] = useState<Mode>(\"data\");\n  const dataSource = mode === \"data\" ? sample : [];\n\n  return (\n    <div className=\"space-y-3\">\n      <div className=\"flex gap-2\">\n        <Button\n          onClick={() => setMode(\"data\")}\n          size=\"sm\"\n          variant={mode === \"data\" ? \"default\" : \"outline\"}\n        >\n          With data\n        </Button>\n        <Button\n          onClick={() => setMode(\"loading\")}\n          size=\"sm\"\n          variant={mode === \"loading\" ? \"default\" : \"outline\"}\n        >\n          Loading\n        </Button>\n        <Button\n          onClick={() => setMode(\"empty\")}\n          size=\"sm\"\n          variant={mode === \"empty\" ? \"default\" : \"outline\"}\n        >\n          Empty\n        </Button>\n      </div>\n      <div className=\"rounded-md border\">\n        <Table\n          caption=\"Sprint backlog\"\n          columns={columns}\n          dataSource={dataSource}\n          emptyMessage=\"Nothing to do — go outside.\"\n          loading={mode === \"loading\"}\n          loadingMessage=\"Fetching tasks…\"\n          rowKey=\"id\"\n        />\n      </div>\n    </div>\n  );\n};\n\nexport default Demo;\n"
+  },
 
-const searchUsers = async (
-  query: string,
-  signal: AbortSignal
-): Promise<SelectItem[]> => {
-  await new Promise<void>((resolve, reject) => {
-    const t = setTimeout(resolve, 450);
-    signal.addEventListener("abort", () => {
-      clearTimeout(t);
-      reject(new DOMException("Aborted", "AbortError"));
-    });
-  });
-  const q = query.trim().toLowerCase();
-  if (!q) {
-    return USERS.slice(0, 6);
-  }
-  return USERS.filter((u) => String(u.label).toLowerCase().includes(q)).slice(
-    0,
-    8
-  );
-};
+  "table-render-demo": {
+    component: React.lazy(() => import("./table-render-demo")),
+    codeString: "import { useState } from \"react\";\nimport { Button } from \"@/components/ui/button\";\nimport { defineColumns, Table } from \"@/registry/ui/table\";\n\ninterface Order {\n  amount: number;\n  createdAt: string;\n  customer: string;\n  id: string;\n  status: \"paid\" | \"pending\" | \"refunded\";\n}\n\nconst data: Order[] = [\n  {\n    amount: 1299,\n    createdAt: \"2026-05-12\",\n    customer: \"Acme Inc.\",\n    id: \"ord_001\",\n    status: \"paid\",\n  },\n  {\n    amount: 480,\n    createdAt: \"2026-05-14\",\n    customer: \"Globex\",\n    id: \"ord_002\",\n    status: \"pending\",\n  },\n  {\n    amount: 75,\n    createdAt: \"2026-05-15\",\n    customer: \"Initech\",\n    id: \"ord_003\",\n    status: \"refunded\",\n  },\n];\n\nconst formatter = new Intl.NumberFormat(\"en-US\", {\n  currency: \"USD\",\n  style: \"currency\",\n});\n\nconst statusClass: Record<Order[\"status\"], string> = {\n  paid: \"bg-green-100 text-green-800\",\n  pending: \"bg-amber-100 text-amber-800\",\n  refunded: \"bg-zinc-100 text-zinc-800\",\n};\n\nconst Demo = () => {\n  const [viewing, setViewing] = useState<string | null>(null);\n\n  const columns = defineColumns<Order>()([\n    { dataIndex: \"id\", key: \"id\", title: \"Order\" },\n    { dataIndex: \"customer\", key: \"customer\", title: \"Customer\" },\n    {\n      align: \"right\",\n      dataIndex: \"amount\",\n      key: \"amount\",\n      // `value` narrows to `number`.\n      render: (value) => formatter.format(value),\n      title: \"Amount\",\n    },\n    {\n      dataIndex: \"status\",\n      key: \"status\",\n      // `value` narrows to Order[\"status\"].\n      render: (value) => (\n        <span\n          className={`inline-flex rounded-full px-2 py-0.5 font-medium text-xs ${statusClass[value]}`}\n        >\n          {value}\n        </span>\n      ),\n      title: \"Status\",\n    },\n    { dataIndex: \"createdAt\", key: \"createdAt\", title: \"Date\" },\n    {\n      align: \"right\",\n      key: \"actions\",\n      // No dataIndex — `value` is `undefined`, pull from `record` instead.\n      render: (_value, record) => (\n        <Button\n          onClick={() => setViewing(record.id)}\n          size=\"sm\"\n          variant=\"outline\"\n        >\n          View\n        </Button>\n      ),\n      title: \"Actions\",\n    },\n  ]);\n\n  return (\n    <div className=\"space-y-3\">\n      <p className=\"text-muted-foreground text-sm\">\n        {viewing ? `Viewing ${viewing}` : \"Click a row's View button\"}\n      </p>\n      <div className=\"rounded-md border\">\n        <Table\n          aria-label=\"Recent orders\"\n          columns={columns}\n          dataSource={data}\n          rowKey=\"id\"\n        />\n      </div>\n    </div>\n  );\n};\n\nexport default Demo;\n"
+  },
 
-const Demo = () => {
-  const [value, setValue] = useState<string[]>([]);
-  return (
-    <div className="flex w-72 flex-col gap-2">
-      <Select
-        debounceMs={250}
-        loadItems={searchUsers}
-        multiple
-        onValueChange={(next) => setValue((next as string[]) ?? [])}
-        placeholder="Search reviewers"
-        serverSideFilter
-        value={value}
-      />
-      <p className="text-muted-foreground text-xs">
-        Selected:{" "}
-        <code className="text-foreground">
-          {value.length === 0 ? "—" : value.join(", ")}
-        </code>
-      </p>
-    </div>
-  );
-};
+  "table-row-classname-demo": {
+    component: React.lazy(() => import("./table-row-classname-demo")),
+    codeString: "import { defineColumns, Table } from \"@/registry/ui/table\";\n\ninterface Server {\n  cpu: number;\n  id: string;\n  name: string;\n  region: string;\n}\n\nconst data: Server[] = [\n  { cpu: 32, id: \"s1\", name: \"api-1\", region: \"us-east-1\" },\n  { cpu: 91, id: \"s2\", name: \"api-2\", region: \"us-east-1\" },\n  { cpu: 12, id: \"s3\", name: \"worker-1\", region: \"eu-west-1\" },\n  { cpu: 88, id: \"s4\", name: \"worker-2\", region: \"ap-south-1\" },\n];\n\n// Three-state status so the high-CPU signal travels through icon + text +\n// colour — color alone fails colour-blind users (WCAG 1.4.1).\nconst statusFor = (cpu: number) => {\n  if (cpu >= 80) {\n    return \"hot\" as const;\n  }\n  if (cpu >= 60) {\n    return \"warm\" as const;\n  }\n  return \"ok\" as const;\n};\n\nconst statusIcon: Record<ReturnType<typeof statusFor>, string> = {\n  hot: \"▲\",\n  ok: \"·\",\n  warm: \"•\",\n};\n\nconst columns = defineColumns<Server>()([\n  { dataIndex: \"name\", key: \"name\", title: \"Server\" },\n  { dataIndex: \"region\", key: \"region\", title: \"Region\" },\n  {\n    align: \"right\",\n    dataIndex: \"cpu\",\n    key: \"cpu\",\n    // `value` narrows to `number`.\n    render: (value) => {\n      const status = statusFor(value);\n      return (\n        <span className=\"inline-flex items-center gap-1.5\">\n          <span aria-hidden className=\"font-mono\">\n            {statusIcon[status]}\n          </span>\n          <span>{value}%</span>\n          <span className=\"sr-only\">({status})</span>\n        </span>\n      );\n    },\n    title: \"CPU\",\n  },\n]);\n\nconst Demo = () => (\n  <div className=\"rounded-md border\">\n    <Table\n      aria-label=\"Server CPU usage\"\n      columns={columns}\n      dataSource={data}\n      rowClassName={(record) =>\n        record.cpu >= 80 ? \"bg-destructive/10\" : undefined\n      }\n      rowKey=\"id\"\n    />\n  </div>\n);\n\nexport default Demo;\n"
+  },
 
-export default Demo;
-`
+  "table-row-click-demo": {
+    component: React.lazy(() => import("./table-row-click-demo")),
+    codeString: "import { useState } from \"react\";\nimport { defineColumns, Table } from \"@/registry/ui/table\";\n\ninterface Member {\n  email: string;\n  id: string;\n  name: string;\n  role: \"owner\" | \"admin\" | \"member\";\n}\n\nconst data: Member[] = [\n  { email: \"ada@example.com\", id: \"u1\", name: \"Ada Lovelace\", role: \"owner\" },\n  {\n    email: \"linus@example.com\",\n    id: \"u2\",\n    name: \"Linus Torvalds\",\n    role: \"admin\",\n  },\n  {\n    email: \"grace@example.com\",\n    id: \"u3\",\n    name: \"Grace Hopper\",\n    role: \"member\",\n  },\n  { email: \"alan@example.com\", id: \"u4\", name: \"Alan Turing\", role: \"member\" },\n];\n\nconst columns = defineColumns<Member>()([\n  { dataIndex: \"name\", key: \"name\", title: \"Name\" },\n  { dataIndex: \"email\", key: \"email\", title: \"Email\" },\n  { dataIndex: \"role\", key: \"role\", title: \"Role\" },\n]);\n\nconst Demo = () => {\n  const [viewing, setViewing] = useState<string | null>(null);\n  const [selected, setSelected] = useState<string[]>([]);\n\n  return (\n    <div className=\"space-y-3\">\n      <p className=\"text-muted-foreground text-sm\">\n        {viewing ? `Viewing ${viewing}` : \"Click a row, or Tab + Enter / Space\"}\n        {selected.length > 0 ? ` · selected: ${selected.join(\", \")}` : \"\"}\n      </p>\n      <div className=\"rounded-md border\">\n        <Table\n          aria-label=\"Team members\"\n          columns={columns}\n          dataSource={data}\n          getCheckboxProps={(record) => ({\n            \"aria-label\": `Select ${record.name}`,\n          })}\n          onRowClick={(record) => setViewing(record.id)}\n          onSelectedRowKeysChange={setSelected}\n          rowKey=\"id\"\n          selectable\n          selectedRowKeys={selected}\n        />\n      </div>\n    </div>\n  );\n};\n\nexport default Demo;\n"
+  },
+
+  "table-selection-demo": {
+    component: React.lazy(() => import("./table-selection-demo")),
+    codeString: "import { useState } from \"react\";\nimport { defineColumns, Table } from \"@/registry/ui/table\";\n\ninterface Member {\n  id: string;\n  name: string;\n  role: \"owner\" | \"admin\" | \"member\";\n}\n\nconst data: Member[] = [\n  { id: \"u1\", name: \"Ada Lovelace\", role: \"owner\" },\n  { id: \"u2\", name: \"Linus Torvalds\", role: \"admin\" },\n  { id: \"u3\", name: \"Grace Hopper\", role: \"member\" },\n  { id: \"u4\", name: \"Alan Turing\", role: \"member\" },\n];\n\nconst columns = defineColumns<Member>()([\n  { dataIndex: \"name\", key: \"name\", title: \"Name\" },\n  { dataIndex: \"role\", key: \"role\", title: \"Role\" },\n]);\n\nconst Demo = () => {\n  const [selected, setSelected] = useState<string[]>([]);\n\n  return (\n    <div className=\"space-y-3\">\n      <p className=\"text-muted-foreground text-sm\">\n        Selected: {selected.length === 0 ? \"none\" : selected.join(\", \")} (the\n        owner row is non-selectable)\n      </p>\n      <div className=\"rounded-md border\">\n        <Table\n          aria-label=\"Team members\"\n          columns={columns}\n          dataSource={data}\n          getCheckboxProps={(record) => ({\n            // Human-readable label so screen readers announce the row\n            // identity, not the opaque rowKey.\n            \"aria-label\": `Select ${record.name}`,\n            disabled: record.role === \"owner\",\n          })}\n          onSelectedRowKeysChange={setSelected}\n          rowKey=\"id\"\n          selectable\n          selectedRowKeys={selected}\n        />\n      </div>\n    </div>\n  );\n};\n\nexport default Demo;\n"
   },
 
   "tabs-demo": {
     component: React.lazy(() => import("./tabs-demo")),
-    codeString: `import { Tabs } from "@/registry/ui/tabs";
-
-const Demo = () => (
-  <Tabs
-    defaultValue="first"
-    items={[
-      {
-        label: "First",
-        value: "first",
-        content: (
-          <div className="rounded-2xl border bg-accent p-6">First Content</div>
-        ),
-      },
-      {
-        label: "Second",
-        value: "second",
-        content: (
-          <div className="rounded-2xl border bg-accent-foreground p-6 text-accent">
-            Second Content
-          </div>
-        ),
-      },
-    ]}
-  />
-);
-
-export default Demo;
-`
+    codeString: "import { Tabs } from \"@/registry/ui/tabs\";\n\nconst Demo = () => (\n  <Tabs\n    defaultValue=\"first\"\n    items={[\n      {\n        label: \"First\",\n        value: \"first\",\n        content: (\n          <div className=\"rounded-2xl border bg-accent p-6\">First Content</div>\n        ),\n      },\n      {\n        label: \"Second\",\n        value: \"second\",\n        content: (\n          <div className=\"rounded-2xl border bg-accent-foreground p-6 text-accent\">\n            Second Content\n          </div>\n        ),\n      },\n    ]}\n  />\n);\n\nexport default Demo;\n"
   },
 } as const

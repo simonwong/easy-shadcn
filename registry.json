@@ -166,6 +166,20 @@
           "target": "components/easy/select.tsx"
         }
       ]
+    },
+    {
+      "name": "table",
+      "type": "registry:component",
+      "title": "Integrated Table",
+      "description": "Flat-props Table with columns + dataSource + rowKey, plus loading, empty, caption, function-form rowClassName, and built-in row selection (controlled / uncontrolled, with per-row gating and indeterminate select-all).",
+      "registryDependencies": ["table", "checkbox"],
+      "files": [
+        {
+          "path": "registry/ui/table.tsx",
+          "type": "registry:component",
+          "target": "components/easy/table.tsx"
+        }
+      ]
     }
   ]
 }

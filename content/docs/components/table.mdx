@@ -1,0 +1,257 @@
+---
+title: Table
+---
+
+A flat-props Table covering the 80% case — `columns` + `dataSource` + `rowKey`, with built-in loading, empty, caption, function-form `rowClassName`, and optional row selection. Built on the shadcn `table` and `checkbox` primitives.
+
+<ExamplePreview name="table-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/table
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/table.json
+```
+
+The underlying shadcn `table` and `checkbox` primitives are installed automatically alongside `table`.
+
+After `shadcn add`, import from `@/components/easy/table`. The examples below import from `@/registry/ui/table` for repo-internal reasons — substitute the install path in your app.
+
+## Usage
+
+### Basic
+
+Define columns through the `defineColumns<T>()` builder (see below for why), then pass them to `Table`. `rowKey` is required — it derives a stable string key per row, either as a `keyof T` field name or a `(record, index) => string` function.
+
+```tsx
+import { defineColumns, Table } from "@/components/easy/table"
+
+interface User {
+  id: string
+  name: string
+  email: string
+}
+
+const columns = defineColumns<User>()([
+  { dataIndex: "name", key: "name", title: "Name" },
+  { dataIndex: "email", key: "email", title: "Email" },
+])
+
+<Table columns={columns} dataSource={users} rowKey="id" />
+```
+
+### Column types — why `defineColumns`
+
+`TableColumn<T>` is a discriminated union: when `dataIndex` is a literal `keyof T`, `render(value, record, index)` narrows `value` to `T[dataIndex]` (no casts). When `dataIndex` is omitted, `value` is `undefined` and you pull from `record`.
+
+The catch: TypeScript's contextual typing for inline array literals (`const cols: TableColumn<T>[] = [...]`) can drop narrowing under certain strict-mode combinations — `value` falls back to `any`, and invalid `dataIndex` literals stop erroring. The `defineColumns<T>()` builder fixes this by binding the generic before inference and using `const` parameters to keep each element's `dataIndex` literal alive:
+
+```tsx
+const cols = defineColumns<Order>()([
+  {
+    dataIndex: "amount",
+    key: "amount",
+    title: "Amount",
+    align: "right",
+    render: (value) => formatter.format(value), // value: number
+  },
+  {
+    dataIndex: "status",
+    key: "status",
+    title: "Status",
+    render: (value) => <Badge tone={value}>{value}</Badge>, // value: Order["status"]
+  },
+  {
+    key: "actions",
+    title: "Actions",
+    // No dataIndex → value is undefined.
+    render: (_value, record) => <Button onClick={() => view(record.id)}>View</Button>,
+  },
+])
+```
+
+You can still write `const cols: TableColumn<T>[] = [...]` directly if you don't need narrowing — `dataIndex` is still constrained to `keyof T`, `render` just has the union-of-shapes value type. Reach for `defineColumns` whenever you want IDE autocomplete to know what `value` is.
+
+`dataIndex` is intentionally limited to `keyof T` — nested paths like `"user.name"` are not supported. Reach inside with `render: (_, record) => record.user.name` instead.
+
+### Formatting cells with `column.render`
+
+`column.render` is the one render-style prop the project allows, because it lives at the *data* layer — formatting a value into a `ReactNode` — not the component layer. It receives `(value, record, index)` and lives inside each column definition above.
+
+<ExamplePreview name="table-render-demo" />
+
+### Loading, empty, and caption
+
+`loading={true}` replaces the body with `loadingMessage`. When `dataSource` is empty and `loading` is false, `emptyMessage` is shown. `caption` renders inside `<caption>`.
+
+<ExamplePreview name="table-loading-empty-demo" />
+
+### Row highlighting via `rowClassName`
+
+`rowClassName` accepts a `ClassValue` or a `(record, index) => ClassValue` function. Use the function form for conditional row styling without an extra wrapper.
+
+<ExamplePreview name="table-row-classname-demo" />
+
+```tsx
+<Table
+  columns={columns}
+  dataSource={servers}
+  rowKey="id"
+  rowClassName={(record) => record.cpu >= 80 ? "bg-destructive/10" : undefined}
+/>
+```
+
+### Row selection
+
+Set `selectable` to render a left-side checkbox column. The selection prop pair follows the same controlled / uncontrolled shape as other components in this library (`value` / `onValueChange` → `selectedRowKeys` / `onSelectedRowKeysChange`). The change callback receives both the new keys and the matching records in `dataSource` order, so you don't have to re-look-up rows. The header checkbox shows a distinct indeterminate (dash) icon while a non-empty proper subset is selected.
+
+Per-row checkbox configuration goes through `getCheckboxProps(record, index)` — pass `disabled: true` to gate a row out (it will also be skipped by "select all"). `getCheckboxProps` is the one `xxxProps` escape hatch in this library, kept for parity with Antd's Table API. `checked` and `onCheckedChange` are always owned by the Table.
+
+<ExamplePreview name="table-selection-demo" />
+
+```tsx
+const [selected, setSelected] = useState<string[]>([])
+
+<Table
+  columns={columns}
+  dataSource={members}
+  rowKey="id"
+  selectable
+  selectedRowKeys={selected}
+  onSelectedRowKeysChange={(keys, rows) => {
+    setSelected(keys)
+    console.log("selected rows:", rows)
+  }}
+  getCheckboxProps={(record) => ({
+    disabled: record.role === "owner",
+  })}
+/>
+```
+
+#### Selection across pages / filters
+
+Keys in `selectedRowKeys` that aren't present in the current `dataSource` are **preserved** — they survive pagination and filtering. `onSelectedRowKeysChange`'s second argument (`rows`) only contains the records that actually exist in `dataSource`, so consumers usually do:
+
+```tsx
+// `selected` lives in your parent state and accumulates across pages.
+<Table
+  columns={columns}
+  dataSource={pageData}
+  rowKey="id"
+  selectable
+  selectedRowKeys={selected}
+  onSelectedRowKeysChange={setSelected}
+/>
+```
+
+For a header counter that reflects *only the visible* selection, derive it from your own visible set rather than `selected.length`:
+
+```tsx
+const visibleSelected = selected.filter((k) => visibleIds.has(k));
+```
+
+### Row click
+
+Pass `onRowClick(record, index)` to make rows respond to interaction. The row keeps its native `role="row"` semantics (W3C ARIA APG grid pattern) but becomes focusable (`tabIndex=0`) and reacts to mouse click, Enter, and Space. Clicks that originate inside the selection cell do **not** bubble to `onRowClick`, so checkboxes stay independent.
+
+Other interactive elements inside cells (Button, Link, etc.) **do** bubble — call `event.stopPropagation()` from their own handlers if you don't want a click on them to also fire `onRowClick`.
+
+<ExamplePreview name="table-row-click-demo" />
+
+Try it: click a row body to set "viewing", then click a checkbox — the row click does not fire. Tab to a row and press Enter or Space to activate it.
+
+```tsx
+<Table
+  aria-label="Members"
+  columns={columns}
+  dataSource={members}
+  rowKey="id"
+  onRowClick={(record) => router.push(`/members/${record.id}`)}
+/>
+```
+
+## Accessibility
+
+The Table ships with the WCAG defaults you'd expect, plus dev-only warnings when they're missing:
+
+- **Accessible name (WCAG 1.3.1)** — pass `caption`, `aria-label`, or `aria-labelledby`. Without one, dev builds log a warning.
+- **`aria-busy`** is set on the `<table>` whenever `loading` is `true`.
+- **Loading / empty cells** carry `role="status"` + `aria-live="polite"` so SR users hear the state change instead of waiting in silence.
+- **Selection column** renders a visually-hidden `<span>` carrying `selectionColumnLabel` (default `"Selection"`) so the column has a real name for AT, even though the `<th>` shows only a checkbox.
+- **Selection checkboxes** default to `aria-label="Select row {key}"`. The row key is usually opaque — pass a human label through `getCheckboxProps`:
+
+  ```tsx
+  getCheckboxProps={(record) => ({ "aria-label": `Select ${record.name}` })}
+  ```
+
+- **`onRowClick`** preserves the native `<tr role="row">` semantics — we do NOT override to `role="button"` (that would strip the table structure). Rows get `tabIndex={0}` and respond to Enter / Space. Focus outline is inset (`outline-offset: -2px`) so a surrounding `border` won't clip it.
+- **Color is never the only signal** in row highlighting — pair `rowClassName` with an icon or text cue (see the row-className example).
+
+## API
+
+### `TableProps<T>`
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `columns` | `TableColumn<T>[]` | — | Column definitions. Use `defineColumns<T>()` for narrowed `render(value, …)` types. |
+| `dataSource` | `T[]` | — | Data rows. |
+| `rowKey` | `keyof T \| (record, index) => string` | — | Required. Derives a stable string key per row. No `index` fallback — reordering / pagination would silently desync React keys. |
+| `loading` | `boolean` | `false` | Replaces the body with `loadingMessage`. |
+| `loadingMessage` | `ReactNode` | `"Loading…"` | Shown while `loading` is true. |
+| `emptyMessage` | `ReactNode` | `"No data"` | Shown when `dataSource` is empty and not loading. |
+| `caption` | `ReactNode` | — | Rendered inside `<caption>`. |
+| `rowClassName` | `ClassValue \| (record, index) => ClassValue` | — | Per-row className. |
+| `onRowClick` | `(record, index) => void` | — | Makes rows focusable (`tabIndex=0`) and responsive to click / Enter / Space. Native `role="row"` is preserved (no override). Selection-cell events do not bubble. |
+| `selectable` | `boolean` | `false` | Enable the selection column. |
+| `selectedRowKeys` | `string[]` | — | Controlled selected keys. |
+| `defaultSelectedRowKeys` | `string[]` | `[]` | Uncontrolled initial keys. |
+| `onSelectedRowKeysChange` | `(keys, rows) => void` | — | Called with the next keys and the matching records. |
+| `getCheckboxProps` | `(record, index) => Partial<ComponentProps<typeof CheckboxRoot>>` | — | Per-row Checkbox props (base-ui `Checkbox.Root` shape — typically `disabled`, `aria-label`, `data-*`; see [Base UI Checkbox](https://base-ui.com/react/components/checkbox)). `disabled: true` gates the row out of "select all". `checked` / `onCheckedChange` are ignored — Table owns them. |
+| `selectionColumnClassName` | `ClassValue` | — | className for the selection column's `th` and `td`. |
+| `selectionColumnLabel` | `string` | `"Selection"` | Visually-hidden column name for the selection `<th>` (announced before "Select all" by screen readers). |
+| `headerClassName` | `ClassValue` | — | className on `<thead>`. |
+| `bodyClassName` | `ClassValue` | — | className on `<tbody>`. |
+| `captionClassName` | `ClassValue` | — | className on `<caption>`. |
+| `emptyClassName` | `ClassValue` | — | className on the empty-state cell. |
+| `loadingClassName` | `ClassValue` | — | className on the loading-state cell. |
+| `className` | `ClassValue` | — | className on the `<table>` element. |
+
+### `TableColumn<T>`
+
+A discriminated union by `dataIndex`. When `dataIndex` is set to a `keyof T`, `render`'s `value` is narrowed to `T[dataIndex]` automatically — no casts needed.
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `key` | `string` | Stable identifier and React key. |
+| `title` | `ReactNode` | Header content. |
+| `dataIndex` | `keyof T \| undefined` | **Top-level `keyof T` only.** Nested paths like `"user.name"` are intentionally unsupported — use `render: (_, record) => record.user.name` for deep access. |
+| `render` | `(value, record, index) => ReactNode` | Cell formatter. `value` is `T[dataIndex]` when `dataIndex` is set, otherwise `undefined`. |
+| `align` | `"left" \| "center" \| "right"` | Text alignment for `th` + `td`. |
+| `width` | `number \| string` | Emitted as inline `style.width`. |
+| `className` | `ClassValue` | Applied to both `th` and `td`. |
+| `headClassName` | `ClassValue` | Applied only to the header cell. |
+| `cellClassName` | `ClassValue` | Applied only to body cells. |
+
+## When to use the primitive instead
+
+This component covers `columns` + `dataSource` + `rowKey` + selection + loading / empty / caption / row className. Anything else is intentionally out of scope:
+
+- **Sorting, filtering, pagination** — derive these in your parent and feed `dataSource`. Combine with `@tanstack/react-table` if you want batteries included.
+- **Fixed columns / sticky headers, expandable rows, drag-to-reorder, column resize, virtualization** — composition territory.
+- **Error state** — the Table has `loading` and `emptyMessage` but no `errorMessage`. Rows aren't symmetric to a single async load, so the error UX is the parent's responsibility. Render your own error block above the Table (or swap the Table for an error block) when fetching fails.
+- **Per-row loading** (one row showing a saving spinner while others stay live) — render the spinner inside a cell via `render`. Table-wide `loading` is all-or-nothing.
+
+`onRowClick` puts every row in the Tab sequence; that's fine up to 20–30 interactive rows. For larger interactive tables you want a roving-tabindex grid pattern, which is also out of scope — reach for `@tanstack/react-table` and compose the shadcn primitives directly.
+
+For any of the above, drop down to `components/ui/table` and compose `<Table>`, `<TableHeader>`, `<TableBody>`, `<TableRow>`, `<TableHead>`, `<TableCell>`, `<TableCaption>` yourself.
+
+### Server components
+
+This component is `"use client"` — selection state, focus management and dev warnings all need the client runtime. A purely static read-only table (just `columns` + `dataSource` + `rowKey` + `caption` + a string `rowClassName`) doesn't strictly need that, but the Table forces CSR anyway. In an RSC page, either accept the client boundary, or drop down to `components/ui/table` primitives directly for the static case.
