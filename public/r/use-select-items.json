@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-select-items",
+  "title": "useSelectItems",
+  "description": "Pure derivation hook for Select-like UIs. Turns a flat SelectItem[] into stringItems, findItem, itemToStringLabel, default contains filter, and the currently selected items.",
+  "files": [
+    {
+      "path": "registry/hooks/use-select-items.ts",
+      "content": "\"use client\";\n\nimport type { ClassValue } from \"clsx\";\nimport type { ReactNode } from \"react\";\nimport { useCallback, useMemo } from \"react\";\n\nexport interface SelectItem {\n  disabled?: boolean;\n  itemClassName?: ClassValue;\n  label: ReactNode;\n  value: string;\n}\n\nexport interface UseSelectItemsOptions {\n  filter?: (item: SelectItem, query: string) => boolean;\n  items: SelectItem[];\n}\n\nexport interface UseSelectItemsReturn {\n  filterFn: (itemValue: string, query: string) => boolean;\n  findItem: (value: string) => SelectItem | undefined;\n  itemToStringLabel: (value: string) => string;\n  stringItems: string[];\n}\n\nfunction labelToString(label: ReactNode, fallback: string): string {\n  if (typeof label === \"string\") {\n    return label;\n  }\n  if (typeof label === \"number\") {\n    return String(label);\n  }\n  return fallback;\n}\n\nexport function useSelectItems({\n  items,\n  filter,\n}: UseSelectItemsOptions): UseSelectItemsReturn {\n  const index = useMemo(() => {\n    const map = new Map<string, SelectItem>();\n    for (const item of items) {\n      map.set(item.value, item);\n    }\n    return map;\n  }, [items]);\n\n  const stringItems = useMemo(() => items.map((i) => i.value), [items]);\n\n  const findItem = useCallback((v: string) => index.get(v), [index]);\n\n  const itemToStringLabel = useCallback(\n    (v: string): string => {\n      const item = index.get(v);\n      if (!item) {\n        return v;\n      }\n      return labelToString(item.label, v);\n    },\n    [index]\n  );\n\n  const filterFn = useCallback(\n    (itemValue: string, query: string): boolean => {\n      const item = index.get(itemValue);\n      if (!item) {\n        return true;\n      }\n      if (filter) {\n        return filter(item, query);\n      }\n      const labelStr = labelToString(item.label, item.value).toLowerCase();\n      return labelStr.includes(query.toLowerCase());\n    },\n    [index, filter]\n  );\n\n  return {\n    stringItems,\n    findItem,\n    itemToStringLabel,\n    filterFn,\n  };\n}\n",
+      "type": "registry:hook",
+      "target": "hooks/use-select-items.ts"
+    }
+  ],
+  "type": "registry:hook"
+}
