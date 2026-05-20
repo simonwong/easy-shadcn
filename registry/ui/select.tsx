@@ -238,6 +238,7 @@ function ClearButton({ className }: { className?: ClassValue }) {
         className
       )}
       data-slot="combobox-clear"
+      nativeButton={false}
       render={
         <HugeiconsIcon icon={Cancel01Icon} role="button" strokeWidth={2} />
       }
@@ -270,7 +271,7 @@ export const Select = ({
   searchable = false,
   clearable = false,
   maxCount,
-  placeholder = "Select…",
+  placeholder = "Pick an option",
   emptyMessage = "No results",
   disabled,
   open,
@@ -586,7 +587,9 @@ export const Select = ({
           <ComboboxValue placeholder={placeholder}>
             {(selected: string | null) => {
               if (!selected) {
-                return placeholder;
+                return (
+                  <span className="text-muted-foreground">{placeholder}</span>
+                );
               }
               const item = findItem(selected);
               return (
