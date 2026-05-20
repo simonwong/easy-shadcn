@@ -357,3 +357,5 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
 };
 
 export default DatePicker;
+
+export type { DateRange } from "react-day-picker";
