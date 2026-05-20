@@ -120,6 +120,66 @@
           "target": "components/easy/date-picker.tsx"
         }
       ]
+    },
+    {
+      "name": "use-select-items",
+      "type": "registry:hook",
+      "title": "useSelectItems",
+      "description": "Pure derivation hook for Select-like UIs. Turns a flat SelectItem[] into stringItems, findItem, itemToStringLabel, default contains filter, and the currently selected items.",
+      "files": [
+        {
+          "path": "registry/hooks/use-select-items.ts",
+          "type": "registry:hook",
+          "target": "hooks/use-select-items.ts"
+        }
+      ]
+    },
+    {
+      "name": "use-select-loader",
+      "type": "registry:hook",
+      "title": "useSelectLoader",
+      "description": "Async items loader for Select: eager load-once or server-side filter modes, with AbortController, debounce, and a selected-item cache so chip labels survive across refetches.",
+      "registryDependencies": ["@easy-shadcn/use-select-items"],
+      "files": [
+        {
+          "path": "registry/hooks/use-select-loader.ts",
+          "type": "registry:hook",
+          "target": "hooks/use-select-loader.ts"
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "type": "registry:component",
+      "title": "Integrated Select",
+      "description": "Flat-props Select covering dropdown, searchable, multi-select, and remote-loading modes in a single component. Built on shadcn's Combobox primitive.",
+      "registryDependencies": [
+        "combobox",
+        "button",
+        "@easy-shadcn/use-select-items",
+        "@easy-shadcn/use-select-loader"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/select.tsx",
+          "type": "registry:component",
+          "target": "components/easy/select.tsx"
+        }
+      ]
+    },
+    {
+      "name": "table",
+      "type": "registry:component",
+      "title": "Integrated Table",
+      "description": "Flat-props Table with columns + dataSource + rowKey, plus loading, empty, caption, function-form rowClassName, and built-in row selection (controlled / uncontrolled, with per-row gating and indeterminate select-all).",
+      "registryDependencies": ["table", "checkbox"],
+      "files": [
+        {
+          "path": "registry/ui/table.tsx",
+          "type": "registry:component",
+          "target": "components/easy/table.tsx"
+        }
+      ]
     }
   ]
 }
