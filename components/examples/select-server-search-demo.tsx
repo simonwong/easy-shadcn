@@ -47,7 +47,7 @@ const Demo = () => {
         debounceMs={250}
         loadItems={searchUsers}
         multiple
-        onValueChange={(next) => setValue((next as string[]) ?? [])}
+        onValueChange={setValue}
         placeholder="Search reviewers"
         serverSideFilter
         value={value}
