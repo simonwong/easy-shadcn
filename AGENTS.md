@@ -159,6 +159,20 @@ Tabs、Breadcrumb 这种列表型组件用 `items` 数组是 80% 友好的。代
 
 - 禁止使用 `if (xx) return yy` ，必须使用 block 包裹，`if (xx) { return yy }`
 
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues，使用 `gh` CLI 管理。See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+标准五角色标签：needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix。See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context 布局，`CONTEXT.md` + `docs/adr/` 在根目录。See `docs/agents/domain.md`.
+
 ## 禁止事项
 
 ### `components/ui/**` 严格只读
