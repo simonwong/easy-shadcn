@@ -37,7 +37,7 @@ import { useSelectLoader } from "@/registry/hooks/use-select-loader";
 export type { SelectItem } from "@/registry/hooks/use-select-items";
 export type { SelectItemsLoader } from "@/registry/hooks/use-select-loader";
 
-export interface SelectProps {
+interface SelectBaseProps {
   /** Chip className for `multiple` mode. */
   chipClassName?: ClassValue;
   /** Root wrapper className. */
@@ -57,8 +57,6 @@ export interface SelectProps {
   debounceMs?: number;
   /** Uncontrolled initial open state. */
   defaultOpen?: boolean;
-  /** Uncontrolled initial value. `string` in single mode, `string[]` in multiple mode. */
-  defaultValue?: string | string[];
   /** Disable all interaction. */
   disabled?: boolean;
   /** `<ComboboxEmpty />` className. */
@@ -117,18 +115,10 @@ export interface SelectProps {
    * Already-selected items stay clickable for deselection. Ignored in single mode.
    */
   maxCount?: number;
-  /** Enable multi-select with chips. */
-  multiple?: boolean;
   /** Form field name for native form submission. */
   name?: string;
   /** Called when the popover open state changes. */
   onOpenChange?: (open: boolean) => void;
-  /**
-   * Called when the selection changes.
-   * - Single mode: `string` when a value is selected, `undefined` when cleared.
-   * - Multi mode: `string[]` — an empty array represents no selection.
-   */
-  onValueChange?: (value: string | string[] | undefined) => void;
   /** Controlled popover open state. */
   open?: boolean;
   /** Placeholder shown when no value is selected. @default "Select…" */
@@ -145,9 +135,37 @@ export interface SelectProps {
   serverSideFilter?: boolean;
   /** Trigger / input / chips-container className depending on mode. */
   triggerClassName?: ClassValue;
-  /** Controlled value. `string` in single mode, `string[]` in multiple mode. */
-  value?: string | string[];
 }
+
+export type SelectSingleProps = SelectBaseProps & {
+  /** Uncontrolled initial value. */
+  defaultValue?: string;
+  /** Single-select mode. */
+  multiple?: false;
+  /**
+   * Called when the selection changes.
+   * `undefined` represents no selection.
+   */
+  onValueChange?: (value: string | undefined) => void;
+  /** Controlled value. */
+  value?: string;
+};
+
+export type SelectMultipleProps = SelectBaseProps & {
+  /** Uncontrolled initial values. */
+  defaultValue?: string[];
+  /** Enable multi-select with chips. */
+  multiple: true;
+  /**
+   * Called when the selection changes.
+   * An empty array represents no selection.
+   */
+  onValueChange?: (value: string[]) => void;
+  /** Controlled values. */
+  value?: string[];
+};
+
+export type SelectProps = SelectSingleProps | SelectMultipleProps;
 
 const ITEM_PRESS_REASON = "item-press";
 
@@ -165,6 +183,19 @@ function defaultErrorRenderer(error: unknown): ReactNode {
     }
   }
   return "Failed to load options";
+}
+
+function renderSelectError(
+  errorMessage: ReactNode | ((error: unknown) => ReactNode) | undefined,
+  error: unknown
+): ReactNode {
+  if (errorMessage === undefined) {
+    return defaultErrorRenderer(error);
+  }
+  if (typeof errorMessage === "function") {
+    return errorMessage(error);
+  }
+  return errorMessage;
 }
 
 function useAdornmentState() {
@@ -186,6 +217,101 @@ function useAdornmentState() {
 }
 
 type AdornmentKind = "clear" | "search" | "down";
+type SelectValue = string | string[] | undefined;
+type SelectOnValueChange =
+  | SelectSingleProps["onValueChange"]
+  | SelectMultipleProps["onValueChange"];
+
+function notifyValueChange({
+  multiple,
+  onValueChange,
+  value,
+}: {
+  multiple: boolean;
+  onValueChange?: SelectOnValueChange;
+  value: SelectValue;
+}) {
+  if (multiple) {
+    (onValueChange as SelectMultipleProps["onValueChange"] | undefined)?.(
+      value as string[]
+    );
+    return;
+  }
+  (onValueChange as SelectSingleProps["onValueChange"] | undefined)?.(
+    value as string | undefined
+  );
+}
+
+function useSelectOpen({
+  defaultOpen,
+  onOpenChange,
+  open,
+}: {
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
+}) {
+  const [internalOpen, setInternalOpen] = useState<boolean>(
+    defaultOpen ?? false
+  );
+  const isOpenControlled = open !== undefined;
+  const currentOpen = isOpenControlled ? open : internalOpen;
+
+  const handleOpenChange = useCallback(
+    (next: boolean) => {
+      if (!isOpenControlled) {
+        setInternalOpen(next);
+      }
+      onOpenChange?.(next);
+    },
+    [isOpenControlled, onOpenChange]
+  );
+
+  return { currentOpen, handleOpenChange, isOpenControlled };
+}
+
+function useSelectValue({
+  defaultValue,
+  isValueControlled,
+  multiple,
+  onValueChange,
+  value,
+}: {
+  defaultValue?: SelectValue;
+  isValueControlled: boolean;
+  multiple: boolean;
+  onValueChange?: SelectOnValueChange;
+  value?: SelectValue;
+}) {
+  const [internalValue, setInternalValue] = useState<SelectValue>(defaultValue);
+  const currentValue = isValueControlled ? value : internalValue;
+
+  const handleValueChange = useCallback(
+    (next: string | string[] | null | undefined) => {
+      const normalized = normalizeValue(next, multiple);
+      if (!isValueControlled) {
+        setInternalValue(normalized);
+      }
+      notifyValueChange({ multiple, onValueChange, value: normalized });
+    },
+    [isValueControlled, multiple, onValueChange]
+  );
+
+  return { currentValue, handleValueChange };
+}
+
+function normalizeValue(
+  next: string | string[] | null | undefined,
+  multiple: boolean
+): SelectValue {
+  if (multiple) {
+    return Array.isArray(next) ? next : [];
+  }
+  if (typeof next === "string") {
+    return next;
+  }
+  return;
+}
 
 function resolveAdornment({
   canSearch,
@@ -218,6 +344,87 @@ function Spinner() {
   );
 }
 
+function SelectStatus({
+  error,
+  errorMessage,
+  loading,
+  loadingMessage,
+  refresh,
+}: {
+  error: unknown;
+  errorMessage?: ReactNode | ((error: unknown) => ReactNode);
+  loading: boolean;
+  loadingMessage: ReactNode;
+  refresh: () => void;
+}) {
+  if (loading) {
+    return (
+      <div
+        className="flex items-center justify-center gap-2 px-2 py-3 text-muted-foreground text-sm"
+        data-slot="combobox-status"
+      >
+        <Spinner />
+        <span>{loadingMessage}</span>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center gap-2 px-2 py-3 text-destructive text-sm"
+        data-slot="combobox-status"
+      >
+        <span className="text-center">
+          {renderSelectError(errorMessage, error)}
+        </span>
+        <Button
+          className="h-7 px-2 text-xs"
+          onClick={refresh}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
+  return null;
+}
+
+function SelectList({
+  findItem,
+  itemClassName,
+  selectedSet,
+}: {
+  findItem: (value: string) => SelectItem | undefined;
+  itemClassName?: ClassValue;
+  selectedSet: Set<string> | null;
+}) {
+  return (
+    <ComboboxList>
+      {(itemValue: string) => {
+        const item = findItem(itemValue);
+        if (!item) {
+          return null;
+        }
+        const disabledByMax =
+          selectedSet !== null && !selectedSet.has(itemValue);
+        return (
+          <ComboboxItem
+            className={cn(itemClassName, item.itemClassName)}
+            disabled={item.disabled || disabledByMax}
+            key={itemValue}
+            value={itemValue}
+          >
+            {item.label}
+          </ComboboxItem>
+        );
+      }}
+    </ComboboxList>
+  );
+}
+
 function StaticIcon({ icon }: { icon: typeof ArrowDown01Icon }) {
   return (
     <HugeiconsIcon
@@ -234,103 +441,95 @@ function ClearButton({ className }: { className?: ClassValue }) {
     <ComboboxPrimitive.Clear
       aria-label="Clear"
       className={cn(
-        "size-4 cursor-pointer text-muted-foreground transition-colors hover:text-foreground",
+        "inline-flex size-6 cursor-pointer items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className
       )}
       data-slot="combobox-clear"
-      nativeButton={false}
-      render={
-        <HugeiconsIcon icon={Cancel01Icon} role="button" strokeWidth={2} />
-      }
-    />
+      render={<button type="button" />}
+    >
+      <HugeiconsIcon
+        aria-hidden
+        className="size-4"
+        icon={Cancel01Icon}
+        strokeWidth={2}
+      />
+    </ComboboxPrimitive.Clear>
   );
 }
 
 function Adornment({ kind }: { kind: AdornmentKind }) {
+  let child: ReactNode;
   if (kind === "clear") {
-    return <ClearButton />;
+    child = <ClearButton />;
+  } else if (kind === "search") {
+    child = <StaticIcon icon={SearchList01Icon} />;
+  } else {
+    child = <StaticIcon icon={ArrowDown01Icon} />;
   }
-  if (kind === "search") {
-    return <StaticIcon icon={SearchList01Icon} />;
-  }
-  return <StaticIcon icon={ArrowDown01Icon} />;
+  return (
+    <span
+      className="inline-flex size-6 items-center justify-center"
+      data-select-adornment-frame
+    >
+      {child}
+    </span>
+  );
 }
 
-export const Select = ({
-  items,
-  loadItems,
-  loadOn = "mount",
-  serverSideFilter = false,
-  debounceMs = 250,
-  loadingMessage = "Loading…",
-  errorMessage,
-  value,
-  defaultValue,
-  onValueChange,
-  multiple = false,
-  searchable = false,
-  clearable = false,
-  maxCount,
-  placeholder = "Pick an option",
-  emptyMessage = "No results",
-  disabled,
-  open,
-  defaultOpen,
-  onOpenChange,
-  filter,
-  name,
-  className,
-  triggerClassName,
-  inputClassName,
-  contentClassName,
-  itemClassName,
-  chipClassName,
-  emptyClassName,
-}: SelectProps) => {
+export const Select = (props: SelectProps) => {
+  const {
+    items,
+    loadItems,
+    loadOn = "mount",
+    serverSideFilter = false,
+    debounceMs = 250,
+    loadingMessage = "Loading…",
+    errorMessage,
+    value,
+    defaultValue,
+    onValueChange,
+    multiple = false,
+    searchable = false,
+    clearable = false,
+    maxCount,
+    placeholder = "Pick an option",
+    emptyMessage = "No results",
+    disabled,
+    open,
+    defaultOpen,
+    onOpenChange,
+    filter,
+    name,
+    className,
+    triggerClassName,
+    inputClassName,
+    contentClassName,
+    itemClassName,
+    chipClassName,
+    emptyClassName,
+  } = props;
   const isAsync = Boolean(loadItems);
   const effectiveSearchable = searchable || (isAsync && serverSideFilter);
   const hasInput = multiple || effectiveSearchable;
 
-  const [internalOpen, setInternalOpen] = useState<boolean>(
-    defaultOpen ?? false
-  );
-  const isOpenControlled = open !== undefined;
-  const currentOpen = isOpenControlled ? open : internalOpen;
+  const { currentOpen, handleOpenChange, isOpenControlled } = useSelectOpen({
+    defaultOpen,
+    onOpenChange,
+    open,
+  });
+  const isValueControlled = "value" in props;
+  const { currentValue, handleValueChange } = useSelectValue({
+    defaultValue,
+    isValueControlled,
+    multiple,
+    onValueChange,
+    value,
+  });
 
-  const handleOpenChange = useCallback(
-    (next: boolean) => {
-      if (!isOpenControlled) {
-        setInternalOpen(next);
-      }
-      onOpenChange?.(next);
-    },
-    [isOpenControlled, onOpenChange]
-  );
-
-  // Mirror selection so adornment/maxCount work for uncontrolled usage too.
-  const [internalValue, setInternalValue] = useState<
-    string | string[] | undefined
-  >(defaultValue);
-  const isValueControlled = value !== undefined;
-  const currentValue = isValueControlled ? value : internalValue;
-
-  const handleValueChange = useCallback(
-    (next: string | string[] | null | undefined) => {
-      const normalized = next ?? undefined;
-      if (!isValueControlled) {
-        setInternalValue(normalized);
-      }
-      onValueChange?.(normalized);
-    },
-    [isValueControlled, onValueChange]
-  );
-
-  const [inputValue, setInputValue] = useState<string>("");
   const [query, setQuery] = useState<string>("");
 
   const handleInputValueChange = useCallback(
     (next: string, details: { reason: string }) => {
-      setInputValue(next);
       if (details.reason !== ITEM_PRESS_REASON) {
         setQuery(next);
       }
@@ -367,19 +566,6 @@ export const Select = ({
   const { hovered, focused, hoverHandlers, focusHandlers } =
     useAdornmentState();
 
-  const renderError = useCallback(
-    (e: unknown): ReactNode => {
-      if (errorMessage === undefined) {
-        return defaultErrorRenderer(e);
-      }
-      if (typeof errorMessage === "function") {
-        return errorMessage(e);
-      }
-      return errorMessage;
-    },
-    [errorMessage]
-  );
-
   const valueArr = useMemo(() => {
     if (currentValue === undefined) {
       return [];
@@ -406,63 +592,6 @@ export const Select = ({
     [maxReached, valueArr]
   );
 
-  const statusContent = (() => {
-    if (asyncLoading) {
-      return (
-        <div
-          className="flex items-center justify-center gap-2 px-2 py-3 text-muted-foreground text-sm"
-          data-slot="combobox-status"
-        >
-          <Spinner />
-          <span>{loadingMessage}</span>
-        </div>
-      );
-    }
-    if (asyncError) {
-      return (
-        <div
-          className="flex flex-col items-center justify-center gap-2 px-2 py-3 text-destructive text-sm"
-          data-slot="combobox-status"
-        >
-          <span className="text-center">{renderError(asyncError)}</span>
-          <Button
-            className="h-7 px-2 text-xs"
-            onClick={refresh}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            Retry
-          </Button>
-        </div>
-      );
-    }
-    return null;
-  })();
-
-  const list = (
-    <ComboboxList>
-      {(itemValue: string) => {
-        const item = findItem(itemValue);
-        if (!item) {
-          return null;
-        }
-        const disabledByMax =
-          selectedSet !== null && !selectedSet.has(itemValue);
-        return (
-          <ComboboxItem
-            className={cn(itemClassName, item.itemClassName)}
-            disabled={item.disabled || disabledByMax}
-            key={itemValue}
-            value={itemValue}
-          >
-            {item.label}
-          </ComboboxItem>
-        );
-      }}
-    </ComboboxList>
-  );
-
   const empty = (
     <ComboboxEmpty className={cn(emptyClassName)}>{emptyMessage}</ComboboxEmpty>
   );
@@ -471,8 +600,18 @@ export const Select = ({
   const showEmpty = !(asyncLoading || asyncError);
   const popupBody = (
     <>
-      {statusContent}
-      {list}
+      <SelectStatus
+        error={asyncError}
+        errorMessage={errorMessage}
+        loading={asyncLoading}
+        loadingMessage={loadingMessage}
+        refresh={refresh}
+      />
+      <SelectList
+        findItem={findItem}
+        itemClassName={itemClassName}
+        selectedSet={selectedSet}
+      />
       {showEmpty && empty}
     </>
   );
@@ -481,7 +620,6 @@ export const Select = ({
     defaultOpen: isOpenControlled ? undefined : defaultOpen,
     disabled,
     filter: serverSideFilter ? null : filterFn,
-    inputValue,
     items: stringItems,
     itemToStringLabel,
     name,
@@ -491,13 +629,16 @@ export const Select = ({
   } as const;
 
   if (multiple) {
+    const multipleValue = isValueControlled
+      ? ((value as string[] | undefined) ?? [])
+      : undefined;
     return (
       <Combobox<string, true>
         {...sharedRootProps}
         defaultValue={defaultValue as string[] | undefined}
         multiple
         onValueChange={handleValueChange}
-        value={value as string[] | undefined}
+        value={multipleValue}
       >
         <ComboboxChips
           {...focusHandlers}
@@ -524,7 +665,8 @@ export const Select = ({
           </ComboboxValue>
           <span
             {...hoverHandlers}
-            className="ml-auto inline-flex shrink-0 items-center pl-1"
+            className="ml-auto inline-flex size-6 shrink-0 items-center justify-center"
+            data-select-adornment
           >
             <Adornment kind={adornmentKind} />
           </span>
@@ -536,13 +678,17 @@ export const Select = ({
     );
   }
 
+  const singleValue = isValueControlled
+    ? ((value as string | undefined) ?? null)
+    : undefined;
+
   if (effectiveSearchable) {
     return (
       <Combobox<string, false>
         {...sharedRootProps}
         defaultValue={defaultValue as string | undefined}
         onValueChange={handleValueChange}
-        value={value as string | undefined}
+        value={singleValue}
       >
         <InputGroup
           {...focusHandlers}
@@ -554,7 +700,12 @@ export const Select = ({
             placeholder={placeholder}
             render={<InputGroupInput />}
           />
-          <InputGroupAddon {...hoverHandlers} align="inline-end">
+          <InputGroupAddon
+            {...hoverHandlers}
+            align="inline-end"
+            className="w-8 shrink-0 px-1"
+            data-select-adornment
+          >
             <Adornment kind={adornmentKind} />
           </InputGroupAddon>
         </InputGroup>
@@ -572,12 +723,12 @@ export const Select = ({
       {...sharedRootProps}
       defaultValue={defaultValue as string | undefined}
       onValueChange={handleValueChange}
-      value={value as string | undefined}
+      value={singleValue}
     >
       <div {...focusHandlers} className={cn("relative", className)}>
         <ComboboxPrimitive.Trigger
           className={cn(
-            "w-full justify-between pr-9 [&_svg:not([class*='size-'])]:size-4",
+            "w-full justify-between pr-10 [&_svg:not([class*='size-'])]:size-4",
             triggerClassName
           )}
           data-slot="combobox-trigger"
@@ -600,7 +751,8 @@ export const Select = ({
         </ComboboxPrimitive.Trigger>
         <span
           {...hoverHandlers}
-          className="absolute top-1/2 right-2 inline-flex -translate-y-1/2 items-center"
+          className="absolute top-1/2 right-1 inline-flex size-8 -translate-y-1/2 items-center justify-center"
+          data-select-adornment
         >
           <Adornment kind={adornmentKind} />
         </span>
