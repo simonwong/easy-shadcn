@@ -75,6 +75,7 @@ export function useSelectLoader({
     abortRef.current = controller;
     setLoading(true);
     setError(null);
+    setItems([]);
     fn(q, controller.signal)
       .then((result) => {
         if (controller.signal.aborted) {
@@ -195,7 +196,10 @@ export function useSelectLoader({
     if (arr.length === 0) {
       return items;
     }
-    const present = new Set(items.map((i) => i.value));
+    const present = new Set<string>();
+    for (const item of items) {
+      present.add(item.value);
+    }
     const additions: SelectItem[] = [];
     for (const v of arr) {
       if (present.has(v)) {

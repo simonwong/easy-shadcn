@@ -1,8 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { useState } from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, useState } from "react";
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import {
   Select,
+  type SelectItem,
   type SelectMultipleProps,
   type SelectSingleProps,
 } from "./select";
@@ -84,6 +85,45 @@ describe("Select", () => {
     expect(screen.queryByText("Apple")).toBeNull();
   });
 
+  it("shows the clear button on focus without requiring hover", () => {
+    const { container } = render(
+      <Select clearable items={ITEMS} placeholder="Pick fruit" value="apple" />
+    );
+
+    const trigger = container.querySelector("[data-slot='combobox-trigger']");
+    if (!(trigger instanceof HTMLElement)) {
+      throw new Error("Select trigger not found");
+    }
+
+    fireEvent.focus(trigger);
+
+    expect(screen.getByRole("button", { name: "Clear" })).toBeTruthy();
+  });
+
+  it("keeps clear hidden when hovering outside the right adornment", () => {
+    const { container } = render(
+      <Select clearable items={ITEMS} placeholder="Pick fruit" value="apple" />
+    );
+
+    const trigger = container.querySelector("[data-slot='combobox-trigger']");
+    if (!(trigger instanceof HTMLElement)) {
+      throw new Error("Select trigger not found");
+    }
+
+    fireEvent.mouseEnter(trigger);
+    expect(screen.queryByRole("button", { name: "Clear" })).toBeNull();
+
+    hoverAdornment(container);
+    expect(screen.getByRole("button", { name: "Clear" })).toBeTruthy();
+  });
+
+  it("keeps the plain adornment from intercepting trigger clicks", () => {
+    const { container } = render(<Select items={ITEMS} value="apple" />);
+
+    const adornment = container.querySelector("[data-select-adornment]");
+    expect(adornment?.classList.contains("pointer-events-none")).toBe(true);
+  });
+
   it("keeps the searchable clear button inside a stable adornment frame", () => {
     const { container } = render(
       <Select clearable items={ITEMS} searchable value="apple" />
@@ -138,5 +178,54 @@ describe("Select", () => {
     expect((screen.getByRole("combobox") as HTMLInputElement).value).toBe(
       "Banana"
     );
+  });
+
+  it("renders the label for an empty-string value", () => {
+    render(
+      <Select
+        items={[{ label: "None", value: "" }]}
+        placeholder="Pick fruit"
+        value=""
+      />
+    );
+
+    expect(screen.getByText("None")).toBeTruthy();
+    expect(screen.queryByText("Pick fruit")).toBeNull();
+  });
+
+  it("clears stale server-side results while a new query is loading", async () => {
+    const resolvers: Array<(items: SelectItem[]) => void> = [];
+    const loadItems = vi.fn(
+      () =>
+        new Promise<SelectItem[]>((resolve) => {
+          resolvers.push(resolve);
+        })
+    );
+
+    render(
+      <Select
+        debounceMs={0}
+        defaultOpen
+        loadItems={loadItems}
+        placeholder="Search fruit"
+        searchable
+        serverSideFilter
+      />
+    );
+
+    await waitFor(() => expect(loadItems).toHaveBeenCalledTimes(1));
+    act(() => {
+      resolvers[0]?.(ITEMS);
+    });
+
+    expect(await screen.findByText("Apple")).toBeTruthy();
+
+    fireEvent.change(screen.getByRole("combobox"), {
+      target: { value: "zz" },
+    });
+
+    await waitFor(() => expect(loadItems).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(screen.queryByText("Apple")).toBeNull());
+    expect(screen.getByText("Loading…")).toBeTruthy();
   });
 });
