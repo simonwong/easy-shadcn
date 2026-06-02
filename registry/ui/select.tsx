@@ -121,7 +121,7 @@ interface SelectBaseProps {
   onOpenChange?: (open: boolean) => void;
   /** Controlled popover open state. */
   open?: boolean;
-  /** Placeholder shown when no value is selected. @default "Select…" */
+  /** Placeholder shown when no value is selected. @default "Pick an option" */
   placeholder?: string;
   /** Render an input that filters the list. Ignored (treated as `true`) when `multiple` is true. */
   searchable?: boolean;
@@ -201,18 +201,31 @@ function renderSelectError(
 function useAdornmentState() {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
-  const hoverHandlers = {
-    onMouseEnter: () => setHovered(true),
-    onMouseLeave: () => setHovered(false),
-  };
-  const focusHandlers = {
-    onBlurCapture: (e: FocusEvent<HTMLElement>) => {
-      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-        setFocused(false);
-      }
-    },
-    onFocusCapture: () => setFocused(true),
-  };
+
+  const handleMouseEnter = useCallback(() => setHovered(true), []);
+  const handleMouseLeave = useCallback(() => setHovered(false), []);
+  const handleBlurCapture = useCallback((e: FocusEvent<HTMLElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+      setFocused(false);
+    }
+  }, []);
+  const handleFocusCapture = useCallback(() => setFocused(true), []);
+
+  const hoverHandlers = useMemo(
+    () => ({
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
+    }),
+    [handleMouseEnter, handleMouseLeave]
+  );
+  const focusHandlers = useMemo(
+    () => ({
+      onBlurCapture: handleBlurCapture,
+      onFocusCapture: handleFocusCapture,
+    }),
+    [handleBlurCapture, handleFocusCapture]
+  );
+
   return { focusHandlers, focused, hoverHandlers, hovered };
 }
 
@@ -221,6 +234,25 @@ type SelectValue = string | string[] | undefined;
 type SelectOnValueChange =
   | SelectSingleProps["onValueChange"]
   | SelectMultipleProps["onValueChange"];
+
+function areStringArraysEqual(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  for (let index = 0; index < a.length; index++) {
+    if (a[index] !== b[index]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function areSelectValuesEqual(a: SelectValue, b: SelectValue): boolean {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return areStringArraysEqual(a, b);
+  }
+  return a === b;
+}
 
 function notifyValueChange({
   multiple,
@@ -290,7 +322,12 @@ function useSelectValue({
     (next: string | string[] | null | undefined) => {
       const normalized = normalizeValue(next, multiple);
       if (!isValueControlled) {
-        setInternalValue(normalized);
+        setInternalValue((current) => {
+          if (areSelectValuesEqual(current, normalized)) {
+            return current;
+          }
+          return normalized;
+        });
       }
       notifyValueChange({ multiple, onValueChange, value: normalized });
     },
@@ -313,6 +350,16 @@ function normalizeValue(
   return;
 }
 
+function getUncontrolledDefaultValue<T>(
+  defaultValue: T | undefined,
+  isValueControlled: boolean
+): T | undefined {
+  if (isValueControlled) {
+    return;
+  }
+  return defaultValue;
+}
+
 function resolveAdornment({
   canSearch,
   clearable,
@@ -326,7 +373,7 @@ function resolveAdornment({
   hasValue: boolean;
   hovered: boolean;
 }): AdornmentKind {
-  if (clearable && hasValue && hovered) {
+  if (clearable && hasValue && (hovered || focused)) {
     return "clear";
   }
   if (canSearch && focused) {
@@ -460,7 +507,7 @@ function ClearButton({ className }: { className?: ClassValue }) {
 function Adornment({ kind }: { kind: AdornmentKind }) {
   let child: ReactNode;
   if (kind === "clear") {
-    child = <ClearButton />;
+    child = <ClearButton className="pointer-events-auto" />;
   } else if (kind === "search") {
     child = <StaticIcon icon={SearchList01Icon} />;
   } else {
@@ -531,7 +578,12 @@ export const Select = (props: SelectProps) => {
   const handleInputValueChange = useCallback(
     (next: string, details: { reason: string }) => {
       if (details.reason !== ITEM_PRESS_REASON) {
-        setQuery(next);
+        setQuery((current) => {
+          if (current === next) {
+            return current;
+          }
+          return next;
+        });
       }
     },
     []
@@ -563,8 +615,12 @@ export const Select = (props: SelectProps) => {
   );
 
   const anchorRef = useComboboxAnchor();
-  const { hovered, focused, hoverHandlers, focusHandlers } =
-    useAdornmentState();
+  const {
+    hovered: adornmentHovered,
+    focused,
+    hoverHandlers: adornmentHoverHandlers,
+    focusHandlers,
+  } = useAdornmentState();
 
   const valueArr = useMemo(() => {
     if (currentValue === undefined) {
@@ -573,12 +629,13 @@ export const Select = (props: SelectProps) => {
     return Array.isArray(currentValue) ? currentValue : [currentValue];
   }, [currentValue]);
 
+  const hasValue = valueArr.length > 0;
   const adornmentKind = resolveAdornment({
     canSearch: hasInput,
     clearable,
     focused,
-    hasValue: valueArr.length > 0,
-    hovered,
+    hasValue,
+    hovered: adornmentHovered,
   });
 
   // multi-only: when at limit, mark every unselected item as disabled.
@@ -635,7 +692,10 @@ export const Select = (props: SelectProps) => {
     return (
       <Combobox<string, true>
         {...sharedRootProps}
-        defaultValue={defaultValue as string[] | undefined}
+        defaultValue={getUncontrolledDefaultValue(
+          defaultValue as string[] | undefined,
+          isValueControlled
+        )}
         multiple
         onValueChange={handleValueChange}
         value={multipleValue}
@@ -664,7 +724,7 @@ export const Select = (props: SelectProps) => {
             )}
           </ComboboxValue>
           <span
-            {...hoverHandlers}
+            {...adornmentHoverHandlers}
             className="ml-auto inline-flex size-6 shrink-0 items-center justify-center"
             data-select-adornment
           >
@@ -686,7 +746,10 @@ export const Select = (props: SelectProps) => {
     return (
       <Combobox<string, false>
         {...sharedRootProps}
-        defaultValue={defaultValue as string | undefined}
+        defaultValue={getUncontrolledDefaultValue(
+          defaultValue as string | undefined,
+          isValueControlled
+        )}
         onValueChange={handleValueChange}
         value={singleValue}
       >
@@ -701,7 +764,7 @@ export const Select = (props: SelectProps) => {
             render={<InputGroupInput />}
           />
           <InputGroupAddon
-            {...hoverHandlers}
+            {...adornmentHoverHandlers}
             align="inline-end"
             className="w-8 shrink-0 px-1"
             data-select-adornment
@@ -721,7 +784,10 @@ export const Select = (props: SelectProps) => {
   return (
     <Combobox<string, false>
       {...sharedRootProps}
-      defaultValue={defaultValue as string | undefined}
+      defaultValue={getUncontrolledDefaultValue(
+        defaultValue as string | undefined,
+        isValueControlled
+      )}
       onValueChange={handleValueChange}
       value={singleValue}
     >
@@ -737,7 +803,7 @@ export const Select = (props: SelectProps) => {
         >
           <ComboboxValue placeholder={placeholder}>
             {(selected: string | null) => {
-              if (!selected) {
+              if (selected === null) {
                 return (
                   <span className="text-muted-foreground">{placeholder}</span>
                 );
@@ -750,8 +816,13 @@ export const Select = (props: SelectProps) => {
           </ComboboxValue>
         </ComboboxPrimitive.Trigger>
         <span
-          {...hoverHandlers}
-          className="absolute top-1/2 right-1 inline-flex size-8 -translate-y-1/2 items-center justify-center"
+          {...adornmentHoverHandlers}
+          className={cn(
+            "absolute top-1/2 right-1 inline-flex size-8 -translate-y-1/2 items-center justify-center",
+            clearable && hasValue
+              ? "pointer-events-auto"
+              : "pointer-events-none"
+          )}
           data-select-adornment
         >
           <Adornment kind={adornmentKind} />

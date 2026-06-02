@@ -63,7 +63,11 @@
       "type": "registry:component",
       "title": "Integrated Modal",
       "description": "Composable Modal and AlertModal built on shadcn base-ui Dialog / AlertDialog, plus imperative alert / confirm helpers powered by @easy-shadcn/command-modal.",
-      "registryDependencies": ["dialog", "alert-dialog", "@easy-shadcn/async-button"],
+      "registryDependencies": [
+        "dialog",
+        "alert-dialog",
+        "@easy-shadcn/async-button"
+      ],
       "dependencies": ["@easy-shadcn/command-modal"],
       "files": [
         {
@@ -125,7 +129,7 @@
       "name": "use-select-items",
       "type": "registry:hook",
       "title": "useSelectItems",
-      "description": "Pure derivation hook for Select-like UIs. Turns a flat SelectItem[] into stringItems, findItem, itemToStringLabel, default contains filter, and the currently selected items.",
+      "description": "Pure derivation hook for Select-like UIs. Turns a flat SelectItem[] into stringItems, findItem, itemToStringLabel, and a default contains filter.",
       "files": [
         {
           "path": "registry/hooks/use-select-items.ts",
@@ -156,6 +160,7 @@
       "registryDependencies": [
         "combobox",
         "button",
+        "input-group",
         "@easy-shadcn/use-select-items",
         "@easy-shadcn/use-select-loader"
       ],

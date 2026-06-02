@@ -23,6 +23,11 @@ export interface UseSelectItemsReturn {
   stringItems: string[];
 }
 
+interface SelectItemsIndex {
+  index: Map<string, SelectItem>;
+  stringItems: string[];
+}
+
 function labelToString(label: ReactNode, fallback: string): string {
   if (typeof label === "string") {
     return label;
@@ -37,15 +42,15 @@ export function useSelectItems({
   items,
   filter,
 }: UseSelectItemsOptions): UseSelectItemsReturn {
-  const index = useMemo(() => {
+  const { index, stringItems } = useMemo<SelectItemsIndex>(() => {
     const map = new Map<string, SelectItem>();
+    const values: string[] = [];
     for (const item of items) {
       map.set(item.value, item);
+      values.push(item.value);
     }
-    return map;
+    return { index: map, stringItems: values };
   }, [items]);
-
-  const stringItems = useMemo(() => items.map((i) => i.value), [items]);
 
   const findItem = useCallback((v: string) => index.get(v), [index]);
 
@@ -69,8 +74,9 @@ export function useSelectItems({
       if (filter) {
         return filter(item, query);
       }
+      const normalizedQuery = query.toLowerCase();
       const labelStr = labelToString(item.label, item.value).toLowerCase();
-      return labelStr.includes(query.toLowerCase());
+      return labelStr.includes(normalizedQuery);
     },
     [index, filter]
   );

@@ -29,8 +29,8 @@ The underlying shadcn `combobox` primitive and the `useSelectItems` hook are ins
 ```tsx
 import { useSelectItems } from "@/hooks/use-select-items"
 
-const { stringItems, findItem, itemToStringLabel, filterFn, selectedItems } =
-  useSelectItems({ items, value })
+const { stringItems, findItem, itemToStringLabel, filterFn } =
+  useSelectItems({ items })
 
 <Combobox
   items={stringItems}
@@ -49,7 +49,6 @@ const { stringItems, findItem, itemToStringLabel, filterFn, selectedItems } =
 | `findItem`          | `(value: string) => SelectItem \| undefined`     | Look up an item by its string value.                                                          |
 | `itemToStringLabel` | `(value: string) => string`                       | Stringify the label of an item. Used for filtering and form submission.                       |
 | `filterFn`          | `(itemValue: string, query: string) => boolean`  | Default case-insensitive `contains` filter, honoring the user-supplied `filter` override.    |
-| `selectedItems`     | `SelectItem[]`                                    | The full `SelectItem` objects matching the current `value`. Empty array when no value.       |
 
 ## Usage
 
@@ -174,8 +173,8 @@ const searchReviewers = async (query: string, signal: AbortSignal) => {
 | `onValueChange`  | `(value) => void`                                               | -              | Called with `string \| undefined` in single mode and `string[]` in multiple mode.                     |
 | `multiple`       | `boolean`                                                       | `false`        | Enable multi-select with chips. Implicitly enables `searchable`.                                      |
 | `searchable`     | `boolean`                                                       | `false`        | Render an input that filters the list. Ignored (treated as `true`) when `multiple` is `true`.        |
-| `clearable`      | `boolean`                                                       | `false`        | Show a clear button when the field has a value. Works in plain, searchable, and multiple modes.       |
-| `placeholder`    | `string`                                                        | `"Select…"`    | Placeholder shown when no value is selected.                                                          |
+| `clearable`      | `boolean`                                                       | `false`        | Show a clear button when the field has a value and the right-side icon area is hovered or focused. Works in plain, searchable, and multiple modes. |
+| `placeholder`    | `string`                                                        | `"Pick an option"` | Placeholder shown when no value is selected.                                                     |
 | `emptyMessage`   | `ReactNode`                                                     | `"No results"` | Content rendered when no items match the query.                                                       |
 | `disabled`       | `boolean`                                                       | `false`        | Disable all interaction.                                                                              |
 | `open`           | `boolean`                                                       | -              | Controlled popover open state.                                                                        |
