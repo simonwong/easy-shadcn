@@ -98,6 +98,7 @@
       "title": "Integrated Calendar",
       "description": "Calendar with three-view month/year navigation (days / months / years), replacing the native dropdowns with button-grid panels.",
       "registryDependencies": ["calendar", "button"],
+      "dependencies": ["@hugeicons/core-free-icons", "@hugeicons/react"],
       "files": [
         {
           "path": "registry/ui/calendar.tsx",
@@ -117,6 +118,7 @@
         "input",
         "@easy-shadcn/calendar"
       ],
+      "dependencies": ["date-fns", "react-day-picker"],
       "files": [
         {
           "path": "registry/ui/date-picker.tsx",
@@ -177,7 +179,12 @@
       "type": "registry:component",
       "title": "Integrated Table",
       "description": "Flat-props Table with columns + dataSource + rowKey, plus loading, empty, caption, function-form rowClassName, and built-in row selection (controlled / uncontrolled, with per-row gating and indeterminate select-all).",
-      "registryDependencies": ["table", "checkbox"],
+      "registryDependencies": ["table"],
+      "dependencies": [
+        "@base-ui/react",
+        "@hugeicons/core-free-icons",
+        "@hugeicons/react"
+      ],
       "files": [
         {
           "path": "registry/ui/table.tsx",

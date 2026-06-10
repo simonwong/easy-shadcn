@@ -8,7 +8,9 @@
     "@hugeicons/core-free-icons",
     "@hugeicons/react"
   ],
-  "registryDependencies": ["table"],
+  "registryDependencies": [
+    "table"
+  ],
   "files": [
     {
       "path": "registry/ui/table.tsx",
