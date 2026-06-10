@@ -3,7 +3,9 @@
   "name": "use-select-loader",
   "title": "useSelectLoader",
   "description": "Async items loader for Select: eager load-once or server-side filter modes, with AbortController, debounce, and a selected-item cache so chip labels survive across refetches.",
-  "registryDependencies": ["@easy-shadcn/use-select-items"],
+  "registryDependencies": [
+    "@easy-shadcn/use-select-items"
+  ],
   "files": [
     {
       "path": "registry/hooks/use-select-loader.ts",
