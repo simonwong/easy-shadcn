@@ -24,6 +24,10 @@ export type CalendarView = "days" | "months" | "years";
 const MONTH_INDICES = Array.from({ length: 12 }, (_, i) => i);
 const DECADE_SIZE = 10;
 
+function toMonthIndex(date: Date) {
+  return date.getFullYear() * 12 + date.getMonth();
+}
+
 type CalendarPrimitiveProps = React.ComponentProps<typeof CalendarPrimitive>;
 
 export type CalendarProps = CalendarPrimitiveProps & {
@@ -40,6 +44,8 @@ type CaptionCtxValue = {
   setViewForIndex: (index: number, view: CalendarView) => void;
   startYear: number;
   endYear: number;
+  startMonth?: Date;
+  endMonth?: Date;
   currentMonth: Date;
   handleMonthChange: (date: Date) => void;
   monthsClassName?: ClassValue;
@@ -50,16 +56,19 @@ const CaptionCtx = createContext<CaptionCtxValue | null>(null);
 const MonthIndexCtx = createContext<number>(0);
 
 function NavButton({
+  "aria-label": ariaLabel,
   direction,
   disabled,
   onClick,
 }: {
+  "aria-label": string;
   direction: "left" | "right";
   disabled?: boolean;
   onClick: () => void;
 }) {
   return (
     <Button
+      aria-label={ariaLabel}
       disabled={disabled}
       onClick={onClick}
       size="icon-sm"
@@ -114,7 +123,26 @@ function MonthCaption({ calendarMonth, displayIndex }: MonthCaptionProps) {
     if (next < ctx.startYear || next > ctx.endYear) {
       return;
     }
-    ctx.handleMonthChange(new Date(next, mo - displayIndex, 1));
+    let nextPanelMonth = new Date(next, mo, 1);
+    if (
+      ctx.startMonth &&
+      toMonthIndex(nextPanelMonth) < toMonthIndex(ctx.startMonth)
+    ) {
+      nextPanelMonth = ctx.startMonth;
+    }
+    if (
+      ctx.endMonth &&
+      toMonthIndex(nextPanelMonth) > toMonthIndex(ctx.endMonth)
+    ) {
+      nextPanelMonth = ctx.endMonth;
+    }
+    ctx.handleMonthChange(
+      new Date(
+        nextPanelMonth.getFullYear(),
+        nextPanelMonth.getMonth() - displayIndex,
+        1
+      )
+    );
   };
 
   const changeDecade = (delta: number) => {
@@ -128,6 +156,7 @@ function MonthCaption({ calendarMonth, displayIndex }: MonthCaptionProps) {
     content = (
       <>
         <NavButton
+          aria-label="Previous year"
           direction="left"
           disabled={yr <= ctx.startYear}
           onClick={() => changeYear(-1)}
@@ -141,6 +170,7 @@ function MonthCaption({ calendarMonth, displayIndex }: MonthCaptionProps) {
           {format(new Date(yr, 0, 1), "yyyy", fmtLocale)}
         </Button>
         <NavButton
+          aria-label="Next year"
           direction="right"
           disabled={yr >= ctx.endYear}
           onClick={() => changeYear(1)}
@@ -151,6 +181,7 @@ function MonthCaption({ calendarMonth, displayIndex }: MonthCaptionProps) {
     content = (
       <>
         <NavButton
+          aria-label="Previous decade"
           direction="left"
           disabled={decadeStart - DECADE_SIZE < ctx.startYear}
           onClick={() => changeDecade(-1)}
@@ -159,6 +190,7 @@ function MonthCaption({ calendarMonth, displayIndex }: MonthCaptionProps) {
           {decadeStart} – {decadeStart + DECADE_SIZE - 1}
         </span>
         <NavButton
+          aria-label="Next decade"
           direction="right"
           disabled={decadeStart + DECADE_SIZE * 2 > ctx.endYear}
           onClick={() => changeDecade(1)}
@@ -228,7 +260,23 @@ function MonthGrid({
   const fmtLocale = { locale: ctx.locale as DateFnsLocale };
 
   const setView = (v: CalendarView) => ctx.setViewForIndex(displayIndex, v);
+  const isMonthDisabled = (m: number) => {
+    const value = toMonthIndex(new Date(yr, m, 1));
+    const min = ctx.startMonth && toMonthIndex(ctx.startMonth);
+    const max = ctx.endMonth && toMonthIndex(ctx.endMonth);
+
+    if (min !== undefined && value < min) {
+      return true;
+    }
+    if (max !== undefined && value > max) {
+      return true;
+    }
+    return false;
+  };
   const selectMonth = (m: number) => {
+    if (isMonthDisabled(m)) {
+      return;
+    }
     ctx.handleMonthChange(new Date(yr, m - displayIndex, 1));
     setView("days");
   };
@@ -250,13 +298,18 @@ function MonthGrid({
       >
         {MONTH_INDICES.map((m) => {
           const label = format(new Date(yr, m, 1), "MMM", fmtLocale);
+          const isCurrent = m === mo;
+          const isDisabled = isMonthDisabled(m);
           return (
             <Button
+              aria-selected={isCurrent}
               className="h-8"
+              disabled={isDisabled}
               key={m}
               onClick={() => selectMonth(m)}
+              role="option"
               size="sm"
-              variant={m === mo ? "default" : "ghost"}
+              variant={isCurrent ? "default" : "ghost"}
             >
               {label}
             </Button>
@@ -287,10 +340,12 @@ function MonthGrid({
         const isDisabled = y < ctx.startYear || y > ctx.endYear;
         return (
           <Button
+            aria-selected={isCurrent}
             className={cn("h-8", isOutside && "text-muted-foreground")}
             disabled={isDisabled}
             key={y}
             onClick={() => selectYear(y)}
+            role="option"
             size="sm"
             variant={isCurrent ? "default" : "ghost"}
           >
@@ -360,10 +415,12 @@ export const Calendar = (props: CalendarProps) => {
       value={{
         currentMonth,
         endYear,
+        endMonth,
         handleMonthChange,
         locale,
         monthsClassName,
         setViewForIndex,
+        startMonth,
         startYear,
         views,
         yearsClassName,

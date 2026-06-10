@@ -67,7 +67,12 @@ const [range, setRange] = useState<DateRange>()
 Enables a text input alongside the calendar trigger. Users can type a date string in the configured `format` and commit it with Enter or blur. Invalid input silently reverts to the last valid value.
 
 ```tsx
-<DatePicker withInput value={date} onChange={setDate} />
+<DatePicker
+  format="yyyy-MM-dd"
+  withInput
+  value={date}
+  onChange={setDate}
+/>
 ```
 
 ## Props
@@ -104,5 +109,5 @@ Enables a text input alongside the calendar trigger. Users can type a date strin
 - **Auto-close behavior.** In single mode the popover auto-closes after a date is picked. In multiple and range modes the popover stays open and the user closes it by clicking outside.
 - **`withInput` anchor.** When `withInput` is enabled, the popover is anchored to the surrounding `<Input />` wrapper rather than the small calendar-icon button, so the calendar floats directly below the input.
 - **Invalid input.** When `withInput` is enabled, blurring the input with an unparseable string silently reverts to the last valid display value. There is no inline error UI by design — wrap the component with your own field state if you need validation messaging.
-- **Controlled vs uncontrolled.** `value === undefined` is the controlled-mode detector, matching the convention used by `Modal`. Passing `value={undefined}` keeps the component in controlled mode rather than silently switching to uncontrolled.
+- **Controlled vs uncontrolled.** Passing a `value` prop makes the component controlled, including `value={undefined}` for an empty controlled field.
 - **Localization.** Pass `locale` (a `date-fns` `Locale`) to localize both the formatted display string (for tokens like `"PPP"`) and the weekday / month labels rendered by the Calendar.

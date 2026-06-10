@@ -10,6 +10,7 @@
 
 | 更新日期 | 规格 | 说明 |
 | --- | --- | --- |
+| 2026-06-10 | [Date Picker](./2026-06-10-date-picker.md) | Compose Date Picker 的模式、输入提交、受控状态与 Calendar 集成契约 |
 | 2026-06-02 | [Select](./2026-06-02-select.md) | Compose Select 的模式、状态、clearable 与远程加载契约 |
 
 ---
