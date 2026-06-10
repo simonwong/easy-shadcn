@@ -9,7 +9,12 @@ import {
   it,
   vi,
 } from "vitest";
-import { defineColumns, Table, type TableColumn } from "./table";
+import {
+  defineColumns,
+  Table,
+  type TableCheckboxProps,
+  type TableColumn,
+} from "./table";
 
 interface User {
   age: number;
@@ -34,6 +39,7 @@ const NO_NAME_RE = /No accessible name/;
 const BOTH_SELECTED_RE = /Both `selectedRowKeys`/;
 const NULLISH_KEY_RE = /resolved to null or undefined/;
 const SYMBOL_KEY_RE = /resolved to a Symbol/;
+const INVALID_KEY_RE = /resolved to a non-string \/ non-number value/;
 const CONTROLLED_SWITCH_RE = /switched from .* to /;
 
 function getBodyRows() {
@@ -311,6 +317,78 @@ describe("Table", () => {
     expect(after[3].getAttribute("aria-checked")).toBe("true");
   });
 
+  it("selection props are inert when selectable is false", () => {
+    const getCheckboxProps = vi.fn();
+    const { container } = render(
+      <Table
+        caption="Members"
+        columns={BASIC_COLUMNS}
+        dataSource={USERS}
+        getCheckboxProps={getCheckboxProps}
+        rowKey="id"
+        selectedRowKeys={["u1"]}
+      />
+    );
+    expect(getCheckboxProps).not.toHaveBeenCalled();
+    expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
+    expect(container.querySelector('[data-state="selected"]')).toBeNull();
+  });
+
+  it("selection: select-all preserves keys absent from the current dataSource", () => {
+    const onChange = vi.fn();
+    function Harness() {
+      const [keys, setKeys] = useState<string[]>(["u1", "missing"]);
+      return (
+        <Table
+          caption="Members"
+          columns={BASIC_COLUMNS}
+          dataSource={USERS}
+          onSelectedRowKeysChange={(nextKeys, rows) => {
+            onChange(nextKeys, rows);
+            setKeys(nextKeys);
+          }}
+          rowKey="id"
+          selectable
+          selectedRowKeys={keys}
+        />
+      );
+    }
+    render(<Harness />);
+    const header = () => screen.getAllByRole("checkbox")[0];
+    fireEvent.click(header());
+    expect(onChange).toHaveBeenLastCalledWith(
+      ["u1", "u2", "u3", "missing"],
+      USERS
+    );
+    fireEvent.click(header());
+    expect(onChange).toHaveBeenLastCalledWith(["missing"], []);
+  });
+
+  it("selection: select-all preserves selected disabled visible rows", () => {
+    const onChange = vi.fn();
+    function Harness() {
+      const [keys, setKeys] = useState<string[]>(["u1", "u2", "u3"]);
+      return (
+        <Table
+          caption="Members"
+          columns={BASIC_COLUMNS}
+          dataSource={USERS}
+          getCheckboxProps={(record) => ({ disabled: record.id === "u1" })}
+          onSelectedRowKeysChange={(nextKeys, rows) => {
+            onChange(nextKeys, rows);
+            setKeys(nextKeys);
+          }}
+          rowKey="id"
+          selectable
+          selectedRowKeys={keys}
+        />
+      );
+    }
+    render(<Harness />);
+    fireEvent.click(screen.getAllByRole("checkbox")[0]);
+    expect(onChange).toHaveBeenLastCalledWith(["u1"], [USERS[0]]);
+  });
+
   // ---------------------------------------------------------------------------
   // isRowSelectable gate
   // ---------------------------------------------------------------------------
@@ -507,12 +585,17 @@ describe("Table", () => {
   // ---------------------------------------------------------------------------
 
   describe("duplicate rowKey warning", () => {
+    let errorSpy: ReturnType<typeof vi.spyOn>;
     let warnSpy: ReturnType<typeof vi.spyOn>;
     beforeEach(() => {
+      vi.stubEnv("NODE_ENV", "development");
+      errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
       warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     });
     afterEach(() => {
+      errorSpy.mockRestore();
       warnSpy.mockRestore();
+      vi.unstubAllEnvs();
     });
 
     const countCallsMatching = (re: RegExp) =>
@@ -687,6 +770,68 @@ describe("Table", () => {
       // @ts-expect-error — "nope" is not keyof User
       { dataIndex: "nope", key: "x", title: "X" },
     ]);
+  });
+
+  it("type: rowKey field form only accepts string/number fields", () => {
+    interface Row {
+      id: string;
+      meta: { id: string };
+      name: string;
+      optionalId?: number;
+    }
+
+    render(
+      <Table
+        caption="Rows"
+        columns={[{ dataIndex: "name", key: "name", title: "Name" }]}
+        dataSource={[] as Row[]}
+        rowKey="optionalId"
+      />
+    );
+
+    render(
+      <Table
+        caption="Rows"
+        columns={[{ dataIndex: "name", key: "name", title: "Name" }]}
+        dataSource={[] as Row[]}
+        // @ts-expect-error — object fields stringify to "[object Object]".
+        rowKey="meta"
+      />
+    );
+  });
+
+  it("type: non-renderable dataIndex fields require render", () => {
+    interface Row {
+      createdAt: Date;
+      id: string;
+      name: string;
+    }
+
+    defineColumns<Row>()([
+      // @ts-expect-error — Date is not directly renderable as ReactNode.
+      { dataIndex: "createdAt", key: "createdAt", title: "Created" },
+      {
+        dataIndex: "createdAt",
+        key: "createdAtFormatted",
+        render: (value) => value.toISOString(),
+        title: "Created",
+      },
+      { dataIndex: "name", key: "name", title: "Name" },
+    ]);
+  });
+
+  it("type: getCheckboxProps cannot control checkbox state", () => {
+    const ok: Partial<TableCheckboxProps> = {
+      "aria-label": "Select Ada",
+      disabled: true,
+    };
+    expect(ok.disabled).toBe(true);
+
+    const bad: Partial<TableCheckboxProps> = {
+      // @ts-expect-error — Table owns row checkbox checked state.
+      checked: true,
+    };
+    expect(bad).toBeTruthy();
   });
 
   // ---------------------------------------------------------------------------
@@ -903,6 +1048,7 @@ describe("Table", () => {
   it("getCheckboxProps: arbitrary props (data-*, aria-*) pass through to the row Checkbox", () => {
     const { container } = render(
       <Table
+        caption="Members"
         columns={BASIC_COLUMNS}
         dataSource={USERS}
         getCheckboxProps={(r) => ({
@@ -923,12 +1069,15 @@ describe("Table", () => {
     const onChange = vi.fn();
     render(
       <Table
+        caption="Members"
         columns={BASIC_COLUMNS}
         dataSource={USERS}
-        getCheckboxProps={() => ({
-          checked: true,
-          onCheckedChange: externalOnChange,
-        })}
+        getCheckboxProps={() =>
+          ({
+            checked: true,
+            onCheckedChange: externalOnChange,
+          }) as never
+        }
         onSelectedRowKeysChange={onChange}
         rowKey="id"
         selectable
@@ -942,6 +1091,33 @@ describe("Table", () => {
     // Table's own handler fired; external one did not.
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(externalOnChange).not.toHaveBeenCalled();
+  });
+
+  it("getCheckboxProps: external indeterminate/defaultChecked/children are ignored", () => {
+    const { container } = render(
+      <Table
+        caption="Members"
+        columns={BASIC_COLUMNS}
+        dataSource={USERS}
+        getCheckboxProps={() =>
+          ({
+            children: <span data-child="forced">forced</span>,
+            defaultChecked: true,
+            indeterminate: true,
+          }) as never
+        }
+        rowKey="id"
+        selectable
+      />
+    );
+    const firstCheckbox = screen.getAllByRole("checkbox")[1];
+    expect(firstCheckbox.getAttribute("aria-checked")).toBe("false");
+    expect(
+      container.querySelector(
+        '[data-slot="easy-table-selection-cell"] [data-icon]'
+      )
+    ).toBeNull();
+    expect(container.querySelector("[data-child='forced']")).toBeNull();
   });
 
   // ---------------------------------------------------------------------------
@@ -966,6 +1142,44 @@ describe("Table", () => {
     expect(rows[1].getAttribute("tabindex")).toBe("0");
     fireEvent.click(rows[1]);
     expect(onRowClick).toHaveBeenCalledTimes(1);
+    expect(onRowClick).toHaveBeenCalledWith(USERS[1], 1);
+  });
+
+  it("onRowClick: interactive descendants inside normal cells do not activate the row", () => {
+    const onButtonClick = vi.fn();
+    const onRowClick = vi.fn();
+    const columns = defineColumns<User>()([
+      { dataIndex: "name", key: "name", title: "Name" },
+      {
+        key: "action",
+        render: (_value, record) => (
+          <button onClick={() => onButtonClick(record.id)} type="button">
+            Edit {record.name}
+          </button>
+        ),
+        title: "Action",
+      },
+    ]);
+    render(
+      <Table
+        caption="Members"
+        columns={columns}
+        dataSource={USERS}
+        onRowClick={onRowClick}
+        rowKey="id"
+      />
+    );
+
+    const button = screen.getByRole("button", { name: "Edit Ada" });
+    fireEvent.click(button);
+    expect(onButtonClick).toHaveBeenCalledWith("u1");
+    expect(onRowClick).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(button, { key: "Enter" });
+    fireEvent.keyDown(button, { key: " " });
+    expect(onRowClick).not.toHaveBeenCalled();
+
+    fireEvent.click(getBodyRows()[1]);
     expect(onRowClick).toHaveBeenCalledWith(USERS[1], 1);
   });
 
@@ -1074,10 +1288,9 @@ describe("Table", () => {
   it("dataSource: null/undefined treated as empty array at runtime", () => {
     const { rerender } = render(
       <Table
+        caption="Rows"
         columns={BASIC_COLUMNS}
-        // Cast through unknown — TS would otherwise reject `null` per the
-        // signature; we still want runtime to survive accidental `null`.
-        dataSource={null as unknown as User[]}
+        dataSource={null}
         emptyMessage="EMPTY"
         rowKey="id"
       />
@@ -1086,8 +1299,8 @@ describe("Table", () => {
     // `undefined` is the more common SWR / React Query pre-fetch shape.
     rerender(
       <Table
+        caption="Rows"
         columns={BASIC_COLUMNS}
-        dataSource={undefined as unknown as User[]}
         emptyMessage="EMPTY"
         rowKey="id"
       />
@@ -1126,7 +1339,24 @@ describe("Table", () => {
     );
   });
 
-  it("a11y: loading and empty cells carry role=status for SR announcement", () => {
+  it("a11y: managed table attrs are not overridden by passthrough props", () => {
+    const { container } = render(
+      <Table
+        aria-busy={false}
+        caption="Tasks"
+        columns={BASIC_COLUMNS}
+        data-slot="consumer-table"
+        dataSource={[]}
+        loading
+        rowKey="id"
+      />
+    );
+    const table = container.querySelector("table");
+    expect(table?.getAttribute("aria-busy")).toBe("true");
+    expect(table?.getAttribute("data-slot")).toBe("easy-table");
+  });
+
+  it("a11y: loading and empty cells contain role=status for SR announcement", () => {
     const { container, rerender } = render(
       <Table
         caption="Tasks"
@@ -1136,8 +1366,10 @@ describe("Table", () => {
         rowKey="id"
       />
     );
-    const emptyCell = container.querySelector("tbody td[role='status']");
-    expect(emptyCell?.textContent).toBe("EMPTY");
+    const emptyCell = container.querySelector("tbody td");
+    const emptyStatus = within(emptyCell as HTMLElement).getByRole("status");
+    expect(emptyCell?.getAttribute("role")).toBeNull();
+    expect(emptyStatus.textContent).toBe("EMPTY");
     rerender(
       <Table
         caption="Tasks"
@@ -1148,8 +1380,12 @@ describe("Table", () => {
         rowKey="id"
       />
     );
-    const loadingCell = container.querySelector("tbody td[role='status']");
-    expect(loadingCell?.textContent).toBe("LOADING");
+    const loadingCell = container.querySelector("tbody td");
+    const loadingStatus = within(loadingCell as HTMLElement).getByRole(
+      "status"
+    );
+    expect(loadingCell?.getAttribute("role")).toBeNull();
+    expect(loadingStatus.textContent).toBe("LOADING");
   });
 
   it("a11y: selection <th> renders an SR-only column label", () => {
@@ -1207,10 +1443,12 @@ describe("Table", () => {
   describe("dev warnings: nameless table + controlled/default conflict", () => {
     let warnSpy: ReturnType<typeof vi.spyOn>;
     beforeEach(() => {
+      vi.stubEnv("NODE_ENV", "development");
       warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     });
     afterEach(() => {
       warnSpy.mockRestore();
+      vi.unstubAllEnvs();
     });
 
     const callsMatching = (re: RegExp) =>
@@ -1275,10 +1513,12 @@ describe("Table", () => {
   describe("rowKey value diagnostics (round 5)", () => {
     let warnSpy: ReturnType<typeof vi.spyOn>;
     beforeEach(() => {
+      vi.stubEnv("NODE_ENV", "development");
       warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     });
     afterEach(() => {
       warnSpy.mockRestore();
+      vi.unstubAllEnvs();
     });
 
     const callsMatching = (re: RegExp) =>
@@ -1313,20 +1553,39 @@ describe("Table", () => {
           caption="Diag"
           columns={[{ dataIndex: "name", key: "name", title: "Name" }]}
           dataSource={rows}
-          rowKey="id"
+          rowKey={(record) => record.id as unknown as string}
         />
       );
       expect(callsMatching(SYMBOL_KEY_RE)).toBe(1);
     });
+
+    it("warns when rowKey resolves to a non-string / non-number value at runtime", () => {
+      type Rec = { id: { value: string }; name: string };
+      const rows: Rec[] = [{ id: { value: "u1" }, name: "A" }];
+      render(
+        <Table
+          caption="Diag"
+          columns={[{ dataIndex: "name", key: "name", title: "Name" }]}
+          dataSource={rows}
+          rowKey={(record) => record.id as unknown as string}
+        />
+      );
+      expect(callsMatching(INVALID_KEY_RE)).toBe(1);
+    });
   });
 
   describe("column key dedupe (round 5)", () => {
+    let errorSpy: ReturnType<typeof vi.spyOn>;
     let warnSpy: ReturnType<typeof vi.spyOn>;
     beforeEach(() => {
+      vi.stubEnv("NODE_ENV", "development");
+      errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
       warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     });
     afterEach(() => {
+      errorSpy.mockRestore();
       warnSpy.mockRestore();
+      vi.unstubAllEnvs();
     });
 
     const callsMatching = (re: RegExp) =>
@@ -1364,10 +1623,12 @@ describe("Table", () => {
   describe("controlled / uncontrolled switch (round 5)", () => {
     let warnSpy: ReturnType<typeof vi.spyOn>;
     beforeEach(() => {
+      vi.stubEnv("NODE_ENV", "development");
       warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     });
     afterEach(() => {
       warnSpy.mockRestore();
+      vi.unstubAllEnvs();
     });
 
     const callsMatching = (re: RegExp) =>

@@ -46,11 +46,18 @@ interface TableColumnBase {
   width?: number | string;
 }
 
+type TableColumnRender<T, K extends keyof T> = (
+  value: T[K],
+  record: T,
+  index: number
+) => React.ReactNode;
+
 /** Column with a `dataIndex` — `render` receives the narrowed field value. */
 export type TableColumnWithData<T, K extends keyof T> = TableColumnBase & {
   dataIndex: K;
-  render?: (value: T[K], record: T, index: number) => React.ReactNode;
-};
+} & (T[K] extends React.ReactNode
+    ? { render?: TableColumnRender<T, K> }
+    : { render: TableColumnRender<T, K> });
 
 /** Column without `dataIndex` — `render` receives `undefined` for the value. */
 export type TableColumnWithoutData<T> = TableColumnBase & {
@@ -95,7 +102,15 @@ export function defineColumns<T>() {
   ): MutableTuple<Cs> => cs as unknown as MutableTuple<Cs>;
 }
 
-export type RowKey<T> = keyof T | ((record: T, index: number) => string);
+type RowKeyValue = string | number;
+
+type RowKeyField<T> = {
+  [K in keyof T]-?: NonNullable<T[K]> extends RowKeyValue ? K : never;
+}[keyof T];
+
+export type RowKey<T> =
+  | RowKeyField<T>
+  | ((record: T, index: number) => RowKeyValue);
 
 // ---------------------------------------------------------------------------
 // Internal selection checkbox — built directly on base-ui Checkbox primitive
@@ -111,6 +126,41 @@ export type RowKey<T> = keyof T | ((record: T, index: number) => string);
 // ---------------------------------------------------------------------------
 
 type SelectionCheckboxProps = ComponentProps<typeof CheckboxPrimitive.Root>;
+
+export type TableCheckboxProps = Omit<
+  SelectionCheckboxProps,
+  | "checked"
+  | "children"
+  | "defaultChecked"
+  | "indeterminate"
+  | "onCheckedChange"
+>;
+
+const ROW_INTERACTIVE_SELECTOR = [
+  "a[href]",
+  "button",
+  "input",
+  "select",
+  "textarea",
+  "summary",
+  '[contenteditable=""]',
+  '[contenteditable="true"]',
+  '[role="button"]',
+  '[role="checkbox"]',
+  '[role="link"]',
+  '[role="menuitem"]',
+].join(",");
+
+function isFromInteractiveDescendant(
+  currentTarget: HTMLElement,
+  target: EventTarget | null
+): boolean {
+  if (!(target instanceof Element) || target === currentTarget) {
+    return false;
+  }
+  const interactive = target.closest(ROW_INTERACTIVE_SELECTOR);
+  return Boolean(interactive && currentTarget.contains(interactive));
+}
 
 function SelectionCheckbox({
   className,
@@ -167,10 +217,9 @@ export interface TableProps<T>
   columns: TableColumn<T>[];
   /**
    * Data rows. Internally treated as `[]` when `null` / `undefined` are passed,
-   * so `data ?? []` is recommended for SWR / React Query users — and forgetting
-   * the fallback won't crash.
+   * so SWR / React Query's pre-response state can be passed directly.
    */
-  dataSource: T[];
+  dataSource?: T[] | null;
   /** Uncontrolled initial selected keys. */
   defaultSelectedRowKeys?: string[];
   /** className on the empty-state cell. */
@@ -182,9 +231,9 @@ export interface TableProps<T>
    *
    * NOTE: `getCheckboxProps` is an explicit exception to AGENTS.md's "no
    * xxxProps" rule — approved by the user for Antd parity. The returned
-   * `checked` and `onCheckedChange` are always overridden by the Table so
-   * external props can't desync the selection state. `disabled: true` excludes
-   * the row from the header "select all" tally.
+   * checkbox state props are owned by the Table so external props can't desync
+   * the selection state. `disabled: true` excludes the row from the header
+   * "select all" tally.
    *
    * Keep this function pure and non-throwing — it's invoked for every row on
    * every render. Throwing here unmounts the surrounding tree (error boundary
@@ -194,10 +243,7 @@ export interface TableProps<T>
    * hear meaningful text instead of the opaque row key. The Table's default
    * (`Select row {key}`) only fires when you don't supply one.
    */
-  getCheckboxProps?: (
-    record: T,
-    index: number
-  ) => Partial<SelectionCheckboxProps>;
+  getCheckboxProps?: (record: T, index: number) => Partial<TableCheckboxProps>;
 
   /** className on `<thead>`. */
   headerClassName?: ClassValue;
@@ -212,9 +258,8 @@ export interface TableProps<T>
   /**
    * Click handler for each `<tr>`. When provided, rows become focusable
    * (`tabIndex=0`, native `role="row"` preserved) and respond to Enter / Space.
-   * Clicks that originate inside the selection cell do not bubble through.
-   * Interactive elements inside cells (Button, Link) still bubble — call
-   * `event.stopPropagation()` from their own handlers if needed.
+   * Clicks / key presses that originate inside interactive descendants or the
+   * selection cell do not bubble through to row activation.
    */
   onRowClick?: (record: T, index: number) => void;
   /**
@@ -247,14 +292,28 @@ export interface TableProps<T>
 
 /**
  * Diagnostic shape returned alongside the stringified key. `kind` is set when
- * the raw `rowKey` value would produce a meaningless / corrupted string
- * (`String(Symbol())` actually throws, `null`/`undefined` both stringify to
- * `"null"` / `"undefined"` and collide silently).
+ * the raw `rowKey` value would produce a meaningless / corrupted string.
  */
 type ResolvedKey = {
   key: string;
-  diagnostic: "nullish" | "symbol" | null;
+  diagnostic: "invalid" | "nullish" | "symbol" | null;
 };
+
+function stringifyRowKey(raw: unknown): ResolvedKey {
+  if (raw == null) {
+    return { diagnostic: "nullish", key: String(raw) };
+  }
+  if (typeof raw === "string" || typeof raw === "number") {
+    return { diagnostic: null, key: String(raw) };
+  }
+  if (typeof raw === "symbol") {
+    // Calling String() on a Symbol coerces it (`"Symbol(foo)"`) without
+    // throwing — but symbol-valued keys still defeat both equality checks and
+    // form submission. Surface them.
+    return { diagnostic: "symbol", key: raw.toString() };
+  }
+  return { diagnostic: "invalid", key: String(raw) };
+}
 
 function resolveRowKey<T>(
   record: T,
@@ -262,19 +321,9 @@ function resolveRowKey<T>(
   rowKey: RowKey<T>
 ): ResolvedKey {
   if (typeof rowKey === "function") {
-    return { diagnostic: null, key: rowKey(record, index) };
+    return stringifyRowKey(rowKey(record, index));
   }
-  const raw = record[rowKey];
-  if (raw == null) {
-    return { diagnostic: "nullish", key: String(raw) };
-  }
-  if (typeof raw === "symbol") {
-    // Calling String() on a Symbol coerces it (`"Symbol(foo)"`) without
-    // throwing — but symbol-valued keys still defeat both equality checks and
-    // form submission. Surface them.
-    return { diagnostic: "symbol", key: (raw as symbol).toString() };
-  }
-  return { diagnostic: null, key: String(raw) };
+  return stringifyRowKey(record[rowKey]);
 }
 
 function alignClass(align: TableColumnBase["align"]): string | undefined {
@@ -315,6 +364,12 @@ function hasAccessibleName(
   return true;
 }
 
+function shouldEmitDevWarnings(): boolean {
+  return (
+    process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test"
+  );
+}
+
 export function Table<T>({
   columns,
   dataSource,
@@ -351,45 +406,57 @@ export function Table<T>({
   const currentSelected = isSelectionControlled
     ? (selectedRowKeys as string[])
     : internalSelected;
+  const selectedKeySet = new Set(currentSelected);
 
-  // React Compiler is enabled (next.config.ts) — we trust it for memoization
-  // rather than hand-wrapping every derived value in useMemo / useCallback,
-  // which only created false-confidence cache (e.g. `getCheckboxProps` changes
-  // identity on every parent render, busting the rowMeta memo anyway).
-  //
-  // Track diagnostics as primitive flags (not an array) so they're stable for
-  // the dev-warning useEffect's dependency comparison.
+  // Keep derived state as explicit linear passes. `getCheckboxProps` can change
+  // identity on every parent render, so broad useMemo wrappers add complexity
+  // without a reliable cache hit.
+  const selectionEnabled = Boolean(selectable);
+  let sawInvalidKey = false;
   let sawNullishKey = false;
   let sawSymbolKey = false;
   const rowMeta = data.map((record, index) => {
     const resolved = resolveRowKey(record, index, rowKey);
-    if (resolved.diagnostic === "nullish") {
+    if (resolved.diagnostic === "invalid") {
+      sawInvalidKey = true;
+    } else if (resolved.diagnostic === "nullish") {
       sawNullishKey = true;
     } else if (resolved.diagnostic === "symbol") {
       sawSymbolKey = true;
     }
-    const checkboxProps = getCheckboxProps
-      ? getCheckboxProps(record, index)
-      : {};
+    const checkboxProps =
+      selectionEnabled && getCheckboxProps
+        ? getCheckboxProps(record, index)
+        : {};
     return {
       checkboxProps,
       index,
       key: resolved.key,
       record,
-      selected: currentSelected.includes(resolved.key),
+      selected: selectionEnabled && selectedKeySet.has(resolved.key),
     };
   });
 
   // Map for O(1) "is this key still in rowMeta?" lookups in handleToggleAll.
   // Walks rowMeta once; replaces the previous `Array.prototype.find` loop
   // which was O(N²) at scale.
-  const metaByKey = new Map(rowMeta.map((m) => [m.key, m]));
+  const metaByKey = new Map<string, (typeof rowMeta)[number]>();
+  for (const meta of rowMeta) {
+    metaByKey.set(meta.key, meta);
+  }
 
-  const selectableRows = rowMeta.filter((r) => !r.checkboxProps.disabled);
+  const selectableRows: typeof rowMeta = [];
+  let selectedSelectableCount = 0;
+  for (const meta of rowMeta) {
+    if (meta.checkboxProps.disabled) {
+      continue;
+    }
+    selectableRows.push(meta);
+    if (meta.selected) {
+      selectedSelectableCount++;
+    }
+  }
   const selectableCount = selectableRows.length;
-  const selectedSelectableCount = selectableRows.filter(
-    (r) => r.selected
-  ).length;
 
   const allSelected =
     selectableCount > 0 && selectedSelectableCount === selectableCount;
@@ -412,7 +479,7 @@ export function Table<T>({
         seen.add(m.key);
       }
     }
-    return Array.from(dupes).sort().join(" ");
+    return JSON.stringify(Array.from(dupes).sort());
   })();
 
   // Fingerprint of duplicate column keys — same pattern.
@@ -429,16 +496,16 @@ export function Table<T>({
     if (dupes.size === 0) {
       return null;
     }
-    return Array.from(dupes).sort().join(" ");
+    return JSON.stringify(Array.from(dupes).sort());
   })();
 
   // ---- Dev-only warnings ----
   // Each warn lives in its own useEffect so the dependency list stays
   // honest (no over-running, no false silence) and the function complexity
-  // stays low. All are stripped in production by the env guard.
+  // stays low. They are only emitted in real development builds, not tests.
   const dupKeyWarnedRef = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
+    if (!shouldEmitDevWarnings()) {
       return;
     }
     if (
@@ -454,7 +521,7 @@ export function Table<T>({
 
   const dupColKeyWarnedRef = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
+    if (!shouldEmitDevWarnings()) {
       return;
     }
     if (
@@ -470,7 +537,7 @@ export function Table<T>({
 
   const nullishKeyWarnedRef = useRef(false);
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
+    if (!shouldEmitDevWarnings()) {
       return;
     }
     if (!nullishKeyWarnedRef.current && sawNullishKey) {
@@ -483,7 +550,7 @@ export function Table<T>({
 
   const symbolKeyWarnedRef = useRef(false);
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
+    if (!shouldEmitDevWarnings()) {
       return;
     }
     if (!symbolKeyWarnedRef.current && sawSymbolKey) {
@@ -494,9 +561,22 @@ export function Table<T>({
     }
   }, [sawSymbolKey]);
 
+  const invalidKeyWarnedRef = useRef(false);
+  useEffect(() => {
+    if (!shouldEmitDevWarnings()) {
+      return;
+    }
+    if (!invalidKeyWarnedRef.current && sawInvalidKey) {
+      invalidKeyWarnedRef.current = true;
+      console.warn(
+        "[Table] `rowKey` resolved to a non-string / non-number value on at least one row. Use a stable string or number identifier."
+      );
+    }
+  }, [sawInvalidKey]);
+
   const controlledDefaultWarnedRef = useRef(false);
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
+    if (!shouldEmitDevWarnings()) {
       return;
     }
     if (
@@ -516,7 +596,7 @@ export function Table<T>({
   const initialControlledRef = useRef(isSelectionControlled);
   const controlledSwitchWarnedRef = useRef(false);
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
+    if (!shouldEmitDevWarnings()) {
       return;
     }
     if (
@@ -536,7 +616,7 @@ export function Table<T>({
   const ariaLabel = tableProps["aria-label"];
   const ariaLabelledBy = tableProps["aria-labelledby"];
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
+    if (!shouldEmitDevWarnings()) {
       return;
     }
     if (
@@ -600,7 +680,7 @@ export function Table<T>({
 
   const handleToggleRow = (key: string, next: boolean) => {
     if (next) {
-      if (currentSelected.includes(key)) {
+      if (selectedKeySet.has(key)) {
         return;
       }
       emit([...currentSelected, key]);
@@ -609,14 +689,31 @@ export function Table<T>({
     emit(currentSelected.filter((k) => k !== key));
   };
 
-  const colSpan = columns.length + (selectable ? 1 : 0);
+  const colSpan = Math.max(1, columns.length + (selectionEnabled ? 1 : 0));
+
+  const handleRowClick = (
+    event: MouseEvent<HTMLTableRowElement>,
+    record: T,
+    index: number
+  ) => {
+    if (
+      !onRowClick ||
+      isFromInteractiveDescendant(event.currentTarget, event.target)
+    ) {
+      return;
+    }
+    onRowClick(record, index);
+  };
 
   const handleRowKeyDown = (
     event: KeyboardEvent<HTMLTableRowElement>,
     record: T,
     index: number
   ) => {
-    if (!onRowClick) {
+    if (
+      !onRowClick ||
+      isFromInteractiveDescendant(event.currentTarget, event.target)
+    ) {
       return;
     }
     if (event.key === "Enter" || event.key === " ") {
@@ -628,17 +725,17 @@ export function Table<T>({
 
   return (
     <TableRoot
+      {...tableProps}
       aria-busy={loading || undefined}
       className={cn(className)}
       data-slot="easy-table"
-      {...tableProps}
     >
       {caption && (
         <TableCaption className={cn(captionClassName)}>{caption}</TableCaption>
       )}
       <TableHeader className={cn(headerClassName)}>
         <TableRow>
-          {selectable && (
+          {selectionEnabled && (
             <TableHead
               className={cn("w-[1%]", selectionColumnClassName)}
               data-slot="easy-table-selection-head"
@@ -675,30 +772,30 @@ export function Table<T>({
         {loading && (
           <TableRow>
             <TableCell
-              aria-live="polite"
               className={cn(
                 "h-24 text-center text-muted-foreground",
                 loadingClassName
               )}
               colSpan={colSpan}
-              role="status"
             >
-              {loadingMessage}
+              <div aria-live="polite" role="status">
+                {loadingMessage}
+              </div>
             </TableCell>
           </TableRow>
         )}
         {!loading && data.length === 0 && (
           <TableRow>
             <TableCell
-              aria-live="polite"
               className={cn(
                 "h-24 text-center text-muted-foreground",
                 emptyClassName
               )}
               colSpan={colSpan}
-              role="status"
             >
-              {emptyMessage}
+              <div aria-live="polite" role="status">
+                {emptyMessage}
+              </div>
             </TableCell>
           </TableRow>
         )}
@@ -709,14 +806,17 @@ export function Table<T>({
                 ? rowClassName(record, index)
                 : rowClassName;
             const interactive = Boolean(onRowClick);
-            // External `checked` / `onCheckedChange` are intentionally
-            // discarded — Table owns selection state. `aria-label` is left
-            // intact so consumers can override the opaque default below.
+            // External checkbox state props are intentionally discarded — Table
+            // owns selection state. `aria-label` is left intact so consumers can
+            // override the opaque default below.
             const {
               checked: _ignoredChecked,
+              children: _ignoredChildren,
+              defaultChecked: _ignoredDefaultChecked,
+              indeterminate: _ignoredIndeterminate,
               onCheckedChange: _ignoredOnCheckedChange,
               ...passthroughCheckboxProps
-            } = checkboxProps;
+            } = checkboxProps as Partial<SelectionCheckboxProps>;
             return (
               <TableRow
                 className={cn(
@@ -730,20 +830,21 @@ export function Table<T>({
                 data-state={selected ? "selected" : undefined}
                 key={key}
                 onClick={
-                  interactive ? () => onRowClick?.(record, index) : undefined
+                  interactive
+                    ? (e) => handleRowClick(e, record, index)
+                    : undefined
                 }
                 onKeyDown={
                   interactive
                     ? (e) => handleRowKeyDown(e, record, index)
                     : undefined
                 }
-                // Preserve the implicit `role="row"` of <tr> per W3C ARIA APG's
-                // grid pattern — overriding to `role="button"` would strip the
-                // table semantics. Keyboard activation is provided via
-                // `tabIndex` + onKeyDown(Enter/Space).
+                // Preserve the implicit row semantics of <tr>; overriding to
+                // `role="button"` would strip the table structure. Keyboard
+                // activation is provided via tabIndex + onKeyDown(Enter/Space).
                 tabIndex={interactive ? 0 : undefined}
               >
-                {selectable && (
+                {selectionEnabled && (
                   <TableCell
                     className={cn(selectionColumnClassName)}
                     data-slot="easy-table-selection-cell"
