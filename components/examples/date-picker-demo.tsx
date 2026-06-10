@@ -45,9 +45,14 @@ const Demo = () => {
 
       <div className="flex flex-col gap-2">
         <span className="text-muted-foreground text-sm">
-          With input — type a date and press Enter
+          With input (format=&quot;yyyy-MM-dd&quot;)
         </span>
-        <DatePicker onChange={setTyped} value={typed} withInput />
+        <DatePicker
+          format="yyyy-MM-dd"
+          onChange={setTyped}
+          value={typed}
+          withInput
+        />
       </div>
     </div>
   );

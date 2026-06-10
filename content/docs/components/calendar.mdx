@@ -66,4 +66,5 @@ The calendar manages three internal views:
 
 - The month and year caption buttons replace the native `<select>` dropdowns that `react-day-picker` renders with `captionLayout="dropdown"`. This gives a consistent, styled experience across platforms.
 - The year panel defaults to ±100 years from today when `startMonth` / `endMonth` are not provided.
+- `startMonth` / `endMonth` also bound the custom month panel, so out-of-range months are disabled before the day grid is shown.
 - When `numberOfMonths > 1`, clicking any month's caption enters the panel view. After selecting, all months update together.
