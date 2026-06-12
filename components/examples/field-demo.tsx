@@ -20,11 +20,10 @@ const Demo = () => (
   <div className="w-full max-w-md space-y-5">
     <Field
       description="Used for workspace notifications."
-      htmlFor="email"
       label="Email"
       required
     >
-      <Input id="email" placeholder="ada@example.com" type="email" />
+      <Input placeholder="ada@example.com" type="email" />
     </Field>
 
     <Field
@@ -34,16 +33,8 @@ const Demo = () => (
       <Select items={roleItems} placeholder="Pick a role" />
     </Field>
 
-    <Field
-      error="Bio must be at least 20 characters."
-      htmlFor="bio"
-      label="Bio"
-    >
-      <Textarea
-        aria-invalid
-        id="bio"
-        placeholder="Tell the team what this person owns."
-      />
+    <Field error="Bio must be at least 20 characters." label="Bio">
+      <Textarea placeholder="Tell the team what this person owns." />
     </Field>
 
     <Field orientation="horizontal">

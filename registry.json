@@ -36,6 +36,7 @@
       "type": "registry:component",
       "title": "Integrated Field",
       "description": "Flat form-field wrapper for label, control, description, required marker, and validation message patterns.",
+      "dependencies": ["@radix-ui/react-slot"],
       "registryDependencies": ["field"],
       "files": [
         {
