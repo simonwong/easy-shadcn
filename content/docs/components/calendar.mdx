@@ -2,7 +2,7 @@
 title: Calendar
 ---
 
-An enhanced Calendar built on shadcn's `Calendar` primitive (`react-day-picker`). Clicking the month or year label in the caption switches to a button-grid panel for quick navigation — no native `<select>` dropdowns. Supports all DayPicker modes (single, range, multiple) and forwards every DayPicker prop.
+An enhanced Calendar built on shadcn's `Calendar` primitive (`react-day-picker`). Clicking the month or year label in the caption switches to a button-grid panel for quick navigation — no native `<select>` dropdowns. Supports all DayPicker modes (single, range, multiple) and forwards DayPicker props, except the few the panel navigation reserves (see Notes).
 
 <ExamplePreview name="calendar-demo" />
 
@@ -64,6 +64,7 @@ The calendar manages three internal views:
 
 ## Notes
 
+- **Reserved props.** `captionLayout`, `components`, `fixedWeeks`, and `hideNavigation` are managed internally to drive the panel navigation — passing them has no effect. If you need to customize those, use the `components/ui/calendar` primitive directly.
 - The month and year caption buttons replace the native `<select>` dropdowns that `react-day-picker` renders with `captionLayout="dropdown"`. This gives a consistent, styled experience across platforms.
 - The year panel defaults to ±100 years from today when `startMonth` / `endMonth` are not provided.
 - `startMonth` / `endMonth` also bound the custom month panel, so out-of-range months are disabled before the day grid is shown.

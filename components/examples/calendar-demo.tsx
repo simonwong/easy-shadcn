@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { DateRange } from "react-day-picker";
 import { Calendar } from "@/registry/ui/calendar";
 
 const Demo = () => {
@@ -8,6 +9,7 @@ const Demo = () => {
   const [monthsDate, setMonthsDate] = useState<Date | undefined>();
   const [yearsDate, setYearsDate] = useState<Date | undefined>();
   const [multiple, setMultiple] = useState<Date[] | undefined>();
+  const [range, setRange] = useState<DateRange | undefined>();
 
   return (
     <div className="flex flex-col gap-6">
@@ -47,6 +49,13 @@ const Demo = () => {
           Multiple — click multiple days to toggle selection
         </span>
         <Calendar mode="multiple" onSelect={setMultiple} selected={multiple} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-muted-foreground text-sm">
+          Range — pick a start and end day
+        </span>
+        <Calendar mode="range" onSelect={setRange} selected={range} />
       </div>
     </div>
   );
