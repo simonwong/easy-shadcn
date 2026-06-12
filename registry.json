@@ -32,6 +32,20 @@
       ]
     },
     {
+      "name": "field",
+      "type": "registry:component",
+      "title": "Integrated Field",
+      "description": "Flat form-field wrapper for label, control, description, required marker, and validation message patterns.",
+      "registryDependencies": ["field"],
+      "files": [
+        {
+          "path": "registry/ui/field.tsx",
+          "type": "registry:component",
+          "target": "components/easy/field.tsx"
+        }
+      ]
+    },
+    {
       "name": "use-delay-loading",
       "type": "registry:hook",
       "title": "useDelayLoading",
