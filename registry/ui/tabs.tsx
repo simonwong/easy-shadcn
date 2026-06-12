@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 export interface TabsItem {
   content: ReactNode;
   contentClassName?: ClassValue;
+  disabled?: boolean;
   keepMounted?: boolean;
   label: ReactNode;
   triggerClassName?: ClassValue;
@@ -21,37 +22,53 @@ export interface TabsItem {
 }
 
 export interface TabsProps
-  extends Omit<TabsPrimitive.Root.Props, "children" | "render"> {
+  extends Omit<
+    TabsPrimitive.Root.Props,
+    "children" | "defaultValue" | "onValueChange" | "render" | "value"
+  > {
   contentClassName?: ClassValue;
+  defaultValue?: string;
   items: TabsItem[];
+  keepMounted?: boolean;
   listClassName?: ClassValue;
+  onValueChange?: (
+    value: string,
+    eventDetails: TabsPrimitive.Root.ChangeEventDetails
+  ) => void;
   triggerClassName?: ClassValue;
+  value?: string;
+  variant?: "default" | "line";
 }
 
 export const Tabs = ({
   items,
+  keepMounted,
   listClassName,
   triggerClassName,
   contentClassName,
   className,
+  variant,
   ...rootProps
 }: TabsProps) => (
   <TabsRoot className={className} {...rootProps}>
-    <TabsList className={cn(listClassName)}>
-      {items.map((item) => (
-        <TabsTrigger
-          className={cn(triggerClassName, item.triggerClassName)}
-          key={item.value}
-          value={item.value}
-        >
-          {item.label}
-        </TabsTrigger>
-      ))}
-    </TabsList>
+    {items.length > 0 && (
+      <TabsList className={cn(listClassName)} variant={variant}>
+        {items.map((item) => (
+          <TabsTrigger
+            className={cn(triggerClassName, item.triggerClassName)}
+            disabled={item.disabled}
+            key={item.value}
+            value={item.value}
+          >
+            {item.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    )}
     {items.map((item) => (
       <TabsContent
         className={cn(contentClassName, item.contentClassName)}
-        keepMounted={item.keepMounted}
+        keepMounted={item.keepMounted ?? keepMounted}
         key={item.value}
         value={item.value}
       >
