@@ -33,6 +33,14 @@ const Demo = () => (
         <li>dividers: true</li>
       </ul>
     </Card>
+
+    <Card
+      className="w-72"
+      dividers={{ footer: true }}
+      footer="Footer divider only"
+    >
+      Content-only card without header slots.
+    </Card>
   </div>
 );
 

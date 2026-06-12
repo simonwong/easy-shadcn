@@ -20,10 +20,16 @@ export interface CardProps extends Omit<React.ComponentProps<"div">, "title"> {
   dividers?: boolean | { header?: boolean; footer?: boolean };
   footer?: ReactNode;
   footerClassName?: string;
+  headerClassName?: string;
   size?: "default" | "sm";
   title?: ReactNode;
   titleClassName?: string;
 }
+
+// Mirrors React's own rendering rules: null/undefined/boolean render nothing,
+// but valid falsy nodes like 0 and "" must not be swallowed.
+const hasNode = (node: ReactNode): boolean =>
+  node !== null && node !== undefined && typeof node !== "boolean";
 
 export const Card: React.FC<CardProps> = ({
   title,
@@ -35,6 +41,7 @@ export const Card: React.FC<CardProps> = ({
   contentClassName,
   footer,
   footerClassName,
+  headerClassName,
   children,
   className,
   dividers,
@@ -44,27 +51,34 @@ export const Card: React.FC<CardProps> = ({
   const { header: showHeaderDivider, footer: showFooterDivider } =
     typeof dividers === "boolean"
       ? { header: dividers, footer: dividers }
-      : { header: dividers?.header ?? false, footer: dividers?.footer ?? false };
+      : {
+          header: dividers?.header ?? false,
+          footer: dividers?.footer ?? false,
+        };
 
   return (
     <CardBase className={className} size={size} {...restProps}>
-      {(title || description || action) && (
-        <CardHeader className={cn(showHeaderDivider && "border-b")}>
-          {title && <CardTitle className={titleClassName}>{title}</CardTitle>}
-          {description && (
+      {(hasNode(title) || hasNode(description) || hasNode(action)) && (
+        <CardHeader
+          className={cn(showHeaderDivider && "border-b", headerClassName)}
+        >
+          {hasNode(title) && (
+            <CardTitle className={titleClassName}>{title}</CardTitle>
+          )}
+          {hasNode(description) && (
             <CardDescription className={descriptionClassName}>
               {description}
             </CardDescription>
           )}
-          {action && (
+          {hasNode(action) && (
             <CardAction className={actionClassName}>{action}</CardAction>
           )}
         </CardHeader>
       )}
-      {children && (
+      {hasNode(children) && (
         <CardContent className={contentClassName}>{children}</CardContent>
       )}
-      {footer && (
+      {hasNode(footer) && (
         <CardFooter
           className={cn(
             !showFooterDivider && "border-none bg-transparent",
