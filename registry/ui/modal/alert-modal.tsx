@@ -22,24 +22,46 @@ import { AsyncButton } from "../async-button";
 
 export interface AlertModalProps {
   afterClose?: () => void;
+  /**
+   * Extra props for the cancel AsyncButton. Passing `onClick` replaces the
+   * built-in close handler — prefer `onCancel`.
+   */
   cancelProps?: ComponentProps<typeof AsyncButton>;
-
   cancelText?: ReactNode;
+  className?: ClassValue;
+  /**
+   * Extra props for the confirm AsyncButton. Passing `onClick` replaces the
+   * built-in confirm-and-close handler — prefer `onConfirm`.
+   */
   confirmProps?: ComponentProps<typeof AsyncButton>;
   confirmText?: ReactNode;
   defaultOpen?: boolean;
   description?: ReactNode;
   descriptionClassName?: ClassValue;
+  /** Overrides the default confirm/cancel footer entirely. */
   footer?: ReactNode;
   footerClassName?: ClassValue;
+  headerClassName?: ClassValue;
+  /**
+   * Called when the cancel button is pressed. May return a Promise — the
+   * button shows a pending state and the modal stays open until it resolves;
+   * a rejection keeps the modal open.
+   */
   onCancel?: () => void | Promise<void>;
+  /**
+   * Called when the confirm button is pressed. May return a Promise — the
+   * button shows a pending state and the modal stays open until it resolves;
+   * a rejection keeps the modal open.
+   */
   onConfirm?: () => void | Promise<void>;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
-
+  /** Hide the cancel button for single-action alerts. @default true */
+  showCancel?: boolean;
+  /** Forwarded to the AlertDialogContent primitive. */
+  size?: "default" | "sm";
   title?: ReactNode;
   titleClassName?: ClassValue;
-
   trigger?: ReactElement;
 }
 
@@ -51,6 +73,9 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   titleClassName,
   description,
   descriptionClassName,
+  className,
+  headerClassName,
+  size,
   trigger,
   footer,
   footerClassName,
@@ -60,6 +85,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   confirmText,
   onConfirm,
   confirmProps,
+  showCancel = true,
   afterClose,
 }) => {
   const [internalOpen, setInternalOpen] = useState(defaultOpen ?? false);
@@ -85,9 +111,9 @@ export const AlertModal: React.FC<AlertModalProps> = ({
       open={currentOpen}
     >
       {trigger && <AlertDialogTrigger render={trigger} />}
-      <AlertDialogContent>
+      <AlertDialogContent className={cn(className)} size={size}>
         {(title || description) && (
-          <AlertDialogHeader>
+          <AlertDialogHeader className={cn(headerClassName)}>
             {title && (
               <AlertDialogTitle className={cn(titleClassName)}>
                 {title}
@@ -106,16 +132,18 @@ export const AlertModal: React.FC<AlertModalProps> = ({
         <AlertDialogFooter className={cn(footerClassName)}>
           {footer ?? (
             <>
-              <AsyncButton
-                onClick={async () => {
-                  await onCancel?.();
-                  close();
-                }}
-                variant="outline"
-                {...cancelProps}
-              >
-                {cancelText ?? "Cancel"}
-              </AsyncButton>
+              {showCancel && (
+                <AsyncButton
+                  onClick={async () => {
+                    await onCancel?.();
+                    close();
+                  }}
+                  variant="outline"
+                  {...cancelProps}
+                >
+                  {cancelText ?? "Cancel"}
+                </AsyncButton>
+              )}
               <AsyncButton
                 onClick={async () => {
                   await onConfirm?.();

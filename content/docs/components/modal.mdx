@@ -2,6 +2,8 @@
 title: Modal
 ---
 
+Modal and AlertModal flatten shadcn's `Dialog` / `AlertDialog` compound components into single components with `title`, `description`, and footer props — plus promise-style `AlertModal.alert()` / `AlertModal.confirm()` helpers and a full imperative API powered by `@easy-shadcn/command-modal`.
+
 ## Installation
 
 With the [`@easy-shadcn` namespace](/docs/installation) configured:
@@ -16,99 +18,113 @@ Or install via the full URL (zero configuration):
 pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/modal.json
 ```
 
-The internal `@easy-shadcn/async-button` dependency is installed automatically alongside `modal`.
+The internal `@easy-shadcn/async-button` component and the `@easy-shadcn/command-modal` package are installed automatically alongside `modal`.
 
 ## Usage
 
-Add Provider to Root Component
-
-```tsx
-import { Modal } from "@easy-shadcn/react"
-
-const App = () => {
-  return (
-    <Modal.Provider>
-      {/* Other */}
-    </Modal.Provider>
-  )
-}
-```
-
-### AlertModal
-
-AlertModal
-
-<ExamplePreview name="modal-alert-demo" />
-
-Alert、Confirm
-
-<ExamplePreview name="modal-alert-helper-demo" />
-
 ### Modal
 
-Modal
-
-<ExamplePreview name="modal-demo" />
-
-### Use CommandModal
-{/* 
-create & show: create Modal and show it
-
-<ExamplePreview name="modal-form-helper-demo" /> */}
-
-useModalHolder: can update Modal Props
-
-<ExamplePreview name="modal-helper-holder-demo" />
-
-
-## Modal Usage
+The flat `onConfirm` / `onCancel` footer needs no controlled state — confirm closes the modal after the (optionally async) handler resolves, and a rejection keeps it open:
 
 ```tsx
-import { Modal } from "@easy-shadcn/react"
+import { Modal } from "@/components/easy/modal"
 
 <Modal
-  title='Modal title'
-  description='Modal description'
-  trigger={<Button>Click Open</Button>}
+  title="Publish post"
+  description="The post goes live immediately."
+  trigger={<Button>Publish</Button>}
+  onConfirm={async () => {
+    await publish()
+  }}
 >
-  <div>Modal Content1</div>
-  <div>Modal Content2</div>
-  <div>Modal Content3</div>
+  Body content
 </Modal>
 ```
 
-```tsx
-import { AlertModal } from '@easy-shadcn/react';
+<ExamplePreview name="modal-demo" />
 
-AlertModal.alert({
-  title: 'Tips',
-  description: 'Alert Content',
-});
-```
+### AlertModal
 
-## Modal Command style Usage
+A declarative confirm dialog with the same footer semantics:
 
-Add Provider to App
+<ExamplePreview name="modal-alert-demo" />
 
-```tsx
-import { Modal } from "@easy-shadcn/react"
+### alert() / confirm() helpers
 
-const App = () => {
-  <Modal.Provider>
-    {/* Other */}
-  </Modal.Provider>
-}
-```
+For the imperative helpers, mount the provider once near the root:
 
 ```tsx
-import { AlertModal } from '@easy-shadcn/react';
+import { Modal } from "@/components/easy/modal"
 
-AlertModal.alert({
-  title: 'Tips',
-  description: 'Alert Content',
-});
+const App = ({ children }) => (
+  <Modal.Provider>{children}</Modal.Provider>
+)
 ```
+
+Then call them from anywhere — `alert()` resolves when dismissed, `confirm()` resolves `true` / `false` and never rejects:
+
+```tsx
+import { AlertModal } from "@/components/easy/modal"
+
+await AlertModal.alert({ title: "Saved", description: "All changes stored." })
+
+const ok = await AlertModal.confirm({
+  title: "Delete item?",
+  description: "This cannot be undone.",
+  confirmProps: { variant: "destructive" },
+})
+```
+
+<ExamplePreview name="modal-alert-helper-demo" />
+
+### Imperative modals with useModalHolder
+
+Any component created with `Modal.create` can be driven imperatively — `useModalHolder` additionally lets you update its props after opening:
+
+<ExamplePreview name="modal-helper-holder-demo" />
 
 ## API
 
-TODO
+### `Modal`
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` / `description` | `ReactNode` | - | Header slots. The header renders only when one of them is present. |
+| `children` | `ReactNode` | - | Modal body. |
+| `footer` | `ReactNode` | - | Replaces the default footer entirely. |
+| `onConfirm` / `onCancel` | `() => void \| Promise<void>` | - | Enables the default OK/Cancel footer. Async handlers show a pending state; a rejection keeps the modal open. |
+| `confirmText` / `cancelText` | `ReactNode` | `"OK"` / `"Cancel"` | Default footer button labels. |
+| `confirmProps` / `cancelProps` | `AsyncButtonProps` | - | Extra props for the default footer buttons (e.g. `{ variant: "destructive" }`). |
+| `open` / `defaultOpen` / `onOpenChange` | - | - | Controlled / uncontrolled open state. |
+| `trigger` | `ReactElement` | - | Rendered as the `DialogTrigger`. |
+| `showCloseButton` | `boolean` | `true` | The top-right close button. |
+| `disablePointerDismissal` | `boolean` | `false` | Prevents closing via outside clicks. |
+| `afterClose` | `() => void` | - | Called after the close animation completes. |
+
+Class overrides: `className` (dialog content), `headerClassName`, `titleClassName`, `descriptionClassName`, `contentClassName` (body), `footerClassName`.
+
+### `AlertModal`
+
+Same flat footer contract as `Modal`, plus:
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `showCancel` | `boolean` | `true` | Hide the cancel button for single-action alerts. |
+| `size` | `"default" \| "sm"` | `"default"` | Forwarded to the `AlertDialogContent` primitive. |
+
+### `AlertModal.alert(props)` / `AlertModal.confirm(props)`
+
+Promise-style helpers (require `<Modal.Provider>`):
+
+- `alert(props)` → `Promise<void>` — a single OK button; resolves when confirmed or dismissed.
+- `confirm(props)` → `Promise<boolean>` — resolves `true` on confirm, `false` on cancel or dismissal (Escape). It never rejects, so fire-and-forget calls are safe.
+- Both accept `AlertModalProps` (minus the open-state props) and clean up their modal registry entry after closing.
+
+### Imperative API on `Modal.*`
+
+`Modal.create`, `Modal.show`, `Modal.hide`, `Modal.remove`, `Modal.register`, `Modal.unregister`, `Modal.useModal`, `Modal.useModalHolder`, and `Modal.Provider` re-export the public `@easy-shadcn/command-modal` surface. See the [command-modal docs](/docs/packages/command-modal) for the full contract.
+
+## Notes
+
+- **Accessibility name.** `title` is optional in the types, but a dialog without a title has no accessible name — pass one (or render your own `DialogTitle` via the primitives) in production.
+- For layouts beyond these slots (multi-step wizards, custom headers, side sheets), compose the `components/ui/dialog` primitives directly.
