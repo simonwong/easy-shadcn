@@ -241,6 +241,28 @@ A discriminated union by `dataIndex`. When `dataIndex` is set to a `keyof T`, `r
 | `headClassName` | `ClassValue` | Applied only to the header cell. |
 | `cellClassName` | `ClassValue` | Applied only to body cells. |
 
+## Recipe: truncating long cells
+
+Single-line truncation needs no extra props — combine a fixed table layout, a column `width`, and `truncate` (the primitive `<td>` already applies `whitespace-nowrap`). With `table-fixed` + `width` the column width is fixed by the header; add `max-w-0` only if you stay on the default auto layout, where the cell would otherwise grow with its content:
+
+```tsx
+<Table
+  className="table-fixed"
+  columns={[
+    {
+      cellClassName: "truncate max-w-0",
+      dataIndex: "description",
+      key: "description",
+      title: "Description",
+      width: 240,
+    },
+    // ...
+  ]}
+  dataSource={rows}
+  rowKey="id"
+/>
+```
+
 ## When to use the primitive instead
 
 This component covers `columns` + `dataSource` + `rowKey` + selection + loading / empty / caption / row className. Anything else is intentionally out of scope:

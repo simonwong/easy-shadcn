@@ -206,13 +206,15 @@ function SelectionCheckbox({
 // ---------------------------------------------------------------------------
 
 export interface TableProps<T>
-  extends Omit<React.ComponentProps<"table">, "children"> {
+  extends Omit<React.ComponentProps<"table">, "children" | "className"> {
   /** className on `<tbody>`. */
   bodyClassName?: ClassValue;
   /** Caption rendered inside `<caption>`. */
   caption?: React.ReactNode;
   /** className on `<caption>`. */
   captionClassName?: ClassValue;
+  /** className on the `<table>` root. */
+  className?: ClassValue;
   /** Column definitions. */
   columns: TableColumn<T>[];
   /**
@@ -739,6 +741,7 @@ export function Table<T>({
             <TableHead
               className={cn("w-[1%]", selectionColumnClassName)}
               data-slot="easy-table-selection-head"
+              scope="col"
             >
               {/* Visually-hidden column name so sighted users still get the
                   "Select all" affordance and AT users hear a real column
@@ -747,7 +750,9 @@ export function Table<T>({
               <SelectionCheckbox
                 aria-label="Select all rows"
                 checked={allSelected}
-                disabled={selectableCount === 0}
+                // While loading the body rows are hidden — selecting unseen
+                // rows from the header would be a blind bulk action.
+                disabled={loading || selectableCount === 0}
                 indeterminate={someSelected}
                 onCheckedChange={handleToggleAll}
               />
@@ -761,6 +766,7 @@ export function Table<T>({
                 col.headClassName
               )}
               key={col.key}
+              scope="col"
               style={widthStyle(col.width)}
             >
               {col.title}
