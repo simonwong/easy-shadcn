@@ -73,18 +73,26 @@ const Demo = () => (
 
     <div className="flex flex-col gap-2">
       <p className="text-muted-foreground text-sm">
-        Icon buttons with <code>size="icon"</code>.
+        Icon buttons — every <code>icon*</code> size swaps the lone icon for the
+        spinner.
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <AsyncButton onClick={() => wait(2000)} size="icon">
-          <SendIcon />
-        </AsyncButton>
-        <AsyncButton onClick={() => wait(2000)} size="icon" variant="outline">
+        <AsyncButton onClick={() => wait(2000)} size="icon-xs" variant="ghost">
           <RefreshCwIcon />
         </AsyncButton>
         <AsyncButton
           onClick={() => wait(2000)}
-          size="icon"
+          size="icon-sm"
+          variant="outline"
+        >
+          <RefreshCwIcon />
+        </AsyncButton>
+        <AsyncButton onClick={() => wait(2000)} size="icon">
+          <SendIcon />
+        </AsyncButton>
+        <AsyncButton
+          onClick={() => wait(2000)}
+          size="icon-lg"
           variant="destructive"
         >
           <Trash2Icon />

@@ -2,12 +2,14 @@
 
 import type React from "react";
 import type { MouseEvent, MouseEventHandler } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useDelayLoading } from "@/registry/hooks/use-delay-loading";
 
 const LoadingIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
+    aria-hidden="true"
     fill="none"
     height="1em"
     stroke="currentColor"
@@ -35,7 +37,8 @@ export type AsyncButtonProps = Omit<
   /**
    * Controlled loading state. When provided, takes precedence over the
    * auto-managed Promise loading; pass `false` to fully suppress the spinner
-   * even while an async `onClick` is in flight.
+   * even while an async `onClick` is in flight. Switching back to undefined
+   * (uncontrolled) mid-flight is not supported.
    */
   loading?: boolean;
   /**
@@ -62,19 +65,24 @@ export const AsyncButton: React.FC<AsyncButtonProps> = ({
   ...restProps
 }) => {
   const [innerLoading, setLoading] = useDelayLoading({ loading });
+  // Blocks the same-frame double click that can slip in before the disabled
+  // attribute lands with the next render.
+  const inFlightRef = useRef(false);
 
   const handleClick: MouseEventHandler<HTMLElement> = (e) => {
-    if (!onClick) {
+    if (!onClick || inFlightRef.current) {
       return;
     }
     const result = onClick(e as MouseEvent<HTMLButtonElement>);
     if (result instanceof Promise) {
+      inFlightRef.current = true;
       setLoading(true);
       result
         .catch((err) => {
           console.error(err);
         })
         .finally(() => {
+          inFlightRef.current = false;
           setLoading(false);
         });
     }
@@ -82,7 +90,7 @@ export const AsyncButton: React.FC<AsyncButtonProps> = ({
 
   let spinnerSlot: "start" | "end" | "children" | "overlay" | null = null;
   if (innerLoading) {
-    if (size === "icon") {
+    if (size?.startsWith("icon")) {
       spinnerSlot = "children";
     } else if (startIcon) {
       spinnerSlot = "start";
@@ -100,7 +108,10 @@ export const AsyncButton: React.FC<AsyncButtonProps> = ({
       {...restProps}
       aria-busy={innerLoading}
       className={cn(
-        spinnerSlot === "overlay" && "relative disabled:opacity-100",
+        // Loading is a busy state, not a disabled one — keep full opacity in
+        // every spinner mode.
+        innerLoading && "disabled:opacity-100",
+        spinnerSlot === "overlay" && "relative",
         className
       )}
       disabled={innerLoading || disabled}

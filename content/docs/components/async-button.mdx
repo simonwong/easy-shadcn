@@ -25,7 +25,7 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/async-button.json
 | Prop        | Type                                                          | Default | Description                                                                                     |
 | ----------- | ------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
 | `onClick`   | `(e: MouseEvent<HTMLButtonElement>) => void \| Promise<void>` | -       | Click handler. When it returns a Promise, the button enters the loading state until it settles. |
-| `loading`   | `boolean`                                                     | `false` | Controlled loading state, OR-ed with the internal async loading state.                          |
+| `loading`   | `boolean`                                                     | -       | Controlled loading state. When provided it takes precedence over the internal async loading state — `loading={false}` fully suppresses the spinner even while an async `onClick` is in flight. |
 | `startIcon` | `ReactNode`                                                   | -       | Icon rendered before `children`. Replaced by the spinner while loading.                         |
 | `endIcon`   | `ReactNode`                                                   | -       | Icon rendered after `children`. Replaced by the spinner while loading when `startIcon` is absent. |
 | `disabled`  | `boolean`                                                     | `false` | Disables the button. The button is also disabled automatically while loading.                   |
@@ -36,7 +36,7 @@ All other props (`variant`, `size`, `className`, etc.) are inherited from shadcn
 
 The spinner is rendered in the most context-appropriate place, in this priority order:
 
-1. **`size="icon"`** — `children` (the lone icon) is replaced by the spinner.
+1. **Icon sizes (`size="icon"`, `"icon-xs"`, `"icon-sm"`, `"icon-lg"`)** — `children` (the lone icon) is replaced by the spinner.
 2. **`startIcon` present** — `startIcon` is replaced by the spinner; `endIcon` (if any) stays put.
 3. **Only `endIcon` present** — `endIcon` is replaced by the spinner.
 4. **No icons** — a blurred overlay covers the button and the spinner is centered on top.
@@ -49,3 +49,4 @@ This means the button never grows or reflows when loading kicks in.
 - The fallback overlay uses `backdrop-blur` so it works seamlessly with every button variant when no icon slot is available.
 - While loading, the button is disabled (no clicks, no hover) but keeps its full opacity — the `disabled:opacity-50` style only applies when the button is purely disabled, not when it's loading.
 - The button sets `aria-busy={loading}` so assistive technologies can announce the loading state.
+- Repeat clicks are ignored while an async `onClick` is in flight — even with `loading={false}` suppressing the spinner — so a double click can't trigger a duplicate submit.
