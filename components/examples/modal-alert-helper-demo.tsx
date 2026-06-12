@@ -14,22 +14,18 @@ const Demo = () => (
       Click Alert
     </AsyncButton>
     <AsyncButton
-      onClick={() => {
-        AlertModal.confirm({
+      onClick={async () => {
+        const ok = await AlertModal.confirm({
           title: "Tips",
           description:
             "If onConfirm or onCancel is asynchronous events, the button will automatically display loading",
-          onCancel: () => {
-            console.log("cancel");
-          },
           onConfirm: () =>
             new Promise((resolve) => {
-              setTimeout(() => {
-                console.log("confirm");
-                resolve();
-              }, 1000);
+              setTimeout(resolve, 1000);
             }),
         });
+        // Resolves true on confirm, false on cancel or Escape — never rejects.
+        console.log(ok ? "confirmed" : "cancelled");
       }}
     >
       Click Confirm

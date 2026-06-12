@@ -4,7 +4,7 @@
  * License: MIT
  */
 // Core API
-export { create, hide, register, remove, show } from "./actions";
+export { create, hide, register, remove, show, unregister } from "./actions";
 // Context
 export {
   CommandModalContext,
@@ -26,7 +26,7 @@ export type {
 export { createModalProps, useModal, useModalHolder } from "./useModal";
 
 // Default export
-import { create, hide, register, remove, show } from "./actions";
+import { create, hide, register, remove, show, unregister } from "./actions";
 import { CommandModalContext, Provider, reducer } from "./context";
 import { createModalProps, useModal, useModalHolder } from "./useModal";
 
@@ -36,6 +36,7 @@ const CommandModal = {
   register,
   remove,
   show,
+  unregister,
   CommandModalContext,
   Provider,
   reducer,

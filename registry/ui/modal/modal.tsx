@@ -2,7 +2,12 @@
 
 import type { ClassValue } from "class-variance-authority/types";
 import type React from "react";
-import { type ReactElement, type ReactNode, useState } from "react";
+import {
+  type ComponentProps,
+  type ReactElement,
+  type ReactNode,
+  useState,
+} from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,22 +18,50 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { AsyncButton } from "../async-button";
 
 export interface ModalProps {
   afterClose?: () => void;
-  bodyClassName?: ClassValue;
+  /**
+   * Extra props for the default footer's cancel AsyncButton. Passing
+   * `onClick` replaces the built-in close handler — prefer `onCancel`.
+   */
+  cancelProps?: ComponentProps<typeof AsyncButton>;
+  cancelText?: ReactNode;
   children?: ReactNode;
-
   className?: ClassValue;
+  /**
+   * Extra props for the default footer's confirm AsyncButton. Passing
+   * `onClick` replaces the built-in confirm-and-close handler — prefer
+   * `onConfirm`.
+   */
+  confirmProps?: ComponentProps<typeof AsyncButton>;
+  confirmText?: ReactNode;
+  contentClassName?: ClassValue;
   defaultOpen?: boolean;
   description?: ReactNode;
   descriptionClassName?: ClassValue;
+  /** Prevents closing via outside clicks. Forwarded to the Base UI Dialog. */
+  disablePointerDismissal?: boolean;
+  /** Overrides the default confirm/cancel footer entirely. */
   footer?: ReactNode;
   footerClassName?: ClassValue;
+  headerClassName?: ClassValue;
+  /**
+   * Called when the cancel button is pressed. May return a Promise — the
+   * button shows a pending state and the modal stays open until it resolves;
+   * a rejection keeps the modal open.
+   */
+  onCancel?: () => void | Promise<void>;
+  /**
+   * Called when the confirm button is pressed. May return a Promise — the
+   * button shows a pending state and the modal stays open until it resolves;
+   * a rejection keeps the modal open.
+   */
+  onConfirm?: () => void | Promise<void>;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
   showCloseButton?: boolean;
-
   title?: ReactNode;
   titleClassName?: ClassValue;
   trigger?: ReactElement;
@@ -43,10 +76,18 @@ export const Modal: React.FC<ModalProps> = ({
   description,
   descriptionClassName,
   children,
-  bodyClassName,
+  contentClassName,
   className,
+  disablePointerDismissal,
   footer,
   footerClassName,
+  headerClassName,
+  cancelProps,
+  cancelText,
+  onCancel,
+  confirmProps,
+  confirmText,
+  onConfirm,
   trigger,
   showCloseButton = true,
   afterClose,
@@ -61,8 +102,47 @@ export const Modal: React.FC<ModalProps> = ({
     onOpenChange?.(next);
   };
 
+  const close = () => handleOpenChange(false);
+
+  // The flat confirm/cancel footer only appears when asked for; a rejected
+  // async handler skips close() (AsyncButton catches it), keeping the modal
+  // open on errors.
+  const hasDefaultFooter =
+    onConfirm !== undefined ||
+    onCancel !== undefined ||
+    confirmText !== undefined ||
+    cancelText !== undefined ||
+    confirmProps !== undefined ||
+    cancelProps !== undefined;
+  const footerNode =
+    footer ??
+    (hasDefaultFooter ? (
+      <>
+        <AsyncButton
+          onClick={async () => {
+            await onCancel?.();
+            close();
+          }}
+          variant="outline"
+          {...cancelProps}
+        >
+          {cancelText ?? "Cancel"}
+        </AsyncButton>
+        <AsyncButton
+          onClick={async () => {
+            await onConfirm?.();
+            close();
+          }}
+          {...confirmProps}
+        >
+          {confirmText ?? "OK"}
+        </AsyncButton>
+      </>
+    ) : null);
+
   return (
     <Dialog
+      disablePointerDismissal={disablePointerDismissal}
       onOpenChange={handleOpenChange}
       onOpenChangeComplete={(o) => {
         if (!o) {
@@ -77,7 +157,7 @@ export const Modal: React.FC<ModalProps> = ({
         showCloseButton={showCloseButton}
       >
         {(title || description) && (
-          <DialogHeader>
+          <DialogHeader className={cn(headerClassName)}>
             {title && (
               <DialogTitle className={cn(titleClassName)}>{title}</DialogTitle>
             )}
@@ -92,10 +172,12 @@ export const Modal: React.FC<ModalProps> = ({
           </DialogHeader>
         )}
         {children && (
-          <div className={cn("text-sm", bodyClassName)}>{children}</div>
+          <div className={cn("text-sm", contentClassName)}>{children}</div>
         )}
-        {footer && (
-          <DialogFooter className={cn(footerClassName)}>{footer}</DialogFooter>
+        {footerNode && (
+          <DialogFooter className={cn(footerClassName)}>
+            {footerNode}
+          </DialogFooter>
         )}
       </DialogContent>
     </Dialog>

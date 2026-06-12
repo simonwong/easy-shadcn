@@ -1,55 +1,82 @@
+"use client";
+
 import CommandModal from "@easy-shadcn/command-modal";
 import { AlertModal, type AlertModalProps } from "./alert-modal";
 
-// TODO: modalProps will cover props
+type AlertHelperProps = Omit<AlertModalProps, "open" | "onOpenChange">;
 
+/**
+ * Promise-style alert: a single OK button.
+ * Resolves once the user confirms or dismisses the dialog.
+ */
 const alert = (
   props: Omit<
-    AlertModalProps,
-    "open" | "onOpenChange" | "cancelProps" | "onCancel" | "cancelText"
+    AlertHelperProps,
+    // A custom footer would disconnect the promise from the OK button.
+    "cancelProps" | "cancelText" | "footer" | "onCancel" | "showCancel"
   >
-) => {
+): Promise<void> => {
   const AlertCommandModal = CommandModal.create(() => {
-    const { modalProps, resolve } = CommandModal.useModal();
+    const { id, modalProps, resolve } = CommandModal.useModal();
     return (
       <AlertModal
         {...props}
         {...modalProps}
-        cancelProps={{
-          className: "hidden",
+        afterClose={() => {
+          props.afterClose?.();
+          modalProps.afterClose?.();
+          // Each call creates a fresh component — drop its registry entry
+          // once fully closed, or long-lived apps leak one entry per call.
+          CommandModal.unregister(id);
         }}
         onConfirm={async () => {
           await props.onConfirm?.();
-          resolve();
+          resolve(true);
         }}
+        showCancel={false}
       />
     );
   });
 
-  return CommandModal.show(AlertCommandModal);
+  return CommandModal.show(AlertCommandModal).then(() => {
+    // Dismissal and confirmation both settle the alert; there is nothing to
+    // distinguish for a single-button dialog.
+    return;
+  });
 };
 
-const confirm = (props: Omit<AlertModalProps, "open" | "onOpenChange">) => {
+/**
+ * Promise-style confirm. Resolves `true` when confirmed, `false` when
+ * cancelled or dismissed (Escape) — it never rejects.
+ */
+const confirm = (
+  props: Omit<AlertHelperProps, "footer">
+): Promise<boolean> => {
   const AlertCommandModal = CommandModal.create(() => {
-    const { modalProps, resolve, reject } = CommandModal.useModal();
+    const { id, modalProps, resolve } = CommandModal.useModal();
 
     return (
       <AlertModal
         {...props}
         {...modalProps}
+        afterClose={() => {
+          props.afterClose?.();
+          modalProps.afterClose?.();
+          CommandModal.unregister(id);
+        }}
         onCancel={async () => {
           await props.onCancel?.();
-          reject();
+          resolve(false);
         }}
         onConfirm={async () => {
           await props.onConfirm?.();
-          resolve();
+          resolve(true);
         }}
       />
     );
   });
 
-  return CommandModal.show(AlertCommandModal);
+  return CommandModal.show(AlertCommandModal).then((value) => value === true);
 };
 
 export default {

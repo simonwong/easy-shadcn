@@ -50,7 +50,7 @@ const PaletteModal = CommandModal.create(() => {
   return (
     <Modal
       {...modal.modalProps}
-      bodyClassName="space-y-3"
+      contentClassName="space-y-3"
       className="sm:max-w-2xl"
       description="One palette, three sources. Each tab keeps its query when you switch — that's keepMounted earning its place."
       title="Quick switch"
