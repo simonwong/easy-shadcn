@@ -2,6 +2,8 @@
 title: Tabs
 ---
 
+Tabs flattens shadcn's `Tabs` compound components into a single items-driven component: each item describes its trigger label and panel content, instead of hand-writing nested `TabsList` / `TabsTrigger` / `TabsContent` structures.
+
 <ExamplePreview name="tabs-demo" />
 
 ## Installation
@@ -17,3 +19,37 @@ Or install via the full URL (zero configuration):
 ```shell
 pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/tabs.json
 ```
+
+## Props
+
+| Prop               | Type                                       | Default     | Description                                                                              |
+| ------------------ | ------------------------------------------ | ----------- | ---------------------------------------------------------------------------------------- |
+| `items`            | `TabsItem[]`                               | -           | Tab definitions — see the table below. An empty array renders no tab list.               |
+| `value`            | `string`                                   | -           | The active tab. Use for the controlled mode.                                              |
+| `defaultValue`     | `string`                                   | -           | The initially active tab. Use for the uncontrolled mode.                                  |
+| `onValueChange`    | `(value: string, eventDetails) => void`    | -           | Called when the user activates a tab.                                                     |
+| `variant`          | `"default" \| "line"`                      | `"default"` | List style: pill background or underline, forwarded to the `TabsList` primitive.          |
+| `keepMounted`      | `boolean`                                  | `false`     | Keeps inactive panels mounted (hidden) instead of unmounting them. Per-item overridable.  |
+| `listClassName`    | `ClassValue`                               | -           | Class override for `TabsList`.                                                            |
+| `triggerClassName` | `ClassValue`                               | -           | Class override applied to every `TabsTrigger`.                                            |
+| `contentClassName` | `ClassValue`                               | -           | Class override applied to every `TabsContent`.                                            |
+
+All other props (`className`, `orientation`, etc.) are forwarded to the underlying Tabs root.
+
+### TabsItem
+
+| Field              | Type         | Description                                                              |
+| ------------------ | ------------ | ------------------------------------------------------------------------ |
+| `value`            | `string`     | Unique identifier of the tab.                                             |
+| `label`            | `ReactNode`  | Trigger content — plain text or e.g. icon + text.                         |
+| `content`          | `ReactNode`  | Panel content.                                                            |
+| `disabled`         | `boolean`    | Disables this tab.                                                        |
+| `keepMounted`      | `boolean`    | Overrides the root-level `keepMounted` for this panel.                    |
+| `triggerClassName` | `ClassValue` | Per-item trigger class, merged after the root-level `triggerClassName`.   |
+| `contentClassName` | `ClassValue` | Per-item content class, merged after the root-level `contentClassName`.   |
+
+## Notes
+
+- `value` / `defaultValue` / `onValueChange` are narrowed to `string` — the Base UI primitive accepts `any`, which silently swallows typos. If you need the `null` "no active tab" state, compose the primitives directly.
+- Use `keepMounted` when a panel holds expensive state (forms, iframes) that should survive tab switches.
+- `items` must be homogeneous. For heterogeneous triggers or panels (custom markup per trigger, non-uniform layouts), compose the `components/ui/tabs` primitives directly instead.
