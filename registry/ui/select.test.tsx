@@ -193,6 +193,69 @@ describe("Select", () => {
     expect(screen.queryByText("Pick fruit")).toBeNull();
   });
 
+  it("forwards id and aria props to the focusable control in every mode", () => {
+    const plain = render(
+      <Select aria-invalid id="fruit" items={ITEMS} value="apple" />
+    );
+    const trigger = plain.container.querySelector(
+      "[data-slot='combobox-trigger']"
+    );
+    expect(trigger?.id).toBe("fruit");
+    expect(trigger?.getAttribute("aria-invalid")).toBe("true");
+    plain.unmount();
+
+    const searchable = render(
+      <Select
+        aria-describedby="fruit-hint"
+        id="fruit-search"
+        items={ITEMS}
+        searchable
+      />
+    );
+    const input = searchable.container.querySelector("input[id]");
+    expect(input?.id).toBe("fruit-search");
+    expect(input?.getAttribute("aria-describedby")).toContain("fruit-hint");
+    searchable.unmount();
+
+    const multiple = render(
+      <Select id="fruit-multi" items={ITEMS} multiple value={[]} />
+    );
+    expect(
+      multiple.container.querySelector("input#fruit-multi")
+    ).not.toBeNull();
+  });
+
+  it("refetches the default list after closing with a residual query", async () => {
+    const loadItems = vi.fn((query: string) =>
+      Promise.resolve(
+        ITEMS.filter((item) => item.label.toLowerCase().includes(query))
+      )
+    );
+
+    render(
+      <Select
+        debounceMs={0}
+        defaultOpen
+        loadItems={loadItems}
+        searchable
+        serverSideFilter
+      />
+    );
+    await waitFor(() => expect(loadItems).toHaveBeenCalledTimes(1));
+    expect(loadItems).toHaveBeenLastCalledWith("", expect.anything());
+
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "ban" } });
+    await waitFor(() => expect(loadItems).toHaveBeenCalledTimes(2));
+    expect(loadItems).toHaveBeenLastCalledWith("ban", expect.anything());
+
+    fireEvent.keyDown(input, { key: "Escape" });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+
+    await waitFor(() => expect(loadItems).toHaveBeenCalledTimes(3));
+    expect(loadItems).toHaveBeenLastCalledWith("", expect.anything());
+  });
+
   it("clears stale server-side results while a new query is loading", async () => {
     const resolvers: Array<(items: SelectItem[]) => void> = [];
     const loadItems = vi.fn(
