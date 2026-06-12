@@ -2,6 +2,8 @@
 title: Card
 ---
 
+Card flattens shadcn's `Card` compound components into a single component: `title`, `description`, `action`, and `footer` are plain props instead of nested `CardHeader` / `CardTitle` / `CardFooter` structures, and `children` become the card body.
+
 <ExamplePreview name="card-demo" />
 
 ## Installation
@@ -17,3 +19,24 @@ Or install via the full URL (zero configuration):
 ```shell
 pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/card.json
 ```
+
+## Props
+
+| Prop          | Type                                                 | Default     | Description                                                                                  |
+| ------------- | ---------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------- |
+| `title`       | `ReactNode`                                          | -           | Header title.                                                                                |
+| `description` | `ReactNode`                                          | -           | Header description rendered below the title.                                                 |
+| `action`      | `ReactNode`                                          | -           | Action area pinned to the top-right corner of the header (e.g. a button or menu).            |
+| `children`    | `ReactNode`                                          | -           | Card body, wrapped in `CardContent`.                                                         |
+| `footer`      | `ReactNode`                                          | -           | Footer content. The divider and muted background are hidden by default — see `dividers`.     |
+| `dividers`    | `boolean \| { header?: boolean; footer?: boolean }`  | `false`     | Shows the header bottom border and/or the footer top border with its muted background.       |
+| `size`        | `"default" \| "sm"`                                  | `"default"` | Compact paddings and typography, forwarded to the underlying `Card` primitive.               |
+
+Every slot accepts a class override: `headerClassName`, `titleClassName`, `descriptionClassName`, `actionClassName`, `contentClassName`, and `footerClassName`. All other props (`className`, `data-*`, event handlers, etc.) are forwarded to the root element.
+
+## Notes
+
+- The header is only rendered when at least one of `title`, `description`, or `action` is present, so a `children`-only card produces no empty header markup.
+- Slot values follow React's rendering rules: `null`, `undefined`, and booleans are treated as absent, while valid falsy nodes such as `0` render normally — handy for stat cards.
+- shadcn's `CardFooter` ships with `border-t bg-muted/50` by default. The Compose layer inverts that default because most footers don't want a separator; opt back in with `dividers` or `dividers={{ footer: true }}`.
+- For media cards (full-bleed `<img>` headers), heterogeneous header layouts, or anything beyond these slots, compose the `components/ui/card` primitives directly instead of extending this component.
