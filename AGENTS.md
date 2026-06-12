@@ -100,10 +100,11 @@ Compose 层服务 **80% 常见场景**，牺牲灵活性换取易用性。复杂
 <Card><CardHeader><CardTitle>...</CardTitle></CardHeader>...</Card>
 ```
 
-**2. 每个 slot 只暴露 `xxxClassName`，不要 `xxxProps`**
+**2. 每个 slot 默认只暴露 `xxxClassName`，克制地使用 `xxxProps`**
 
 - 命名模式：`titleClassName`、`descriptionClassName`、`footerClassName`、`contentClassName`
-- `xxxProps` 是半灵活的陷阱——想透传任意 props 就去用原语
+- `xxxProps` 允许但必须克制：仅当 slot 确有高频的非样式定制需求（典型如按钮 slot 的 `variant` / `disabled` / `loading`）才暴露，且类型必须收窄为该 slot 真实组件的 props（禁止 `Record<string, unknown>` 兜底）
+- 默认不加：能用 `xxxClassName` 表达的、或只为 5% 场景服务的 `xxxProps` 一律不加——去用原语
 
 **3. 命名对齐原语**
 
