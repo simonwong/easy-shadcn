@@ -8,7 +8,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { ClassValue } from "clsx";
-import type { FocusEvent, ReactNode } from "react";
+import type { AriaAttributes, FocusEvent, ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +38,10 @@ export type { SelectItem } from "@/registry/hooks/use-select-items";
 export type { SelectItemsLoader } from "@/registry/hooks/use-select-loader";
 
 interface SelectBaseProps {
+  /** Forwarded to the focusable control for screen-reader descriptions. */
+  "aria-describedby"?: string;
+  /** Forwarded to the focusable control for invalid-state semantics. */
+  "aria-invalid"?: AriaAttributes["aria-invalid"];
   /** Chip className for `multiple` mode. */
   chipClassName?: ClassValue;
   /** Root wrapper className. */
@@ -78,6 +82,11 @@ interface SelectBaseProps {
    * @default case-insensitive `contains` against `label`
    */
   filter?: (item: SelectItem, query: string) => boolean;
+  /**
+   * Id applied to the focusable control (trigger button or input), so a
+   * `<label htmlFor>` / the Field component can associate with it.
+   */
+  id?: string;
   /** `<ComboboxInput />` className. Used in `searchable` and `multiple` modes. */
   inputClassName?: ClassValue;
   /** Default item className. Merged with each `item.itemClassName`. */
@@ -167,7 +176,15 @@ export type SelectMultipleProps = SelectBaseProps & {
 
 export type SelectProps = SelectSingleProps | SelectMultipleProps;
 
-const ITEM_PRESS_REASON = "item-press";
+// The query state only drives the async loader, so it should track explicit
+// input edits — not programmatic refills (e.g. base-ui restoring the selected
+// label on close, reason "none").
+const QUERY_UPDATE_REASONS = new Set([
+  "input-change",
+  "input-clear",
+  "input-paste",
+  "clear-press",
+]);
 
 function defaultErrorRenderer(error: unknown): ReactNode {
   if (error instanceof Error && error.message) {
@@ -547,6 +564,9 @@ export const Select = (props: SelectProps) => {
     onOpenChange,
     filter,
     name,
+    id,
+    "aria-describedby": ariaDescribedBy,
+    "aria-invalid": ariaInvalid,
     className,
     triggerClassName,
     inputClassName,
@@ -575,9 +595,21 @@ export const Select = (props: SelectProps) => {
 
   const [query, setQuery] = useState<string>("");
 
+  // Drop the residual search query on close so reopening loads/filters the
+  // default list instead of replaying the stale query.
+  const handleOpenChangeWithReset = useCallback(
+    (next: boolean) => {
+      if (!next) {
+        setQuery("");
+      }
+      handleOpenChange(next);
+    },
+    [handleOpenChange]
+  );
+
   const handleInputValueChange = useCallback(
     (next: string, details: { reason: string }) => {
-      if (details.reason !== ITEM_PRESS_REASON) {
+      if (QUERY_UPDATE_REASONS.has(details.reason)) {
         setQuery((current) => {
           if (current === next) {
             return current;
@@ -681,8 +713,14 @@ export const Select = (props: SelectProps) => {
     itemToStringLabel,
     name,
     onInputValueChange: handleInputValueChange,
-    onOpenChange: handleOpenChange,
+    onOpenChange: handleOpenChangeWithReset,
     open,
+  } as const;
+
+  const controlProps = {
+    "aria-describedby": ariaDescribedBy,
+    "aria-invalid": ariaInvalid,
+    id,
   } as const;
 
   if (multiple) {
@@ -717,6 +755,7 @@ export const Select = (props: SelectProps) => {
                   );
                 })}
                 <ComboboxChipsInput
+                  {...controlProps}
                   className={cn("flex-1", inputClassName)}
                   placeholder={values.length === 0 ? placeholder : undefined}
                 />
@@ -758,6 +797,7 @@ export const Select = (props: SelectProps) => {
           className={cn("w-auto", triggerClassName, className)}
         >
           <ComboboxPrimitive.Input
+            {...controlProps}
             className={cn(inputClassName)}
             disabled={disabled}
             placeholder={placeholder}
@@ -793,6 +833,7 @@ export const Select = (props: SelectProps) => {
     >
       <div {...focusHandlers} className={cn("relative", className)}>
         <ComboboxPrimitive.Trigger
+          {...controlProps}
           className={cn(
             "w-full justify-between pr-10 [&_svg:not([class*='size-'])]:size-4",
             triggerClassName
