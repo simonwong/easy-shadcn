@@ -144,6 +144,62 @@ describe("Table", () => {
     expect(rows[2].className).toContain("row-young");
   });
 
+  it("marks every header cell with scope=col, including the selection column", () => {
+    render(
+      <Table
+        columns={BASIC_COLUMNS}
+        dataSource={USERS}
+        rowKey="id"
+        selectable
+      />
+    );
+    const headers = screen.getAllByRole("columnheader");
+    expect(headers).toHaveLength(3);
+    for (const th of headers) {
+      expect(th.getAttribute("scope")).toBe("col");
+    }
+  });
+
+  it("forwards column className, headClassName, and cellClassName", () => {
+    const columns: TableColumn<User>[] = [
+      {
+        cellClassName: "cell-x",
+        className: "col-x",
+        dataIndex: "name",
+        headClassName: "head-x",
+        key: "name",
+        title: "Name",
+      },
+    ];
+    render(<Table columns={columns} dataSource={USERS} rowKey="id" />);
+
+    const th = screen.getByRole("columnheader");
+    expect(th.className).toContain("col-x");
+    expect(th.className).toContain("head-x");
+    expect(th.className).not.toContain("cell-x");
+
+    const firstCell = getBodyRows()[0].querySelector("td");
+    expect(firstCell?.className).toContain("col-x");
+    expect(firstCell?.className).toContain("cell-x");
+    expect(firstCell?.className).not.toContain("head-x");
+  });
+
+  it("selection: disables the select-all checkbox while loading", () => {
+    render(
+      <Table
+        columns={BASIC_COLUMNS}
+        dataSource={USERS}
+        loading
+        rowKey="id"
+        selectable
+      />
+    );
+    const [selectAll] = screen.getAllByRole("checkbox");
+    expect(
+      selectAll.matches('[disabled], [data-disabled], [aria-disabled="true"]')
+    ).toBe(true);
+  });
+
   it("selection: clicking a row checkbox fires onSelectedRowKeysChange(keys, rows)", () => {
     const onChange = vi.fn();
     render(
