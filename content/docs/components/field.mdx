@@ -1,0 +1,121 @@
+---
+title: Field
+---
+
+A flat form-field wrapper for the common label, control, description, and error pattern. It keeps validation and form state in your app, while standardizing the visual structure around shadcn form controls.
+
+It also re-exports the single-field shadcn slots (`FieldContent`, `FieldLabel`, `FieldTitle`, `FieldDescription`, and `FieldError`) so the official single `Field` examples can move to `@/components/easy/field` without changing structure.
+
+<ExamplePreview name="field-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/field
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/field.json
+```
+
+The underlying shadcn `field` primitive is installed automatically alongside `field`.
+
+## Usage
+
+```tsx
+import { Input } from "@/components/ui/input"
+import { Field } from "@/components/easy/field"
+
+<Field
+  label="Email"
+  htmlFor="email"
+  description="Used for workspace notifications."
+  error={errors.email?.message}
+  required
+>
+  <Input
+    id="email"
+    aria-invalid={Boolean(errors.email)}
+    disabled={isSubmitting}
+  />
+</Field>
+```
+
+Use `orientation="horizontal"` for checkbox or switch-style rows where the control should sit before the label text:
+
+```tsx
+<Field
+  label="Weekly summary"
+  htmlFor="weekly-summary"
+  description="Send a short digest every Monday."
+  orientation="horizontal"
+>
+  <Checkbox id="weekly-summary" />
+</Field>
+```
+
+For the official shadcn composition style, omit the flat props and compose the single-field slots directly:
+
+```tsx
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/easy/field"
+import { Input } from "@/components/ui/input"
+
+<Field data-invalid>
+  <FieldLabel htmlFor="username">Username</FieldLabel>
+  <Input id="username" autoComplete="off" aria-invalid />
+  <FieldDescription>Choose a unique username.</FieldDescription>
+  <FieldError>Choose another username.</FieldError>
+</Field>
+```
+
+## API
+
+### `Field`
+
+`Field` supports two modes:
+
+- Flat mode: pass `label`, `description`, or `error`.
+- Composition mode: omit those props and use the official Field slots as children.
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `label` | `ReactNode` | - | Field label. |
+| `children` | `ReactNode` | - | The control, such as `Input`, `Textarea`, `Select`, or `DatePicker`. |
+| `description` | `ReactNode` | - | Helper text below the control, or beside it in horizontal mode. |
+| `error` | `ReactNode` | - | Validation message. When present, the field wrapper gets `data-invalid`. Set `aria-invalid` on the control itself. |
+| `invalid` | `boolean` | derived from `error` | Forces invalid styling without rendering an error message. |
+| `disabled` | `boolean` | `false` | Adds disabled state to the field wrapper. Pass `disabled` to the control too. |
+| `required` | `boolean` | `false` | Appends a required indicator to the label. |
+| `htmlFor` | `string` | - | Forwarded to the label so it can target the control by `id`. |
+| `orientation` | `"vertical" \| "horizontal" \| "responsive"` | `"vertical"` | Vertical renders label above the control. Horizontal and responsive render the control before the text for checkbox/switch-style fields. |
+| `className` | `ClassValue` | - | Wrapper className. |
+| `contentClassName` | `ClassValue` | - | Text/content wrapper className. |
+| `labelClassName` | `ClassValue` | - | Label className. |
+| `descriptionClassName` | `ClassValue` | - | Description className. |
+| `errorClassName` | `ClassValue` | - | Error className. |
+
+### Single-field slots
+
+`FieldContent`, `FieldLabel`, `FieldTitle`, and `FieldDescription` are re-exported from the underlying shadcn primitive.
+
+`FieldError` accepts both `errors` and `issues` arrays:
+
+```tsx
+<FieldError issues={result.issues} />
+<FieldError errors={fieldState.errors} />
+```
+
+## When to use the primitive instead
+
+Use `components/ui/field` directly when you want the raw shadcn primitive and no easy-shadcn flat-props layer at all. This component intentionally does not clone the child control or inject `disabled`, `aria-invalid`, or `aria-describedby`; those stay explicit on the control you pass in.
+
+Grouped examples from the official shadcn docs (`FieldSet`, `FieldGroup`, `FieldLegend`, and `FieldSeparator`) are intentionally left to the primitive for now. This component focuses on the single `Field` shape.
