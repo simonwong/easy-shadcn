@@ -193,6 +193,155 @@ describe("DatePicker", () => {
     expect(input.value).toBe("");
   });
 
+  it("disables out-of-range days in the calendar via minDate/maxDate", () => {
+    const onChange = vi.fn();
+
+    render(
+      <DatePicker
+        defaultMonth={JAN_2026}
+        defaultOpen
+        maxDate={JAN_20_2026}
+        minDate={JAN_15_2026}
+        onChange={onChange}
+      />
+    );
+
+    expect(getDayButton(new Date(2026, 0, 10)).hasAttribute("disabled")).toBe(
+      true
+    );
+    expect(getDayButton(new Date(2026, 0, 25)).hasAttribute("disabled")).toBe(
+      true
+    );
+    expect(getDayButton(JAN_15_2026).hasAttribute("disabled")).toBe(false);
+
+    fireEvent.click(getDayButton(new Date(2026, 0, 10)));
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("discards typed input that violates minDate", () => {
+    const onChange = vi.fn();
+
+    render(
+      <DatePicker
+        format="MM/dd/yyyy"
+        minDate={JAN_15_2026}
+        onChange={onChange}
+        withInput
+      />
+    );
+
+    const input = screen.getByPlaceholderText(
+      "Pick a date"
+    ) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "01/10/2026" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(input.value).toBe("");
+  });
+
+  it("discards typed input matching disabledDates", () => {
+    const onChange = vi.fn();
+
+    render(
+      <DatePicker
+        disabledDates={{ dayOfWeek: [0, 6] }}
+        format="MM/dd/yyyy"
+        onChange={onChange}
+        withInput
+      />
+    );
+
+    const input = screen.getByPlaceholderText(
+      "Pick a date"
+    ) as HTMLInputElement;
+    // 2026-01-17 is a Saturday.
+    fireEvent.change(input, { target: { value: "01/17/2026" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onChange).not.toHaveBeenCalled();
+
+    // 2026-01-15 is a Thursday.
+    fireEvent.change(input, { target: { value: "01/15/2026" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onChange).toHaveBeenCalledWith(JAN_15_2026);
+  });
+
+  it("forwards id, name, and aria props to the input trigger", () => {
+    render(
+      <DatePicker
+        aria-invalid
+        format="MM/dd/yyyy"
+        id="birthday"
+        name="birthday"
+        withInput
+      />
+    );
+
+    const input = screen.getByPlaceholderText(
+      "Pick a date"
+    ) as HTMLInputElement;
+    expect(input.id).toBe("birthday");
+    expect(input.name).toBe("birthday");
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+  });
+
+  it("forwards id and aria props to the button trigger", () => {
+    render(<DatePicker aria-invalid id="due-date" />);
+
+    const trigger = screen.getByRole("button", { name: "Pick a date" });
+    expect(trigger.id).toBe("due-date");
+    expect(trigger.getAttribute("aria-invalid")).toBe("true");
+  });
+
+  it("cancels the pending draft when the popover closes via Escape", () => {
+    const onChange = vi.fn();
+
+    render(
+      <DatePicker
+        defaultValue={JAN_15_2026}
+        format="MM/dd/yyyy"
+        onChange={onChange}
+        withInput
+      />
+    );
+
+    const input = screen.getByDisplayValue("01/15/2026") as HTMLInputElement;
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: "01/20/2026" } });
+    fireEvent.keyDown(input, { key: "Escape" });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(input.value).toBe("01/15/2026");
+  });
+
+  it("fires onOpenChange once when closing commits a pending draft", () => {
+    const onOpenChange = vi.fn();
+    const onChange = vi.fn();
+
+    render(
+      <DatePicker
+        defaultOpen
+        format="MM/dd/yyyy"
+        onChange={onChange}
+        onOpenChange={onOpenChange}
+        withInput
+      />
+    );
+
+    const input = screen.getByPlaceholderText(
+      "Pick a date"
+    ) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "01/15/2026" } });
+    fireEvent.click(screen.getByRole("button", { name: "Open calendar" }));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(JAN_15_2026);
+    const closeCalls = onOpenChange.mock.calls.filter(
+      ([next]) => next === false
+    );
+    expect(closeCalls).toHaveLength(1);
+  });
+
   it("formats partial and complete ranges", () => {
     const { rerender } = render(
       <DatePicker

@@ -27,7 +27,7 @@ Non-Goals:
 - 不提供 render prop、slots、`xxxProps` 透传或任意插槽插入点。
 - 不实现 multiple/range 的文本输入解析。
 - 不在 Date Picker 内实现表单校验、错误提示或输入掩码。
-- 不替代复杂 Calendar 场景；需要禁用具体日期、高级 range 规则或受控 month 时应直接组合 `Popover` + `Calendar`。
+- 不替代复杂 Calendar 场景；`minDate` / `maxDate` / `disabledDates` 之外的高级 range 规则、任意 DayPicker prop 或受控 month 时应直接组合 `Popover` + `Calendar`。
 
 ## User Stories
 
@@ -92,6 +92,9 @@ Non-Goals:
 - WHEN the draft is an empty string THE SYSTEM SHALL commit `undefined`.
 - WHEN the draft parses with `parse(draft, format, new Date(), { locale })` and `isValid(parsed)` is true THE SYSTEM SHALL commit the parsed `Date`.
 - WHEN the draft is invalid THE SYSTEM SHALL discard the draft without calling `onChange`.
+- WHEN the draft parses to a valid date blocked by `minDate`, `maxDate`, or `disabledDates` THE SYSTEM SHALL discard the draft without calling `onChange`.
+- WHEN the popover closes with reason `escape-key` THE SYSTEM SHALL discard the pending draft without committing.
+- WHEN the popover closes for any other non-cancelled reason while a draft is pending THE SYSTEM SHALL attempt to commit the draft and call `onOpenChange(false)` exactly once.
 - WHEN any input commit path finishes THE SYSTEM SHALL clear the draft.
 
 ### Disabled And Styling
@@ -106,6 +109,9 @@ Non-Goals:
 
 ### Calendar Integration
 
+- WHEN `minDate` is provided THE SYSTEM SHALL disable Calendar days before it.
+- WHEN `maxDate` is provided THE SYSTEM SHALL disable Calendar days after it.
+- WHEN `disabledDates` is provided THE SYSTEM SHALL merge it with the `minDate`/`maxDate` matchers and forward the set to Calendar as disabled days.
 - WHEN `startMonth` is provided THE SYSTEM SHALL prevent Calendar month navigation before that month, including the custom months panel.
 - WHEN `endMonth` is provided THE SYSTEM SHALL prevent Calendar month navigation after that month, including the custom months panel.
 - WHEN Calendar renders custom month or year panels THE SYSTEM SHALL expose listbox/option semantics and selected state.
@@ -170,7 +176,7 @@ if (mode === "multiple") {
 ### Commit
 
 ```ts
-function commit(next) {
+function commit(next, options) {
   if (props.disabled) return
   if (!isValueControlled) {
     setInternalValue(next)
@@ -179,7 +185,10 @@ function commit(next) {
   props.onChange?.(next)
   setDraft(null)
 
-  if (mode === "single" && next) {
+  // currentOpen guard: blur commits (popover already closed) and
+  // close-initiated commits ({ close: false }) must not re-close,
+  // so onOpenChange fires exactly once per close.
+  if (mode === "single" && next && currentOpen && options?.close !== false) {
     handleOpenChange(false)
   }
 }
@@ -192,7 +201,10 @@ if (draft === null) return
 if (draft === "") commit(undefined)
 else {
   const parsed = parse(draft, format, new Date(), { locale })
-  if (isValid(parsed)) commit(parsed)
+  // disabledMatchers = [{ before: minDate }, { after: maxDate }, ...disabledDates]
+  if (isValid(parsed) && !dateMatchModifiers(parsed, disabledMatchers)) {
+    commit(parsed, options)
+  }
 }
 setDraft(null)
 ```
@@ -220,6 +232,11 @@ setDraft(null)
 | `placeholder` | Overrides the mode default placeholder. |
 | `disabled` | Disables trigger controls, prevents opening, blocks commits, and disables Calendar days when already open. |
 | `withInput` | Single-mode-only input trigger. Enables typing, blur commit, Enter commit, and invalid-input discard. |
+| `minDate` / `maxDate` | Inclusive selectable-day bounds. Disable out-of-range Calendar days and reject out-of-range typed input. |
+| `disabledDates` | react-day-picker `Matcher \| Matcher[]` of unselectable days, merged with the `minDate`/`maxDate` matchers and enforced on typed input. |
+| `id` | Applied to the trigger (button or input) for `<label htmlFor>` / Field association. |
+| `name` | Native form name on the `withInput` text input (the formatted text is submitted). |
+| `aria-describedby` / `aria-invalid` | Forwarded to the trigger (button or input). |
 | `numberOfMonths` | Forwarded to `Calendar`. |
 | `defaultMonth` | Forwarded to `Calendar`; when absent, Date Picker derives it from the current selected value. |
 | `startMonth` | Forwarded to `Calendar` as the earliest navigable month. |
@@ -256,7 +273,7 @@ setDraft(null)
 
 **Decision**: `DatePicker` wraps `Popover`, `Button`, `Input`, and `Calendar` with flat props.
 
-**Why**: The Compose layer serves the common form-control case. Complex date rules, custom layouts, disabled matchers, or fully controlled Calendar month state should use the underlying primitives directly instead of expanding the Date Picker API.
+**Why**: The Compose layer serves the common form-control case. Complex date rules beyond `minDate`/`maxDate`/`disabledDates`, custom layouts, or fully controlled Calendar month state should use the underlying primitives directly instead of expanding the Date Picker API.
 
 ### ADR-2: Restrict Manual Input To Single Mode
 
@@ -287,6 +304,18 @@ setDraft(null)
 **Decision**: Input blur commits only when focus leaves both the input wrapper and popover content.
 
 **Why**: Clicking the calendar naturally blurs the input first. If blur committed immediately, a valid typed draft could close the popover before the intended day click runs.
+
+### ADR-7: Selectable-Day Constraints Are In Scope
+
+**Decision**: `minDate`, `maxDate`, and `disabledDates` are dedicated flat props, forwarded to Calendar as disabled-day matchers and enforced on `withInput` commits.
+
+**Why**: "No past/future dates" and "block specific days" are 80% production scenarios (deadlines, bookings, birthdays). Without input-commit enforcement, typing would bypass any calendar-side restriction. Arbitrary DayPicker prop forwarding stays out of scope.
+
+### ADR-8: Escape Cancels The Pending Draft
+
+**Decision**: Closing the popover via `escape-key` discards the pending input draft; every other close reason attempts to commit it.
+
+**Why**: Escape conventionally means "abandon my edit". Committing on Escape would make the only cancel gesture destructive to the previous value.
 
 ## Acceptance Criteria
 
@@ -342,13 +371,29 @@ GIVEN a Date Picker with an open Calendar month/year panel
 WHEN the popover closes and reopens
 THEN the Calendar view is reset to the day grid.
 
+GIVEN a Date Picker with `minDate` and `maxDate`
+WHEN the calendar renders days outside the range
+THEN those days are disabled and clicking them does not call `onChange`.
+
+GIVEN a single Date Picker with `withInput` and `minDate` or `disabledDates`
+WHEN the user types a blocked date and presses Enter
+THEN `onChange` is not called and the input reverts.
+
+GIVEN a single Date Picker with `withInput` and a pending edited draft
+WHEN the user presses Escape
+THEN `onChange` is not called and the input reverts to the previous formatted value.
+
+GIVEN a single Date Picker with `withInput`, an open popover, and a pending valid draft
+WHEN the popover closes
+THEN `onChange` receives the parsed date and `onOpenChange(false)` fires exactly once.
+
 GIVEN a Calendar opened to the months panel with `startMonth` and `endMonth`
 WHEN months outside the bounds render
 THEN those month options are disabled and cannot change the visible month.
 
 ## Out of Scope
 
-- Disabled-day matchers and arbitrary DayPicker prop forwarding.
+- Arbitrary DayPicker prop forwarding beyond the dedicated `minDate` / `maxDate` / `disabledDates` props.
 - Controlled visible Calendar month.
 - Custom Calendar footer/header slots.
 - Input masks and validation messages.

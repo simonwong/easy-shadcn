@@ -9,6 +9,7 @@ const Demo = () => {
   const [multiple, setMultiple] = useState<Date[] | undefined>();
   const [range, setRange] = useState<DateRange | undefined>();
   const [typed, setTyped] = useState<Date | undefined>();
+  const [appointment, setAppointment] = useState<Date | undefined>();
 
   return (
     <div className="flex flex-col gap-6">
@@ -52,6 +53,18 @@ const Demo = () => {
           onChange={setTyped}
           value={typed}
           withInput
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-muted-foreground text-sm">
+          Constrained (minDate=today, weekends disabled)
+        </span>
+        <DatePicker
+          disabledDates={{ dayOfWeek: [0, 6] }}
+          minDate={new Date()}
+          onChange={setAppointment}
+          value={appointment}
         />
       </div>
     </div>

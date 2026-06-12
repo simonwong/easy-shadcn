@@ -6,8 +6,10 @@ import type { ClassValue } from "clsx";
 import type { Locale } from "date-fns";
 import { format as formatDate, isValid, parse } from "date-fns";
 import type React from "react";
+import type { AriaAttributes } from "react";
 import { useId, useRef, useState } from "react";
-import type { DateRange } from "react-day-picker";
+import type { DateRange, Matcher } from "react-day-picker";
+import { dateMatchModifiers } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,16 +23,40 @@ import { Calendar } from "@/registry/ui/calendar";
 // ---------- Types ----------
 
 type DatePickerBaseProps = {
+  /** Forwarded to the trigger (button or input) for screen-reader descriptions. */
+  "aria-describedby"?: string;
+  /** Forwarded to the trigger (button or input) for invalid-state semantics. */
+  "aria-invalid"?: AriaAttributes["aria-invalid"];
   /**
    * `date-fns` format string applied to the displayed value and used to parse
    * input back into a `Date` when `withInput` is enabled.
    * @default "PPP"
    */
   format?: string;
+  /**
+   * Id applied to the trigger (button or input), so a `<label htmlFor>` / the
+   * Field component can associate with it.
+   */
+  id?: string;
   /** `date-fns` locale forwarded to both the formatter and the Calendar. */
   locale?: Locale;
+  /**
+   * Native form name. Applies to the `withInput` text input only (the
+   * formatted text is what gets submitted).
+   */
+  name?: string;
   placeholder?: string;
   disabled?: boolean;
+  /**
+   * Days that cannot be selected: a react-day-picker `Matcher` or an array of
+   * them (e.g. `{ dayOfWeek: [0, 6] }`). Typed input that resolves to a
+   * blocked day is discarded on commit.
+   */
+  disabledDates?: Matcher | Matcher[];
+  /** Earliest selectable day (inclusive). Typed input before it is discarded. */
+  minDate?: Date;
+  /** Latest selectable day (inclusive). Typed input after it is discarded. */
+  maxDate?: Date;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -135,7 +161,7 @@ type DatePickerValue = Date | Date[] | DateRange | undefined;
 
 type DatePickerCalendarBase = {
   className: string;
-  disabled?: boolean;
+  disabled?: boolean | Matcher[];
   endMonth?: Date;
   locale?: Locale;
   numberOfMonths?: number;
@@ -201,6 +227,13 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
     locale,
     placeholder,
     disabled,
+    disabledDates,
+    minDate,
+    maxDate,
+    id,
+    name,
+    "aria-describedby": ariaDescribedBy,
+    "aria-invalid": ariaInvalid,
     numberOfMonths,
     defaultMonth,
     startMonth,
@@ -235,24 +268,31 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
   const [internalOpen, setInternalOpen] = useState(defaultOpen ?? false);
   const currentOpen = open === undefined ? internalOpen : open;
   const [resetViewsKey, setResetViewsKey] = useState(0);
+  // Interactions that land back inside the picker (input, icon button,
+  // popover content) must not be treated as a dismissal.
+  const isCloseWithinPicker = (details?: {
+    reason?: string;
+    event?: Event;
+  }) => {
+    if (
+      details?.reason === "outside-press" &&
+      isTargetWithinPicker(details.event?.target ?? null)
+    ) {
+      return true;
+    }
+    const relatedTarget =
+      details?.event && "relatedTarget" in details.event
+        ? (details.event as FocusEvent).relatedTarget
+        : null;
+    return isTargetWithinPicker(relatedTarget);
+  };
+
   const handleOpenChange = (
     next: boolean,
     details?: { reason?: string; event?: Event; cancel?: () => void },
     options?: { commitDraft?: boolean }
   ) => {
-    const relatedTarget =
-      details?.event && "relatedTarget" in details.event
-        ? (details.event as FocusEvent).relatedTarget
-        : null;
-    if (
-      !next &&
-      details?.reason === "outside-press" &&
-      isTargetWithinPicker(details.event?.target ?? null)
-    ) {
-      details.cancel?.();
-      return;
-    }
-    if (!next && isTargetWithinPicker(relatedTarget)) {
+    if (!next && isCloseWithinPicker(details)) {
       details?.cancel?.();
       return;
     }
@@ -265,7 +305,12 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
       options?.commitDraft !== false &&
       !committingDraftRef.current
     ) {
-      handleInputCommit();
+      if (details?.reason === "escape-key") {
+        // Escape cancels the pending edit instead of committing it.
+        setDraft(null);
+      } else {
+        handleInputCommit({ close: false });
+      }
     }
     if (open === undefined) {
       setInternalOpen(next);
@@ -292,7 +337,26 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
 
   const [draft, setDraft] = useState<string | null>(null);
 
-  const commit = (next: Date | Date[] | DateRange | undefined) => {
+  // Selectability constraints, shared by the calendar and the typed input.
+  const disabledMatchers: Matcher[] = [];
+  if (minDate) {
+    disabledMatchers.push({ before: minDate });
+  }
+  if (maxDate) {
+    disabledMatchers.push({ after: maxDate });
+  }
+  if (Array.isArray(disabledDates)) {
+    disabledMatchers.push(...disabledDates);
+  } else if (disabledDates !== undefined) {
+    disabledMatchers.push(disabledDates);
+  }
+  const isDateBlocked = (date: Date) =>
+    disabledMatchers.length > 0 && dateMatchModifiers(date, disabledMatchers);
+
+  const commit = (
+    next: Date | Date[] | DateRange | undefined,
+    options?: { close?: boolean }
+  ) => {
     if (disabled) {
       return;
     }
@@ -301,25 +365,27 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
     }
     onChange?.(next);
     setDraft(null);
-    if (mode === "single" && next) {
+    // Skip the auto-close when the popover is already closed (blur commits)
+    // or closing (so onOpenChange fires exactly once per close).
+    if (mode === "single" && next && currentOpen && options?.close !== false) {
       handleOpenChange(false, undefined, { commitDraft: false });
     }
   };
 
-  const handleInputCommit = () => {
+  const handleInputCommit = (options?: { close?: boolean }) => {
     if (draft === null) {
       return;
     }
     committingDraftRef.current = true;
     try {
       if (!draft) {
-        commit(undefined);
+        commit(undefined, options);
         setDraft(null);
         return;
       }
       const parsed = parse(draft, fmt, new Date(), { locale });
-      if (isValid(parsed)) {
-        commit(parsed);
+      if (isValid(parsed) && !isDateBlocked(parsed)) {
+        commit(parsed, options);
       }
       setDraft(null);
     } finally {
@@ -359,10 +425,17 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
 
   const placeholderText = placeholder ?? PLACEHOLDERS[mode];
 
+  let calendarDisabled: boolean | Matcher[] | undefined;
+  if (disabled) {
+    calendarDisabled = true;
+  } else if (disabledMatchers.length > 0) {
+    calendarDisabled = disabledMatchers;
+  }
+
   const calendarBase = {
     locale,
     className: cn(calendarClassName),
-    disabled: disabled || undefined,
+    disabled: calendarDisabled,
     numberOfMonths,
     startMonth,
     endMonth,
@@ -382,10 +455,14 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
       <div className={cn("relative w-60", className)} ref={wrapperRef}>
         <Input
           aria-controls={currentOpen ? contentId : undefined}
+          aria-describedby={ariaDescribedBy}
           aria-expanded={currentOpen}
           aria-haspopup="dialog"
+          aria-invalid={ariaInvalid}
           className={cn("w-full pr-9", inputClassName, triggerClassName)}
           disabled={disabled}
+          id={id}
+          name={name}
           onBlur={handlePickerBlur}
           onChange={(e) => setDraft(e.target.value)}
           onClick={() => handleOpenChange(true)}
@@ -442,6 +519,8 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
       <PopoverTrigger
         render={
           <Button
+            aria-describedby={ariaDescribedBy}
+            aria-invalid={ariaInvalid}
             className={cn(
               "w-60 justify-start font-normal",
               !display && "text-muted-foreground",
@@ -449,6 +528,7 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
               triggerClassName
             )}
             disabled={disabled}
+            id={id}
             variant="outline"
           />
         }
