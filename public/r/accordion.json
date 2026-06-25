@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "accordion",
+  "title": "Integrated Accordion",
+  "description": "Flat items-driven Accordion built on shadcn's base-ui Accordion: single or multiple open panels, controlled / uncontrolled, with per-item disabled and class overrides.",
+  "registryDependencies": [
+    "accordion"
+  ],
+  "files": [
+    {
+      "path": "registry/ui/accordion.tsx",
+      "content": "\"use client\";\n\nimport type { Accordion as AccordionPrimitive } from \"@base-ui/react/accordion\";\nimport type { ClassValue } from \"clsx\";\nimport type { ReactNode } from \"react\";\nimport {\n  AccordionContent,\n  AccordionItem as AccordionItemPrimitive,\n  Accordion as AccordionRoot,\n  AccordionTrigger,\n} from \"@/components/ui/accordion\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface AccordionItem {\n  content: ReactNode;\n  contentClassName?: ClassValue;\n  disabled?: boolean;\n  itemClassName?: ClassValue;\n  trigger: ReactNode;\n  triggerClassName?: ClassValue;\n  value: string;\n}\n\nexport interface AccordionProps\n  extends Omit<\n    AccordionPrimitive.Root.Props<string>,\n    \"children\" | \"defaultValue\" | \"onValueChange\" | \"render\" | \"value\"\n  > {\n  contentClassName?: ClassValue;\n  defaultValue?: string[];\n  itemClassName?: ClassValue;\n  items: AccordionItem[];\n  onValueChange?: (\n    value: string[],\n    eventDetails: AccordionPrimitive.Root.ChangeEventDetails\n  ) => void;\n  triggerClassName?: ClassValue;\n  value?: string[];\n}\n\nexport const Accordion = ({\n  items,\n  itemClassName,\n  triggerClassName,\n  contentClassName,\n  className,\n  ...rootProps\n}: AccordionProps) => (\n  <AccordionRoot className={className} {...rootProps}>\n    {items.map((item) => (\n      <AccordionItemPrimitive\n        className={cn(itemClassName, item.itemClassName)}\n        disabled={item.disabled}\n        key={item.value}\n        value={item.value}\n      >\n        <AccordionTrigger\n          className={cn(triggerClassName, item.triggerClassName)}\n        >\n          {item.trigger}\n        </AccordionTrigger>\n        <AccordionContent\n          className={cn(contentClassName, item.contentClassName)}\n        >\n          {item.content}\n        </AccordionContent>\n      </AccordionItemPrimitive>\n    ))}\n  </AccordionRoot>\n);\n\nexport default Accordion;\n",
+      "type": "registry:component",
+      "target": "components/easy/accordion.tsx"
+    }
+  ],
+  "type": "registry:component"
+}

@@ -32,6 +32,62 @@
       ]
     },
     {
+      "name": "accordion",
+      "type": "registry:component",
+      "title": "Integrated Accordion",
+      "description": "Flat items-driven Accordion built on shadcn's base-ui Accordion: single or multiple open panels, controlled / uncontrolled, with per-item disabled and class overrides.",
+      "registryDependencies": ["accordion"],
+      "files": [
+        {
+          "path": "registry/ui/accordion.tsx",
+          "type": "registry:component",
+          "target": "components/easy/accordion.tsx"
+        }
+      ]
+    },
+    {
+      "name": "breadcrumb",
+      "type": "registry:component",
+      "title": "Integrated Breadcrumb",
+      "description": "Flat items-driven Breadcrumb built on shadcn's Breadcrumb markup: automatic current-page detection, optional ellipsis collapsing via maxItems, and a customizable separator.",
+      "registryDependencies": ["breadcrumb"],
+      "files": [
+        {
+          "path": "registry/ui/breadcrumb.tsx",
+          "type": "registry:component",
+          "target": "components/easy/breadcrumb.tsx"
+        }
+      ]
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:component",
+      "title": "Integrated Tooltip",
+      "description": "Drop-anywhere Tooltip that collapses shadcn's base-ui Provider / Root / Trigger / Portal / Positioner / Popup into one component: wrap an element and pass content, with side/align and delay controls.",
+      "registryDependencies": ["tooltip"],
+      "files": [
+        {
+          "path": "registry/ui/tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/easy/tooltip.tsx"
+        }
+      ]
+    },
+    {
+      "name": "radio-group",
+      "type": "registry:component",
+      "title": "Integrated Radio Group",
+      "description": "Flat items-driven RadioGroup built on shadcn's base-ui RadioGroup: per-option label, description, and disabled, with accessible label/description wiring and class overrides.",
+      "registryDependencies": ["radio-group"],
+      "files": [
+        {
+          "path": "registry/ui/radio-group.tsx",
+          "type": "registry:component",
+          "target": "components/easy/radio-group.tsx"
+        }
+      ]
+    },
+    {
       "name": "field",
       "type": "registry:component",
       "title": "Integrated Field",

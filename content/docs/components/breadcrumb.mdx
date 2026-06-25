@@ -1,0 +1,51 @@
+---
+title: Breadcrumb
+---
+
+Breadcrumb flattens shadcn's `Breadcrumb` markup into a single items-driven component: each item describes a label and an optional `href`, instead of hand-writing nested `BreadcrumbList` / `BreadcrumbItem` / `BreadcrumbLink` / `BreadcrumbSeparator` structures. The last item becomes the current page automatically, and long trails can collapse into an ellipsis.
+
+<ExamplePreview name="breadcrumb-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/breadcrumb
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/breadcrumb.json
+```
+
+## Props
+
+| Prop                  | Type               | Default | Description                                                                          |
+| --------------------- | ------------------ | ------- | ------------------------------------------------------------------------------------ |
+| `items`               | `BreadcrumbItem[]` | -       | Trail definitions — see the table below.                                             |
+| `separator`           | `ReactNode`        | chevron | Overrides the content rendered between items.                                        |
+| `maxItems`            | `number`           | -       | Maximum items to display. When `items.length` exceeds it, the breadcrumb shows the first item, an ellipsis, and the last `maxItems - 1` items. |
+| `listClassName`       | `string`           | -       | Class override for `BreadcrumbList`.                                                 |
+| `itemClassName`       | `string`           | -       | Class override applied to every `BreadcrumbItem`.                                    |
+| `linkClassName`       | `string`           | -       | Class override applied to every `BreadcrumbLink`.                                    |
+| `pageClassName`       | `string`           | -       | Class override for the current `BreadcrumbPage`.                                     |
+| `separatorClassName`  | `string`           | -       | Class override applied to every `BreadcrumbSeparator`.                               |
+
+All other props (`className`, `aria-label`, etc.) are forwarded to the underlying `nav`.
+
+### BreadcrumbItem
+
+| Field     | Type        | Description                                                                          |
+| --------- | ----------- | ----------------------------------------------------------------------------------- |
+| `label`   | `ReactNode` | Item content.                                                                        |
+| `href`    | `string`    | Renders a link. Omit it to render plain text.                                        |
+| `current` | `boolean`   | Forces this item to render as the current page. Defaults to the last item.           |
+
+## Notes
+
+- The current page is detected automatically: the last item renders as a non-interactive `BreadcrumbPage` (`aria-current="page"`). Set `current` on any item to override this — once any item is explicitly `current`, the last item is no longer auto-selected.
+- The current page is never a link, even if it has an `href`.
+- For client-side routing (Next.js `<Link>`, React Router), pass the link element as `label` and omit `href`, or compose the `components/ui/breadcrumb` primitives directly. The flat `href` renders a plain `<a>`.
+- `items` must be homogeneous. For interactive ellipsis menus or per-item custom markup, compose the primitives directly instead.

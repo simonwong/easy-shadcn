@@ -1,0 +1,58 @@
+---
+title: Radio Group
+---
+
+Radio Group flattens shadcn's `RadioGroup` into a single items-driven component: each item describes its value, label, and optional description, instead of hand-wiring `RadioGroupItem` controls and their labels.
+
+<ExamplePreview name="radio-group-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/radio-group
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/radio-group.json
+```
+
+## Props
+
+| Prop                   | Type                                      | Default | Description                                                                  |
+| ---------------------- | ----------------------------------------- | ------- | --------------------------------------------------------------------------- |
+| `items`                | `RadioGroupItem[]`                        | -       | Option definitions — see the table below. An empty array renders no radios. |
+| `value`                | `string`                                  | -       | The selected value. Use for the controlled mode.                            |
+| `defaultValue`         | `string`                                  | -       | The initially selected value. Use for the uncontrolled mode.                |
+| `onValueChange`        | `(value: string, eventDetails) => void`   | -       | Called when the selection changes.                                          |
+| `disabled`             | `boolean`                                 | `false` | Disables every option.                                                      |
+| `required`             | `boolean`                                 | `false` | Marks the group as required in a form.                                      |
+| `name`                 | `string`                                  | -       | Field name used on form submission.                                         |
+| `optionClassName`      | `ClassValue`                              | -       | Class override applied to every option row (the `label`).                   |
+| `itemClassName`        | `ClassValue`                              | -       | Class override applied to every radio control.                              |
+| `labelClassName`       | `ClassValue`                              | -       | Class override applied to every label.                                      |
+| `descriptionClassName` | `ClassValue`                              | -       | Class override applied to every description.                                |
+
+All other props (`className`, `readOnly`, `form`, etc.) are forwarded to the underlying RadioGroup root.
+
+### RadioGroupItem
+
+| Field                  | Type         | Description                                                              |
+| ---------------------- | ------------ | ----------------------------------------------------------------------- |
+| `value`                | `string`     | Unique value of the option.                                             |
+| `label`                | `ReactNode`  | Option label.                                                           |
+| `description`          | `ReactNode`  | Optional helper text, associated via `aria-describedby`.                |
+| `disabled`             | `boolean`    | Disables this option.                                                   |
+| `optionClassName`      | `ClassValue` | Per-item row class, merged after the root-level `optionClassName`.      |
+| `itemClassName`        | `ClassValue` | Per-item control class, merged after the root-level `itemClassName`.    |
+| `labelClassName`       | `ClassValue` | Per-item label class, merged after the root-level `labelClassName`.     |
+| `descriptionClassName` | `ClassValue` | Per-item description class, merged after the root-level `descriptionClassName`. |
+
+## Notes
+
+- `value` / `defaultValue` / `onValueChange` are narrowed to `string` — the Base UI primitive accepts `any`, which silently swallows typos.
+- Each option is a clickable `<label>` row; the control is associated with its label and description via `aria-labelledby` / `aria-describedby` for correct accessible names.
+- `items` must be homogeneous. For radio cards with arbitrary content per option or custom indicators, compose the `components/ui/radio-group` primitives directly instead.

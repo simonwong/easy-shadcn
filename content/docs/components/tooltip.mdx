@@ -1,0 +1,45 @@
+---
+title: Tooltip
+---
+
+Tooltip collapses shadcn's six nested Tooltip parts (`TooltipProvider` / `Tooltip` / `TooltipTrigger` / `TooltipContent` and the portal + positioner inside) into a single drop-anywhere component: wrap any element and pass the `content`.
+
+<ExamplePreview name="tooltip-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/tooltip
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/tooltip.json
+```
+
+## Props
+
+| Prop               | Type                                       | Default    | Description                                                                |
+| ------------------ | ------------------------------------------ | ---------- | ------------------------------------------------------------------------- |
+| `children`         | `ReactElement`                             | -          | The trigger. Must be a single element — it becomes the trigger itself.    |
+| `content`          | `ReactNode`                                | -          | The tooltip body.                                                         |
+| `side`             | `"top" \| "bottom" \| "left" \| "right" \| "inline-start" \| "inline-end"` | `"top"` | Which side of the trigger the tooltip is placed on. |
+| `sideOffset`       | `number`                                   | `4`        | Gap between the trigger and the tooltip.                                  |
+| `align`            | `"start" \| "center" \| "end"`             | `"center"` | Alignment along the chosen side.                                          |
+| `alignOffset`      | `number`                                   | `0`        | Offset along the alignment axis.                                          |
+| `open`             | `boolean`                                  | -          | Controlled open state.                                                    |
+| `defaultOpen`      | `boolean`                                  | `false`    | Initial open state (uncontrolled).                                        |
+| `onOpenChange`     | `(open: boolean, eventDetails) => void`    | -          | Called when the open state changes.                                       |
+| `disabled`         | `boolean`                                  | `false`    | Disables the tooltip — it never opens.                                    |
+| `delay`            | `number`                                   | `0`        | Delay before opening, in ms.                                             |
+| `closeDelay`       | `number`                                   | `0`        | Delay before closing, in ms.                                            |
+| `contentClassName` | `string`                                   | -          | Class override for the tooltip popup.                                     |
+
+## Notes
+
+- `children` must be a single element that forwards props and a ref (a DOM tag like `<button>`, or a component built with `forwardRef` / Base UI's `render`). It becomes the trigger directly — no extra wrapper element is added, so there is no nested-button problem.
+- The component wraps its own `TooltipProvider`, so a single `<Tooltip>` works without any app-root setup. Because each instance carries its own provider, an app-root `TooltipProvider` has no effect on these tooltips — for shared hover grouping (adjacent tooltips opening instantly), compose the `components/ui/tooltip` primitives under one shared `TooltipProvider` instead.
+- For cursor-following tooltips, hoverable rich popups, or one tooltip shared by multiple triggers, compose the `components/ui/tooltip` primitives directly instead.
