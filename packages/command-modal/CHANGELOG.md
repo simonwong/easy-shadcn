@@ -1,5 +1,11 @@
 # @easy-shadcn/command-modal
 
+## 0.2.0
+
+### Minor Changes
+
+- [#65](https://github.com/simonwong/easy-shadcn/pull/65) [`837141a`](https://github.com/simonwong/easy-shadcn/commit/837141a9902c8b51d6b5eb73b0b4644ec3d2e8b1) Thanks [@simonwong](https://github.com/simonwong)! - Export `unregister` from the package entry. Dynamically created modals (e.g. promise-style alert/confirm helpers built on `create()` + `show()`) can now remove their `MODAL_REGISTRY` entry after settling, instead of leaking one registry entry per call.
+
 ## 0.1.0
 
 ### Minor Changes
