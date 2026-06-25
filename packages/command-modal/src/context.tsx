@@ -236,26 +236,43 @@ export const useCommandModalDispatch =
 const CommandModalPlaceholder: React.FC = () => {
   const modals = useContext(CommandModalContext);
 
-  // Memoize expensive filtering and mapping operations
-  const toRender = useMemo(() => {
-    const visibleModalIds = Object.keys(modals).filter((id) => !!modals[id]);
+  // Derive synchronously from live module state on every render. No useMemo:
+  // the result depends on MODAL_REGISTRY / ALREADY_MOUNTED, which mutate
+  // (register(), <ModalDef>) without changing `modals`, so a memo keyed on
+  // [modals] could serve a stale list and silently fail to mount a modal that
+  // was registered after its id entered the store. The filter/map is cheap
+  // relative to the modal subtrees it gates.
+  const visibleModalIds = Object.keys(modals).filter((id) => !!modals[id]);
+  const unresolvedIds: string[] = [];
+  const toRender = visibleModalIds
+    .filter((id) => {
+      if (!(MODAL_REGISTRY[id] || ALREADY_MOUNTED[id])) {
+        unresolvedIds.push(id);
+        return false; // Skip this modal but continue processing others
+      }
+      return MODAL_REGISTRY[id]; // Only render registered modals (JSX-declared modals render themselves)
+    })
+    .map((id) => ({
+      id,
+      ...MODAL_REGISTRY[id],
+    }));
 
-    // Validate and filter modals, warning about invalid ones without interrupting others
-    return visibleModalIds
-      .filter((id) => {
-        if (!(MODAL_REGISTRY[id] || ALREADY_MOUNTED[id])) {
-          console.warn(
-            `No modal found for id: ${id}. Please check the id or if it is registered or declared via JSX.`
-          );
-          return false; // Skip this modal but continue processing others
-        }
-        return MODAL_REGISTRY[id]; // Only render registered modals (JSX-declared modals render themselves)
-      })
-      .map((id) => ({
-        id,
-        ...MODAL_REGISTRY[id],
-      }));
-  }, [modals]);
+  // Emit the "no modal found" diagnostic from a commit-phase effect, never from
+  // the render body: render must be side-effect-free, since React may run it
+  // twice (StrictMode) or discard it (concurrent rendering), which would double-
+  // or phantom-log. Keying on the joined id list fires the warning once per
+  // committed set of unresolved ids.
+  const unresolvedKey = unresolvedIds.join(",");
+  useEffect(() => {
+    if (!unresolvedKey) {
+      return;
+    }
+    for (const id of unresolvedKey.split(",")) {
+      console.warn(
+        `No modal found for id: ${id}. Please check the id or if it is registered or declared via JSX.`
+      );
+    }
+  }, [unresolvedKey]);
 
   return (
     <>

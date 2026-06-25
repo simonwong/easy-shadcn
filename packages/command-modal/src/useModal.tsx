@@ -24,9 +24,9 @@ import {
 } from "./context";
 import { ModalHolder, type ModalHolderActions } from "./holders";
 import type {
-  CommandModalArgs,
   CommandModalHandler,
   CreateModalComponent,
+  ModalInnerProps,
   ShadCNModalProps,
 } from "./type";
 
@@ -36,11 +36,12 @@ export function useModal(
 ): CommandModalHandler & {
   modalProps: ShadCNModalProps;
 };
-export function useModal<C, P extends Partial<CommandModalArgs<React.FC<C>>>>(
-  modal: React.FC<C>,
-  args?: P
+// biome-ignore lint/suspicious/noExplicitAny: C is any modal component; its concrete props are recovered via ModalInnerProps<C>.
+export function useModal<C extends React.FC<any>>(
+  modal: C,
+  args?: Partial<ModalInnerProps<C>>
 ): Omit<CommandModalHandler, "show"> & {
-  show: (args?: P) => Promise<unknown>;
+  show: (args?: Partial<ModalInnerProps<C>>) => Promise<unknown>;
 } & {
   modalProps: ShadCNModalProps;
 };

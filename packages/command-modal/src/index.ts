@@ -3,9 +3,12 @@
  * Copyright (c) 2021 eBay Inc.
  * License: MIT
  */
-// Core API
+// Public surface: runtime API + types, grouped by source module and sorted to
+// satisfy organizeImports. Runtime: create/hide/register/remove/show/unregister
+// (actions), Provider + contexts (context), ModalDef (holders), the hooks
+// (useModal). Types follow each module.
 export { create, hide, register, remove, show, unregister } from "./actions";
-// Context
+export type { CommandModalProviderProps } from "./context";
 export {
   CommandModalContext,
   CommandModalDispatchContext,
@@ -13,21 +16,23 @@ export {
   reducer,
   useCommandModalDispatch,
 } from "./context";
-
-// Types
+export type { ModalHolderActions } from "./holders";
+export { ModalDef } from "./holders";
 export type {
   CommandModalConfig,
   CommandModalHandler,
+  CommandModalHocProps,
+  CreateModalComponent,
+  ModalInnerProps,
   ModalPropsAdapter,
   ShadCNModalProps,
 } from "./type";
-
-// Hooks
 export { createModalProps, useModal, useModalHolder } from "./useModal";
 
 // Default export
 import { create, hide, register, remove, show, unregister } from "./actions";
 import { CommandModalContext, Provider, reducer } from "./context";
+import { ModalDef } from "./holders";
 import { createModalProps, useModal, useModalHolder } from "./useModal";
 
 const CommandModal = {
@@ -38,6 +43,7 @@ const CommandModal = {
   show,
   unregister,
   CommandModalContext,
+  ModalDef,
   Provider,
   reducer,
   createModalProps,

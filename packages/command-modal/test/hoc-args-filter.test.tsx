@@ -75,6 +75,7 @@ describe("create() HOC args reserved-key filtering (C8)", () => {
     const TestModal = create(Inner);
 
     const Consumer = () => {
+      // @ts-expect-error `id` is HOC-reserved and is now rejected in args by the type system; this asserts the HOC still strips it at runtime for untyped/JS callers.
       const modal = useModal(TestModal, {
         id: "hijacked-id",
         value: "ok",

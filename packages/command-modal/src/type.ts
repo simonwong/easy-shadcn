@@ -29,8 +29,8 @@ export interface CommandModalAction {
 }
 export interface CommandModalCallbacks {
   [modalId: string]: {
-    resolve: (args: unknown) => void;
-    reject: (args: unknown) => void;
+    resolve: (args?: unknown) => void;
+    reject: (args?: unknown) => void;
     promise: Promise<unknown>;
   };
 }
@@ -136,8 +136,11 @@ export interface CommandModalHocProps {
   keepMounted?: boolean;
 }
 
+// The inner component's props (`T`) arrive at runtime via `show(id, args)`, not
+// at JSX-mount time. Anything passed where the HOC is mounted (`<Modal id=… />`)
+// only acts as a default, so `T` is partial there — `id` is the sole required prop.
 export type CreateModalComponent<T = object> = React.FC<
-  T & CommandModalHocProps
+  Partial<T> & CommandModalHocProps
 >;
 
 export type CommandModalArgs<T> = T extends
@@ -145,3 +148,18 @@ export type CommandModalArgs<T> = T extends
   | React.JSXElementConstructor<unknown>
   ? React.ComponentProps<T>
   : Record<string, unknown>;
+
+/**
+ * The props a modal component accepts at `show()` / `register()` /
+ * `useModal()` time: its own props minus the HOC-reserved keys
+ * (`id` / `defaultVisible` / `keepMounted`), which the system injects.
+ *
+ * Unlike {@link CommandModalArgs} — whose conditional collapses to
+ * `Record<string, unknown>` for any `React.FC` and therefore type-checks
+ * nothing — this derives directly from the component, so a typed modal's
+ * args are actually validated.
+ */
+export type ModalInnerProps<
+  // biome-ignore lint/suspicious/noExplicitAny: must accept any modal component (whose props carry a required `id`), matching CreateModalComponent<any>.
+  C extends React.ComponentType<any>,
+> = Omit<React.ComponentProps<C>, keyof CommandModalHocProps>;

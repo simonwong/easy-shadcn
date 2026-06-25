@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { useState } from "react";
 import { describe, expect, it } from "vitest";
 import { create } from "../src/actions";
 import {
@@ -7,6 +8,7 @@ import {
   modalCallbacks,
 } from "../src/constants";
 import { __getDispatchStackSize, Provider } from "../src/context";
+import type { ModalHolderActions } from "../src/holders";
 import { useModal, useModalHolder } from "../src/useModal";
 
 /**
@@ -177,5 +179,56 @@ describe("ModalHolder cleanup on unmount", () => {
     expect(Object.keys(hideModalCallbacks).length).toBe(0);
     expect(Object.keys(ALREADY_MOUNTED).length).toBe(baselineAlready);
     expect(__getDispatchStackSize()).toBe(0);
+  });
+
+  it("installs inert no-ops on unmount so a retained handler cannot resurrect state (C5)", async () => {
+    // The holder owns an auto-generated id torn down on unmount. If the
+    // installed handler.show stayed live, a retained reference calling it after
+    // unmount would dispatch to the still-mounted Provider and re-create an
+    // orphan callback entry with nothing left to clean it up.
+    let captured = null as ModalHolderActions | null;
+
+    const HolderWrapper = () => {
+      const [handler, Holder] = useModalHolder(TestModal);
+      captured = handler;
+      return <Holder />;
+    };
+
+    const Parent = () => {
+      const [mounted, setMounted] = useState(true);
+      return (
+        <>
+          <button
+            data-testid="unmount-holder"
+            onClick={() => setMounted(false)}
+            type="button"
+          >
+            unmount
+          </button>
+          {mounted && <HolderWrapper />}
+        </>
+      );
+    };
+
+    render(
+      <Provider>
+        <Parent />
+      </Provider>
+    );
+
+    // Unmount only the holder; the Provider (and its dispatch) stays mounted —
+    // this is exactly the condition under which a live callback could leak.
+    act(() => {
+      fireEvent.click(screen.getByTestId("unmount-holder"));
+    });
+
+    const callbacksAfterUnmount = Object.keys(modalCallbacks).length;
+
+    // Post-unmount show()/hide() must be inert: resolve immediately, add no entry.
+    const showResult = await captured?.show();
+    expect(showResult).toBeUndefined();
+    const hideResult = await captured?.hide();
+    expect(hideResult).toBeUndefined();
+    expect(Object.keys(modalCallbacks).length).toBe(callbacksAfterUnmount);
   });
 });
