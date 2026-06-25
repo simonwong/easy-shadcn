@@ -60,6 +60,34 @@
       ]
     },
     {
+      "name": "tooltip",
+      "type": "registry:component",
+      "title": "Integrated Tooltip",
+      "description": "Drop-anywhere Tooltip that collapses shadcn's base-ui Provider / Root / Trigger / Portal / Positioner / Popup into one component: wrap an element and pass content, with side/align and delay controls.",
+      "registryDependencies": ["tooltip"],
+      "files": [
+        {
+          "path": "registry/ui/tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/easy/tooltip.tsx"
+        }
+      ]
+    },
+    {
+      "name": "radio-group",
+      "type": "registry:component",
+      "title": "Integrated Radio Group",
+      "description": "Flat items-driven RadioGroup built on shadcn's base-ui RadioGroup: per-option label, description, and disabled, with accessible label/description wiring and class overrides.",
+      "registryDependencies": ["radio-group"],
+      "files": [
+        {
+          "path": "registry/ui/radio-group.tsx",
+          "type": "registry:component",
+          "target": "components/easy/radio-group.tsx"
+        }
+      ]
+    },
+    {
       "name": "field",
       "type": "registry:component",
       "title": "Integrated Field",

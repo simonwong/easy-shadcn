@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "tooltip",
+  "title": "Integrated Tooltip",
+  "description": "Drop-anywhere Tooltip that collapses shadcn's base-ui Provider / Root / Trigger / Portal / Positioner / Popup into one component: wrap an element and pass content, with side/align and delay controls.",
+  "registryDependencies": [
+    "tooltip"
+  ],
+  "files": [
+    {
+      "path": "registry/ui/tooltip.tsx",
+      "content": "\"use client\";\n\nimport type { ComponentProps, ReactElement, ReactNode } from \"react\";\nimport {\n  TooltipContent,\n  TooltipProvider,\n  Tooltip as TooltipRoot,\n  TooltipTrigger,\n} from \"@/components/ui/tooltip\";\n\ntype RootProps = ComponentProps<typeof TooltipRoot>;\ntype ContentProps = ComponentProps<typeof TooltipContent>;\ntype ProviderProps = ComponentProps<typeof TooltipProvider>;\n\nexport interface TooltipProps\n  extends Pick<ContentProps, \"align\" | \"alignOffset\" | \"side\" | \"sideOffset\">,\n    Pick<RootProps, \"defaultOpen\" | \"disabled\" | \"onOpenChange\" | \"open\">,\n    Pick<ProviderProps, \"closeDelay\" | \"delay\"> {\n  children: ReactElement;\n  content: ReactNode;\n  contentClassName?: string;\n}\n\nexport const Tooltip = ({\n  children,\n  content,\n  contentClassName,\n  side,\n  sideOffset,\n  align,\n  alignOffset,\n  open,\n  defaultOpen,\n  onOpenChange,\n  disabled,\n  delay,\n  closeDelay,\n}: TooltipProps) => (\n  <TooltipProvider closeDelay={closeDelay} delay={delay}>\n    <TooltipRoot\n      defaultOpen={defaultOpen}\n      disabled={disabled}\n      onOpenChange={onOpenChange}\n      open={open}\n    >\n      <TooltipTrigger render={children} />\n      <TooltipContent\n        align={align}\n        alignOffset={alignOffset}\n        className={contentClassName}\n        side={side}\n        sideOffset={sideOffset}\n      >\n        {content}\n      </TooltipContent>\n    </TooltipRoot>\n  </TooltipProvider>\n);\n\nexport default Tooltip;\n",
+      "type": "registry:component",
+      "target": "components/easy/tooltip.tsx"
+    }
+  ],
+  "type": "registry:component"
+}
