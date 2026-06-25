@@ -46,6 +46,10 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Modal** | 命令式 `alert` / `confirm` 助手 + 基于 shadcn Dialog 的组合式 Modal | `@easy-shadcn/modal` |
 | **Calendar** | 原生月/年下拉 → 三视图按钮网格切换 | `@easy-shadcn/calendar` |
 | **Date Picker** | 单选 / 多选 / 范围 / inline-input 多形态合一 | `@easy-shadcn/date-picker` |
+| **Accordion** | 每行重复的 `<AccordionItem><AccordionTrigger>…<AccordionContent>…` 三件套 → 一个 `items={…}` 数组（`{ value, trigger, content }`） | `@easy-shadcn/accordion` |
+| **Breadcrumb** | 手写嵌套的 `<BreadcrumbList>` / `<BreadcrumbItem>` / `<BreadcrumbLink>` / `<BreadcrumbSeparator>` → 一个 `items={…}` 数组 | `@easy-shadcn/breadcrumb` |
+| **Tooltip** | `<TooltipProvider>` / `<Tooltip>` / `<TooltipTrigger>` / `<TooltipContent>` 四层嵌套 → 一个 `children` 触发元素 + 一个 `content` prop | `@easy-shadcn/tooltip` |
+| **Radio Group** | 逐个手接的 `<RadioGroupItem>` 控件 + `<label>` / 描述结构 → 一个 `items={…}` 数组（`{ value, label, description }`） | `@easy-shadcn/radio-group` |
 
 ## 设计理念
 
