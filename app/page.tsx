@@ -104,6 +104,31 @@ const components = [
     blurb: "Single, multiple, range, inline-input — one component.",
     install: "@easy-shadcn/date-picker",
   },
+  {
+    no: "07",
+    name: "Accordion",
+    blurb: "Items array in. Expandable panels out. No nested triple per row.",
+    install: "@easy-shadcn/accordion",
+  },
+  {
+    no: "08",
+    name: "Breadcrumb",
+    blurb: "Trail of items in. Auto current page and collapsing ellipsis out.",
+    install: "@easy-shadcn/breadcrumb",
+  },
+  {
+    no: "09",
+    name: "Tooltip",
+    blurb: "Wrap an element, pass content. Its own provider — zero setup.",
+    install: "@easy-shadcn/tooltip",
+  },
+  {
+    no: "10",
+    name: "Radio Group",
+    blurb:
+      "Options array in. Wired-up radio rows out. Labels and a11y included.",
+    install: "@easy-shadcn/radio-group",
+  },
 ];
 
 const principles = [
@@ -406,7 +431,7 @@ function Ticker() {
 
 function ByTheNumbers() {
   const stats = [
-    { value: "06", label: "components", note: "and growing" },
+    { value: "10", label: "components", note: "and growing" },
     { value: "80/20", label: "by design", note: "no slot abuse" },
     { value: "01", label: "line install", note: "shadcn CLI" },
     { value: "100%", label: "yours", note: "MIT, copy & own" },
@@ -676,7 +701,7 @@ function ComponentsIndex() {
               ✦ Section III · The Catalogue
             </p>
             <h2 className="mt-4 font-display font-light text-[clamp(2.6rem,6vw,5rem)] leading-[0.95] tracking-[-0.03em]">
-              Six pieces.
+              Ten pieces.
               <br />
               <em className="text-[var(--accent)] italic">Each earned its</em>
               {"  "}

@@ -41,7 +41,12 @@ describe("ModalHolder render purity (C4)", () => {
   });
 
   it("sets up a working show() on mount and the modal renders after invocation", async () => {
-    let capturedHandler: ModalHolderActions | null = null;
+    // `null as …` keeps the flow-narrowed type as the full union. A bare
+    // `: ModalHolderActions | null = null` narrows to `null` at the reads below
+    // (the assignment happens only inside the render callback, invisible to the
+    // outer control flow), which makes `capturedHandler?.show` resolve its
+    // non-null branch to `never`.
+    let capturedHandler = null as ModalHolderActions | null;
 
     const Parent = () => {
       const [handler, ModalSlot] = useModalHolder(TestModal);

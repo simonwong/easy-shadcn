@@ -46,6 +46,10 @@ See the [installation guide](https://easy-shadcn.vercel.app/docs/installation) f
 | **Modal** | Imperative `alert` / `confirm` helpers + a composable Modal on top of shadcn Dialog | `@easy-shadcn/modal` |
 | **Calendar** | Native month/year dropdowns into a three-view button-grid navigation | `@easy-shadcn/calendar` |
 | **Date Picker** | Single / multiple / range / inline-input variants under one component | `@easy-shadcn/date-picker` |
+| **Accordion** | The repeated `<AccordionItem><AccordionTrigger>…<AccordionContent>…` triple into an `items={…}` array of `{ value, trigger, content }` | `@easy-shadcn/accordion` |
+| **Breadcrumb** | Hand-nested `<BreadcrumbList>` / `<BreadcrumbItem>` / `<BreadcrumbLink>` / `<BreadcrumbSeparator>` markup into an `items={…}` array | `@easy-shadcn/breadcrumb` |
+| **Tooltip** | The `<TooltipProvider>` / `<Tooltip>` / `<TooltipTrigger>` / `<TooltipContent>` nest into one `children` trigger plus a `content` prop | `@easy-shadcn/tooltip` |
+| **Radio Group** | Hand-wired `<RadioGroupItem>` controls plus their `<label>` / description markup into an `items={…}` array of `{ value, label, description }` | `@easy-shadcn/radio-group` |
 
 ## Design Philosophy
 

@@ -116,6 +116,15 @@ export function ModalHolder<T>({
   useLayoutEffect(() => {
     handler.show = showCallback;
     handler.hide = hideCallback;
+    // On unmount, swap in inert no-ops. The holder owns an auto-generated id
+    // that is torn down by the unmount effect below; a retained reference
+    // calling `handler.show()` afterwards would resurrect orphan reducer +
+    // promise state for a dead id with nothing left to clean it up. Returning a
+    // settled promise keeps any post-unmount awaiter from hanging.
+    return () => {
+      handler.show = () => Promise.resolve(undefined);
+      handler.hide = () => Promise.resolve(undefined);
+    };
   }, [handler, showCallback, hideCallback]);
 
   // ModalHolder owns an auto-generated id that has no lifetime beyond the

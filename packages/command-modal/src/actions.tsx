@@ -20,6 +20,7 @@ import type {
   CommandModalArgs,
   CommandModalCallbacks,
   CreateModalComponent,
+  ModalInnerProps,
 } from "./type";
 import { useModal } from "./useModal";
 
@@ -96,6 +97,13 @@ export function showWithDispatch(
     register(modalId, modal);
   }
   resolveActions(dispatch).showModal(modalId, args);
+  // Re-showing dismisses any hide() still awaiting its close: settle that stale
+  // hide promise with `undefined` and drop it. Otherwise createModalPromise's
+  // `if (!callbacksStore[modalId])` guard would let the next hide() reuse the
+  // interrupted cycle's promise, cross-settling two close cycles (and leaking
+  // the entry until a later teardown). Symmetric with hideWithDispatch settling
+  // the pending show below.
+  settleAndDelete(hideModalCallbacks, modalId);
   return createModalPromise(modalCallbacks, modalId);
 }
 
@@ -106,6 +114,12 @@ export function hideWithDispatch(
   const modalId = getModalId(modal);
   resolveActions(dispatch).hideModal(modalId);
   settleAndDelete(modalCallbacks, modalId);
+  // Settle any prior hide() still pending from an earlier, not-yet-completed
+  // close cycle before minting this hide's promise. Without this, a second
+  // hide() on a reopened (keepMounted) modal would reuse the first cycle's
+  // promise (createModalPromise reuses an existing entry) and the first
+  // awaiter would receive THIS cycle's resolveHide value.
+  settleAndDelete(hideModalCallbacks, modalId);
   return createModalPromise(hideModalCallbacks, modalId);
 }
 
@@ -133,15 +147,15 @@ export function removeWithDispatch(
   // roundtrip because the component is still there).
 }
 
-export function show<T, C, P extends Partial<CommandModalArgs<React.FC<C>>>>(
-  modal: CreateModalComponent<C>,
-  args?: P
+// biome-ignore lint/suspicious/noExplicitAny: C is constrained to any modal component; its concrete props are recovered via ModalInnerProps<C> at each call site.
+export function show<T, C extends CreateModalComponent<any>>(
+  modal: C,
+  args?: Partial<ModalInnerProps<C>>
 ): Promise<T>;
 export function show<T>(
   modal: string,
   args?: Record<string, unknown>
 ): Promise<T>;
-export function show<T, P>(modal: string, args: P): Promise<T>;
 
 /**
  * Show a modal and return a promise tied to its lifecycle.
@@ -163,7 +177,11 @@ export function show<T, P>(modal: string, args: P): Promise<T>;
  * @returns A promise that settles as described above.
  */
 export function show(
-  modal: React.FC | string,
+  // The implementation signature must be a supertype of every overload above.
+  // `CreateModalComponent<C>` carries a required `id`, so it is not assignable
+  // to the bare `React.FC` (= `FC<{}>`); the permissive `React.FC<any>` is.
+  // biome-ignore lint/suspicious/noExplicitAny: see comment above — supertype of all show() overloads.
+  modal: React.FC<any> | string,
   args?: CommandModalArgs<React.FC>
 ) {
   return showWithDispatch(modal, args, null);
@@ -295,11 +313,11 @@ export const create = <P extends object>(Comp: React.ComponentType<P>) => {
 };
 
 // All registered modals will be rendered in modal placeholder
-// biome-ignore lint/suspicious/noExplicitAny: Required for generic component registration - CommandModalArgs<T> extracts actual props
+// biome-ignore lint/suspicious/noExplicitAny: Required for generic component registration - ModalInnerProps<T> extracts the actual props.
 export const register = <T extends CreateModalComponent<any>>(
   id: string,
   comp: T,
-  props?: Partial<CommandModalArgs<T>>
+  props?: Partial<ModalInnerProps<T>>
 ): void => {
   if (MODAL_REGISTRY[id]) {
     MODAL_REGISTRY[id].props = props;

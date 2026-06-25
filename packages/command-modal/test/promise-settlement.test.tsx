@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { create, hide, remove, show, unregister } from "../src/actions";
+import { hideModalCallbacks } from "../src/constants";
 import { Provider } from "../src/context";
 import { ModalDef } from "../src/holders";
 import { useModal } from "../src/useModal";
@@ -229,5 +230,57 @@ describe("unregister() / ModalDef unmount also settles outstanding promises", ()
     const outcome = await observeSettlement(hidePromise);
     expect(outcome.settled).toBe(true);
     expect(outcome.value).toBeUndefined();
+  });
+});
+
+/**
+ * Regression: a hide promise belongs to exactly ONE close cycle.
+ *
+ * Before the fix, neither show() nor hide() settled a still-pending
+ * hideModalCallbacks entry, so re-opening a keepMounted modal and closing it
+ * again made the second hide() reuse the first cycle's promise — the first
+ * awaiter then received the SECOND cycle's resolveHide value.
+ */
+describe("cross-cycle hide() promise isolation", () => {
+  it("re-show + second hide() yields a fresh hide promise; the first hide is dismissed with undefined", async () => {
+    render(
+      <Provider>
+        <TestModal id="cross-cycle" keepMounted />
+      </Provider>
+    );
+
+    // Open, then close (hide #1) before its resolveHide fires.
+    let hide1!: Promise<unknown>;
+    act(() => {
+      show("cross-cycle");
+    });
+    act(() => {
+      hide1 = hide("cross-cycle");
+    });
+
+    // Reopen, then close again (hide #2).
+    let hide2!: Promise<unknown>;
+    act(() => {
+      show("cross-cycle");
+    });
+    act(() => {
+      hide2 = hide("cross-cycle");
+    });
+
+    // Each close cycle owns its own promise — the second hide must not reuse
+    // the first cycle's deferred.
+    expect(hide1).not.toBe(hide2);
+
+    // The reopen already settled hide #1 as a dismissal.
+    const firstOutcome = await observeSettlement(hide1);
+    expect(firstOutcome.settled).toBe(true);
+    expect(firstOutcome.value).toBeUndefined();
+
+    // Only the current cycle's resolveHide value reaches hide #2.
+    act(() => {
+      hideModalCallbacks["cross-cycle"]?.resolve("second-close");
+    });
+    const secondOutcome = await observeSettlement(hide2);
+    expect(secondOutcome.value).toBe("second-close");
   });
 });

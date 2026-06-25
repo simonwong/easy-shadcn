@@ -96,7 +96,9 @@ describe("useModal", () => {
         if (!modal.visible) {
           return null;
         }
-        return <div data-testid="modal">{message || modal.args?.message}</div>;
+        return (
+          <div data-testid="modal">{message || (modal.args?.message as string)}</div>
+        );
       });
 
       const ControlComponent = () => {

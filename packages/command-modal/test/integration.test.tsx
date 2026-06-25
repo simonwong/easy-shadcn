@@ -400,7 +400,10 @@ describe("Integration Tests", () => {
         expect(modal).toHaveAttribute("data-visible", "true");
       });
 
-      const firstMountCount = mountCount;
+      // Capture the live DOM node so we can prove keepMounted preserves it
+      // across the hide -> show cycle. A full remount yields a NEW node; a
+      // re-render keeps the same one.
+      const nodeAfterFirstShow = screen.getByTestId("keep-mounted-modal");
 
       // Hide modal (should stay in DOM due to keepMounted)
       act(() => {
@@ -423,8 +426,9 @@ describe("Integration Tests", () => {
         expect(modal).toHaveAttribute("data-visible", "true");
       });
 
-      // Mount count should not increase significantly
-      // (some re-renders are expected, but not full remounts)
+      // keepMounted's core invariant: the element was never unmounted/remounted
+      // — it is the very same DOM node throughout the hide -> show cycle.
+      expect(screen.getByTestId("keep-mounted-modal")).toBe(nodeAfterFirstShow);
     });
 
     it("should remove modal from DOM when keepMounted is false", async () => {
@@ -512,7 +516,7 @@ describe("Integration Tests", () => {
           }
           return (
             <div data-testid="args-modal">
-              <span data-testid="title">{title || modal.args?.title}</span>
+              <span data-testid="title">{title || (modal.args?.title as string)}</span>
               <span data-testid="count">{count ?? modal.args?.count}</span>
             </div>
           );
@@ -543,7 +547,7 @@ describe("Integration Tests", () => {
         }
         return (
           <div data-testid="update-args-modal">
-            {value || modal.args?.value}
+            {value || (modal.args?.value as string)}
           </div>
         );
       });
