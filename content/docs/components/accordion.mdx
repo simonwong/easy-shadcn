@@ -1,0 +1,57 @@
+---
+title: Accordion
+---
+
+Accordion flattens shadcn's `Accordion` compound components into a single items-driven component: each item describes its trigger and panel content, instead of hand-writing nested `AccordionItem` / `AccordionTrigger` / `AccordionContent` structures.
+
+<ExamplePreview name="accordion-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/accordion
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/accordion.json
+```
+
+## Props
+
+| Prop               | Type                                          | Default | Description                                                                          |
+| ------------------ | --------------------------------------------- | ------- | ------------------------------------------------------------------------------------ |
+| `items`            | `AccordionItem[]`                             | -       | Item definitions — see the table below. An empty array renders an empty accordion.   |
+| `value`            | `string[]`                                    | -       | The open item values. Use for the controlled mode.                                   |
+| `defaultValue`     | `string[]`                                    | -       | The initially open item values. Use for the uncontrolled mode.                       |
+| `onValueChange`    | `(value: string[], eventDetails) => void`     | -       | Called when an item is expanded or collapsed.                                        |
+| `multiple`         | `boolean`                                     | `false` | Allows multiple panels to stay open at the same time.                                |
+| `disabled`         | `boolean`                                     | `false` | Disables every item.                                                                 |
+| `keepMounted`      | `boolean`                                     | `false` | Keeps closed panels mounted (hidden) instead of unmounting them.                     |
+| `itemClassName`    | `ClassValue`                                  | -       | Class override applied to every `AccordionItem`.                                     |
+| `triggerClassName` | `ClassValue`                                  | -       | Class override applied to every `AccordionTrigger`.                                  |
+| `contentClassName` | `ClassValue`                                  | -       | Class override applied to every `AccordionContent`.                                  |
+
+All other props (`className`, `orientation`, `loopFocus`, etc.) are forwarded to the underlying Accordion root.
+
+### AccordionItem
+
+| Field              | Type         | Description                                                            |
+| ------------------ | ------------ | --------------------------------------------------------------------- |
+| `value`            | `string`     | Unique identifier of the item.                                        |
+| `trigger`          | `ReactNode`  | Header content — plain text or e.g. icon + text.                      |
+| `content`          | `ReactNode`  | Panel content.                                                        |
+| `disabled`         | `boolean`    | Disables this item.                                                   |
+| `itemClassName`    | `ClassValue` | Per-item class, merged after the root-level `itemClassName`.          |
+| `triggerClassName` | `ClassValue` | Per-item trigger class, merged after the root-level `triggerClassName`. |
+| `contentClassName` | `ClassValue` | Per-item content class, merged after the root-level `contentClassName`. |
+
+## Notes
+
+- `value` / `defaultValue` are arrays because Base UI's accordion is multi-open at heart. In single mode (`multiple` omitted) the array holds at most one value.
+- `value` / `defaultValue` / `onValueChange` are narrowed to `string[]` — the Base UI primitive accepts `any[]`, which silently swallows typos.
+- Use `keepMounted` when a panel holds expensive state (forms, iframes) that should survive collapsing.
+- `items` must be homogeneous. For heterogeneous triggers or panels (custom chevrons, non-uniform layouts), compose the `components/ui/accordion` primitives directly instead.
