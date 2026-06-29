@@ -40,9 +40,38 @@ const MyModal = CommandModal.create(() => {
 CommandModal.show(MyModal);
 ```
 
+## Typed results
+
+Declare a modal's resolve type on `create` and `show` infers it — no casts,
+args still checked:
+
+```tsx
+const EditUser = CommandModal.create<{ userId: string }, User>(/* … */);
+
+const user = await CommandModal.show(EditUser, { userId }); // user: User
+```
+
+## Other UI libraries (antd, …)
+
+shadcn is the zero-config default. For another library, pair its adapter with
+`createCommandModal` once in an app-local module — `useModal().modalProps` is
+then typed for that library:
+
+```tsx
+// lib/modal.ts
+import { createCommandModal } from '@easy-shadcn/command-modal';
+import { antdModalProps } from '@easy-shadcn/command-modal/antd';
+
+export const { Provider, useModal } = createCommandModal(antdModalProps);
+```
+
+`antd` is first-class (official adapter at the `/antd` subpath, no `antd`
+dependency added to the core). Any other library works via your own typed
+adapter. See the docs for the full recipe (barrel re-export + `no-restricted-imports`).
+
 ## Documentation
 
-📚 **[Full Documentation](https://your-docs-url.com/docs/packages/command-modal)**
+📚 **[Full Documentation](https://easy-shadcn.vercel.app/docs/packages/command-modal)**
 
 Comprehensive guides including:
 
