@@ -168,3 +168,27 @@ export type ModalInnerProps<
   // biome-ignore lint/suspicious/noExplicitAny: must accept any modal component (whose props carry a required `id`), matching CreateModalComponent<any>.
   C extends React.ComponentType<any>,
 > = Omit<React.ComponentProps<C>, keyof CommandModalHocProps>;
+
+/**
+ * The overloaded return shape of {@link useModal}, parameterized over the
+ * `modalProps` type a given adapter produces. Single source of truth: the
+ * package-root `useModal` instantiates this with `ShadCNModalProps`, and the
+ * `createCommandModal` factory instantiates it with the adapter's `TModalProps`
+ * — so the two never drift.
+ */
+export type UseModalReturn<TModalProps> = {
+  (
+    modal?: string,
+    args?: Record<string, unknown>
+  ): CommandModalHandler & {
+    modalProps: TModalProps;
+  };
+  // biome-ignore lint/suspicious/noExplicitAny: C is any modal component; its props are recovered via ModalInnerProps<C> and its resolve type via ResolveType<C>.
+  <C extends React.FC<any>>(
+    modal: C,
+    args?: Partial<ModalInnerProps<C>>
+  ): Omit<CommandModalHandler, "show"> & {
+    show: (args?: Partial<ModalInnerProps<C>>) => Promise<ResolveType<C>>;
+    modalProps: TModalProps;
+  };
+};
