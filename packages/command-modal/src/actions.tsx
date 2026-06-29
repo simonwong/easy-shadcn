@@ -17,10 +17,10 @@ import {
 } from "./context";
 import type {
   CommandModalAction,
-  CommandModalArgs,
   CommandModalCallbacks,
   CreateModalComponent,
   ModalInnerProps,
+  ResolveType,
 } from "./type";
 import { useModal } from "./useModal";
 
@@ -89,7 +89,7 @@ const settleAndDelete = (
  */
 export function showWithDispatch(
   modal: React.FC | string,
-  args: CommandModalArgs<React.FC> | undefined,
+  args: Record<string, unknown> | undefined,
   dispatch: Dispatch<CommandModalAction> | null
 ): Promise<unknown> {
   const modalId = getModalId(modal);
@@ -147,12 +147,12 @@ export function removeWithDispatch(
   // roundtrip because the component is still there).
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: C is constrained to any modal component; its concrete props are recovered via ModalInnerProps<C> at each call site.
-export function show<T, C extends CreateModalComponent<any>>(
+// biome-ignore lint/suspicious/noExplicitAny: C is constrained to any modal component; its concrete props are recovered via ModalInnerProps<C> and its resolve type via ResolveType<C>.
+export function show<C extends CreateModalComponent<any, any>>(
   modal: C,
   args?: Partial<ModalInnerProps<C>>
-): Promise<T>;
-export function show<T>(
+): Promise<ResolveType<C>>;
+export function show<T = unknown>(
   modal: string,
   args?: Record<string, unknown>
 ): Promise<T>;
@@ -182,7 +182,7 @@ export function show(
   // to the bare `React.FC` (= `FC<{}>`); the permissive `React.FC<any>` is.
   // biome-ignore lint/suspicious/noExplicitAny: see comment above — supertype of all show() overloads.
   modal: React.FC<any> | string,
-  args?: CommandModalArgs<React.FC>
+  args?: Record<string, unknown>
 ) {
   return showWithDispatch(modal, args, null);
 }
@@ -225,8 +225,10 @@ export const remove = (modal: string | CreateModalComponent): void => {
   removeWithDispatch(modal, null);
 };
 
-export const create = <P extends object>(Comp: React.ComponentType<P>) => {
-  const HocComp: CreateModalComponent<P> = ({
+export const create = <P extends object, R = unknown>(
+  Comp: React.ComponentType<P>
+): CreateModalComponent<P, R> => {
+  const HocComp: CreateModalComponent<P, R> = ({
     defaultVisible,
     keepMounted,
     id,
