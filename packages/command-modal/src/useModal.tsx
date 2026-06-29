@@ -174,10 +174,14 @@ export function useModalHolder<T>(modal: string | CreateModalComponent<T>) {
 }
 
 /**
- * Helper function to create modal props for shadcn modal components.
- * This generates the standard props (open, onOpenChange, afterClose) from a modal handler.
+ * Helper function to create modal props for shadcn (Base UI) modal components.
+ * Generates the standard props (open, onOpenChange, onOpenChangeComplete) from a
+ * modal handler. Teardown is wired to Base UI's real `onOpenChangeComplete` hook
+ * (which fires on open AND close), guarded on `open === false`, so spreading the
+ * result onto a raw `<Dialog {...modalProps}>` removes the modal once its close
+ * animation finishes — no leak.
  * @param modal - The modal handler from useModal
- * @returns Props object compatible with shadcn modal components
+ * @returns Props object compatible with shadcn (Base UI) modal components
  */
 export const createModalProps = (
   modal: CommandModalHandler
@@ -190,7 +194,10 @@ export const createModalProps = (
       modal.hide();
     }
   },
-  afterClose: () => {
+  onOpenChangeComplete: (open) => {
+    if (open) {
+      return;
+    }
     modal.resolveHide();
     if (!modal.keepMounted) {
       modal.remove();

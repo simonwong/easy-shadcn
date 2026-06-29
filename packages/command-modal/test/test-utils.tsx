@@ -35,10 +35,10 @@ export const resetRegistry = () => {
 export const MockDialog: React.FC<{
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  afterClose?: () => void;
+  onOpenChangeComplete?: (open: boolean) => void;
   children?: ReactNode;
   testId?: string;
-}> = ({ open, onOpenChange, afterClose, children, testId }) => {
+}> = ({ open, onOpenChange, onOpenChangeComplete, children, testId }) => {
   if (!open) {
     return null;
   }
@@ -49,7 +49,8 @@ export const MockDialog: React.FC<{
         data-testid="close-btn"
         onClick={() => {
           onOpenChange?.(false);
-          afterClose?.();
+          // Simulate Base UI firing the post-close-transition hook.
+          onOpenChangeComplete?.(false);
         }}
       >
         Close
@@ -69,8 +70,8 @@ export const createTestModal = (testId: string) => {
     const modal = useModal();
     return (
       <MockDialog
-        afterClose={modal.modalProps.afterClose}
         onOpenChange={modal.modalProps.onOpenChange}
+        onOpenChangeComplete={modal.modalProps.onOpenChangeComplete}
         open={modal.visible}
         testId={testId}
       >

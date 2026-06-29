@@ -22,16 +22,18 @@ const alert = (
       <AlertModal
         {...props}
         {...modalProps}
-        afterClose={() => {
-          props.afterClose?.();
-          modalProps.afterClose?.();
-          // Each call creates a fresh component — drop its registry entry
-          // once fully closed, or long-lived apps leak one entry per call.
-          CommandModal.unregister(id);
-        }}
         onConfirm={async () => {
           await props.onConfirm?.();
           resolve(true);
+        }}
+        onOpenChangeComplete={(o) => {
+          props.onOpenChangeComplete?.(o);
+          modalProps.onOpenChangeComplete?.(o);
+          // Each call creates a fresh component — drop its registry entry
+          // once fully closed, or long-lived apps leak one entry per call.
+          if (!o) {
+            CommandModal.unregister(id);
+          }
         }}
         showCancel={false}
       />
@@ -59,11 +61,6 @@ const confirm = (
       <AlertModal
         {...props}
         {...modalProps}
-        afterClose={() => {
-          props.afterClose?.();
-          modalProps.afterClose?.();
-          CommandModal.unregister(id);
-        }}
         onCancel={async () => {
           await props.onCancel?.();
           resolve(false);
@@ -71,6 +68,13 @@ const confirm = (
         onConfirm={async () => {
           await props.onConfirm?.();
           resolve(true);
+        }}
+        onOpenChangeComplete={(o) => {
+          props.onOpenChangeComplete?.(o);
+          modalProps.onOpenChangeComplete?.(o);
+          if (!o) {
+            CommandModal.unregister(id);
+          }
         }}
       />
     );
