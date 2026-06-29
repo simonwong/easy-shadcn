@@ -233,32 +233,36 @@ interface CommandModalProviderProps {
 Creates a modal component with proper typing.
 
 ```tsx
-function create<TProps = Record<string, unknown>>(
+function create<TProps = object, TResult = unknown>(
   component: React.ComponentType<TProps>
-): React.ComponentType<TProps>
+): CreateModalComponent<TProps, TResult>
 ```
 
 **Type Parameters:**
-- `TProps` - Props type for your modal component
+- `TProps` - Props type for your modal component (validated at `show()` time)
+- `TResult` - The type `show()` resolves with (what you pass to `modal.resolve()`); defaults to `unknown`
 
-**Returns:** A wrapped component that can be used with CommandModal
+**Returns:** A wrapped component carrying both `TProps` and `TResult`, for use with `show()`
 
 ### CommandModal.show()
 
-Shows a modal and returns a promise.
+Shows a modal and returns a promise. Both the args and the resolved type are
+inferred from the component created by `create<Props, Result>` — no explicit
+type argument:
 
 ```tsx
-function show<TProps, TResult = unknown>(
-  modal: React.ComponentType<TProps>,
-  props?: TProps
-): Promise<TResult>
+// Component form — args (Props) and result (Result) inferred from the component:
+function show<C>(modal: C, args?: Partial<Props>): Promise<Result>
+// String-id form — the id carries no type, so pass the result explicitly:
+function show<T = unknown>(modal: string, args?: Record<string, unknown>): Promise<T>
 ```
 
 **Parameters:**
-- `modal` - Modal component created with `CommandModal.create()`
-- `props` - Props to pass to the modal
+- `modal` - Modal component created with `CommandModal.create()` (or a string id)
+- `args` - Args passed to the modal component (validated against its `Props`)
 
-**Returns:** Promise that resolves when modal calls `modal.resolve()`
+**Returns:** Promise that resolves with the value passed to `modal.resolve()`
+(typed `Result`), or `undefined` if the modal is dismissed without resolving.
 
 ### CommandModal.hide()
 
@@ -286,10 +290,12 @@ function remove(modal: React.ComponentType): void
 
 ### CommandModal.useModal()
 
-Hook to access modal controls within a modal component.
+Hook to access modal controls within a modal component. Inside the body, call
+it with no argument (the modal id comes from context); the resolve type is the
+`Result` you declared on `create<Props, Result>`.
 
 ```tsx
-function useModal<TResult = unknown>(): CommandModalHandler<TResult>
+const modal = useModal(); // inside a create()'d modal
 ```
 
 **Returns:** Modal handler object with the following properties:
@@ -358,71 +364,95 @@ with the command-modal reducer. Most callers should use
 
 ## Advanced Usage
 
-### Custom Modal Adapters
+### Adapters
 
-CommandModal uses adapters to work with different UI libraries. The default adapter works with shadcn/ui, but you can create custom adapters.
+An **adapter** maps the modal handler to the prop shape one UI library expects.
+It is the single seam by which command-modal stays UI-library-agnostic. Each
+adapter emits its own library's real prop names.
 
-#### Default shadcn Adapter
+#### Default shadcn adapter
+
+shadcn/ui (Base UI Dialog) is the zero-config default — you don't configure
+anything. The default `createModalProps` emits Base UI's real props
+`{ open, onOpenChange, onOpenChangeComplete }`, wiring teardown to
+`onOpenChangeComplete` (guarded on close) so `<Dialog {...modal.modalProps}>`
+removes the modal once its close animation finishes:
 
 ```tsx
-import CommandModal, { shadcnModalAdapter } from '@easy-shadcn/command-modal';
-
-// The shadcn adapter is used by default
-<CommandModal.Provider>
-  <App />
-</CommandModal.Provider>
-
-// Or explicitly configure it
-<CommandModal.Provider config={{ modalPropsAdapter: shadcnModalAdapter }}>
-  <App />
-</CommandModal.Provider>
+import { createModalProps } from '@easy-shadcn/command-modal';
+// Used automatically; you only import it to build on top of it.
 ```
 
-#### Creating Custom Adapters
+#### Typed adapters with `createCommandModal` (antd, …)
 
-Create an adapter for your UI library:
+For a non-shadcn library, pair its adapter with `createCommandModal` once. The
+factory returns a `Provider` pre-bound to the adapter and a `useModal` whose
+`modalProps` is **statically typed** as that library's props — no casts. **antd
+v6** is first-class: an official `antdModalProps` adapter ships at the `/antd`
+subpath (no `antd` dependency is added to the core).
+
+Set it up once in an app-local barrel, and re-export the imperative verbs from
+the same module so app code has a single import source:
 
 ```tsx
-import type { ModalPropsAdapter } from '@easy-shadcn/command-modal';
+// lib/modal.ts — the only command-modal entry point in your app
+import {
+  createCommandModal,
+  show,
+  hide,
+  remove,
+  create,
+} from '@easy-shadcn/command-modal';
+import { antdModalProps } from '@easy-shadcn/command-modal/antd';
 
-// Example: Ant Design adapter
-interface AntdModalProps {
-  open: boolean;
-  onCancel: () => void;
-  afterClose: () => void;
-}
+// Call the factory once at module scope (never inside a render).
+export const { Provider, useModal } = createCommandModal(antdModalProps);
+export { show, hide, remove, create };
+```
 
-const antdModalAdapter: ModalPropsAdapter<AntdModalProps> = (handler) => ({
-  open: handler.visible,
-  onCancel: () => handler.hide(),
-  afterClose: () => {
-    handler.resolveHide();
-    if (!handler.keepMounted) {
-      handler.remove();
-    }
-  },
+```tsx
+// any feature file
+import { useModal, show } from '@/lib/modal';
+
+const EditUser = create(() => {
+  const modal = useModal();
+  // modal.modalProps is typed as antd's { open, onCancel, afterClose }
+  return <Modal {...modal.modalProps}>…</Modal>;
 });
-
-// Use the custom adapter
-<CommandModal.Provider config={{ modalPropsAdapter: antdModalAdapter }}>
-  <App />
-</CommandModal.Provider>
 ```
 
-#### Example: Material-UI Adapter
+> **Guard the footgun.** The package root also exports a `useModal` typed for
+> shadcn. If you accidentally import it instead of your factory's, `modalProps`
+> silently reverts to the shadcn shape. Forbid the root import in your project
+> so it fails in CI instead of at runtime:
+>
+> ```jsonc
+> // eslint config — no-restricted-imports
+> {
+>   "paths": [{
+>     "name": "@easy-shadcn/command-modal",
+>     "importNames": ["useModal"],
+>     "message": "Import useModal from your createCommandModal factory (e.g. @/lib/modal)."
+>   }]
+> }
+> ```
+
+#### Writing your own adapter (BYO)
+
+Any UI library works through a typed adapter — emit its real prop names and
+wire teardown to its post-close hook:
 
 ```tsx
 import type { ModalPropsAdapter } from '@easy-shadcn/command-modal';
 
-interface MuiDialogProps {
+// Example: Material UI <Dialog>
+type MuiDialogProps = {
   open: boolean;
   onClose: () => void;
-  TransitionProps?: {
-    onExited?: () => void;
-  };
-}
+  TransitionProps?: { onExited?: () => void };
+};
 
-const muiDialogAdapter: ModalPropsAdapter<MuiDialogProps> = (handler) => ({
+const muiModalProps: ModalPropsAdapter<MuiDialogProps> = (handler) => ({
   open: handler.visible,
   onClose: () => handler.hide(),
   TransitionProps: {
@@ -434,6 +464,8 @@ const muiDialogAdapter: ModalPropsAdapter<MuiDialogProps> = (handler) => ({
     },
   },
 });
+
+// Then: export const { Provider, useModal } = createCommandModal(muiModalProps);
 ```
 
 ### Keep Modal Mounted
@@ -551,26 +583,39 @@ CommandModal.show(UserForm, {
 
 ### Type-safe Results
 
+Declare a modal's resolve (result) type as the **second type argument to
+`create`**. It flows to `show()`, which infers both the args and the result
+with no explicit type argument and no cast:
+
 ```tsx
 interface FormResult {
   name: string;
   email: string;
 }
 
-const FormModal = CommandModal.create(() => {
-  const modal = CommandModal.useModal<FormResult>();
+const FormModal = CommandModal.create<{ defaultName?: string }, FormResult>(
+  ({ defaultName }) => {
+    const modal = CommandModal.useModal();
 
-  const handleSubmit = (data: FormResult) => {
-    modal.resolve(data); // Type-safe resolve
-    modal.hide();
-  };
+    const handleSubmit = (data: FormResult) => {
+      modal.resolve(data);
+      modal.hide();
+    };
 
-  return <Dialog {...modal.modalProps}>...</Dialog>;
-});
+    return <Dialog {...modal.modalProps}>...</Dialog>;
+  }
+);
 
-// TypeScript knows the result type
-const result: FormResult = await CommandModal.show(FormModal);
+// show() infers Promise<FormResult> AND validates the args.
+const result = await CommandModal.show(FormModal, { defaultName: 'Ada' });
+// result: FormResult
 ```
+
+The result type is declared at the definition site (not the `show()` call site)
+so that args-checking and a typed result can coexist — TypeScript has no partial
+type-argument inference, so pinning the result at the call site would disable
+args inference. The result type defaults to `unknown` when omitted, so modals
+whose result you don't consume need no extra annotation.
 
 ## Best Practices
 
@@ -685,15 +730,16 @@ CommandModal.show(MyModal);
 
 ## Troubleshooting
 
-### Modal Doesn't Close
+### Modal Doesn't Close (or leaks after closing)
 
-Ensure you're calling `afterClose` in your modal component:
+Spread `modal.modalProps` directly onto your dialog so the adapter's post-close
+hook reaches the underlying component. For the shadcn/Base UI default that hook
+is `onOpenChangeComplete`; if you forward props by hand, don't drop it, or the
+modal is never removed after it closes:
 
 ```tsx
-<Dialog
-  {...modal.modalProps}
-  // Make sure afterClose is called when animation completes
->
+// ✅ spread everything — open, onOpenChange, onOpenChangeComplete
+<Dialog {...modal.modalProps}>
   ...
 </Dialog>
 ```
@@ -744,11 +790,11 @@ and with more than one mounted the routing target is not guaranteed.
 ### Confirmation Dialog
 
 ```tsx
-const ConfirmDialog = CommandModal.create<{
-  title: string;
-  message: string;
-}>(({ title, message }) => {
-  const modal = CommandModal.useModal<boolean>();
+const ConfirmDialog = CommandModal.create<
+  { title: string; message: string },
+  boolean
+>(({ title, message }) => {
+  const modal = CommandModal.useModal();
 
   return (
     <AlertDialog {...modal.modalProps}>
@@ -790,9 +836,9 @@ if (confirmed) {
 ### Form Modal with Validation
 
 ```tsx
-const FormModal = CommandModal.create<{ defaultValues?: FormData }>(
+const FormModal = CommandModal.create<{ defaultValues?: FormData }, FormData>(
   ({ defaultValues }) => {
-    const modal = CommandModal.useModal<FormData>();
+    const modal = CommandModal.useModal();
     const [values, setValues] = useState(defaultValues || {});
     const [errors, setErrors] = useState({});
 
