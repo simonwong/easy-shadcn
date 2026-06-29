@@ -1,5 +1,6 @@
 import { type RenderOptions, render } from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
+import { vi } from "vitest";
 import { create } from "../src/actions";
 import {
   ALREADY_MOUNTED,
@@ -12,7 +13,27 @@ import {
   __resetMultipleProvidersWarning,
   Provider,
 } from "../src/context";
+import type { CommandModalHandler } from "../src/type";
 import { useModal } from "../src/useModal";
+
+/**
+ * Build a fully-stubbed `CommandModalHandler` for unit-testing adapters in
+ * isolation. Every method is a `vi.fn()`; override any field as needed.
+ */
+export const makeHandler = (
+  overrides: Partial<CommandModalHandler> = {}
+): CommandModalHandler => ({
+  id: "test",
+  visible: false,
+  keepMounted: false,
+  show: vi.fn(),
+  hide: vi.fn(),
+  resolve: vi.fn(),
+  reject: vi.fn(),
+  remove: vi.fn(),
+  resolveHide: vi.fn(),
+  ...overrides,
+});
 
 /**
  * Reset all global registries and callbacks.

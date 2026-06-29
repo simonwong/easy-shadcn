@@ -11,6 +11,7 @@ import { hideModalCallbacks } from "../src/constants";
 import { Provider } from "../src/context";
 import type { CommandModalHandler } from "../src/type";
 import { createModalProps, useModal } from "../src/useModal";
+import { makeHandler } from "./test-utils";
 
 describe("modalProps", () => {
   describe("open property", () => {
@@ -94,21 +95,6 @@ describe("modalProps", () => {
   });
 
   describe("onOpenChangeComplete callback", () => {
-    const makeHandler = (
-      overrides: Partial<CommandModalHandler> = {}
-    ): CommandModalHandler => ({
-      id: "test",
-      visible: false,
-      keepMounted: false,
-      show: vi.fn(),
-      hide: vi.fn(),
-      resolve: vi.fn(),
-      reject: vi.fn(),
-      remove: vi.fn(),
-      resolveHide: vi.fn(),
-      ...overrides,
-    });
-
     it("should call resolveHide() when onOpenChangeComplete(false) is called", () => {
       const resolveHideMock = vi.fn();
       const result = createModalProps(
