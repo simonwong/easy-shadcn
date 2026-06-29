@@ -29,9 +29,8 @@ export type AntdModalProps = {
  */
 export const antdModalProps: ModalPropsAdapter<AntdModalProps> = (handler) => ({
   open: handler.visible,
-  onCancel: () => {
-    handler.hide();
-  },
+  // `handler.hide` is a stable callback; antd ignores its return value.
+  onCancel: handler.hide,
   afterClose: () => {
     handler.resolveHide();
     if (!handler.keepMounted) {

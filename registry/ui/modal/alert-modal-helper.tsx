@@ -5,6 +5,24 @@ import { AlertModal, type AlertModalProps } from "./alert-modal";
 
 type AlertHelperProps = Omit<AlertModalProps, "open" | "onOpenChange">;
 
+type CloseCompleteHook = ((open: boolean) => void) | undefined;
+
+/**
+ * Compose the caller's and command-modal's `onOpenChangeComplete` hooks, then
+ * unregister the one-shot modal once it has fully closed. Each helper call
+ * creates a fresh component — without this, long-lived apps leak one registry
+ * entry per call.
+ */
+const chainCloseAndUnregister =
+  (id: string, callerHook: CloseCompleteHook, modalHook: CloseCompleteHook) =>
+  (open: boolean) => {
+    callerHook?.(open);
+    modalHook?.(open);
+    if (!open) {
+      CommandModal.unregister(id);
+    }
+  };
+
 /**
  * Promise-style alert: a single OK button.
  * Resolves once the user confirms or dismisses the dialog.
@@ -26,15 +44,11 @@ const alert = (
           await props.onConfirm?.();
           resolve(true);
         }}
-        onOpenChangeComplete={(o) => {
-          props.onOpenChangeComplete?.(o);
-          modalProps.onOpenChangeComplete?.(o);
-          // Each call creates a fresh component — drop its registry entry
-          // once fully closed, or long-lived apps leak one entry per call.
-          if (!o) {
-            CommandModal.unregister(id);
-          }
-        }}
+        onOpenChangeComplete={chainCloseAndUnregister(
+          id,
+          props.onOpenChangeComplete,
+          modalProps.onOpenChangeComplete
+        )}
         showCancel={false}
       />
     );
@@ -69,13 +83,11 @@ const confirm = (
           await props.onConfirm?.();
           resolve(true);
         }}
-        onOpenChangeComplete={(o) => {
-          props.onOpenChangeComplete?.(o);
-          modalProps.onOpenChangeComplete?.(o);
-          if (!o) {
-            CommandModal.unregister(id);
-          }
-        }}
+        onOpenChangeComplete={chainCloseAndUnregister(
+          id,
+          props.onOpenChangeComplete,
+          modalProps.onOpenChangeComplete
+        )}
       />
     );
   });

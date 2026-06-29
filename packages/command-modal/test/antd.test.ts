@@ -1,21 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { antdModalProps } from "../src/antd";
-import type { CommandModalHandler } from "../src/type";
-
-const makeHandler = (
-  overrides: Partial<CommandModalHandler> = {}
-): CommandModalHandler => ({
-  id: "test",
-  visible: false,
-  keepMounted: false,
-  show: vi.fn(),
-  hide: vi.fn(),
-  resolve: vi.fn(),
-  reject: vi.fn(),
-  remove: vi.fn(),
-  resolveHide: vi.fn(),
-  ...overrides,
-});
+import { makeHandler } from "./test-utils";
 
 describe("antdModalProps adapter (issue #71)", () => {
   it("maps the handler's visible state to antd's open", () => {
