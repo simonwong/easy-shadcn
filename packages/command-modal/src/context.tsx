@@ -297,12 +297,17 @@ export interface CommandModalProviderProps extends PropsWithChildren {
    *
    * @example
    * ```tsx
-   * import CommandModal, { antdModalAdapter } from '@easy-shadcn/command-modal';
+   * import { Provider } from '@easy-shadcn/command-modal';
+   * import { antdModalProps } from '@easy-shadcn/command-modal/antd';
    *
-   * <CommandModal.Provider config={{ modalPropsAdapter: antdModalAdapter }}>
+   * <Provider config={{ modalPropsAdapter: antdModalProps }}>
    *   <App />
-   * </CommandModal.Provider>
+   * </Provider>
    * ```
+   *
+   * For type-safe `modalProps` at the consumer, prefer
+   * `createCommandModal(antdModalProps)`, which returns a pre-bound `Provider`
+   * and a typed `useModal`.
    */
   config?: CommandModalConfig;
 }

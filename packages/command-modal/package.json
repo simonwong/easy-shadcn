@@ -16,6 +16,16 @@
         "types": "./es/index.d.ts",
         "default": "./es/index.js"
       }
+    },
+    "./antd": {
+      "require": {
+        "types": "./lib/antd.d.ts",
+        "default": "./lib/antd.js"
+      },
+      "import": {
+        "types": "./es/antd.d.ts",
+        "default": "./es/antd.js"
+      }
     }
   },
   "sideEffects": false,
