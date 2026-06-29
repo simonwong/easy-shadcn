@@ -10,6 +10,7 @@
 
 | 更新日期 | 规格 | 说明 |
 | --- | --- | --- |
+| 2026-06-29 | [Command-Modal 类型安全](./2026-06-29-command-modal-type-safety.md) | adapter 类型贯通工厂、antd v6 一等支持、resolve 类型挂 create、shadcn 吐 Base UI 真名修泄漏 |
 | 2026-06-10 | [Date Picker](./2026-06-10-date-picker.md) | Compose Date Picker 的模式、输入提交、受控状态与 Calendar 集成契约 |
 | 2026-06-10 | [Table](./2026-06-10-table.md) | Compose Table 的列定义、行 key、选择、状态与可访问性契约 |
 | 2026-06-02 | [Select](./2026-06-02-select.md) | Compose Select 的模式、状态、clearable 与远程加载契约 |
