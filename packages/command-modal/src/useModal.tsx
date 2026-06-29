@@ -26,27 +26,11 @@ import { ModalHolder, type ModalHolderActions } from "./holders";
 import type {
   CommandModalHandler,
   CreateModalComponent,
-  ModalInnerProps,
   ShadCNModalProps,
+  UseModalReturn,
 } from "./type";
 
-export function useModal(
-  modal?: string,
-  args?: Record<string, unknown>
-): CommandModalHandler & {
-  modalProps: ShadCNModalProps;
-};
-// biome-ignore lint/suspicious/noExplicitAny: C is any modal component; its concrete props are recovered via ModalInnerProps<C>.
-export function useModal<C extends React.FC<any>>(
-  modal: C,
-  args?: Partial<ModalInnerProps<C>>
-): Omit<CommandModalHandler, "show"> & {
-  show: (args?: Partial<ModalInnerProps<C>>) => Promise<unknown>;
-} & {
-  modalProps: ShadCNModalProps;
-};
-
-export function useModal(
+function useModalImpl(
   modal?: string | React.FC,
   args?: Record<string, unknown>
 ) {
@@ -167,6 +151,16 @@ export function useModal(
     config?.modalPropsAdapter,
   ]);
 }
+
+/**
+ * Package-root `useModal`: the default adapter is shadcn, so its `modalProps`
+ * is typed `ShadCNModalProps`. The runtime implementation is adapter-agnostic
+ * (it reads the configured adapter from context); the overload shape lives in
+ * the single-source {@link UseModalReturn}. The `createCommandModal` factory
+ * re-types this same implementation with the adapter's `TModalProps`.
+ */
+export const useModal =
+  useModalImpl as unknown as UseModalReturn<ShadCNModalProps>;
 
 export function useModalHolder<T>(modal: string | CreateModalComponent<T>) {
   const handler = useMemo(() => ({}) as ModalHolderActions, []);

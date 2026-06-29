@@ -16,6 +16,7 @@ export {
   reducer,
   useCommandModalDispatch,
 } from "./context";
+export { createCommandModal } from "./create-command-modal";
 export type { ModalHolderActions } from "./holders";
 export { ModalDef } from "./holders";
 export type {
@@ -32,11 +33,13 @@ export { createModalProps, useModal, useModalHolder } from "./useModal";
 // Default export
 import { create, hide, register, remove, show, unregister } from "./actions";
 import { CommandModalContext, Provider, reducer } from "./context";
+import { createCommandModal } from "./create-command-modal";
 import { ModalDef } from "./holders";
 import { createModalProps, useModal, useModalHolder } from "./useModal";
 
 const CommandModal = {
   create,
+  createCommandModal,
   hide,
   register,
   remove,
