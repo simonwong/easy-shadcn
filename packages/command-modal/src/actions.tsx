@@ -194,7 +194,8 @@ export function hide<T, C>(modal: string | CreateModalComponent<C>): Promise<T>;
  *
  * Settlement contract:
  *  - Resolves with the value passed to `modal.resolveHide(value)` (typically
- *    from the modal component's `afterClose` hook).
+ *    from the adapter's post-close hook, e.g. `onOpenChangeComplete` for
+ *    shadcn/Base UI or `afterClose` for antd).
  *  - If the modal is removed or unregistered before `resolveHide` is called,
  *    the promise **resolves with `undefined`**.
  *  - Calling `hide()` also settles any outstanding `show()` promise with

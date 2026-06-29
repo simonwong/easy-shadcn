@@ -21,7 +21,12 @@ import { cn } from "@/lib/utils";
 import { AsyncButton } from "../async-button";
 
 export interface AlertModalProps {
-  afterClose?: () => void;
+  /**
+   * Base UI AlertDialog's post-transition hook — fires after the open/close
+   * animation completes (with the resulting `open` state). Forwarded straight
+   * to the underlying AlertDialog. command-modal's adapter wires teardown here.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
   /**
    * Extra props for the cancel AsyncButton. Passing `onClick` replaces the
    * built-in close handler — prefer `onCancel`.
@@ -86,7 +91,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   onConfirm,
   confirmProps,
   showCancel = true,
-  afterClose,
+  onOpenChangeComplete,
 }) => {
   const [internalOpen, setInternalOpen] = useState(defaultOpen ?? false);
   const currentOpen = open === undefined ? internalOpen : open;
@@ -103,11 +108,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   return (
     <AlertDialog
       onOpenChange={handleOpenChange}
-      onOpenChangeComplete={(o) => {
-        if (!o) {
-          afterClose?.();
-        }
-      }}
+      onOpenChangeComplete={onOpenChangeComplete}
       open={currentOpen}
     >
       {trigger && <AlertDialogTrigger render={trigger} />}

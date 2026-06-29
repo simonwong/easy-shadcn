@@ -206,20 +206,23 @@ describe("AlertModal helpers", () => {
     await expect(result!).resolves.toBeUndefined();
   });
 
-  it("chains the caller's afterClose instead of overwriting it", async () => {
-    const afterClose = vi.fn();
+  it("chains the caller's onOpenChangeComplete instead of overwriting it", async () => {
+    const onOpenChangeComplete = vi.fn();
     render(<CommandModal.Provider>{null}</CommandModal.Provider>);
 
     let result: Promise<void>;
     act(() => {
-      result = AlertModalHelper.alert({ afterClose, title: "Saved" });
+      result = AlertModalHelper.alert({ onOpenChangeComplete, title: "Saved" });
     });
 
     fireEvent.click(await screen.findByRole("button", { name: "OK" }));
     await result!;
 
+    // Base UI's hook fires on open AND close; the caller's callback must be
+    // chained (not overwritten by the helper's unregister handler) and receive
+    // the close-complete signal.
     await waitFor(() => {
-      expect(afterClose).toHaveBeenCalledTimes(1);
+      expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
     });
   });
 });

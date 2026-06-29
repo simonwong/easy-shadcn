@@ -427,7 +427,7 @@ describe("useModal", () => {
         expect(capturedModalProps).toBeDefined();
         expect(capturedModalProps.open).toBe(true);
         expect(typeof capturedModalProps.onOpenChange).toBe("function");
-        expect(typeof capturedModalProps.afterClose).toBe("function");
+        expect(typeof capturedModalProps.onOpenChangeComplete).toBe("function");
       });
     });
   });

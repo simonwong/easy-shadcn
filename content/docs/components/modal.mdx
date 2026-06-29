@@ -99,7 +99,7 @@ Any component created with `Modal.create` can be driven imperatively — `useMod
 | `trigger` | `ReactElement` | - | Rendered as the `DialogTrigger`. |
 | `showCloseButton` | `boolean` | `true` | The top-right close button. |
 | `disablePointerDismissal` | `boolean` | `false` | Prevents closing via outside clicks. |
-| `afterClose` | `() => void` | - | Called after the close animation completes. |
+| `onOpenChangeComplete` | `(open: boolean) => void` | - | Base UI's post-transition hook, fired after the open/close animation completes. Forwarded to the underlying Dialog. |
 
 Class overrides: `className` (dialog content), `headerClassName`, `titleClassName`, `descriptionClassName`, `contentClassName` (body), `footerClassName`.
 

@@ -39,7 +39,11 @@ export interface CommandModalCallbacks {
 export type ShadCNModalProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  afterClose?: () => void;
+  /**
+   * Base UI Dialog's real post-transition hook (fires on open AND close). The
+   * default adapter wires teardown here, guarded on `open === false`.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
 };
 
 /**
@@ -51,11 +55,11 @@ export type ShadCNModalProps = {
  * @returns Props object compatible with your modal library
  *
  * @example
- * // For shadcn/ui
+ * // For shadcn/ui (Base UI Dialog)
  * const shadcnAdapter: ModalPropsAdapter<ShadCNModalProps> = (handler) => ({
  *   open: handler.visible,
  *   onOpenChange: (open) => open ? handler.show() : handler.hide(),
- *   afterClose: () => { handler.resolveHide(); if (!handler.keepMounted) handler.remove(); }
+ *   onOpenChangeComplete: (open) => { if (!open) { handler.resolveHide(); if (!handler.keepMounted) handler.remove(); } }
  * });
  *
  * // For Ant Design

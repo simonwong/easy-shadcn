@@ -93,64 +93,63 @@ describe("modalProps", () => {
     });
   });
 
-  describe("afterClose callback", () => {
-    it("should call resolveHide() when afterClose is called", () => {
-      const resolveHideMock = vi.fn();
-      const mockHandler: CommandModalHandler = {
-        id: "test",
-        visible: false,
-        keepMounted: false,
-        show: vi.fn(),
-        hide: vi.fn(),
-        resolve: vi.fn(),
-        reject: vi.fn(),
-        remove: vi.fn(),
-        resolveHide: resolveHideMock,
-      };
+  describe("onOpenChangeComplete callback", () => {
+    const makeHandler = (
+      overrides: Partial<CommandModalHandler> = {}
+    ): CommandModalHandler => ({
+      id: "test",
+      visible: false,
+      keepMounted: false,
+      show: vi.fn(),
+      hide: vi.fn(),
+      resolve: vi.fn(),
+      reject: vi.fn(),
+      remove: vi.fn(),
+      resolveHide: vi.fn(),
+      ...overrides,
+    });
 
-      const result = createModalProps(mockHandler);
-      result.afterClose?.();
+    it("should call resolveHide() when onOpenChangeComplete(false) is called", () => {
+      const resolveHideMock = vi.fn();
+      const result = createModalProps(
+        makeHandler({ resolveHide: resolveHideMock })
+      );
+
+      result.onOpenChangeComplete?.(false);
 
       expect(resolveHideMock).toHaveBeenCalled();
     });
 
-    it("should call remove() when afterClose is called and keepMounted is false", () => {
+    it("should call remove() on close-complete when keepMounted is false", () => {
       const removeMock = vi.fn();
-      const mockHandler: CommandModalHandler = {
-        id: "test",
-        visible: false,
-        keepMounted: false,
-        show: vi.fn(),
-        hide: vi.fn(),
-        resolve: vi.fn(),
-        reject: vi.fn(),
-        remove: removeMock,
-        resolveHide: vi.fn(),
-      };
+      const result = createModalProps(makeHandler({ remove: removeMock }));
 
-      const result = createModalProps(mockHandler);
-      result.afterClose?.();
+      result.onOpenChangeComplete?.(false);
 
       expect(removeMock).toHaveBeenCalled();
     });
 
-    it("should NOT call remove() when afterClose is called and keepMounted is true", () => {
+    it("should NOT call remove() on close-complete when keepMounted is true", () => {
       const removeMock = vi.fn();
-      const mockHandler: CommandModalHandler = {
-        id: "test",
-        visible: false,
-        keepMounted: true,
-        show: vi.fn(),
-        hide: vi.fn(),
-        resolve: vi.fn(),
-        reject: vi.fn(),
-        remove: removeMock,
-        resolveHide: vi.fn(),
-      };
+      const result = createModalProps(
+        makeHandler({ keepMounted: true, remove: removeMock })
+      );
 
-      const result = createModalProps(mockHandler);
-      result.afterClose?.();
+      result.onOpenChangeComplete?.(false);
 
+      expect(removeMock).not.toHaveBeenCalled();
+    });
+
+    it("should be a no-op on open-complete — Base UI also fires this on open", () => {
+      const resolveHideMock = vi.fn();
+      const removeMock = vi.fn();
+      const result = createModalProps(
+        makeHandler({ resolveHide: resolveHideMock, remove: removeMock })
+      );
+
+      result.onOpenChangeComplete?.(true);
+
+      expect(resolveHideMock).not.toHaveBeenCalled();
       expect(removeMock).not.toHaveBeenCalled();
     });
   });
@@ -210,7 +209,7 @@ describe("modalProps", () => {
               data-testid="close-btn"
               onClick={() => {
                 props.onOpenChange?.(false);
-                props.afterClose?.();
+                props.onOpenChangeComplete?.(false);
               }}
             >
               Close
