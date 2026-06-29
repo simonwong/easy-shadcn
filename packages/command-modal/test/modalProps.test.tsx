@@ -9,44 +9,19 @@ import { describe, expect, it, vi } from "vitest";
 import { create, hide, show } from "../src/actions";
 import { hideModalCallbacks } from "../src/constants";
 import { Provider } from "../src/context";
-import type { CommandModalHandler } from "../src/type";
 import { createModalProps, useModal } from "../src/useModal";
 import { makeHandler } from "./test-utils";
 
 describe("modalProps", () => {
   describe("open property", () => {
     it("should return open=true when modal is visible", () => {
-      const mockHandler: CommandModalHandler = {
-        id: "test",
-        visible: true,
-        keepMounted: false,
-        show: vi.fn(),
-        hide: vi.fn(),
-        resolve: vi.fn(),
-        reject: vi.fn(),
-        remove: vi.fn(),
-        resolveHide: vi.fn(),
-      };
-
-      const result = createModalProps(mockHandler);
+      const result = createModalProps(makeHandler({ visible: true }));
 
       expect(result.open).toBe(true);
     });
 
     it("should return open=false when modal is not visible", () => {
-      const mockHandler: CommandModalHandler = {
-        id: "test",
-        visible: false,
-        keepMounted: false,
-        show: vi.fn(),
-        hide: vi.fn(),
-        resolve: vi.fn(),
-        reject: vi.fn(),
-        remove: vi.fn(),
-        resolveHide: vi.fn(),
-      };
-
-      const result = createModalProps(mockHandler);
+      const result = createModalProps(makeHandler({ visible: false }));
 
       expect(result.open).toBe(false);
     });
@@ -55,19 +30,8 @@ describe("modalProps", () => {
   describe("onOpenChange callback", () => {
     it("should call show() when onOpenChange(true) is called", () => {
       const showMock = vi.fn();
-      const mockHandler: CommandModalHandler = {
-        id: "test",
-        visible: false,
-        keepMounted: false,
-        show: showMock,
-        hide: vi.fn(),
-        resolve: vi.fn(),
-        reject: vi.fn(),
-        remove: vi.fn(),
-        resolveHide: vi.fn(),
-      };
+      const result = createModalProps(makeHandler({ show: showMock }));
 
-      const result = createModalProps(mockHandler);
       result.onOpenChange?.(true);
 
       expect(showMock).toHaveBeenCalled();
@@ -75,19 +39,10 @@ describe("modalProps", () => {
 
     it("should call hide() when onOpenChange(false) is called", () => {
       const hideMock = vi.fn();
-      const mockHandler: CommandModalHandler = {
-        id: "test",
-        visible: true,
-        keepMounted: false,
-        show: vi.fn(),
-        hide: hideMock,
-        resolve: vi.fn(),
-        reject: vi.fn(),
-        remove: vi.fn(),
-        resolveHide: vi.fn(),
-      };
+      const result = createModalProps(
+        makeHandler({ visible: true, hide: hideMock })
+      );
 
-      const result = createModalProps(mockHandler);
       result.onOpenChange?.(false);
 
       expect(hideMock).toHaveBeenCalled();
@@ -197,6 +152,7 @@ describe("modalProps", () => {
                 props.onOpenChange?.(false);
                 props.onOpenChangeComplete?.(false);
               }}
+              type="button"
             >
               Close
             </button>
@@ -255,9 +211,10 @@ describe("modalProps", () => {
         }
         return (
           <div data-testid="dialog-root">
-            <div
+            <button
               data-testid="dialog-overlay"
               onClick={() => onOpenChange?.(false)}
+              type="button"
             />
             <div data-testid="dialog-content">{children}</div>
           </div>

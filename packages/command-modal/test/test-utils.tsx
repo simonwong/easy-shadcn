@@ -40,12 +40,18 @@ export const makeHandler = (
  * Should be called in beforeEach to ensure test isolation.
  */
 export const resetRegistry = () => {
-  Object.keys(MODAL_REGISTRY).forEach((key) => delete MODAL_REGISTRY[key]);
-  Object.keys(ALREADY_MOUNTED).forEach((key) => delete ALREADY_MOUNTED[key]);
-  Object.keys(modalCallbacks).forEach((key) => delete modalCallbacks[key]);
-  Object.keys(hideModalCallbacks).forEach(
-    (key) => delete hideModalCallbacks[key]
-  );
+  for (const key of Object.keys(MODAL_REGISTRY)) {
+    delete MODAL_REGISTRY[key];
+  }
+  for (const key of Object.keys(ALREADY_MOUNTED)) {
+    delete ALREADY_MOUNTED[key];
+  }
+  for (const key of Object.keys(modalCallbacks)) {
+    delete modalCallbacks[key];
+  }
+  for (const key of Object.keys(hideModalCallbacks)) {
+    delete hideModalCallbacks[key];
+  }
   __resetMultipleProvidersWarning();
   __resetDispatchStack();
 };
@@ -73,6 +79,7 @@ export const MockDialog: React.FC<{
           // Simulate Base UI firing the post-close-transition hook.
           onOpenChangeComplete?.(false);
         }}
+        type="button"
       >
         Close
       </button>
@@ -103,6 +110,7 @@ export const createTestModal = (testId: string) => {
             modal.resolve(onResolve ? onResolve("resolved") : "resolved");
             modal.hide();
           }}
+          type="button"
         >
           Resolve
         </button>
@@ -112,6 +120,7 @@ export const createTestModal = (testId: string) => {
             modal.reject(onReject ? onReject("rejected") : "rejected");
             modal.hide();
           }}
+          type="button"
         >
           Reject
         </button>
