@@ -1,5 +1,3 @@
-import type { JSX } from "react";
-
 export interface CommandModalState {
   args?: Record<string, unknown>;
   delayVisible?: boolean;
@@ -139,25 +137,32 @@ export interface CommandModalHocProps {
 // The inner component's props (`T`) arrive at runtime via `show(id, args)`, not
 // at JSX-mount time. Anything passed where the HOC is mounted (`<Modal id=… />`)
 // only acts as a default, so `T` is partial there — `id` is the sole required prop.
-export type CreateModalComponent<T = object> = React.FC<
+export type CreateModalComponent<T = object, R = unknown> = React.FC<
   Partial<T> & CommandModalHocProps
->;
+> & {
+  /**
+   * Phantom marker carrying the modal's resolve (result) type. Exists only at
+   * the type level — never present at runtime. {@link ResolveType} reads it so
+   * `show(Comp)` returns `Promise<R>` without an explicit type argument.
+   */
+  readonly __resolveType?: R;
+};
 
-export type CommandModalArgs<T> = T extends
-  | keyof JSX.IntrinsicElements
-  | React.JSXElementConstructor<unknown>
-  ? React.ComponentProps<T>
-  : Record<string, unknown>;
+/**
+ * Extract the resolve (result) type `R` carried by a {@link CreateModalComponent}.
+ * Falls back to `unknown` for components that don't carry one.
+ */
+export type ResolveType<C> = C extends { __resolveType?: infer R }
+  ? R
+  : unknown;
 
 /**
  * The props a modal component accepts at `show()` / `register()` /
  * `useModal()` time: its own props minus the HOC-reserved keys
  * (`id` / `defaultVisible` / `keepMounted`), which the system injects.
  *
- * Unlike {@link CommandModalArgs} — whose conditional collapses to
- * `Record<string, unknown>` for any `React.FC` and therefore type-checks
- * nothing — this derives directly from the component, so a typed modal's
- * args are actually validated.
+ * Derives directly from the component, so a typed modal's args are actually
+ * validated at each `show()` / `register()` call site.
  */
 export type ModalInnerProps<
   // biome-ignore lint/suspicious/noExplicitAny: must accept any modal component (whose props carry a required `id`), matching CreateModalComponent<any>.
