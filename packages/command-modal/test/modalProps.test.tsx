@@ -5,10 +5,12 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { useContext } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { create, hide, show } from "../src/actions";
 import { hideModalCallbacks } from "../src/constants";
-import { Provider } from "../src/context";
+import { CommandModalContext, Provider } from "../src/context";
+import type { ShadCNModalProps } from "../src/type";
 import { createModalProps, useModal } from "../src/useModal";
 import { makeHandler } from "./test-utils";
 
@@ -252,6 +254,77 @@ describe("modalProps", () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId("dialog-root")).not.toBeInTheDocument();
+      });
+    });
+
+    it("removes the reducer entry end-to-end when the dialog fires onOpenChangeComplete (no leak)", async () => {
+      // The precise leak signal lives in the reducer, not the promise stores:
+      // hide() keeps the entry as `{ visible: false }`, only remove() deletes
+      // it. A probe reads the reducer state so the test can tell them apart.
+      let reducerState: Record<string, { visible?: boolean } | undefined> = {};
+      const Probe: React.FC = () => {
+        reducerState = useContext(CommandModalContext);
+        return null;
+      };
+
+      // A Base-UI-shaped dialog: it reads `onOpenChangeComplete` and fires it
+      // once its close transition finishes. If the adapter ever stops emitting
+      // that prop (e.g. reverting to antd's `afterClose`), this dialog gets
+      // `undefined` here, only `onOpenChange → hide()` runs, and the reducer
+      // entry lingers `visible:false` forever — the leak this guards against.
+      const Dialog: React.FC<
+        ShadCNModalProps & { children?: React.ReactNode }
+      > = ({ open, onOpenChange, onOpenChangeComplete, children }) => {
+        if (!open) {
+          return null;
+        }
+        return (
+          <div data-testid="leak-dialog">
+            {children}
+            <button
+              data-testid="leak-close"
+              onClick={() => {
+                onOpenChange?.(false);
+                onOpenChangeComplete?.(false);
+              }}
+              type="button"
+            />
+          </div>
+        );
+      };
+
+      const TestModal = create(() => {
+        const modal = useModal();
+        return (
+          <Dialog {...modal.modalProps}>
+            <div data-testid="leak-content">Content</div>
+          </Dialog>
+        );
+      });
+
+      render(
+        <Provider>
+          <Probe />
+          <TestModal id="leak-test" />
+        </Provider>
+      );
+
+      act(() => {
+        show("leak-test");
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId("leak-dialog")).toBeInTheDocument();
+        expect(reducerState["leak-test"]?.visible).toBe(true);
+      });
+
+      fireEvent.click(screen.getByTestId("leak-close"));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId("leak-dialog")).not.toBeInTheDocument();
+        // remove() must delete the reducer entry. With the old afterClose
+        // wiring a raw Dialog only fired hide(), leaving the entry behind.
+        expect(reducerState["leak-test"]).toBeUndefined();
       });
     });
   });
