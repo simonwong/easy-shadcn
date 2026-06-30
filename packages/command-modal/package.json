@@ -1,6 +1,6 @@
 {
   "name": "@easy-shadcn/command-modal",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "use modal by command",
   "type": "module",
   "main": "./lib/index.js",
