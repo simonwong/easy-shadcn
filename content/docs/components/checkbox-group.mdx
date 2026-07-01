@@ -1,0 +1,58 @@
+---
+title: Checkbox Group
+---
+
+Checkbox Group flattens shadcn's `Checkbox` into a single items-driven multi-select component: each item describes its value, label, and optional description, instead of hand-wiring `Checkbox` controls and their labels. It mirrors [Radio Group](/docs/components/radio-group), differing only in that the selection state is a `string[]` (multi-select).
+
+<ExamplePreview name="checkbox-group-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/checkbox-group
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/checkbox-group.json
+```
+
+## Props
+
+| Prop                   | Type                                        | Default | Description                                                                     |
+| ---------------------- | ------------------------------------------- | ------- | ------------------------------------------------------------------------------- |
+| `items`                | `CheckboxGroupItem[]`                       | -       | Option definitions — see the table below. An empty array renders no checkboxes. |
+| `value`                | `string[]`                                  | -       | The checked values. Use for the controlled mode.                                |
+| `defaultValue`         | `string[]`                                  | -       | The initially checked values. Use for the uncontrolled mode.                    |
+| `onValueChange`        | `(value: string[], eventDetails) => void`   | -       | Called with the updated array when the selection changes.                       |
+| `disabled`             | `boolean`                                   | `false` | Disables every option.                                                          |
+| `name`                 | `string`                                    | -       | Field name used on form submission.                                             |
+| `optionClassName`      | `ClassValue`                                | -       | Class override applied to every option row (the `label`).                       |
+| `itemClassName`        | `ClassValue`                                | -       | Class override applied to every checkbox control.                               |
+| `labelClassName`       | `ClassValue`                                | -       | Class override applied to every label.                                          |
+| `descriptionClassName` | `ClassValue`                                | -       | Class override applied to every description.                                     |
+
+All other props (`className`, `data-*`, `style`, etc.) are forwarded to the underlying CheckboxGroup root.
+
+### CheckboxGroupItem
+
+| Field                  | Type         | Description                                                                    |
+| ---------------------- | ------------ | ------------------------------------------------------------------------------ |
+| `value`                | `string`     | Unique value of the option.                                                    |
+| `label`                | `ReactNode`  | Option label.                                                                  |
+| `description`          | `ReactNode`  | Optional helper text, associated via `aria-describedby`.                       |
+| `disabled`             | `boolean`    | Disables this option. A group-level `disabled` cannot be overridden to `false`. |
+| `optionClassName`      | `ClassValue` | Per-item row class, merged after the root-level `optionClassName`.             |
+| `itemClassName`        | `ClassValue` | Per-item control class, merged after the root-level `itemClassName`.           |
+| `labelClassName`       | `ClassValue` | Per-item label class, merged after the root-level `labelClassName`.            |
+| `descriptionClassName` | `ClassValue` | Per-item description class, merged after the root-level `descriptionClassName`. |
+
+## Notes
+
+- `value` / `defaultValue` are `string[]` and `onValueChange` receives the full updated array plus the Base UI `ChangeEventDetails`. Controlled mode fires `onValueChange` but does not move the selection until the `value` prop itself changes.
+- Group and item `disabled` are OR-ed by Base UI, so an item's `disabled: false` cannot re-enable a checkbox inside a disabled group.
+- Each option is a clickable `<label>` row; the control is associated with its label and description via `aria-labelledby` / `aria-describedby` for correct accessible names.
+- `items` must be homogeneous. For a `parent` / "select all" meta-checkbox, per-item `indeterminate`, or arbitrary content per option, compose the `components/ui/checkbox` primitive and Base UI `CheckboxGroup` directly instead.
