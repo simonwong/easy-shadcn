@@ -246,6 +246,20 @@
       ]
     },
     {
+      "name": "combobox",
+      "type": "registry:component",
+      "title": "Integrated Combobox",
+      "description": "Always-searchable, single-select autocomplete. A thin, opinionated preset over the Integrated Select with searchable forced on and multiple unavailable.",
+      "registryDependencies": ["@easy-shadcn/select"],
+      "files": [
+        {
+          "path": "registry/ui/combobox.tsx",
+          "type": "registry:component",
+          "target": "components/easy/combobox.tsx"
+        }
+      ]
+    },
+    {
       "name": "table",
       "type": "registry:component",
       "title": "Integrated Table",

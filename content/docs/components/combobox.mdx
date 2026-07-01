@@ -1,0 +1,107 @@
+---
+title: Combobox
+---
+
+Combobox is an always-searchable, single-select autocomplete. It is a thin, opinionated preset over [`Select`](/docs/components/select): `searchable` is forced on, `multiple` is unavailable, and the API is narrowed to the canonical combobox surface — an input you type into and a popover you pick from.
+
+<ExamplePreview name="combobox-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/combobox
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/combobox.json
+```
+
+## Props
+
+| Prop               | Type                                          | Default          | Description                                                                        |
+| ------------------ | --------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------- |
+| `items`            | `ComboboxItem[]`                              | -                | Option list — see the table below. An empty array renders the empty state.         |
+| `value`            | `string`                                      | -                | Controlled value. Prop presence (even `undefined`) signals controlled mode.        |
+| `defaultValue`     | `string`                                      | -                | Uncontrolled initial value.                                                        |
+| `onValueChange`    | `(value: string \| undefined) => void`        | -                | Called when the selection changes. `undefined` means no selection.                 |
+| `open`             | `boolean`                                     | -                | Controlled popover open state.                                                     |
+| `defaultOpen`      | `boolean`                                     | `false`          | Uncontrolled initial open state.                                                   |
+| `onOpenChange`     | `(open: boolean) => void`                     | -                | Called when the popover open state changes.                                        |
+| `placeholder`      | `string`                                      | `"Pick an option"` | Shown when no value is selected.                                                 |
+| `emptyMessage`     | `ReactNode`                                   | `"No results"`   | Shown when no items match the query (or `items` is empty).                          |
+| `clearable`        | `boolean`                                     | `false`          | Show an inline clear button when the field has a value.                             |
+| `filter`           | `(item: ComboboxItem, query: string) => boolean` | contains | Custom match predicate — overrides the default case-insensitive substring match.   |
+| `disabled`         | `boolean`                                     | `false`          | Disables all interaction.                                                          |
+| `name`             | `string`                                      | -                | Native form field name — emits a hidden input carrying the selected value.         |
+| `id`               | `string`                                      | -                | Applied to the input, for `<label htmlFor>` / the Field component.                 |
+| `aria-describedby` | `string`                                      | -                | Forwarded to the input.                                                            |
+| `aria-invalid`     | `boolean \| "true" \| "false" \| …`           | -                | Forwarded to the input for invalid-state styling.                                  |
+
+Slot class overrides: `className` (the `InputGroup` wrapper), `inputClassName` (the `<input>`), `contentClassName` (the popover container), `itemClassName` (every item), and `emptyClassName` (the empty state). The prop set is closed — anything not listed here lives on `Select` or the primitives.
+
+### ComboboxItem
+
+| Field           | Type         | Description                                                              |
+| --------------- | ------------ | ------------------------------------------------------------------------ |
+| `value`         | `string`     | Unique identifier + controlled value. `""` is a valid selection.         |
+| `label`         | `ReactNode`  | Display label. Strings/numbers drive the default filter, else `value`.   |
+| `disabled`      | `boolean`    | Makes the item unselectable.                                             |
+| `itemClassName` | `ClassValue` | Per-item class, merged after the root-level `itemClassName`.             |
+
+## Examples
+
+### Controlled
+
+Pass `value` and `onValueChange`. Prop presence signals controlled mode, so the display only updates when you feed the new `value` back in.
+
+```tsx
+const [value, setValue] = useState<string | undefined>();
+
+<Combobox items={items} onValueChange={setValue} value={value} />;
+```
+
+### Clearable
+
+```tsx
+<Combobox clearable items={items} onValueChange={setValue} value={value} />
+```
+
+The clear button appears on hover / focus while a value is set and emits `onValueChange(undefined)`.
+
+### Custom filter
+
+```tsx
+<Combobox
+  filter={(item, query) =>
+    String(item.label).toLowerCase().startsWith(query.toLowerCase())
+  }
+  items={items}
+/>
+```
+
+### Form integration
+
+```tsx
+<form onSubmit={handleSubmit}>
+  <label htmlFor="fruit">Fruit</label>
+  <Combobox id="fruit" items={items} name="fruit" />
+</form>
+```
+
+`name` emits a hidden input carrying the selected value, so the field participates in native form submission and `FormData`.
+
+## Accessibility
+
+- The input carries `role="combobox"`, `aria-expanded`, `aria-controls`, and `aria-haspopup`, wired to the popover by the underlying primitive.
+- Use `id` with a `<label htmlFor>` to name the field; forward `aria-describedby` / `aria-invalid` for hints and validation state.
+- The popover closes on `Escape` and outside interaction; there is no trigger button — the input is the only focusable control.
+
+## Notes
+
+- Combobox is exactly `<Select searchable multiple={false} />` with a narrower, discoverable API. If you need a non-searchable dropdown, multi-select chips, async loading, grouped or heterogeneous items, use [`Select`](/docs/components/select) or compose the `components/ui/combobox` primitives directly.
+- `value={undefined}` shows the placeholder; `value=""` is a distinct, valid selection that shows the `""` item's label.
+- Combobox delegates to `Select` rather than reimplementing the searchable single-select branch — see `docs/adr/combobox.md` for the rationale.
