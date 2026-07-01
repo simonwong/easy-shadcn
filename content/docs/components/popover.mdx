@@ -1,0 +1,68 @@
+---
+title: Popover
+---
+
+Popover flattens shadcn's Popover parts (`Popover` / `PopoverTrigger` / `PopoverContent` and the portal + positioner inside, plus `PopoverHeader` / `PopoverTitle` / `PopoverDescription`) into a single drop-anywhere component: wrap any element as the trigger, then compose the popup with the `title`, `description`, `content`, and `footer` slots.
+
+<ExamplePreview name="popover-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/popover
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/popover.json
+```
+
+## Props
+
+| Prop           | Type                                                                       | Default    | Description                                                                 |
+| -------------- | -------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------- |
+| `children`     | `ReactElement`                                                             | -          | The trigger. Must be a single element — it becomes the trigger itself.     |
+| `content`      | `ReactNode`                                                                | -          | The popup body, wrapped in `data-slot="popover-body"`.                     |
+| `title`        | `ReactNode`                                                                | -          | Header title.                                                              |
+| `description`  | `ReactNode`                                                                | -          | Header description rendered below the title.                               |
+| `footer`       | `ReactNode`                                                                | -          | Footer content, wrapped in `data-slot="popover-footer"`.                   |
+| `side`         | `"top" \| "bottom" \| "left" \| "right" \| "inline-start" \| "inline-end"` | `"bottom"` | Which side of the trigger the popup is placed on.                          |
+| `sideOffset`   | `number`                                                                   | `4`        | Gap between the trigger and the popup.                                     |
+| `align`        | `"start" \| "center" \| "end"`                                             | `"center"` | Alignment along the chosen side.                                           |
+| `alignOffset`  | `number`                                                                   | `0`        | Offset along the alignment axis.                                           |
+| `anchor`       | positioning anchor                                                         | trigger    | Element the popup is positioned against, defaulting to the trigger.        |
+| `open`         | `boolean`                                                                  | -          | Controlled open state.                                                     |
+| `defaultOpen`  | `boolean`                                                                  | `false`    | Initial open state (uncontrolled).                                         |
+| `onOpenChange` | `(open: boolean, eventDetails) => void`                                    | -          | Called when the open state changes.                                        |
+| `disabled`     | `boolean`                                                                  | `false`    | Disables the trigger — the popover never opens.                            |
+
+Every slot accepts a class override: `headerClassName`, `titleClassName`, `descriptionClassName`, `contentClassName` (the body), and `footerClassName`. All other props (`className`, `data-*`, event handlers, etc.) are forwarded to the popup container (`data-slot="popover-content"`).
+
+## Slot structure
+
+The popup is composed of three optional regions, in order:
+
+- **Header** — `title` (`data-slot="popover-title"`) and `description` (`data-slot="popover-description"`) together inside `data-slot="popover-header"`.
+- **Body** — `content` inside `data-slot="popover-body"`.
+- **Footer** — `footer` inside `data-slot="popover-footer"`.
+
+```tsx
+<Popover
+  content="Set the dimensions for the layer."
+  description="Adjust width and height."
+  footer={<Button size="sm">Save</Button>}
+  title="Dimensions"
+>
+  <Button variant="outline">Open</Button>
+</Popover>
+```
+
+## Notes
+
+- `children` must be a single element that forwards props and a ref (a DOM tag like `<button>`, or a component built with `forwardRef` / Base UI's `render`). It becomes the trigger directly — no extra wrapper element is added.
+- The header is only rendered when at least one of `title` or `description` is present; the body and footer are only rendered when their prop is present, so an empty region produces no markup.
+- Slot values follow React's rendering rules: `null`, `undefined`, and booleans are treated as absent, while valid falsy nodes such as `0` or `""` render normally.
+- For custom arrows, advanced positioning (collision boundary/padding, sticky), modal mode with a backdrop, or heterogeneous popup layouts, compose the `components/ui/popover` primitives directly instead.
