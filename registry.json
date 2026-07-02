@@ -192,6 +192,20 @@
       ]
     },
     {
+      "name": "alert-dialog",
+      "type": "registry:component",
+      "title": "Integrated Alert Dialog",
+      "description": "Flat-props AlertDialog built on shadcn's base-ui AlertDialog: title / description slots, confirm / cancel footer with async handlers, controlled or uncontrolled open state, destructive variant sugar, and a full footer override.",
+      "registryDependencies": ["alert-dialog", "@easy-shadcn/async-button"],
+      "files": [
+        {
+          "path": "registry/ui/alert-dialog.tsx",
+          "type": "registry:component",
+          "target": "components/easy/alert-dialog.tsx"
+        }
+      ]
+    },
+    {
       "name": "calendar",
       "type": "registry:component",
       "title": "Integrated Calendar",
