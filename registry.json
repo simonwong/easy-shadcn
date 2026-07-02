@@ -102,6 +102,20 @@
       ]
     },
     {
+      "name": "checkbox-group",
+      "type": "registry:component",
+      "title": "Integrated Checkbox Group",
+      "description": "Flat items-driven multi-select CheckboxGroup built on shadcn's base-ui Checkbox: per-option label, description, and disabled, with accessible label/description wiring and class overrides.",
+      "registryDependencies": ["checkbox"],
+      "files": [
+        {
+          "path": "registry/ui/checkbox-group.tsx",
+          "type": "registry:component",
+          "target": "components/easy/checkbox-group.tsx"
+        }
+      ]
+    },
+    {
       "name": "field",
       "type": "registry:component",
       "title": "Integrated Field",
