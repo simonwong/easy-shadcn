@@ -1,0 +1,63 @@
+---
+title: Alert Dialog
+---
+
+AlertDialog flattens shadcn's `AlertDialog` compound components into a single component with flat `title`, `description`, and footer props. It is the zero-dependency, declarative sibling of `AlertModal` — same visual and prop contract, but driven inline via a `trigger` or a controlled `open` prop instead of the imperative `@easy-shadcn/command-modal` helpers.
+
+<ExamplePreview name="alert-dialog-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/alert-dialog
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/alert-dialog.json
+```
+
+## Usage
+
+The flat `onConfirm` / `onCancel` footer needs no controlled state — confirm closes the dialog after the (optionally async) handler resolves, and a rejection keeps it open and retryable:
+
+```tsx
+import { AlertDialog } from "@/components/easy/alert-dialog"
+
+<AlertDialog
+  title="Delete project?"
+  description="This action cannot be undone."
+  variant="destructive"
+  confirmText="Delete"
+  trigger={<Button variant="destructive">Delete</Button>}
+  onConfirm={async () => {
+    await deleteProject()
+  }}
+/>
+```
+
+## API
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` / `description` | `ReactNode` | - | Header slots. The header renders only when one of them is present. |
+| `trigger` | `ReactElement` | - | Rendered as the `AlertDialogTrigger` for uncontrolled use. |
+| `open` / `defaultOpen` / `onOpenChange` | - | - | Controlled / uncontrolled open state. `onOpenChange` is `(open: boolean) => void`. |
+| `onConfirm` / `onCancel` | `() => void \| Promise<void>` | - | Footer handlers. Async handlers show a pending spinner; a rejection keeps the dialog open. |
+| `confirmText` / `cancelText` | `ReactNode` | `"OK"` / `"Cancel"` | Footer button labels. |
+| `showCancel` | `boolean` | `true` | Hide the cancel button for single-action alerts. |
+| `confirmProps` / `cancelProps` | `AsyncButtonProps` | - | Extra props for the footer buttons. Passing `onClick` replaces the built-in handler. |
+| `footer` | `ReactNode` | - | Replaces the entire button row. When set, all button-related props are ignored. |
+| `variant` | `"default" \| "destructive"` | `"default"` | Confirm-button color sugar. `confirmProps.variant` overrides it; the cancel button always stays `outline`. |
+| `size` | `"default" \| "sm"` | `"default"` | Forwarded to the `AlertDialogContent` primitive. |
+
+Class overrides: `className` (dialog content), `headerClassName`, `titleClassName`, `descriptionClassName`, `footerClassName`.
+
+## Notes
+
+- **Accessibility name.** A dialog without a title has no accessible name — pass `title` (or render your own `AlertDialogTitle` via the primitives) in production.
+- Escape closes the dialog; outside/pointer clicks never dismiss it (both hardwired by base-ui's `AlertDialog`).
+- For a media/icon header, three or more actions, or heterogeneous footer layouts beyond the `footer` override, compose the `components/ui/alert-dialog` primitives directly.

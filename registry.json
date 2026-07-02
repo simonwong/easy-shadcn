@@ -74,6 +74,20 @@
       ]
     },
     {
+      "name": "popover",
+      "type": "registry:component",
+      "title": "Integrated Popover",
+      "description": "Drop-anywhere Popover that flattens shadcn's base-ui Popover parts into one component: wrap an element as the trigger, then compose the popup with title / description / content / footer slots and side/align positioning.",
+      "registryDependencies": ["popover"],
+      "files": [
+        {
+          "path": "registry/ui/popover.tsx",
+          "type": "registry:component",
+          "target": "components/easy/popover.tsx"
+        }
+      ]
+    },
+    {
       "name": "radio-group",
       "type": "registry:component",
       "title": "Integrated Radio Group",
@@ -84,6 +98,20 @@
           "path": "registry/ui/radio-group.tsx",
           "type": "registry:component",
           "target": "components/easy/radio-group.tsx"
+        }
+      ]
+    },
+    {
+      "name": "checkbox-group",
+      "type": "registry:component",
+      "title": "Integrated Checkbox Group",
+      "description": "Flat items-driven multi-select CheckboxGroup built on shadcn's base-ui Checkbox: per-option label, description, and disabled, with accessible label/description wiring and class overrides.",
+      "registryDependencies": ["checkbox"],
+      "files": [
+        {
+          "path": "registry/ui/checkbox-group.tsx",
+          "type": "registry:component",
+          "target": "components/easy/checkbox-group.tsx"
         }
       ]
     },
@@ -160,6 +188,20 @@
           "path": "registry/ui/modal/alert-modal-helper.tsx",
           "type": "registry:component",
           "target": "components/easy/modal/alert-modal-helper.tsx"
+        }
+      ]
+    },
+    {
+      "name": "alert-dialog",
+      "type": "registry:component",
+      "title": "Integrated Alert Dialog",
+      "description": "Flat-props AlertDialog built on shadcn's base-ui AlertDialog: title / description slots, confirm / cancel footer with async handlers, controlled or uncontrolled open state, destructive variant sugar, and a full footer override.",
+      "registryDependencies": ["alert-dialog", "@easy-shadcn/async-button"],
+      "files": [
+        {
+          "path": "registry/ui/alert-dialog.tsx",
+          "type": "registry:component",
+          "target": "components/easy/alert-dialog.tsx"
         }
       ]
     },
