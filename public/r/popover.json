@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "popover",
+  "title": "Integrated Popover",
+  "description": "Drop-anywhere Popover that flattens shadcn's base-ui Popover parts into one component: wrap an element as the trigger, then compose the popup with title / description / content / footer slots and side/align positioning.",
+  "registryDependencies": [
+    "popover"
+  ],
+  "files": [
+    {
+      "path": "registry/ui/popover.tsx",
+      "content": "\"use client\";\n\nimport type { ComponentProps, ReactElement, ReactNode } from \"react\";\nimport {\n  PopoverContent,\n  PopoverDescription,\n  PopoverHeader,\n  Popover as PopoverRoot,\n  PopoverTitle,\n  PopoverTrigger,\n} from \"@/components/ui/popover\";\n\ntype RootProps = ComponentProps<typeof PopoverRoot>;\ntype TriggerProps = ComponentProps<typeof PopoverTrigger>;\ntype ContentProps = ComponentProps<typeof PopoverContent>;\n\nexport interface PopoverProps\n  extends Omit<ContentProps, \"children\" | \"content\" | \"title\">,\n    Pick<RootProps, \"defaultOpen\" | \"onOpenChange\" | \"open\">,\n    Pick<TriggerProps, \"disabled\"> {\n  children: ReactElement;\n  content: ReactNode;\n  contentClassName?: string;\n  description?: ReactNode;\n  descriptionClassName?: string;\n  footer?: ReactNode;\n  footerClassName?: string;\n  headerClassName?: string;\n  title?: ReactNode;\n  titleClassName?: string;\n}\n\n// Mirrors React's own rendering rules: null/undefined/boolean render nothing,\n// but valid falsy nodes like 0 and \"\" must not be swallowed.\nconst hasNode = (node: ReactNode): boolean =>\n  node !== null && node !== undefined && typeof node !== \"boolean\";\n\nexport const Popover = ({\n  children,\n  content,\n  contentClassName,\n  title,\n  titleClassName,\n  description,\n  descriptionClassName,\n  footer,\n  footerClassName,\n  headerClassName,\n  open,\n  defaultOpen,\n  onOpenChange,\n  disabled,\n  ...contentProps\n}: PopoverProps) => (\n  <PopoverRoot\n    defaultOpen={defaultOpen}\n    onOpenChange={onOpenChange}\n    open={open}\n  >\n    <PopoverTrigger disabled={disabled} render={children} />\n    <PopoverContent {...contentProps}>\n      {(hasNode(title) || hasNode(description)) && (\n        <PopoverHeader className={headerClassName}>\n          {hasNode(title) && (\n            <PopoverTitle className={titleClassName}>{title}</PopoverTitle>\n          )}\n          {hasNode(description) && (\n            <PopoverDescription className={descriptionClassName}>\n              {description}\n            </PopoverDescription>\n          )}\n        </PopoverHeader>\n      )}\n      {hasNode(content) && (\n        <div className={contentClassName} data-slot=\"popover-body\">\n          {content}\n        </div>\n      )}\n      {hasNode(footer) && (\n        <div className={footerClassName} data-slot=\"popover-footer\">\n          {footer}\n        </div>\n      )}\n    </PopoverContent>\n  </PopoverRoot>\n);\n\nexport default Popover;\n",
+      "type": "registry:component",
+      "target": "components/easy/popover.tsx"
+    }
+  ],
+  "type": "registry:component"
+}
