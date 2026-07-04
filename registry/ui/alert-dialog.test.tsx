@@ -397,14 +397,15 @@ describe("AlertDialog — composition (Slice 3)", () => {
     );
   });
 
-  it("lets confirmProps.onClick replace the built-in confirm handler", async () => {
-    const custom = vi.fn();
+  it("keeps the confirm close wiring intact when legit confirmProps are passed", async () => {
+    // ADR-0004 category 2: confirmProps Omits `onClick`/`children`, so external
+    // props can't desync the dialog's own confirm + close logic.
     const onConfirm = vi.fn();
     const onOpenChange = vi.fn();
 
     render(
       <AlertDialog
-        confirmProps={{ onClick: custom }}
+        confirmProps={{ variant: "outline" }}
         defaultOpen
         onConfirm={onConfirm}
         onOpenChange={onOpenChange}
@@ -414,9 +415,29 @@ describe("AlertDialog — composition (Slice 3)", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "OK" }));
     await waitFor(() => {
-      expect(custom).toHaveBeenCalledTimes(1);
+      expect(onOpenChange).toHaveBeenCalledWith(false);
     });
-    expect(onConfirm).not.toHaveBeenCalled();
-    expect(onOpenChange).not.toHaveBeenCalledWith(false);
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the cancel close wiring intact when legit cancelProps are passed", async () => {
+    const onCancel = vi.fn();
+    const onOpenChange = vi.fn();
+
+    render(
+      <AlertDialog
+        cancelProps={{ className: "cancel-x" }}
+        defaultOpen
+        onCancel={onCancel}
+        onOpenChange={onOpenChange}
+        title="T"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 });

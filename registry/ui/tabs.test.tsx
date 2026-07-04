@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { Tabs, type TabsItem } from "./tabs";
 
 const baseItems: TabsItem[] = [
-  { content: "First content", label: "First", value: "first" },
-  { content: "Second content", label: "Second", value: "second" },
+  { content: "First content", trigger: "First", value: "first" },
+  { content: "Second content", trigger: "Second", value: "second" },
 ];
 
 describe("Tabs", () => {

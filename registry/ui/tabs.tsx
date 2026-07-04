@@ -16,7 +16,7 @@ export interface TabsItem {
   contentClassName?: ClassValue;
   disabled?: boolean;
   keepMounted?: boolean;
-  label: ReactNode;
+  trigger: ReactNode;
   triggerClassName?: ClassValue;
   value: string;
 }
@@ -60,7 +60,7 @@ export const Tabs = ({
             key={item.value}
             value={item.value}
           >
-            {item.label}
+            {item.trigger}
           </TabsTrigger>
         ))}
       </TabsList>
