@@ -84,9 +84,18 @@ modal.hide()
 - **底层原语** (`components/ui/*`)：shadcn 原生 compound component（如 `<Card><CardHeader><CardTitle>...`），保留完整组合自由度
 - **Compose 层** (`registry/ui/*`)：基于原语的扁平化封装，用 props 代替 children 结构
 
-### 核心原则：80/20
+### 核心原则：规则 A（覆盖面浮动）+ 规则 B（基础用例概念数冻结）
 
-Compose 层服务 **80% 常见场景**，牺牲灵活性换取易用性。复杂的 20% 场景，用户直接使用 `components/ui/*` 原语自己组合，**不在 Compose 层开口子**。这是一条硬线——每次想加 prop 时都要回到这条线上问一遍。
+不再用统一的 80/20 固定百分比做硬线。判据全文见 [ADR-0004](docs/adr/0004-props-vocabulary.md)，落到执行是两条规则：
+
+**规则 A：覆盖目标随"逃生成本"浮动。** Compose 组件分两级——
+
+- **薄封装**（Card、Tabs、Tooltip、Breadcrumb、Accordion、Popover 这类）：用户回退原语手写只要十几行，逃生舱近乎免费 → API 保持极小，缺失场景直接让用户走原语。
+- **状态机组件**（Table、Select、Combobox、DatePicker 这类）：Compose 层拥有真正的状态逻辑（选中 tally、异步竞态、已选项 merge-back），"去用原语"等于重写几百行 → 覆盖率有义务逼近 100%，对标 antd 同类组件的能力面。`table.tsx` 的 `getCheckboxProps` 不是"例外"，正是这条规律：Table 是状态机组件，暴露逐行 checkbox 控制属于分内覆盖。
+
+**规则 B：基础用例概念数冻结。** props 总数可以涨，但"跑通第一个用例必须理解的 props 数"永久冻结——Table 永远是 `columns` + `dataSource` + `rowKey`，Select 永远是 `items` + `value`/`onValueChange`。新 prop 必须做到"不用它的人完全无感知"：有合理默认；不与既有 props 产生互斥/组合语义（若确有互斥关系，**必须**写进该 prop 的 JSDoc）；不出现在第一个 demo 里。
+
+一句话：**面积可以逼近 100%，入门斜率必须保持 80% 时的样子。**
 
 ### 新增组件时的规则
 
@@ -100,15 +109,23 @@ Compose 层服务 **80% 常见场景**，牺牲灵活性换取易用性。复杂
 <Card><CardHeader><CardTitle>...</CardTitle></CardHeader>...</Card>
 ```
 
-**2. 每个 slot 默认只暴露 `xxxClassName`，克制地使用 `xxxProps`**
+**2. `xxxProps` 按 slot 内容分三类，核心是"所有权类型收口"**
 
-- 命名模式：`titleClassName`、`descriptionClassName`、`footerClassName`、`contentClassName`
-- `xxxProps` 允许但必须克制：仅当 slot 确有高频的非样式定制需求（典型如按钮 slot 的 `variant` / `disabled` / `loading`）才暴露，且类型必须收窄为该 slot 真实组件的 props（禁止 `Record<string, unknown>` 兜底）
-- 默认不加：能用 `xxxClassName` 表达的、或只为 5% 场景服务的 `xxxProps` 一律不加——去用原语
+要不要给 slot 开 `xxxProps`，取决于 slot 内容是什么、状态归谁所有，而不是"克制"的直觉。判据全文见 [ADR-0004](docs/adr/0004-props-vocabulary.md)：
 
-**3. 命名对齐原语**
+- **内容型 slot**（`title` / `description` / `footer` / `content` 等，类型是 `ReactNode`）：**永远不加 `xxxProps`**。slot 内部本就 100% 可控，唯一够不到的是包裹元素，而包裹元素只有样式需求 → `xxxClassName` 封顶。硬规则。
+- **交互组件型 slot**（按钮、checkbox、input 等有自己 props 面的组件）：`xxxProps` 合理，数量不设限，但**必须在类型层面 `Omit` 掉 Compose 层已接管的键**（`onClick`、`checked`、`onCheckedChange`、`children`…），不能只靠文档约定——passthrough 的展开会在运行时静默盖掉内部逻辑。类型仍须收窄为该 slot 真实组件的 props（禁止 `Record<string, unknown>` 兜底）。正例：`registry/ui/table.tsx` 的 `TableCheckboxProps` 用 `Omit` 收口了状态键。
+- **Compose 状态需流入 slot 的**：用函数形式 `(record, index) => Partial<Props>`（`getCheckboxProps` 模式），同样 `Omit` 状态键，且函数必须**纯、不抛异常**（每行每次渲染都会调用，抛错会卸载整棵树）。
 
-减少用户记忆成本。例如 shadcn 叫 `TabsList`，所以用 `listClassName`（✗ `tabBarClassName`）。
+判词：**数量从来不是问题，未收口的所有权才是问题。**
+
+**3. 命名按参照系优先级裁决**
+
+命名参照系有固定优先级（判据全文见 [ADR-0004](docs/adr/0004-props-vocabulary.md)）：
+
+1. **原语已有的概念 → 对齐原语**（最高优先级，逃生时心智不换轨）。例如 shadcn 叫 `TabsList`，所以用 `listClassName`（✗ `tabBarClassName`）。因此 `Select` 用 `multiple: boolean`（对齐 base-ui）而 `DatePicker` 用 `mode: "single" | "multiple" | "range"`（对齐 react-day-picker）——这种横向不一致是**可接受的代价**，不强扭。
+2. **Compose 层自造的概念 → 必须对齐兄弟组件**，写进标准词汇表：受控三件套 `value` / `defaultValue` / `onValueChange`、`open` / `defaultOpen` / `onOpenChange`；异步组 `loading` / `loadingMessage` / `loadItems` / `loadOn` / `debounceMs`；空态组 `emptyMessage` / `emptyClassName`；列表约定 `items: Item[]`（每项 `value` + 内容字段 + `disabled` + 各 `xxxClassName`）；slot 名 `title` / `description` / `action` / `footer` / `content` / `trigger`，配套 `xxxClassName`。
+3. **冲突裁决 → 跟随原语子组件名**。当 1、2 打架时，原语渲染出的子组件名胜出：`TabsTrigger` 渲染 tab，故 tabs item 的内容字段应叫 `trigger`；`RadioGroupItem` 渲染 `<label>`，故 `radio-group` / `checkbox-group` 保持 `label`——正确。
 
 **4. 默认行为可以反转原语默认**
 
@@ -121,7 +138,7 @@ Compose 层服务 **80% 常见场景**，牺牲灵活性换取易用性。复杂
 - ❌ `renderHeader` / `renderFooter` 这类 render prop
 - ❌ `slots` 对象（MUI 风格）
 - ❌ "在 A 和 B 中间插入自定义节点"的 prop
-- ❌ 为了 5% 场景新增的任何 prop
+- ❌ 违反规则 A/B 的 prop：薄封装里为边缘场景开的口子，或任何抬高"基础用例概念数"的 prop
 
 遇到此类需求，答案永远是："**去用 `components/ui/*` 原语**"。
 
