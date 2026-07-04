@@ -139,6 +139,7 @@ modal.hide()
 - ❌ `slots` 对象（MUI 风格）
 - ❌ "在 A 和 B 中间插入自定义节点"的 prop
 - ❌ 违反规则 A/B 的 prop：薄封装里为边缘场景开的口子，或任何抬高"基础用例概念数"的 prop
+- ❌ locale / i18n 机制：内置文案一律英文，英文默认值是 API 的一部分。copy-in 分发下本地化是使用侧的事——传 props、改本地拷贝、或包一层固化默认，见 installation 文档的 Localizing Built-in Text 章节
 
 遇到此类需求，答案永远是："**去用 `components/ui/*` 原语**"。
 
