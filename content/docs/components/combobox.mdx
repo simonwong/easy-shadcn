@@ -104,4 +104,4 @@ The clear button appears on hover / focus while a value is set and emits `onValu
 
 - Combobox is exactly `<Select searchable multiple={false} />` with a narrower, discoverable API. If you need a non-searchable dropdown, multi-select chips, async loading, grouped or heterogeneous items, use [`Select`](/docs/components/select) or compose the `components/ui/combobox` primitives directly.
 - `value={undefined}` shows the placeholder; `value=""` is a distinct, valid selection that shows the `""` item's label.
-- Combobox delegates to `Select` rather than reimplementing the searchable single-select branch — see `docs/adr/combobox.md` for the rationale.
+- Combobox delegates to `Select` rather than reimplementing the searchable single-select branch — see `docs/adr/0005-combobox-thin-preset-over-select.md` for the rationale.

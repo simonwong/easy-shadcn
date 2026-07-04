@@ -69,7 +69,7 @@ export interface ComboboxProps {
 /**
  * An always-searchable, single-select autocomplete. A thin, opinionated preset
  * over `Select` with `searchable` forced on and `multiple` unavailable — see
- * `docs/adr/combobox.md`. The enumerated props are forwarded 1:1; anything
+ * `docs/adr/0005-combobox-thin-preset-over-select.md`. The enumerated props are forwarded 1:1; anything
  * unlisted → use `Select` or the `components/ui/combobox` primitives.
  */
 export const Combobox = (props: ComboboxProps) => {
