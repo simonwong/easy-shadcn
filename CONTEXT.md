@@ -21,3 +21,6 @@
 - command-modal's only UI-library coupling is the Adapter seam; the core stays UI-agnostic. First-class targets are shadcn + antd v6; other libraries are typed-but-BYO. See [ADR-0001](docs/adr/0001-adapter-seam-and-typed-factory.md).
 - A modal's resolve (result) type is carried on `create<Props, Result>`, not at the `show()` call site. See [ADR-0002](docs/adr/0002-resolve-type-on-create.md).
 - Compose group components delegate selection state to the base-ui group primitive instead of hand-rolling controlled/uncontrolled state (Group root delegation). See [ADR-0003](docs/adr/0003-group-root-delegation.md).
+- Select async loading is an abortable single-flight (a new fetch aborts the previous) with a bounded selected-label cache that only shows labels the loader has actually returned. See [ADR-0006](docs/adr/0006-select-async-loading-contract.md).
+- Table requires an explicit `rowKey` (no index fallback), and header select-all governs only the visible selectable rows while preserving selected disabled / off-page keys. See [ADR-0007](docs/adr/0007-table-required-rowkey-and-selection-model.md).
+- DatePicker's `withInput` is single-mode only; typed text is a draft committed on Enter / blur / close (Escape discards, calendar clicks win) and held to the same day constraints as the calendar. See [ADR-0008](docs/adr/0008-date-picker-input-draft-commit.md).
