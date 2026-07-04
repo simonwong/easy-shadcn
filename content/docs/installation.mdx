@@ -88,3 +88,20 @@ pnpm dlx shadcn@latest add @easy-shadcn/card --overwrite
 ```
 
 > `--overwrite` replaces the local files, so any changes you made to the copied component will be lost. Commit or `git diff` first to review — if you've customized a component, reapply your edits after updating (or extend it from a wrapper in your own directory instead of editing the copy in place).
+
+## Localizing Built-in Text
+
+Components ship with English defaults — `"Loading…"`, `"No data"`, `"Pick an option"`, `"OK"` / `"Cancel"`. There is deliberately no locale mechanism: the code is copied into your repo, so localization is a consumer-side concern. Three ways, from ad-hoc to app-wide:
+
+1. **Pass props.** Every built-in string has a prop: `loadingMessage`, `emptyMessage`, `placeholder`, `confirmText` / `cancelText`, and so on.
+2. **Edit your copy.** Change the default right in the file `add` dropped into your project. Note that upgrading with `--overwrite` resets it.
+3. **Wrap and re-export** (recommended for app-wide defaults). Bake your defaults into a wrapper you own — upgrades never touch it:
+
+```tsx
+// components/app-table.tsx
+import { Table, type TableProps } from "@/components/easy/table"
+
+export function AppTable<T>(props: TableProps<T>) {
+  return <Table emptyMessage="暂无数据" loadingMessage="加载中…" {...props} />
+}
+```
