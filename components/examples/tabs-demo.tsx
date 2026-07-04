@@ -6,7 +6,7 @@ const Demo = () => (
       defaultValue="first"
       items={[
         {
-          label: "First",
+          trigger: "First",
           value: "first",
           content: (
             <div className="rounded-2xl border bg-accent p-6">
@@ -15,7 +15,7 @@ const Demo = () => (
           ),
         },
         {
-          label: "Second",
+          trigger: "Second",
           value: "second",
           content: (
             <div className="rounded-2xl border bg-accent-foreground p-6 text-accent">
@@ -30,18 +30,18 @@ const Demo = () => (
       defaultValue="overview"
       items={[
         {
-          label: "Overview",
+          trigger: "Overview",
           value: "overview",
           content: <div className="p-2">Line variant</div>,
         },
         {
-          label: "Settings",
+          trigger: "Settings",
           value: "settings",
           content: <div className="p-2">Settings panel</div>,
         },
         {
           disabled: true,
-          label: "Billing",
+          trigger: "Billing",
           value: "billing",
           content: null,
         },

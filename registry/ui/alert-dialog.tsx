@@ -31,10 +31,16 @@ export interface AlertDialogProps
     AlertDialogPrimitive.Root.Props,
     "children" | "onOpenChange" | "render"
   > {
-  cancelProps?: ComponentProps<typeof AsyncButton>;
+  cancelProps?: Omit<
+    ComponentProps<typeof AsyncButton>,
+    "children" | "onClick"
+  >;
   cancelText?: ReactNode;
   className?: ClassValue;
-  confirmProps?: ComponentProps<typeof AsyncButton>;
+  confirmProps?: Omit<
+    ComponentProps<typeof AsyncButton>,
+    "children" | "onClick"
+  >;
   confirmText?: ReactNode;
   description?: ReactNode;
   descriptionClassName?: ClassValue;

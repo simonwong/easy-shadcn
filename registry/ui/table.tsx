@@ -231,11 +231,11 @@ export interface TableProps<T>
   /**
    * Per-row props forwarded to the selection-column Checkbox.
    *
-   * NOTE: `getCheckboxProps` is an explicit exception to AGENTS.md's "no
-   * xxxProps" rule — approved by the user for Antd parity. The returned
-   * checkbox state props are owned by the Table so external props can't desync
-   * the selection state. `disabled: true` excludes the row from the header
-   * "select all" tally.
+   * Per ADR-0004: Table is a state-machine component, so per-row checkbox
+   * control is in-scope coverage (Rule A), and this is the category-3 ownership
+   * pattern — the returned checkbox state props are owned by the Table so
+   * external props can't desync the selection state. `disabled: true` excludes
+   * the row from the header "select all" tally.
    *
    * Keep this function pure and non-throwing — it's invoked for every row on
    * every render. Throwing here unmounts the surrounding tree (error boundary
