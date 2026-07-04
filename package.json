@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm generate-example && next dev",
-    "build": "pnpm generate-example && next build",
+    "build": "pnpm generate-example && pnpm registry:build && next build",
     "start": "pnpm generate-example && next start",
     "generate-example": "node scripts/genarate-example-entry.mjs",
     "package:build": "pnpm -r build",
