@@ -16,6 +16,19 @@ const nextConfig: NextConfig = {
     ],
   },
   reactCompiler: true,
+  // Serve raw Markdown per page for AI agents: /docs/<path>.md(x) -> /llms.mdx/<path>
+  async rewrites() {
+    return [
+      {
+        source: "/docs/:path*.mdx",
+        destination: "/llms.mdx/:path*",
+      },
+      {
+        source: "/docs/:path*.md",
+        destination: "/llms.mdx/:path*",
+      },
+    ];
+  },
 };
 
 export default withMDX(nextConfig);

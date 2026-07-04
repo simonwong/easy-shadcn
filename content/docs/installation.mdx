@@ -55,3 +55,36 @@ Zero configuration, but you'll need to type the full URL every time.
 - **Short commands**: Once configured, the install experience matches the official shadcn flow.
 
 > `@easy-shadcn` is **not** a globally registered namespace — it's just a local alias in your `components.json` that points to this registry's URL template. You can rename the alias, but the registry's internal `registryDependencies` declare `@easy-shadcn/...`, so renaming it requires updating those references too. Keeping the default is recommended.
+
+## AI Agents / MCP
+
+If you use an AI coding agent (Claude Code, Cursor, VS Code, Codex, opencode), the shadcn CLI ships an **MCP server** that lets the agent browse and install `@easy-shadcn/*` components on your behalf — no need to paste URLs or component names by hand.
+
+First make sure the `@easy-shadcn` registry is configured in your `components.json` (see [Recommended](#recommended-configure-the-easy-shadcn-namespace) above). Then register the MCP server for your client:
+
+```shell
+pnpm dlx shadcn@latest mcp init --client claude
+# other clients: --client cursor | vscode | codex | opencode
+```
+
+Once connected, ask the agent in natural language, for example:
+
+> "List the components available in the @easy-shadcn registry, then add the modal and card."
+
+The agent reads your `components.json`, resolves the `@easy-shadcn` namespace, and runs the install for you — cross-component dependencies are resolved automatically.
+
+For agents that consume plain text, this site also publishes the whole documentation set as LLM-friendly Markdown:
+
+- [`/llms.txt`](https://easy-shadcn.vercel.app/llms.txt) — an index of every page with a one-line description.
+- [`/llms-full.txt`](https://easy-shadcn.vercel.app/llms-full.txt) — the full docs concatenated as a single Markdown file.
+- Append `.md` to any docs URL for that page's raw Markdown, e.g. `/docs/components/card.md`.
+
+## Updating Components
+
+easy-shadcn follows the shadcn **copy-in** model: `add` copies the component source into your project, so upgrading means re-running `add` with `--overwrite`:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/card --overwrite
+```
+
+> `--overwrite` replaces the local files, so any changes you made to the copied component will be lost. Commit or `git diff` first to review — if you've customized a component, reapply your edits after updating (or extend it from a wrapper in your own directory instead of editing the copy in place).
