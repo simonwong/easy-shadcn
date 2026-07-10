@@ -81,6 +81,7 @@ The four data-driven components lead the list: **Table**, **Select**, **Combobox
 | **Checkbox Group** | The multi-select counterpart — checkbox + `<label>` / description markup into an `items={…}` array of `{ value, label, description }` | `@easy-shadcn/checkbox-group` |
 | **Field** | Label, control, description, a required marker and validation messages into one form-field wrapper (accepts React Hook Form / Zod error arrays) | `@easy-shadcn/field` |
 | **Async Button** | The manual `useState` loading dance for any `onClick` returning a Promise | `@easy-shadcn/async-button` |
+| **Alert** | `<AlertTitle>` / `<AlertDescription>` / `<AlertAction>` nesting into flat `icon` / `title` / `description` / `action` props | `@easy-shadcn/alert` |
 | **Alert Dialog** | A confirm / cancel dialog with `title` / `description` slots, async handlers, a destructive variant and controlled or uncontrolled open state | `@easy-shadcn/alert-dialog` |
 | **Modal** | Imperative `alert` / `confirm` helpers plus a composable Modal on top of shadcn Dialog | `@easy-shadcn/modal` |
 | **Calendar** | Native month / year dropdowns into a three-view (days / months / years) button-grid navigation | `@easy-shadcn/calendar` |

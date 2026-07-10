@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "alert",
+  "title": "Integrated Alert",
+  "description": "Flat-props Alert built on shadcn's Alert primitive: optional icon, title, description, and caller-owned action slots with primitive variants and per-slot class overrides.",
+  "registryDependencies": [
+    "alert"
+  ],
+  "files": [
+    {
+      "path": "registry/ui/alert.tsx",
+      "content": "import type { ClassValue } from \"clsx\";\nimport type { ComponentProps, ReactNode } from \"react\";\nimport {\n  AlertAction,\n  AlertDescription,\n  Alert as AlertRoot,\n  AlertTitle,\n} from \"@/components/ui/alert\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface AlertProps\n  extends Omit<\n    ComponentProps<typeof AlertRoot>,\n    \"children\" | \"dangerouslySetInnerHTML\" | \"title\"\n  > {\n  action?: ReactNode;\n  actionClassName?: ClassValue;\n  description?: ReactNode;\n  descriptionClassName?: ClassValue;\n  icon?: ReactNode;\n  title?: ReactNode;\n  titleClassName?: ClassValue;\n}\n\nconst hasNode = (node: ReactNode): boolean =>\n  node !== null && node !== undefined && typeof node !== \"boolean\";\n\nexport const Alert = ({\n  icon,\n  title,\n  titleClassName,\n  description,\n  descriptionClassName,\n  action,\n  actionClassName,\n  ...rootProps\n}: AlertProps) => (\n  <AlertRoot {...rootProps}>\n    {hasNode(icon) ? icon : null}\n    {hasNode(title) ? (\n      <AlertTitle className={cn(titleClassName)}>{title}</AlertTitle>\n    ) : null}\n    {hasNode(description) ? (\n      <AlertDescription className={cn(descriptionClassName)}>\n        {description}\n      </AlertDescription>\n    ) : null}\n    {hasNode(action) ? (\n      <AlertAction className={cn(actionClassName)}>{action}</AlertAction>\n    ) : null}\n  </AlertRoot>\n);\n\nexport default Alert;\n",
+      "type": "registry:component",
+      "target": "components/easy/alert.tsx"
+    }
+  ],
+  "type": "registry:component"
+}
