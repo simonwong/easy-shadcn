@@ -206,6 +206,20 @@
       ]
     },
     {
+      "name": "alert",
+      "type": "registry:component",
+      "title": "Integrated Alert",
+      "description": "Flat-props Alert built on shadcn's Alert primitive: optional icon, title, description, and caller-owned action slots with primitive variants and per-slot class overrides.",
+      "registryDependencies": ["alert"],
+      "files": [
+        {
+          "path": "registry/ui/alert.tsx",
+          "type": "registry:component",
+          "target": "components/easy/alert.tsx"
+        }
+      ]
+    },
+    {
       "name": "calendar",
       "type": "registry:component",
       "title": "Integrated Calendar",

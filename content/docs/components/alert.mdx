@@ -1,0 +1,51 @@
+---
+title: Alert
+---
+
+Alert flattens shadcn's compound Alert into `icon`, `title`, `description`, and `action` props.
+
+<ExamplePreview name="alert-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/alert
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/alert.json
+```
+
+## Props
+
+| Prop                   | Type                         | Default     | Description                                                                 |
+| ---------------------- | ---------------------------- | ----------- | --------------------------------------------------------------------------- |
+| `title`                | `ReactNode`                  | -           | Alert title, rendered through the primitive `AlertTitle`.                   |
+| `description`          | `ReactNode`                  | -           | Supporting content, rendered through the primitive `AlertDescription`.      |
+| `icon`                 | `ReactNode`                  | -           | Leading icon rendered directly under the root. No icon is added by default. |
+| `action`               | `ReactNode`                  | -           | Caller-owned control or status content rendered in `AlertAction`.           |
+| `variant`              | `"default" \| "destructive"` | `"default"` | Visual variant forwarded to the primitive.                                  |
+| `className`            | `string`                     | -           | Class override for the Alert root.                                          |
+| `titleClassName`       | `ClassValue`                 | -           | Class override for the title part.                                          |
+| `descriptionClassName` | `ClassValue`                 | -           | Class override for the description part.                                    |
+| `actionClassName`      | `ClassValue`                 | -           | Class override for the action part.                                         |
+
+Safe root props (`id`, `style`, `aria-*`, `data-*`, and event handlers) are forwarded to the underlying Alert root. `children` and `dangerouslySetInnerHTML` are intentionally unavailable because the Compose layer owns the child structure; `title` is visible Alert content, not the native root `title` attribute.
+
+## Slot structure
+
+Slots always render in primitive order: `icon`, `title`, `description`, then `action`. The icon has no wrapper or `iconClassName`; style the node you pass so it remains a direct child and keeps the primitive's icon grid layout.
+
+The action is content, not a behavior API. Pass a self-contained `Button`, `AsyncButton`, link, badge, or another node with its own event, disabled, navigation, and loading behavior.
+
+## Notes
+
+- Alert is server-compatible and adds no client boundary. Only a stateful action node or surrounding caller needs `"use client"`.
+- Slot values follow React's rendering rules: `null`, `undefined`, and booleans are absent, while valid falsy nodes such as `0` and `""` render normally.
+- The primitive supplies `role="alert"`. Use it for information that should be announced promptly, not as a generic styled container.
+- No default icon or variant-specific icon is invented; callers choose the meaning and accessible treatment of their icon.
+- For dismissible alerts, extra severity variants, multiple action regions, or reordered and heterogeneous content, compose the `components/ui/alert` primitives directly.

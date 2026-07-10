@@ -81,6 +81,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Checkbox Group** | 多选版对应物——checkbox + `<label>` / 描述结构 → 一个 `items={…}` 数组（`{ value, label, description }`） | `@easy-shadcn/checkbox-group` |
 | **Field** | label、控件、描述、必填标记和校验信息 → 一个表单字段封装（接受 React Hook Form / Zod 的 error 数组） | `@easy-shadcn/field` |
 | **Async Button** | `onClick` 返回 Promise 的手动 `useState` loading 流程 | `@easy-shadcn/async-button` |
+| **Alert** | `<AlertTitle>` / `<AlertDescription>` / `<AlertAction>` 嵌套 → 扁平 `icon` / `title` / `description` / `action` props | `@easy-shadcn/alert` |
 | **Alert Dialog** | confirm / cancel 确认对话框，带 `title` / `description` slot、异步处理函数、destructive 变体，以及受控或非受控的开合状态 | `@easy-shadcn/alert-dialog` |
 | **Modal** | 命令式 `alert` / `confirm` 助手 + 基于 shadcn Dialog 的组合式 Modal | `@easy-shadcn/modal` |
 | **Calendar** | 原生月 / 年下拉 → 三视图（日 / 月 / 年）按钮网格切换 | `@easy-shadcn/calendar` |
