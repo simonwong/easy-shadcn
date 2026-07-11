@@ -159,6 +159,20 @@
       ]
     },
     {
+      "name": "switch",
+      "type": "registry:component",
+      "title": "Integrated Switch",
+      "description": "Thin labeled Switch wrapper with optional description, accessible label and description wiring, primitive state and form behavior, and explicit control, option, and text class ownership.",
+      "registryDependencies": ["switch"],
+      "files": [
+        {
+          "path": "registry/ui/switch.tsx",
+          "type": "registry:component",
+          "target": "components/easy/switch.tsx"
+        }
+      ]
+    },
+    {
       "name": "use-delay-loading",
       "type": "registry:hook",
       "title": "useDelayLoading",

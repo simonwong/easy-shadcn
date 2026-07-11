@@ -1,0 +1,127 @@
+---
+title: Switch
+---
+
+Switch combines shadcn's visible control, hidden checkbox, and label wiring into one flat component. The first use case needs only `label`; optional descriptions, controlled state, and native form props stay available without rebuilding the primitive structure.
+
+<ExamplePreview name="switch-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/switch
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/switch.json
+```
+
+The underlying shadcn `switch` primitive is installed automatically.
+
+## Basic use
+
+```tsx
+import { Switch } from "@/components/easy/switch"
+
+<Switch label="Product updates" />
+```
+
+Add `description` when the option needs supporting copy; the component creates the label, IDs, and ARIA relationships.
+
+## Props
+
+| Prop                   | Type                                      | Default     | Description                                                        |
+| ---------------------- | ----------------------------------------- | ----------- | ------------------------------------------------------------------ |
+| `label`                | `ReactNode`                               | required    | Caller-owned content that names the switch.                        |
+| `description`          | `ReactNode`                               | -           | Optional supporting content announced after the label.            |
+| `checked`              | `boolean`                                 | -           | Current state in controlled mode.                                  |
+| `defaultChecked`       | `boolean`                                 | `false`     | Initial state in uncontrolled mode.                                |
+| `onCheckedChange`      | `(checked, eventDetails) => void`         | -           | Reports a requested state change.                                  |
+| `disabled`             | `boolean`                                 | `false`     | Blocks pointer, label, and keyboard interaction.                   |
+| `readOnly`             | `boolean`                                 | `false`     | Exposes read-only state and blocks changes without disabling input. |
+| `required`             | `boolean`                                 | `false`     | Delegates native required validity to the hidden checkbox.         |
+| `id`                   | `string`                                  | generated   | ID of the hidden checkbox and target of the explicit label.        |
+| `name`                 | `string`                                  | -           | Native form field name.                                            |
+| `form`                 | `string`                                  | -           | ID of an owning form, including one outside the component subtree. |
+| `value`                | `string`                                  | `"on"`      | Submitted value while checked.                                     |
+| `uncheckedValue`       | `string`                                  | -           | With `name`, submitted through a separate input while unchecked.   |
+| `size`                 | `"sm" \| "default"`                       | `"default"` | Primitive control size.                                            |
+| `className`            | `ClassValue`                              | -           | Class override for the visible switch control.                     |
+| `optionClassName`      | `ClassValue`                              | -           | Class override for the outer option layout.                        |
+| `labelClassName`       | `ClassValue`                              | -           | Class override for the label content.                              |
+| `descriptionClassName` | `ClassValue`                              | -           | Class override for the description content.                        |
+| `ref`                  | `React.Ref<HTMLElement>`                  | -           | Ref to the visible switch control, which renders as a `span`.      |
+| `inputRef`             | `React.Ref<HTMLInputElement>`             | -           | Ref to the hidden checkbox input.                                  |
+
+Other safe primitive props, including `aria-*`, `data-*`, `style`, root event handlers, `ref`, and `inputRef`, are forwarded to their primitive targets.
+
+## Label, description, and IDs
+
+The Compose layer renders the visible switch beside an explicit `<label>`. That label targets the primitive's hidden checkbox, so clicking either the label or its description activates the switch exactly once; the visible switch is never nested inside the label.
+
+`id` belongs to the hidden checkbox and the label's `htmlFor`. The public root `ref` still resolves to the visible switch `span`, whose internal Base UI ID is intentionally different. Use `inputRef` when you need the checkbox itself.
+
+Internal `aria-labelledby` and `aria-describedby` IDs are emitted only for content that renders. Caller-provided token lists are appended after the internal ID, arbitrary whitespace is normalized, and duplicate tokens keep their first occurrence. Slot presence follows React content semantics: `null`, `undefined`, and booleans are absent, while `0` and `""` retain their elements. When both slots are absent, no empty label is rendered; provide an external accessible name such as `aria-labelledby`.
+
+Although `label` is required by the type, conditional, nullish, boolean, or empty content may still produce no usable accessible name. In that case, provide an external `aria-labelledby` target. When a rendered label already supplies the internal token, extend the name by adding external IDs to `aria-labelledby`; `aria-label` does not replace an existing labelled-by relationship.
+
+Keep `label` and `description` free of buttons, links, or other interactive descendants. Those heterogeneous interaction targets require direct primitive composition.
+
+## State and cancellation
+
+Use `defaultChecked` for uncontrolled state, or `checked` with `onCheckedChange` for controlled state. The Compose layer adds no local checked state and does not rewrite the primitive's requested value.
+
+Base UI exposes two separate cancellation points:
+
+```tsx
+<Switch
+  label="Notifications"
+  onClick={(event) => {
+    event.preventBaseUIHandler()
+  }}
+/>
+
+<Switch
+  label="Notifications"
+  onCheckedChange={(_checked, details) => {
+    details.cancel()
+  }}
+/>
+```
+
+`event.preventBaseUIHandler()` stops the root click before a change is requested. DOM `event.preventDefault()` alone does not. Calling `details.cancel()` reports the requested value to `onCheckedChange` but preserves the current visual, checkbox, and form state.
+
+## Native forms and refs
+
+`name`, `form`, `value`, `uncheckedValue`, and `required` retain Base UI's native form behavior. A disabled checked checkbox submits nothing. A disabled unchecked switch with both `name` and `uncheckedValue` still submits that value because the primitive renders it through a separate hidden input that is not disabled.
+
+`readOnly` is an ARIA and primitive state contract, not a native checkbox `readonly` attribute. It blocks pointer, label, description, and keyboard changes while keeping the checkbox enabled.
+
+The two refs intentionally point to different elements:
+
+```tsx
+const rootRef = useRef<HTMLElement>(null)
+const inputRef = useRef<HTMLInputElement>(null)
+
+<Switch
+  inputRef={inputRef}
+  label="Notifications"
+  ref={rootRef}
+/>
+```
+
+`rootRef` resolves to the visible `span[role="switch"]`; `inputRef` resolves only to `input[type="checkbox"]`, never to the optional unchecked-value input.
+
+## Class ownership
+
+`className`, `style`, root events, ARIA props, and data attributes target the visible primitive control. `optionClassName` targets only the outer layout, while `labelClassName` and `descriptionClassName` style their corresponding content elements. Content slots deliberately stop at content plus `xxxClassName`; there is no wrapper props bag or shared `contentClassName`.
+
+## When to use the primitive instead
+
+Use `components/ui/switch` directly for a custom thumb, a different child order, control-right layouts, a replaced root element, or advanced Field composition. The Compose component intentionally excludes `children`, `render`, `nativeButton`, and raw HTML because those props would bypass its owned structure.
+
+Do not wrap this already-labeled Compose Switch in flat Compose `Field` mode. For Field errors, required markers, or orientation behavior, compose `Field` with the low-level Switch primitive instead.
