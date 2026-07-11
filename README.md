@@ -82,6 +82,7 @@ The four data-driven components lead the list: **Table**, **Select**, **Combobox
 | **Field** | Label, control, description, a required marker and validation messages into one form-field wrapper (accepts React Hook Form / Zod error arrays) | `@easy-shadcn/field` |
 | **Input Group** | InputGroup root / addon / input nesting into one native input contract with flat logical start and end addon slots | `@easy-shadcn/input-group` |
 | **Avatar** | Avatar root / image / fallback / badge nesting into one component with a required fallback and optional image or badge | `@easy-shadcn/avatar` |
+| **Switch** | Switch control plus explicit label and description wiring into one component while preserving primitive state, events, and native form behavior | `@easy-shadcn/switch` |
 | **Async Button** | The manual `useState` loading dance for any `onClick` returning a Promise | `@easy-shadcn/async-button` |
 | **Alert** | `<AlertTitle>` / `<AlertDescription>` / `<AlertAction>` nesting into flat `icon` / `title` / `description` / `action` props | `@easy-shadcn/alert` |
 | **Alert Dialog** | A confirm / cancel dialog with `title` / `description` slots, async handlers, a destructive variant and controlled or uncontrolled open state | `@easy-shadcn/alert-dialog` |
