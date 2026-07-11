@@ -131,6 +131,20 @@
       ]
     },
     {
+      "name": "input-group",
+      "type": "registry:component",
+      "title": "Integrated Input Group",
+      "description": "Thin native-input wrapper over shadcn InputGroup with flat logical start and end addon slots, explicit root/input class ownership, and native input props and ref forwarding.",
+      "registryDependencies": ["input-group"],
+      "files": [
+        {
+          "path": "registry/ui/input-group.tsx",
+          "type": "registry:component",
+          "target": "components/easy/input-group.tsx"
+        }
+      ]
+    },
+    {
       "name": "use-delay-loading",
       "type": "registry:hook",
       "title": "useDelayLoading",

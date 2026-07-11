@@ -1,0 +1,73 @@
+---
+title: Input Group
+---
+
+Input Group flattens shadcn's InputGroup root, input, and inline addons into one native input contract with optional logical `startAddon` and `endAddon` content.
+
+<ExamplePreview name="input-group-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/input-group
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/input-group.json
+```
+
+The underlying shadcn `input-group` primitive is installed automatically.
+
+## Props
+
+| Prop                  | Type              | Default | Description                                                                                                  |
+| --------------------- | ----------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| `startAddon`          | `ReactNode`       | -       | Content rendered through an `InputGroupAddon` at logical `inline-start`.                                     |
+| `endAddon`            | `ReactNode`       | -       | Content rendered through an `InputGroupAddon` at logical `inline-end`.                                       |
+| `className`           | `ClassValue`      | -       | Class override for the InputGroup root.                                                                      |
+| `inputClassName`      | `ClassValue`      | -       | Class override for the actual `InputGroupInput`.                                                             |
+| `startAddonClassName` | `ClassValue`      | -       | Class override for the logical start addon wrapper.                                                          |
+| `endAddonClassName`   | `ClassValue`      | -       | Class override for the logical end addon wrapper.                                                            |
+| Input props           | `InputGroupInput` props | - | Native input props forwarded to the actual input, except `children`, `className`, and `dangerouslySetInnerHTML`. |
+
+There are no required Compose props. An Input Group with only native input props is the basic use case.
+
+### Prop ownership
+
+`className` is the only top-level prop owned by the root. `inputClassName` and every inherited input prop target the actual input, including `id`, `name`, `value`, `defaultValue`, `onChange`, keyboard and focus events, `style`, `data-*`, `aria-*`, and `ref`. The ref resolves to an `HTMLInputElement`.
+
+Root events, root `style` / `data-*`, and a root ref are intentionally unavailable. Use the primitive when the group container itself needs those props.
+
+## Addons
+
+Start and end are logical inline directions, not physical left and right. Their order is fixed as start addon, input, then end addon.
+
+Addon values follow React's rendering rules: `null`, `undefined`, and booleans are absent, while valid falsy nodes such as `0` and `""` retain their addon wrapper. Addons are content slots, so their API stops at content and `xxxClassName`; a supplied control owns its own events and state.
+
+Clicking a non-button addon area focuses the input, matching the primitive. A button descendant keeps its own click and focus behavior. For links, checkboxes, selects, or custom interactive addon content that needs different focus coordination, compose the primitives directly.
+
+Addon content does not automatically become part of the input's accessible name or description. Put essential meaning such as currency, units, or format constraints in the visible label, or associate supporting text with the input through `aria-describedby`.
+
+## Field integration
+
+Input Group forwards `id`, `aria-describedby`, and `aria-invalid` to the actual input, so it works as the direct child of the Compose `Field`:
+
+```tsx
+<Field
+  label="Email"
+  description="Used for account notices."
+  error={errors.email?.message}
+>
+  <InputGroup type="email" startAddon="@" />
+</Field>
+```
+
+`Field` owns label, description, error, and required-marker layout. Input Group continues to own only the single input and its inline addons.
+
+## When to use the primitive instead
+
+Use `components/ui/input-group` directly for block-start or block-end addons, `InputGroupTextarea`, multiple controls, arbitrary child order, root native props, or complex interactive addon focus behavior. Those structures are deliberately outside this thin Compose wrapper.

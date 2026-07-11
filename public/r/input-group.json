@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "input-group",
+  "title": "Integrated Input Group",
+  "description": "Thin native-input wrapper over shadcn InputGroup with flat logical start and end addon slots, explicit root/input class ownership, and native input props and ref forwarding.",
+  "registryDependencies": [
+    "input-group"
+  ],
+  "files": [
+    {
+      "path": "registry/ui/input-group.tsx",
+      "content": "\"use client\";\n\nimport type { ClassValue } from \"clsx\";\nimport type { ComponentProps, ReactNode } from \"react\";\nimport {\n  InputGroupAddon,\n  InputGroupInput,\n  InputGroup as InputGroupRoot,\n} from \"@/components/ui/input-group\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface InputGroupProps\n  extends Omit<\n    ComponentProps<typeof InputGroupInput>,\n    \"children\" | \"className\" | \"dangerouslySetInnerHTML\"\n  > {\n  /** Class override for the InputGroup root. All other inherited props target the input. */\n  className?: ClassValue;\n  /** Content for the logical inline-end addon. */\n  endAddon?: ReactNode;\n  /** Class override for the logical inline-end addon wrapper. */\n  endAddonClassName?: ClassValue;\n  /** Class override for the actual InputGroupInput. */\n  inputClassName?: ClassValue;\n  /** Content for the logical inline-start addon. */\n  startAddon?: ReactNode;\n  /** Class override for the logical inline-start addon wrapper. */\n  startAddonClassName?: ClassValue;\n}\n\nconst hasNode = (node: ReactNode): boolean =>\n  node !== null && node !== undefined && typeof node !== \"boolean\";\n\nexport const InputGroup = ({\n  className,\n  inputClassName,\n  startAddon,\n  startAddonClassName,\n  endAddon,\n  endAddonClassName,\n  ...inputProps\n}: InputGroupProps) => (\n  <InputGroupRoot className={cn(className)}>\n    {hasNode(startAddon) ? (\n      <InputGroupAddon align=\"inline-start\" className={cn(startAddonClassName)}>\n        {startAddon}\n      </InputGroupAddon>\n    ) : null}\n    <InputGroupInput className={cn(inputClassName)} {...inputProps} />\n    {hasNode(endAddon) ? (\n      <InputGroupAddon align=\"inline-end\" className={cn(endAddonClassName)}>\n        {endAddon}\n      </InputGroupAddon>\n    ) : null}\n  </InputGroupRoot>\n);\n\nexport default InputGroup;\n",
+      "type": "registry:component",
+      "target": "components/easy/input-group.tsx"
+    }
+  ],
+  "type": "registry:component"
+}
