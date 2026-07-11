@@ -1,0 +1,88 @@
+---
+title: Progress
+---
+
+Progress flattens shadcn's Progress root, label, value, track, and indicator into one labeled percentage bar. The first use case needs only `label` and `value`; determinate, complete, and indeterminate states remain derived by the primitive.
+
+<ExamplePreview name="progress-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/progress
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/progress.json
+```
+
+The underlying shadcn `progress` primitive is installed automatically.
+
+## Basic use
+
+```tsx
+import { Progress } from "@/components/easy/progress"
+
+<Progress label="Upload progress" value={56} />
+```
+
+## Props
+
+| Prop             | Type                         | Default  | Description                                                                    |
+| ---------------- | ---------------------------- | -------- | ------------------------------------------------------------------------------ |
+| `label`          | `ReactNode`                  | required | Caller-owned content that names the progressbar.                               |
+| `value`          | `number \| null`             | required | A finite percentage from 0 to 100, or `null` for indeterminate progress.       |
+| `showValue`      | `boolean`                    | `true`   | Renders the primitive-formatted, aria-hidden visual value.                     |
+| `aria-valuetext` | `string \| undefined`        | derived  | Overrides the accessible value text without changing the visible percentage.  |
+| `className`      | `ClassValue`                 | -        | Class override for the progressbar root.                                       |
+| `labelClassName` | `ClassValue`                 | -        | Class override for `ProgressLabel`.                                            |
+| `valueClassName` | `ClassValue`                 | -        | Class override for `ProgressValue` when rendered.                              |
+| `ref`            | `React.Ref<HTMLDivElement>`  | -        | Ref to the single `div[role="progressbar"]` root.                             |
+
+Other safe root props, including `id`, `style`, `aria-label`, `aria-labelledby`, `aria-describedby`, data attributes, and root event handlers, are forwarded to the progressbar root.
+
+## Percentage and state
+
+Determinate values must be finite numbers in `[0, 100]`. Pass `null` for indeterminate progress. The Compose layer fixes the range to 0–100 and does not clamp, coerce, or throw for invalid input; output for `NaN`, Infinity, and out-of-range values is intentionally unsupported.
+
+The primitive owns every state transition. Values below 100 expose `data-progressing`, exactly 100 exposes `data-complete`, and `null` exposes `data-indeterminate` without `aria-valuenow`. The indicator width is the primitive's inline percentage width and updates synchronously when the caller rerenders with a new value. Compose adds no state, timer, or effect.
+
+`showValue` defaults to `true`. The rendered `ProgressValue` is aria-hidden and uses the primitive formatter. With `value={null}`, it remains an empty span rather than inventing visible indeterminate copy. `showValue={false}` removes only that span; the progressbar's ARIA, state attributes, and indicator behavior remain unchanged.
+
+## Formatting and accessible value text
+
+Formatting is fixed to the primitive's English 0–100 percentage contract so server and client output stay deterministic. A determinate value such as 25 defaults to `aria-valuetext="25%"`; indeterminate progress defaults to `aria-valuetext="indeterminate progress"`.
+
+Use `aria-valuetext` when assistive technology needs a more meaningful value:
+
+```tsx
+<Progress
+  aria-valuetext="1 of 4 batches"
+  label="Archive progress"
+  value={25}
+/>
+```
+
+A defined string replaces the accessible value text only. The visible value remains the primitive-formatted percentage. Explicit `aria-valuetext={undefined}` behaves like omission and preserves the primitive default.
+
+## Accessible naming and SSR
+
+Compose generates a stable ID for rendered `ProgressLabel` content and emits the root's `aria-labelledby` relationship during the first server render. Accessibility therefore does not wait for a client effect.
+
+Caller `aria-labelledby` tokens are appended after the internal label ID. Arbitrary whitespace is normalized, empty tokens are removed, and duplicates keep their first occurrence. `aria-describedby` remains a passthrough for external explanatory content; Progress does not add a description slot.
+
+Slot presence follows React content semantics: `null`, `undefined`, and booleans omit the label element and its internal ID, while `0` and `""` retain it. Although `label` is required by the type, conditional content can still be absent at runtime. In that case, supply `aria-label` or an external `aria-labelledby` target. Keep rendered labels meaningful; an empty rendered label still owns the labelled-by relationship.
+
+The label is non-interactive because progress is read-only, and the root is non-focusable by default. Clicking label content does not change the value or focus the root, though a caller root `onClick` still receives ordinary bubbling. Ordinary root props such as `tabIndex` remain available when the caller intentionally needs a focusable progressbar. Interactive or heterogeneous label content belongs in direct primitive composition.
+
+## Root, classes, and ref
+
+Progress renders no outer wrapper. `className`, `style`, root events, safe ARIA, data attributes, and `ref` target the same `HTMLDivElement` progressbar. `labelClassName` and `valueClassName` affect only their respective primitive spans. State-aware function class names are not part of this API; use the primitive state data attributes in CSS selectors.
+
+## When to use the primitive instead
+
+Use `components/ui/progress` directly for custom ranges, locale or formatters, custom visible value output, descriptions or status content, track or indicator styling, replaced roots, or a different child order. The Compose component intentionally excludes `children`, `render`, raw HTML, range and formatter props, and track or indicator hooks because those APIs would bypass its fixed percentage and structure contracts.
