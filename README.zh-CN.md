@@ -81,6 +81,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Checkbox Group** | 多选版对应物——checkbox + `<label>` / 描述结构 → 一个 `items={…}` 数组（`{ value, label, description }`） | `@easy-shadcn/checkbox-group` |
 | **Field** | label、控件、描述、必填标记和校验信息 → 一个表单字段封装（接受 React Hook Form / Zod 的 error 数组） | `@easy-shadcn/field` |
 | **Input Group** | InputGroup root / addon / input 嵌套 → 一个保留原生 input 契约、带逻辑 start / end addon slot 的扁平组件 | `@easy-shadcn/input-group` |
+| **Avatar** | Avatar root / image / fallback / badge 嵌套 → 一个 fallback 必填、image / badge 可选的扁平组件 | `@easy-shadcn/avatar` |
 | **Async Button** | `onClick` 返回 Promise 的手动 `useState` loading 流程 | `@easy-shadcn/async-button` |
 | **Alert** | `<AlertTitle>` / `<AlertDescription>` / `<AlertAction>` 嵌套 → 扁平 `icon` / `title` / `description` / `action` props | `@easy-shadcn/alert` |
 | **Alert Dialog** | confirm / cancel 确认对话框，带 `title` / `description` slot、异步处理函数、destructive 变体，以及受控或非受控的开合状态 | `@easy-shadcn/alert-dialog` |
