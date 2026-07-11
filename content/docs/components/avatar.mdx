@@ -1,0 +1,71 @@
+---
+title: Avatar
+---
+
+Avatar flattens shadcn's root, image, fallback, and badge primitives into one component. Supply caller-owned `fallback` content, then opt into an image or badge without rebuilding the compound structure.
+
+<ExamplePreview name="avatar-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/avatar
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/avatar.json
+```
+
+The underlying shadcn `avatar` primitive is installed automatically.
+
+## Props
+
+| Prop                | Type                       | Default     | Description                                                                                       |
+| ------------------- | -------------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| `fallback`          | `ReactNode`                | required    | Caller-owned content rendered through `AvatarFallback`.                                          |
+| `src`               | `string`                   | -           | Optional image source. `undefined` and `""` render no image element or request.                   |
+| `alt`               | `string`                   | `""`        | Alternative text for an informative image. The default treats the image as decorative.           |
+| `badge`             | `ReactNode`                | -           | Caller-owned content rendered through `AvatarBadge` after the active visual.                      |
+| `size`              | `"sm" \| "default" \| "lg"` | `"default"` | Size forwarded to the Avatar root.                                                                |
+| `className`         | `ClassValue`               | -           | Class override for the Avatar root.                                                               |
+| `imageClassName`    | `ClassValue`               | -           | Class override for `AvatarImage`.                                                                 |
+| `fallbackClassName` | `ClassValue`               | -           | Class override for `AvatarFallback`.                                                              |
+| `badgeClassName`    | `ClassValue`               | -           | Class override for `AvatarBadge`.                                                                 |
+
+Safe root props such as `id`, `style`, `aria-*`, `data-*`, event handlers, and `ref` are forwarded to the underlying Avatar root. The ref resolves to its `HTMLSpanElement`. `children`, `dangerouslySetInnerHTML`, and the primitive's custom `render` escape hatch are unavailable because the Compose layer owns the child structure.
+
+## Image and fallback behavior
+
+`fallback` is the only Compose prop required for the first use case. With no `src`, or with an empty string, no image element is rendered and the fallback is available immediately. A non-empty `src` lets the underlying Base UI primitive manage loading: the fallback is active while the image is pending or failed, and the image replaces it after a successful load.
+
+`src` and `alt` are independently optional so values such as `avatarUrl?: string` can be passed directly. Use the default empty `alt` only when the image is decorative. For an informative image, pass concise meaningful alternative text.
+
+For fallback-only avatars that convey identity, label the root explicitly:
+
+```tsx
+<Avatar aria-label="Ada Lovelace" fallback="AL" role="img" />
+```
+
+## Badge and slot ownership
+
+Badge content and semantics remain caller-owned. When the root represents one named image, include the status meaning in its accessible label; `role="img"` presents the descendants as a single image:
+
+```tsx
+<Avatar
+  aria-label="Ada Lovelace, online"
+  badge={<span aria-hidden="true" />}
+  badgeClassName="bg-emerald-500"
+  fallback="AL"
+  role="img"
+/>
+```
+
+Slot values follow React's rendering rules: `null`, `undefined`, and booleans are absent, while valid falsy nodes such as `0` and `""` retain their wrapper. Content slots intentionally stop at content and `xxxClassName`; state and behavior stay with the node supplied by the caller.
+
+## When to use the primitive instead
+
+Use `components/ui/avatar` directly for avatar groups and group counts, implementing automatic initials, fallback delays, complete image or fallback prop bags, custom renderers such as Next Image, clickable avatar semantics, or a different child order. Those cases are deliberately outside this thin Compose wrapper.

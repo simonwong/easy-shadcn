@@ -145,6 +145,20 @@
       ]
     },
     {
+      "name": "avatar",
+      "type": "registry:component",
+      "title": "Integrated Avatar",
+      "description": "Thin flat-props Avatar wrapper with caller-owned fallback and badge slots, optional image source, primitive sizes, and explicit per-part class ownership.",
+      "registryDependencies": ["avatar"],
+      "files": [
+        {
+          "path": "registry/ui/avatar.tsx",
+          "type": "registry:component",
+          "target": "components/easy/avatar.tsx"
+        }
+      ]
+    },
+    {
       "name": "use-delay-loading",
       "type": "registry:hook",
       "title": "useDelayLoading",
