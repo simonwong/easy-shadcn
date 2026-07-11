@@ -173,6 +173,20 @@
       ]
     },
     {
+      "name": "progress",
+      "type": "registry:component",
+      "title": "Integrated Progress",
+      "description": "Thin labeled percentage Progress wrapper with SSR-stable naming, primitive-derived determinate and indeterminate states, visible value formatting, and explicit root, label, and value class ownership.",
+      "registryDependencies": ["progress"],
+      "files": [
+        {
+          "path": "registry/ui/progress.tsx",
+          "type": "registry:component",
+          "target": "components/easy/progress.tsx"
+        }
+      ]
+    },
+    {
       "name": "use-delay-loading",
       "type": "registry:hook",
       "title": "useDelayLoading",
