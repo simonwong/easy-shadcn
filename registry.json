@@ -116,6 +116,20 @@
       ]
     },
     {
+      "name": "checkbox",
+      "type": "registry:component",
+      "title": "Integrated Checkbox",
+      "description": "Thin labeled Checkbox wrapper with optional description, accessible ID and ARIA wiring, delegated controlled or uncontrolled state, and native form behavior.",
+      "registryDependencies": ["checkbox"],
+      "files": [
+        {
+          "path": "registry/ui/checkbox.tsx",
+          "type": "registry:component",
+          "target": "components/easy/checkbox.tsx"
+        }
+      ]
+    },
+    {
       "name": "field",
       "type": "registry:component",
       "title": "Integrated Field",
