@@ -1,0 +1,77 @@
+---
+title: Checkbox
+---
+
+Checkbox combines shadcn's visible control, hidden native input, and explicit label into one flat Compose component. The first use case needs only `label`; optional descriptions, controlled state, and native form behavior stay available without rebuilding the Primitive structure.
+
+<ExamplePreview name="checkbox-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/checkbox
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/checkbox.json
+```
+
+The underlying shadcn `checkbox` Primitive is installed automatically.
+
+## Basic use
+
+```tsx
+import { Checkbox } from "@/components/easy/checkbox"
+
+<Checkbox label="Accept terms" />
+```
+
+Add `description` when the option needs supporting copy. The component creates the label, stable IDs, and ARIA relationships.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `label` | `ReactNode` | required | Caller-owned content that names the checkbox. |
+| `description` | `ReactNode` | - | Optional supporting content announced after the label. |
+| `checked` | `boolean` | - | Current state in controlled mode. |
+| `defaultChecked` | `boolean` | `false` | Initial state in uncontrolled mode. |
+| `onCheckedChange` | `(checked, eventDetails) => void` | - | Reports a requested state change with Base UI's native change details. |
+| `disabled` | `boolean` | `false` | Blocks control, label, description, and keyboard interaction. |
+| `readOnly` | `boolean` | `false` | Exposes read-only state and blocks changes without disabling the input. |
+| `required` | `boolean` | `false` | Delegates native required validity to the hidden checkbox. |
+| `id` | `string` | generated | ID of the hidden checkbox input and target of the explicit label. |
+| `name` | `string` | - | Native form field name. |
+| `form` | `string` | - | ID of an owning form, including one outside the component subtree. |
+| `value` | `string` | Primitive default | Value submitted while checked. |
+| `uncheckedValue` | `string` | - | Optional value submitted while unchecked. |
+| `ref` | `Ref<HTMLElement>` | - | Ref to the visible checkbox control. |
+| `inputRef` | `Ref<HTMLInputElement>` | - | Ref to the hidden native checkbox input. |
+| `className` | `ClassValue` | - | Class override for the visible checkbox control. |
+| `optionClassName` | `ClassValue` | - | Class override for the outer control-and-copy layout. |
+| `labelClassName` | `ClassValue` | - | Class override for the label content. |
+| `descriptionClassName` | `ClassValue` | - | Class override for the description content. |
+
+Non-state ARIA attributes, root data attributes, `style`, `tabIndex`, and Base UI-augmented root event handlers are forwarded to the visible Primitive control. The Compose layer owns `role`, state-derived ARIA, `data-slot`, and the descendant structure.
+
+## Accessibility and events
+
+- The visible label is the primary accessible name. Generated references are merged before caller `aria-labelledby` and `aria-describedby` tokens with duplicates removed.
+- `label` follows React's `ReactNode` rules. If it is nullish or boolean, supply an `aria-label` or a valid external `aria-labelledby` yourself.
+- Root events keep Base UI's cancellation API. `event.preventBaseUIHandler()` prevents the Primitive handler; DOM `event.preventDefault()` alone does not. Calling `eventDetails.cancel()` reports the requested checked value but preserves the current state.
+
+## Native forms and refs
+
+`name`, `form`, `value`, `uncheckedValue`, and `required` retain Base UI's native form behavior. A disabled checked checkbox submits nothing. A disabled unchecked checkbox with `uncheckedValue` retains the Primitive's separate fallback-input behavior.
+
+The root `ref` points to the visible element with checkbox semantics. `inputRef` points only to the hidden `input[type="checkbox"]`, so native validity and form APIs remain reachable without confusing the two elements.
+
+## When to use the Primitive instead
+
+Use `components/ui/checkbox` or Base UI directly for parent/select-all behavior, mixed `indeterminate` state with a distinct indicator, custom indicators, control-right layouts, option cards, a replaced root, or a different child order. The Compose component deliberately excludes `parent`, `indeterminate`, `children`, `render`, `nativeButton`, render props, prop bags, slots objects, insertion points, and locale/i18n mechanisms.
+
+For a homogeneous multi-select list, use [Checkbox Group](/docs/components/checkbox-group). For Field errors, required markers, or advanced Field orientation, compose `Field` with the low-level Checkbox Primitive instead of wrapping this already-labeled Compose component.
