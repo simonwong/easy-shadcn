@@ -88,6 +88,20 @@
       ]
     },
     {
+      "name": "dropdown-menu",
+      "type": "registry:component",
+      "title": "Integrated Dropdown Menu",
+      "description": "Thin flat action-menu wrapper with a composed trigger, homogeneous items, primitive-owned state and keyboard behavior, ordinary positioning, and explicit presentation hooks.",
+      "registryDependencies": ["dropdown-menu"],
+      "files": [
+        {
+          "path": "registry/ui/dropdown-menu.tsx",
+          "type": "registry:component",
+          "target": "components/easy/dropdown-menu.tsx"
+        }
+      ]
+    },
+    {
       "name": "radio-group",
       "type": "registry:component",
       "title": "Integrated Radio Group",

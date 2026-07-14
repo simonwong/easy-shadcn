@@ -1,0 +1,96 @@
+---
+title: Dropdown Menu
+---
+
+Dropdown Menu flattens shadcn's compound menu into a trigger and one homogeneous array of actions. The primitive still owns open state, focus, keyboard interaction, dismissal, and accessible menu semantics.
+
+<ExamplePreview name="dropdown-menu-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/dropdown-menu
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/dropdown-menu.json
+```
+
+The underlying shadcn `dropdown-menu` primitive is installed automatically.
+
+## Basic use
+
+The first use case needs only `trigger` and `items`:
+
+```tsx
+import { Button } from "@/components/ui/button"
+import { DropdownMenu } from "@/components/easy/dropdown-menu"
+
+<DropdownMenu
+  trigger={<Button variant="outline">Actions</Button>}
+  items={[
+    { value: "edit", content: "Edit" },
+    { value: "duplicate", content: "Duplicate" },
+  ]}
+/>
+```
+
+Each `value` must be unique and stable. It is rendered identity, not selected state; this component is an action menu.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `trigger` | `ReactElement` | required | One element composed as the primitive trigger, with no wrapper button. |
+| `items` | `DropdownMenuItem[]` | required | Homogeneous flat actions. An empty array is valid. |
+| `open` | `boolean` | - | Current visibility in controlled mode. |
+| `defaultOpen` | `boolean` | `false` | Initial visibility in uncontrolled mode. |
+| `onOpenChange` | `(open, eventDetails) => void` | - | Receives the requested state and exact Base UI event details. |
+| `disabled` | `boolean` | `false` | Disables the composed trigger and prevents opening. |
+| `align` | `"start" \| "center" \| "end"` | `"start"` | Content alignment relative to the trigger. |
+| `side` | `"top" \| "right" \| "bottom" \| "left" \| "inline-start" \| "inline-end"` | `"bottom"` | Preferred content side. |
+| `sideOffset` | `number` | `4` | Distance in pixels between trigger and content. |
+| `contentClassName` | `ClassValue` | - | Class override for the popup content. |
+| `itemClassName` | `ClassValue` | - | Class override merged into every action. |
+| `shortcutClassName` | `ClassValue` | - | Class override merged into every shortcut hint. |
+
+### DropdownMenuItem
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | required | Unique, stable rendered identity. |
+| `content` | `ReactNode` | required | Visible content and source of the accessible name. |
+| `disabled` | `boolean` | `false` | Keeps the action visible but prevents activation. |
+| `icon` | `ReactNode` | - | Decorative content rendered before `content`. |
+| `shortcut` | `ReactNode` | - | Decorative shortcut hint rendered after `content`. |
+| `variant` | `"default" \| "destructive"` | `"default"` | Primitive item emphasis. |
+| `inset` | `boolean` | `false` | Indents content to align with icon-bearing actions. |
+| `onClick` | `MenuPrimitive.Item.Props["onClick"]` | - | Exact Base UI item click event; normal activation closes the menu. |
+| `itemClassName` | `ClassValue` | - | Per-item class merged after the global item class. |
+
+## State and action events
+
+Use `defaultOpen` for primitive-managed state. In controlled mode, pair `open` with `onOpenChange`; the callback preserves Base UI's details object and cancellation methods without translation.
+
+An enabled item's `onClick` receives the primitive event unchanged. Unless its Base UI handler is prevented, pointer, Enter, and Space activation use the primitive's normal close behavior. Disabled triggers do not open, and disabled actions remain visible without invoking `onClick`.
+
+## Keyboard and accessibility
+
+- Arrow keys, Home, End, and visible-text typeahead use the primitive's roving-focus behavior.
+- Enter and Space activate the focused action. Escape dismisses and restores focus to the trigger.
+- The trigger, menu, and menu-item roles and relationships come from the primitive.
+- An action's accessible name comes from `content`. `icon` and `shortcut` are deliberately decorative so they do not duplicate or alter that name.
+
+## Position and classes
+
+Content opens below the trigger, start-aligned with a four-pixel offset. Override the ordinary placement with `align`, `side`, and `sideOffset`. `contentClassName`, the global and per-item `itemClassName`, and `shortcutClassName` accept `ClassValue`; per-item classes are merged last while primitive defaults remain intact.
+
+## When to use the Primitive instead
+
+Use `components/ui/dropdown-menu` directly for groups, labels, separators, checkbox or radio items, submenus, custom typeahead labels, heterogeneous layouts, arbitrary compound-component markup, custom portals or positioners, alignment offsets, final-focus control, modal/orientation/loop policies, hover delays, payloads, or imperative actions.
+
+The Compose component deliberately excludes `children`, `render`, prop bags, slots objects, insertion callbacks, alternate action APIs, and custom close-on-click behavior. These exclusions keep this thin wrapper limited to one predictable flat action list.
