@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "dropdown-menu",
+  "title": "Integrated Dropdown Menu",
+  "description": "Thin flat action-menu wrapper with a composed trigger, homogeneous items, primitive-owned state and keyboard behavior, ordinary positioning, and explicit presentation hooks.",
+  "registryDependencies": [
+    "dropdown-menu"
+  ],
+  "files": [
+    {
+      "path": "registry/ui/dropdown-menu.tsx",
+      "content": "\"use client\";\n\nimport type { Menu as MenuPrimitive } from \"@base-ui/react/menu\";\nimport type { ClassValue } from \"clsx\";\nimport type { ReactElement, ReactNode } from \"react\";\nimport {\n  DropdownMenuContent,\n  DropdownMenuItem as DropdownMenuItemPrimitive,\n  DropdownMenu as DropdownMenuRoot,\n  DropdownMenuShortcut,\n  DropdownMenuTrigger,\n} from \"@/components/ui/dropdown-menu\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface DropdownMenuItem {\n  content: ReactNode;\n  disabled?: boolean;\n  icon?: ReactNode;\n  inset?: boolean;\n  itemClassName?: ClassValue;\n  onClick?: MenuPrimitive.Item.Props[\"onClick\"];\n  shortcut?: ReactNode;\n  value: string;\n  variant?: \"default\" | \"destructive\";\n}\n\nexport interface DropdownMenuProps\n  extends Pick<MenuPrimitive.Positioner.Props, \"align\" | \"side\"> {\n  contentClassName?: ClassValue;\n  defaultOpen?: boolean;\n  disabled?: boolean;\n  itemClassName?: ClassValue;\n  items: DropdownMenuItem[];\n  onOpenChange?: (\n    open: boolean,\n    eventDetails: MenuPrimitive.Root.ChangeEventDetails\n  ) => void;\n  open?: boolean;\n  shortcutClassName?: ClassValue;\n  sideOffset?: number;\n  trigger: ReactElement;\n}\n\nconst hasNode = (node: ReactNode): boolean =>\n  node !== null && node !== undefined && typeof node !== \"boolean\";\n\nexport const DropdownMenu = ({\n  align = \"start\",\n  defaultOpen,\n  disabled = false,\n  items,\n  onOpenChange,\n  open,\n  side = \"bottom\",\n  sideOffset = 4,\n  shortcutClassName,\n  trigger,\n  contentClassName,\n  itemClassName,\n}: DropdownMenuProps) => (\n  <DropdownMenuRoot\n    defaultOpen={defaultOpen}\n    onOpenChange={onOpenChange}\n    open={open}\n  >\n    <DropdownMenuTrigger disabled={disabled} render={trigger} />\n    <DropdownMenuContent\n      align={align}\n      className={cn(contentClassName)}\n      side={side}\n      sideOffset={sideOffset}\n    >\n      {items.map((item) => (\n        <DropdownMenuItemPrimitive\n          className={cn(itemClassName, item.itemClassName)}\n          disabled={item.disabled ?? false}\n          inset={item.inset}\n          key={item.value}\n          onClick={item.onClick}\n          variant={item.variant ?? \"default\"}\n        >\n          {hasNode(item.icon) ? (\n            <span aria-hidden=\"true\" data-slot=\"dropdown-menu-item-icon\">\n              {item.icon}\n            </span>\n          ) : null}\n          {item.content}\n          {hasNode(item.shortcut) ? (\n            <DropdownMenuShortcut\n              aria-hidden=\"true\"\n              className={cn(shortcutClassName)}\n            >\n              {item.shortcut}\n            </DropdownMenuShortcut>\n          ) : null}\n        </DropdownMenuItemPrimitive>\n      ))}\n    </DropdownMenuContent>\n  </DropdownMenuRoot>\n);\n\nexport default DropdownMenu;\n",
+      "type": "registry:component",
+      "target": "components/easy/dropdown-menu.tsx"
+    }
+  ],
+  "type": "registry:component"
+}
