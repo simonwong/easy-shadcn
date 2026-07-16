@@ -1,0 +1,98 @@
+---
+title: Sheet
+---
+
+Sheet flattens shadcn's Dialog-backed Sheet parts into a conventional application side panel with required `title` and `content`, an optional `trigger`, description and footer slots, native open-state details, and a scroll-safe body.
+
+<ExamplePreview name="sheet-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/sheet
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/sheet.json
+```
+
+The underlying shadcn `sheet` primitive is installed automatically.
+
+## Basic use
+
+The first use case needs a trigger, a visible title, and body content:
+
+```tsx
+import { Sheet } from "@/components/easy/sheet"
+
+<Sheet
+  trigger={<Button variant="outline">Open settings</Button>}
+  title="Account settings"
+  content={<AccountForm />}
+/>
+```
+
+`trigger` is optional when `open` is controlled or `defaultOpen` starts the panel open. The supplied trigger element becomes the primitive trigger itself; Compose does not add a wrapper button.
+
+## Props
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `title` | `ReactNode` | required | Visible title connected to the dialog's accessible name. |
+| `content` | `ReactNode` | required | Main body inside the scroll-safe `data-slot="sheet-body"` wrapper. |
+| `trigger` | `ReactElement` | - | Optional element that becomes the primitive trigger without an extra wrapper. |
+| `description` | `ReactNode` | - | Optional accessible description below the title. |
+| `footer` | `ReactNode` | - | Optional caller-owned footer. Compose does not inject action or close behavior. |
+| `side` | `"top" \| "right" \| "bottom" \| "left"` | `"right"` | shadcn Sheet placement. |
+| `showCloseButton` | `boolean` | `true` | Shows the primitive close button with the built-in English accessible name `Close`. |
+| `open` | `boolean` | - | Controlled open state. |
+| `defaultOpen` | `boolean` | `false` | Initial uncontrolled open state. |
+| `onOpenChange` | `(open: boolean, details: Dialog.Root.ChangeEventDetails) => void` | - | Native Base UI change callback, including dismissal reason and `details.cancel()`. |
+| `onOpenChangeComplete` | `(open: boolean) => void` | - | Fires after the opening or closing transition completes. |
+| `disablePointerDismissal` | `boolean` | `false` | Prevents outside-pointer dismissal while preserving Escape and explicit close behavior. |
+| `initialFocus` | popup focus target | primitive default | Chooses the element focused after opening, or disables automatic focus. |
+| `finalFocus` | popup focus target | primitive default | Chooses the element focused after closing. |
+| `className` | `ClassValue` | - | Class override for the shadcn Sheet content popup. |
+| `headerClassName` | `ClassValue` | - | Class override for the header wrapper. |
+| `titleClassName` | `ClassValue` | - | Class override for the title. |
+| `descriptionClassName` | `ClassValue` | - | Class override for the description. |
+| `contentClassName` | `ClassValue` | - | Class override for the body wrapper. |
+| `footerClassName` | `ClassValue` | - | Class override for the footer wrapper. |
+
+Other safe popup props such as `id`, `style`, refs, native event handlers, and test data attributes are forwarded to `data-slot="sheet-content"`.
+
+## Open state and dismissal
+
+The shadcn/Base UI Dialog root owns controlled and uncontrolled resolution, focus trapping, page scroll locking, Escape, outside-pointer dismissal, focus restoration, portals, and transitions. Compose forwards the native change details instead of inventing its own event shape:
+
+```tsx
+<Sheet
+  open={open}
+  onOpenChange={(nextOpen, details) => {
+    if (!nextOpen && hasUnsavedChanges) {
+      details.cancel()
+      return
+    }
+
+    setOpen(nextOpen)
+  }}
+  title="Edit profile"
+  content={<ProfileForm />}
+/>
+```
+
+`footer` remains plain caller-owned content. A footer button does not close automatically; control `open` yourself or use the shadcn `SheetClose` primitive in a custom primitive composition.
+
+## Layout and ownership
+
+The body wrapper uses `min-h-0 flex-1 overflow-y-auto`, which keeps long left/right panels scrollable while the header and footer remain available. Optional slot values follow React rendering rules: `null`, `undefined`, and booleans are absent; valid falsy nodes such as `0` and `""` render.
+
+Compose owns the dialog role and ARIA title/description relationships, child structure, raw HTML, root replacement, `data-slot`, `data-side`, and Base UI transition/state markers. These keys cannot override the flat structure through typed passthrough.
+
+## When to use the primitive
+
+Use `components/ui/sheet` directly for non-modal or focus-trap-only panels, custom overlays or portals, externally handled or payload-bearing triggers, custom close icons or labels, force-mounted content, nested-sheet orchestration, arbitrary descendants, slots objects, render functions, or action workflows that need primitive-level composition.

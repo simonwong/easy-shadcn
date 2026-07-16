@@ -85,6 +85,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Switch** | Switch 控件 + 显式 label / description 接线 → 一个保留原语状态、事件和原生表单行为的扁平组件 | `@easy-shadcn/switch` |
 | **Progress** | Progress label / value / track / indicator 组合 → 一个带标签、固定 0–100 语义并支持确定 / 不确定状态的百分比进度条 | `@easy-shadcn/progress` |
 | **Slider** | shadcn Slider 原语之上的可访问可见标签、实时标量值与原生表单单 thumb 封装 | `@easy-shadcn/slider` |
+| **Sheet** | 常规侧边面板的扁平 trigger / title / description / content / footer slot、原生 Dialog 生命周期与可滚动正文 | `@easy-shadcn/sheet` |
 | **Async Button** | `onClick` 返回 Promise 的手动 `useState` loading 流程 | `@easy-shadcn/async-button` |
 | **Alert** | `<AlertTitle>` / `<AlertDescription>` / `<AlertAction>` 嵌套 → 扁平 `icon` / `title` / `description` / `action` props | `@easy-shadcn/alert` |
 | **Alert Dialog** | confirm / cancel 确认对话框，带 `title` / `description` slot、异步处理函数、destructive 变体，以及受控或非受控的开合状态 | `@easy-shadcn/alert-dialog` |
