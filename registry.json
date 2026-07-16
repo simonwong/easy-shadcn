@@ -229,6 +229,20 @@
       ]
     },
     {
+      "name": "sheet",
+      "type": "registry:component",
+      "title": "Integrated Sheet",
+      "description": "Thin accessible application-panel Sheet wrapper with required title and content, optional trigger, description and footer slots, native Dialog lifecycle details, scroll-safe layout, and explicit popup ownership.",
+      "registryDependencies": ["sheet"],
+      "files": [
+        {
+          "path": "registry/ui/sheet.tsx",
+          "type": "registry:component",
+          "target": "components/easy/sheet.tsx"
+        }
+      ]
+    },
+    {
       "name": "use-delay-loading",
       "type": "registry:hook",
       "title": "useDelayLoading",
