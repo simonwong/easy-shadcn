@@ -1,0 +1,90 @@
+---
+title: Slider
+---
+
+Slider provides an accessible visible label and live numeric value for the common single-value slider case.
+
+<ExamplePreview name="slider-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/slider
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/slider.json
+```
+
+The underlying shadcn `slider` primitive is installed automatically.
+
+## Basic use
+
+The first use case needs only `label`. The slider starts at `min` (0 by default), renders one thumb, and shows its current numeric value:
+
+```tsx
+import { Slider } from "@/components/easy/slider"
+
+<Slider label="Volume" />
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `label` | `ReactNode` | required | Visible caller-owned content that names the nested slider input. |
+| `value` | `number` | - | Controlled scalar value. Pair with `onValueChange`. |
+| `defaultValue` | `number` | `min` | Initial scalar value in uncontrolled mode. |
+| `onValueChange` | `(value: number, details: Slider.Root.ChangeEventDetails) => void` | - | Fires while the value changes. `details.cancel()` prevents the primitive update and the visible-value mirror. |
+| `onValueCommitted` | `(value: number, details: Slider.Root.CommitEventDetails) => void` | - | Fires when an interaction commits. |
+| `showValue` | `boolean` | `true` | Shows the current raw numeric value beside the label. |
+| `min` | `number` | `0` | Minimum allowed value. Must be less than `max`. |
+| `max` | `number` | `100` | Maximum allowed value. Must be greater than `min`. |
+| `step` | `number` | `1` | Normal pointer and keyboard increment. |
+| `largeStep` | `number` | `10` | Page Up / Page Down and Shift + Arrow increment. |
+| `disabled` | `boolean` | `false` | Disables interaction and form control behavior. |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Primitive orientation. Give vertical sliders an explicit height through `className`. |
+| `thumbAlignment` | `"center" \| "edge" \| "edge-client-only"` | `"edge"` | Primitive thumb alignment; `edge` is the shadcn default. |
+| `name` | `string` | - | Name for native form submission. |
+| `form` | `string` | - | ID of the owning form when the slider is rendered outside it. |
+| `aria-labelledby` | `string` | - | External naming ids appended after the generated visible-label id. |
+| `className` | `ClassValue` | - | Class override for the shadcn Slider primitive root. |
+| `labelClassName` | `ClassValue` | - | Class override for the visible label. |
+| `valueClassName` | `ClassValue` | - | Class override for the visible value when rendered. |
+
+Other safe primitive-root props such as `id`, `style`, data attributes that are not primitive state markers, and root event handlers are forwarded.
+
+## Scalar value boundary
+
+This Compose component intentionally supports one scalar value. The current shadcn Slider creates thumbs from array length, so Compose wraps every public scalar as a one-element array at the primitive boundary and unwraps callback values back to `number`. The primitive still owns controlled or uncontrolled state, constraints, pointer and keyboard behavior, focus, validation, and form submission.
+
+When `value` is defined, it is authoritative and the visible value follows caller rerenders. Otherwise, the primitive starts from `defaultValue ?? min`, and accepted changes update the local visible-value mirror. The callback details are Base UI's native objects; calling `details.cancel()` in `onValueChange` leaves both the primitive state and the visible value unchanged.
+
+`showValue` only controls the visual number. It does not remove the slider's `aria-valuenow`, change form submission, or alter interaction.
+
+## Accessibility and keyboard
+
+Compose emits a stable generated id for the visible label during the first server render and passes the resulting `aria-labelledby` relationship through the shadcn root to the nested range input. Caller-provided `aria-labelledby` tokens are normalized, deduplicated, and appended after the internal label id.
+
+The primitive preserves its native keyboard contract:
+
+- Arrow keys change by `step`.
+- Page Up / Page Down change by `largeStep`.
+- Shift + Arrow also uses `largeStep`.
+- Home and End move to `min` and `max`.
+
+The visible value, input value, and `aria-valuenow` update together. `orientation="vertical"` changes the primitive semantics and layout; add a height such as `className="h-40"` so the control has space to render.
+
+## Classes and ownership
+
+`className` targets the shadcn Slider root, while `labelClassName` and `valueClassName` target the two caller-facing content slots. The wrapper layout is fixed. Primitive state markers, numeric ARIA, `role`, child structure, raw HTML, and root replacement remain Compose-owned so passthrough props cannot silently desynchronize the control.
+
+## When to use the primitive instead
+
+Use `components/ui/slider` directly for range or multi-thumb values, thumb-specific accessible labels, minimum distance or collision behavior, custom number formatting or locale, descriptions and validation messages, marks, ticks, tooltips, editable numeric inputs, custom descendants, or a replaced root.
+
+Those cases are inexpensive to compose with the existing primitive, so this thin wrapper deliberately excludes arrays, `minStepsBetweenValues`, `thumbCollisionBehavior`, `format`, `locale`, `children`, `render`, prop bags, slots objects, and render callbacks.

@@ -215,6 +215,20 @@
       ]
     },
     {
+      "name": "slider",
+      "type": "registry:component",
+      "title": "Integrated Slider",
+      "description": "Thin accessible single-value Slider wrapper with a visible label, live numeric value, scalar callbacks, primitive-owned interaction and form behavior, and explicit class and semantic ownership.",
+      "registryDependencies": ["slider"],
+      "files": [
+        {
+          "path": "registry/ui/slider.tsx",
+          "type": "registry:component",
+          "target": "components/easy/slider.tsx"
+        }
+      ]
+    },
+    {
       "name": "use-delay-loading",
       "type": "registry:hook",
       "title": "useDelayLoading",
