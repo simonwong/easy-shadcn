@@ -84,6 +84,7 @@ The four data-driven components lead the list: **Table**, **Select**, **Combobox
 | **Avatar** | Avatar root / image / fallback / badge nesting into one component with a required fallback and optional image or badge | `@easy-shadcn/avatar` |
 | **Switch** | Switch control plus explicit label and description wiring into one component while preserving primitive state, events, and native form behavior | `@easy-shadcn/switch` |
 | **Progress** | Progress label / value / track / indicator composition into a labeled fixed 0–100 percentage bar with determinate and indeterminate states | `@easy-shadcn/progress` |
+| **Slider** | A visible accessible label, live scalar value and form-ready single thumb over the shadcn Slider primitive | `@easy-shadcn/slider` |
 | **Async Button** | The manual `useState` loading dance for any `onClick` returning a Promise | `@easy-shadcn/async-button` |
 | **Alert** | `<AlertTitle>` / `<AlertDescription>` / `<AlertAction>` nesting into flat `icon` / `title` / `description` / `action` props | `@easy-shadcn/alert` |
 | **Alert Dialog** | A confirm / cancel dialog with `title` / `description` slots, async handlers, a destructive variant and controlled or uncontrolled open state | `@easy-shadcn/alert-dialog` |
