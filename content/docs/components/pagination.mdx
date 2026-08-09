@@ -1,0 +1,123 @@
+---
+title: Pagination
+---
+
+Pagination flattens shadcn's navigation, content, item, link, Previous, Next, and ellipsis parts into one item-total-driven control. It supports client-side page changes and genuine route links without mixing the two destination models.
+
+<ExamplePreview name="pagination-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/pagination
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/pagination.json
+```
+
+The underlying shadcn `pagination` primitive is installed automatically.
+
+## Client paging
+
+Client mode requires `onValueChange`. Use `value` when application state owns the current page:
+
+```tsx
+import { Pagination } from "@/components/easy/pagination"
+
+<Pagination
+  total={238}
+  pageSize={25}
+  value={page}
+  onValueChange={setPage}
+/>
+```
+
+Omit `value` and provide an optional `defaultValue` when Pagination should own the highlighted page:
+
+```tsx
+<Pagination
+  total={238}
+  defaultValue={2}
+  onValueChange={(nextValue) => loadPage(nextValue)}
+/>
+```
+
+Client controls deliberately have no `href`. They expose button semantics, activate through click, Enter, and Space, and emit only normalized in-range integers. A controlled `value` remains authoritative until its caller rerenders; an uncontrolled value updates before `onValueChange` is reported.
+
+## Route navigation
+
+Navigation mode requires a route-derived `value` and `getPageHref`. It accepts neither `defaultValue` nor `onValueChange`:
+
+```tsx
+<Pagination
+  total={238}
+  pageSize={25}
+  value={pageFromSearchParams}
+  getPageHref={(nextPage) => `/reports?page=${nextPage}`}
+/>
+```
+
+Numbered pages and available Previous and Next targets are genuine links. Pagination does not intercept their click or keyboard events, so modified clicks, middle clicks, copy-link, context menus, and open-in-new-tab remain native. `getPageHref` must be pure, deterministic, non-throwing, and return a non-empty string for every rendered target page.
+
+## Props
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `total` | `number` | required | Total item count from which the page count is derived. |
+| `pageSize` | `number` | `10` | Number of items represented by each page. |
+| `value` | `number` | - | Controlled current page in client-controlled or navigation mode. |
+| `defaultValue` | `number` | `1` | Initial page in client-uncontrolled mode; mutually exclusive with `value` and `getPageHref`. |
+| `onValueChange` | `(value: number) => void` | required in client mode | Reports user-activated client destinations; mutually exclusive with `getPageHref`. |
+| `getPageHref` | `(page: number) => string` | required in navigation mode | Produces genuine route destinations; requires `value` and rejects client state props. |
+| `boundaryCount` | `number` | `1` | Number of pages always shown at each outer edge, capped at 100. |
+| `siblingCount` | `number` | `1` | Number of pages shown on each side of the effective current page, capped at 100. |
+| `disabled` | `boolean` | `false` | Keeps Pagination visible while making every generated control inert and non-navigable. |
+| `hideOnSinglePage` | `boolean` | `false` | Removes the complete navigation landmark when the derived page count is one. |
+| `className` | `ClassValue` | - | Class override for the Pagination navigation root. |
+| `contentClassName` | `ClassValue` | - | Class override for `PaginationContent`. |
+| `itemClassName` | `ClassValue` | - | Class added to every `PaginationItem`, including Previous, numbered, ellipsis, and Next wrappers. |
+| `linkClassName` | `ClassValue` | - | Class added only to numbered `PaginationLink` leaves. |
+| `previousClassName` | `ClassValue` | - | Class override for `PaginationPrevious`; does not inherit `linkClassName`. |
+| `nextClassName` | `ClassValue` | - | Class override for `PaginationNext`; does not inherit `linkClassName`. |
+| `ellipsisClassName` | `ClassValue` | - | Class override for `PaginationEllipsis`. |
+| `ref` | `React.Ref<HTMLElement>` | - | Ref to the navigation root. |
+
+Other safe navigation props are forwarded, including `id`, `style`, `aria-label`, `aria-labelledby`, data attributes, and native root event handlers.
+
+## Numeric normalization
+
+All finite numeric inputs are truncated with `Math.trunc` before calculations. `total`, `pageSize`, `value`, and `defaultValue` are capped at `Number.MAX_SAFE_INTEGER`, so generated page numbers and activation targets are always safe integers. Window counts use a smaller upper bound to keep rendering bounded:
+
+- `total` clamps to at least 0; non-finite values fall back to 0.
+- `pageSize` clamps to at least 1; non-finite values fall back to 10.
+- `value` and `defaultValue` clamp first to at least 1 and then to the derived page count; non-finite values fall back to 1.
+- `boundaryCount` and `siblingCount` clamp between 0 and 100; non-finite values fall back to 1.
+
+The derived page count is always at least one. Controlled out-of-range input is clamped only for rendering and interaction targets; prop changes never emit a corrective callback. When `total` or `pageSize` shrinks, uncontrolled state silently settles on the new maximum. Growing the page count later therefore cannot restore a stale out-of-range page.
+
+## Compact range
+
+Pagination merges the left boundary, current-page sibling window, and right boundary without allocating or iterating over every page. Work stays proportional to the capped `boundaryCount + siblingCount`, overlapping ranges are deduplicated, and pages remain ordered. A real gap uses `PaginationEllipsis`; if exactly one page would be hidden, that page is rendered instead.
+
+## Accessibility and disabled behavior
+
+The root is a `navigation` landmark named `pagination` by default. Override `aria-label`, or provide `aria-labelledby`, when a page contains multiple pagination landmarks. The effective current page exposes `aria-current="page"`.
+
+Unavailable Previous and Next controls omit `href`, expose `aria-disabled="true"`, leave the tab order, and ignore client activation. With `disabled`, the same contract applies to every generated control in both modes; route hrefs are not produced. `hideOnSinglePage` removes the entire landmark rather than rendering empty navigation markup.
+
+The primitive's built-in English Previous and Next text and accessible labels are preserved. Localization remains a copy-in concern: edit the installed source, wrap it with project defaults, or compose the primitives directly.
+
+## Ownership and server rendering
+
+Compose owns the complete generated children, raw HTML, navigation role, primitive slot marker, link destinations, current and disabled markers, tab order, and client interaction handlers. These keys cannot be replaced through typed props, and hostile runtime spreads cannot overwrite the generated control semantics.
+
+Markup depends only on props and the deterministic href mapper, so server and client rendering remain stable. Pagination does not read browser globals, parse URLs, move focus, fetch data, or slice item arrays.
+
+## When to use the primitive
+
+Use `components/ui/pagination` directly for page-size changers, quick jumpers, simple or responsive layouts, first/last action buttons, router components, custom item rendering, alternate Previous/Next/ellipsis copy, arbitrary item structures, render props, prop bags, or per-page styling callbacks. Pagination intentionally keeps those cases in primitive composition rather than expanding the flat API.

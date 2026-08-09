@@ -215,6 +215,20 @@
       ]
     },
     {
+      "name": "pagination",
+      "type": "registry:component",
+      "title": "Integrated Pagination",
+      "description": "Thin item-total Pagination wrapper with mutually exclusive client and route-navigation modes, normalized controlled or uncontrolled values, compact boundary and sibling ranges, and explicit primitive-part class ownership.",
+      "registryDependencies": ["pagination"],
+      "files": [
+        {
+          "path": "registry/ui/pagination.tsx",
+          "type": "registry:component",
+          "target": "components/easy/pagination.tsx"
+        }
+      ]
+    },
+    {
       "name": "slider",
       "type": "registry:component",
       "title": "Integrated Slider",

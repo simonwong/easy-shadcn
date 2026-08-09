@@ -83,6 +83,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Input Group** | InputGroup root / addon / input 嵌套 → 一个保留原生 input 契约、带逻辑 start / end addon slot 的扁平组件 | `@easy-shadcn/input-group` |
 | **Avatar** | Avatar root / image / fallback / badge 嵌套 → 一个 fallback 必填、image / badge 可选的扁平组件 | `@easy-shadcn/avatar` |
 | **Switch** | Switch 控件 + 显式 label / description 接线 → 一个保留原语状态、事件和原生表单行为的扁平组件 | `@easy-shadcn/switch` |
+| **Pagination** | item 总数、客户端受控 / 非受控变更、真实路由链接和紧凑 boundary / sibling 窗口 → shadcn Pagination 原语之上的扁平组件 | `@easy-shadcn/pagination` |
 | **Progress** | Progress label / value / track / indicator 组合 → 一个带标签、固定 0–100 语义并支持确定 / 不确定状态的百分比进度条 | `@easy-shadcn/progress` |
 | **Slider** | shadcn Slider 原语之上的可访问可见标签、实时标量值与原生表单单 thumb 封装 | `@easy-shadcn/slider` |
 | **Sheet** | 常规侧边面板的扁平 trigger / title / description / content / footer slot、原生 Dialog 生命周期与可滚动正文 | `@easy-shadcn/sheet` |
