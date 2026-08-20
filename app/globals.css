@@ -135,65 +135,38 @@
   }
 }
 
-/* ─── Landing page: editorial / newspaper aesthetic ─── */
+/* ─── Landing page: transit wayfinding aesthetic ─── */
 .landing-root {
-  --bg: #f1ead8;
-  --paper: #f8f1de;
-  --ink: #0c0c0c;
-  --accent: #ff4423;
-  --accent-ink: #5a1408;
-  --moss: #1f3a2e;
-  --muted: #6b6450;
-  --rule: rgba(12, 12, 12, 0.88);
-  --grain: rgba(12, 12, 12, 0.035);
+  --platform: #faf9f7;
+  --ink: #111111;
+  --signal: #eb5436;
+  --signal-deep: #c8401f;
+  --muted: #5c5c54;
+  --rule: rgba(17, 17, 17, 0.16);
+  --focus: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
   color: var(--ink);
 
-  background-color: var(--bg);
-  background-image:
-    radial-gradient(var(--grain) 1px, transparent 1px),
-    radial-gradient(var(--grain) 1px, transparent 1px);
-  background-position:
-    0 0,
-    1px 2px;
-  background-size:
-    3px 3px,
-    7px 7px;
+  background-color: var(--platform);
+}
+
+.landing-root .on-ink {
+  --focus: var(--signal);
+}
+
+.landing-root :focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .landing-root ::selection {
-  color: var(--paper);
-  background: var(--accent);
+  color: #fff;
+  background: var(--signal);
 }
 
 .font-display {
-  font-family: var(--font-display), "Times New Roman", serif;
-  font-feature-settings: "ss01", "ss02";
-}
-
-@keyframes marquee {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-.marquee-track {
-  animation: marquee 38s linear infinite;
-}
-
-@keyframes blink {
-  0%,
-  60% {
-    opacity: 1;
-  }
-  61%,
-  100% {
-    opacity: 0;
-  }
-}
-.caret {
-  animation: blink 1.05s steps(2, end) infinite;
+  font-family:
+    var(--font-display), "Arial Narrow", "Helvetica Neue", sans-serif;
 }
 
 @keyframes ink-rise {
@@ -210,27 +183,9 @@
   animation: ink-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
+@media (prefers-reduced-motion: reduce) {
+  .ink-rise {
+    animation-duration: 0.01s;
+    animation-iteration-count: 1;
   }
-  to {
-    opacity: 1;
-  }
-}
-.fade-in {
-  animation: fade-in 1s ease-out both;
-}
-
-@keyframes rule-grow {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-.rule-grow {
-  transform-origin: left center;
-  animation: rule-grow 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
