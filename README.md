@@ -84,6 +84,7 @@ The four data-driven components lead the list: **Table**, **Select**, **Combobox
 | **Avatar** | Avatar root / image / fallback / badge nesting into one component with a required fallback and optional image or badge | `@easy-shadcn/avatar` |
 | **Switch** | Switch control plus explicit label and description wiring into one component while preserving primitive state, events, and native form behavior | `@easy-shadcn/switch` |
 | **Pagination** | Item totals, client-controlled / uncontrolled changes, genuine route links, and compact boundary / sibling windows over shadcn Pagination primitives | `@easy-shadcn/pagination` |
+| **Carousel** | Ordered slide data into a named shadcn / Embla carousel with primitive-owned scrolling, controls, plugins, and API | `@easy-shadcn/carousel` |
 | **Progress** | Progress label / value / track / indicator composition into a labeled fixed 0–100 percentage bar with determinate and indeterminate states | `@easy-shadcn/progress` |
 | **Slider** | A visible accessible label, live scalar value and form-ready single thumb over the shadcn Slider primitive | `@easy-shadcn/slider` |
 | **Sheet** | A conventional side panel with flat trigger / title / description / content / footer slots, native dialog lifecycle, and a scroll-safe body | `@easy-shadcn/sheet` |
