@@ -229,6 +229,20 @@
       ]
     },
     {
+      "name": "carousel",
+      "type": "registry:component",
+      "title": "Integrated Carousel",
+      "description": "Thin accessible items-driven Carousel wrapper with primitive-owned Embla scrolling, selection, plugins, API and control boundaries, plus explicit orientation and class ownership.",
+      "registryDependencies": ["carousel"],
+      "files": [
+        {
+          "path": "registry/ui/carousel.tsx",
+          "type": "registry:component",
+          "target": "components/easy/carousel.tsx"
+        }
+      ]
+    },
+    {
       "name": "slider",
       "type": "registry:component",
       "title": "Integrated Slider",

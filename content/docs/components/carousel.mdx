@@ -1,0 +1,135 @@
+---
+title: Carousel
+---
+
+Carousel turns shadcn's root, viewport, track, repeated slides, and Previous / Next controls into one flat `items`-driven component. Embla still owns scrolling, drag behavior, selection, plugins, and control boundaries.
+
+<ExamplePreview name="carousel-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/carousel
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/carousel.json
+```
+
+The underlying shadcn `carousel` primitive and Embla dependency are installed automatically.
+
+## Basic usage
+
+Pass homogeneous slides as `items`. Every item needs a stable, unique `value`; it is used only as the React key.
+
+```tsx
+import { Carousel } from "@/components/easy/carousel"
+
+<Carousel
+  aria-label="Featured projects"
+  items={[
+    { value: "alpha", item: <ProjectCard project={alpha} /> },
+    { value: "beta", item: <ProjectCard project={beta} /> },
+    { value: "gamma", item: <ProjectCard project={gamma} /> },
+  ]}
+/>
+```
+
+The caller must provide either `aria-label` or `aria-labelledby`; Carousel does not invent a generic accessible name. Each generated slide keeps the primitive's `group` role and `slide` role description, with an English positional label such as `2 of 3`.
+
+## Orientation and options
+
+`orientation` exclusively owns the Embla axis:
+
+```tsx
+<Carousel
+  aria-label="Project timeline"
+  orientation="vertical"
+  contentClassName="h-72"
+  items={projects}
+/>
+```
+
+Vertical carousels need a measurable track height. Set it through `contentClassName`, which styles the inner flex track rather than the overflow viewport.
+
+Safe Embla options remain available through `opts`. Top-level and breakpoint `axis` values are excluded by type and stripped at runtime without mutating the caller's object. Responsive axis changes are intentionally unsupported.
+
+```tsx
+<Carousel
+  aria-label="Featured projects"
+  items={projects}
+  opts={{ align: "start", loop: true, skipSnaps: true }}
+/>
+```
+
+The root `dir` and Embla's `opts.direction` are independent. Set both for a horizontal RTL carousel:
+
+```tsx
+<Carousel
+  aria-label="Featured projects"
+  dir="rtl"
+  items={projects}
+  opts={{ direction: "rtl" }}
+/>
+```
+
+Horizontal controls include an RTL icon correction. Vertical controls keep the primitive's rotation unchanged.
+
+## Plugins and API
+
+Plugins pass unchanged to the primitive. `setApi` exposes the initialized Embla API for application-owned status, autoplay controls, or other behaviors:
+
+```tsx
+const [api, setApi] = useState<CarouselApi>()
+
+<Carousel
+  aria-label="Featured projects"
+  items={projects}
+  plugins={[autoplay]}
+  setApi={setApi}
+/>
+```
+
+Import `CarouselApi`, `CarouselOptions`, `CarouselPlugin`, and `CarouselPlugins` from the same module when those contracts are needed. Carousel adds no controlled selection props; `value`, `defaultValue`, `onSelect`, and `onValueChange` are rejected because Embla remains the selection authority.
+
+## Props
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `items` | `CarouselItem[]` | required | Ordered slides shaped as `{ value, item, itemClassName? }`. `value` must be stable and unique. |
+| `aria-label` | `string` | required with no `aria-labelledby` | Accessible name for the carousel landmark. |
+| `aria-labelledby` | `string` | required with no `aria-label` | ID of visible text that names the carousel landmark. |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Owns the Embla x or y axis. |
+| `opts` | `CarouselOptions` | - | Embla options with top-level and breakpoint axes excluded. |
+| `plugins` | `CarouselPlugins` | - | Embla plugins delegated unchanged. |
+| `setApi` | `(api: CarouselApi) => void` | - | Receives the initialized Embla API. |
+| `className` | `ClassValue` | - | Class override for the carousel root. |
+| `contentClassName` | `ClassValue` | - | Class override for the inner flex track, not the overflow viewport. |
+| `itemClassName` | `ClassValue` | - | Class added to every generated slide; an item's own `itemClassName` merges afterward and wins class conflicts. |
+| `previousClassName` | `ClassValue` | - | Class override for the Previous control. |
+| `nextClassName` | `ClassValue` | - | Class override for the Next control. |
+| `ref` | `React.Ref<HTMLDivElement>` | - | Ref to the outer carousel landmark. |
+
+Other safe `div` props pass to the outer root, including `id`, `style`, `dir`, data attributes, ordinary native event handlers, and `tabIndex`.
+
+## List and interaction behavior
+
+- An empty `items` array renders nothing and does not initialize Embla.
+- One item renders a named carousel and one named slide, but omits both permanently disabled controls.
+- Two or more items always render Previous and Next. Embla alone decides each control's disabled state.
+- Previous / Next clicks, dragging, plugin behavior, and Left / Right key handling come from the shadcn primitive. Vertical orientation does not add new Up / Down behavior.
+- `0` and an empty string are valid `item` content. Duplicate `value` entries are invalid caller input; Carousel performs no runtime uniqueness check.
+
+## Ownership and server rendering
+
+Compose owns the complete child tree, raw HTML, landmark role, carousel role description, primitive slot marker, and capture-phase keyboard handler. Those keys are rejected by the public type and stripped from hostile runtime spreads. Item objects are read by approved keys only, so arbitrary per-slide DOM or ARIA props cannot leak into generated slides.
+
+The generated structure and labels depend only on props. Browser state is delegated to Embla after initialization, keeping the initial server markup deterministic.
+
+## When to use the primitive
+
+Use `components/ui/carousel` directly for custom controls, dots, progress, thumbnails, alternate control labels, arbitrary descendants, heterogeneous slide structures, per-slide DOM or ARIA props, responsive axis changes, render functions, prop bags, or replacement slots. Those cases are cheaper and clearer in primitive composition than as permanent Compose API.
