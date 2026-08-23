@@ -257,6 +257,10 @@ const lines = [
         blurb: "Menu items as data — icons, shortcuts, destructive rows.",
       },
       {
+        name: "Context Menu",
+        blurb: "Right-click target in. Flat actions at the pointer out.",
+      },
+      {
         name: "Modal",
         blurb: "Imperative alert & confirm, ready for command palettes.",
       },

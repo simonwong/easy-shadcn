@@ -102,6 +102,20 @@
       ]
     },
     {
+      "name": "context-menu",
+      "type": "registry:component",
+      "title": "Integrated Context Menu",
+      "description": "Thin flat action-menu wrapper with a composed context target, primitive-owned pointer, touch, keyboard and coordinate behavior, controlled requests, and explicit presentation hooks.",
+      "registryDependencies": ["context-menu"],
+      "files": [
+        {
+          "path": "registry/ui/context-menu.tsx",
+          "type": "registry:component",
+          "target": "components/easy/context-menu.tsx"
+        }
+      ]
+    },
+    {
       "name": "radio-group",
       "type": "registry:component",
       "title": "Integrated Radio Group",

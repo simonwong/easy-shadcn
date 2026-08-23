@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "context-menu",
+  "title": "Integrated Context Menu",
+  "description": "Thin flat action-menu wrapper with a composed context target, primitive-owned pointer, touch, keyboard and coordinate behavior, controlled requests, and explicit presentation hooks.",
+  "registryDependencies": [
+    "context-menu"
+  ],
+  "files": [
+    {
+      "path": "registry/ui/context-menu.tsx",
+      "content": "\"use client\";\n\nimport type { ContextMenu as ContextMenuPrimitive } from \"@base-ui/react/context-menu\";\nimport type { ClassValue } from \"clsx\";\nimport type { ReactElement, ReactNode } from \"react\";\nimport {\n  ContextMenuContent,\n  ContextMenuItem as ContextMenuItemPrimitive,\n  ContextMenu as ContextMenuRoot,\n  ContextMenuShortcut,\n  ContextMenuTrigger,\n} from \"@/components/ui/context-menu\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface ContextMenuItem {\n  content: ReactNode;\n  disabled?: boolean;\n  icon?: ReactNode;\n  inset?: boolean;\n  itemClassName?: ClassValue;\n  onClick?: ContextMenuPrimitive.Item.Props[\"onClick\"];\n  shortcut?: ReactNode;\n  /** Stable, unique React identity. Not forwarded to the primitive. */\n  value: string;\n  variant?: \"default\" | \"destructive\";\n}\n\nexport interface ContextMenuProps\n  extends Pick<ContextMenuPrimitive.Positioner.Props, \"align\" | \"side\"> {\n  contentClassName?: ClassValue;\n  /** Disables custom invocation without changing the trigger element. */\n  disabled?: boolean;\n  itemClassName?: ClassValue;\n  items: ContextMenuItem[];\n  onOpenChange?: ContextMenuPrimitive.Root.Props[\"onOpenChange\"];\n  /** Controls visibility only after a real context-menu invocation establishes the anchor. */\n  open?: boolean;\n  shortcutClassName?: ClassValue;\n  sideOffset?: number;\n  /** A non-Fragment element that accepts a ref and DOM event handlers. */\n  trigger: ReactElement;\n}\n\nconst hasNode = (node: ReactNode): boolean =>\n  node !== null && node !== undefined && typeof node !== \"boolean\";\n\nexport const ContextMenu = ({\n  align,\n  contentClassName,\n  disabled,\n  itemClassName,\n  items,\n  onOpenChange,\n  open,\n  side,\n  sideOffset,\n  shortcutClassName,\n  trigger,\n}: ContextMenuProps) => (\n  <ContextMenuRoot disabled={disabled} onOpenChange={onOpenChange} open={open}>\n    <ContextMenuTrigger render={trigger} />\n    <ContextMenuContent\n      align={align}\n      className={cn(contentClassName)}\n      side={side}\n      sideOffset={sideOffset}\n    >\n      {items.map((item) => (\n        <ContextMenuItemPrimitive\n          className={cn(itemClassName, item.itemClassName)}\n          disabled={item.disabled}\n          inset={item.inset}\n          key={item.value}\n          onClick={item.onClick}\n          variant={item.variant}\n        >\n          {hasNode(item.icon) ? (\n            <span aria-hidden=\"true\" data-slot=\"context-menu-item-icon\">\n              {item.icon}\n            </span>\n          ) : null}\n          {item.content}\n          {hasNode(item.shortcut) ? (\n            <ContextMenuShortcut\n              aria-hidden=\"true\"\n              className={cn(shortcutClassName)}\n            >\n              {item.shortcut}\n            </ContextMenuShortcut>\n          ) : null}\n        </ContextMenuItemPrimitive>\n      ))}\n    </ContextMenuContent>\n  </ContextMenuRoot>\n);\n\nexport default ContextMenu;\n",
+      "type": "registry:component",
+      "target": "components/easy/context-menu.tsx"
+    }
+  ],
+  "type": "registry:component"
+}

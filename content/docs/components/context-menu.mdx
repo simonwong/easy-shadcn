@@ -1,0 +1,105 @@
+---
+title: Context Menu
+---
+
+Context Menu flattens shadcn's compound right-click menu into one composed trigger and a homogeneous array of actions. The primitive still owns invocation coordinates, long press, keyboard and focus behavior, collision handling, dismissal, and portal lifecycle.
+
+<ExamplePreview name="context-menu-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/context-menu
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/context-menu.json
+```
+
+The underlying shadcn `context-menu` primitive is installed automatically.
+
+## Basic use
+
+The first use case needs only a trigger element and an item array:
+
+```tsx
+import { ContextMenu } from "@/components/easy/context-menu"
+
+<ContextMenu
+  trigger={
+    <button aria-label="File actions" type="button">
+      Right-click for actions
+    </button>
+  }
+  items={[
+    { value: "edit", content: "Edit" },
+    { value: "duplicate", content: "Duplicate" },
+  ]}
+/>
+```
+
+Each `value` must be unique and stable. Compose uses it only as the React identity; it is not selection state and is not forwarded to the primitive.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `trigger` | `ReactElement` | required | One non-Fragment element composed as the primitive trigger without a wrapper. It must accept a ref and DOM event handlers. |
+| `items` | `ContextMenuItem[]` | required | Homogeneous flat actions. An empty array is valid. |
+| `open` | `boolean` | - | Controlled visibility after a real pointer, touch, or keyboard invocation has established the coordinate anchor. This is not an imperative open command. |
+| `onOpenChange` | `ContextMenuPrimitive.Root.Props["onOpenChange"]` | - | Receives requested visibility and the exact Context Menu root event details. |
+| `disabled` | `boolean` | `false` | Disables the custom context-menu behavior at the root without changing the trigger element. |
+| `align` | `"start" \| "center" \| "end"` | `"start"` | Popup alignment relative to the invocation anchor. |
+| `side` | `"top" \| "right" \| "bottom" \| "left" \| "inline-start" \| "inline-end"` | `"right"` | Preferred popup side. |
+| `sideOffset` | `number` | `0` | Distance in pixels between the invocation anchor and popup. |
+| `contentClassName` | `ClassValue` | - | Class override for the popup content. |
+| `itemClassName` | `ClassValue` | - | Class override merged into every action. |
+| `shortcutClassName` | `ClassValue` | - | Class override merged into every shortcut hint. |
+
+There is deliberately no `defaultOpen`: before a real invocation, a context menu has no meaningful coordinate anchor. The official four-pixel `alignOffset` remains fixed and is not public.
+
+### ContextMenuItem
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | required | Unique, stable React identity. Caller-owned; duplicate values are not validated at runtime. |
+| `content` | `ReactNode` | required | Visible action content and source of the accessible name and typeahead text. |
+| `disabled` | `boolean` | `false` | Keeps the action visible and focusable through primitive roving focus, but prevents activation. |
+| `icon` | `ReactNode` | - | Decorative content rendered before `content`. |
+| `shortcut` | `ReactNode` | - | Decorative shortcut hint rendered after `content`. It does not register the shortcut. |
+| `variant` | `"default" \| "destructive"` | `"default"` | Primitive item emphasis. |
+| `inset` | `boolean` | `false` | Indents content to align with icon-bearing actions. |
+| `onClick` | `ContextMenuPrimitive.Item.Props["onClick"]` | - | Exact Base UI item click event. Normal activation closes the menu. |
+| `itemClassName` | `ClassValue` | - | Per-item class merged after the global item class. |
+
+## Invocation and controlled state
+
+The primitive opens the custom menu on right click or touch long press and suppresses the native browser menu for that enabled invocation. A focusable trigger can also participate in the browser's Shift+F10 or Context Menu key path. Compose does not add `tabIndex`, a label, ARIA, disabled attributes, or visual state, so the caller remains responsible for a focusable, named trigger when keyboard access is required.
+
+`open` can accept or refuse a request only after the invocation has given the primitive an anchor. When a controlled parent keeps `open={false}`, `onOpenChange(true, details)` still fires and the enabled native event remains suppressed, but no custom menu appears. Programmatically changing `open` to true without a recorded invocation has no placement or opening guarantee.
+
+`disabled` restores the native path: custom invocation is ignored, `onOpenChange` does not fire, and Compose does not suppress the browser menu. It does not make the supplied trigger DOM element disabled. If the trigger itself must look or behave disabled for its ordinary actions, set those semantics on the element you pass.
+
+## Keyboard and accessibility
+
+- The popup initially owns focus. Arrow Down enters the first item; Arrow keys, Home, End, and visible-text typeahead remain primitive behavior.
+- Disabled actions can receive roving focus but Enter, Space, and pointer activation do nothing and leave the menu open.
+- Enter and Space activate an enabled action. Escape dismisses and returns focus according to the primitive's invocation modality.
+- Menu and menu-item roles come from the primitive. `icon` and `shortcut` are hidden from the accessibility tree, so `content` must provide readable action text.
+- Treat a context menu as an enhancement, not the only route to an action. Visible controls remain important for touch and assistive-technology discoverability.
+
+## Position and classes
+
+The official default is right-side, start-aligned positioning with a zero side offset and an internal four-pixel alignment offset. The primitive owns the virtual coordinate anchor, collision correction, and portal. `align`, `side`, and numeric `sideOffset` only adjust the ordinary public placement seam.
+
+`contentClassName` targets the popup. `itemClassName` applies to every item; an item's own `itemClassName` merges afterward. `shortcutClassName` targets decorative shortcut hints. Primitive classes remain the baseline, followed by global Compose classes and then the per-item override.
+
+## When to use the primitive instead
+
+Use `components/ui/context-menu` directly for groups, labels, separators, checkbox or radio items, submenus, link items, heterogeneous layouts, custom item labels, arbitrary compound markup, render-function triggers, custom portals or containers, backdrops, arrows, anchors, collision policies, alignment offsets, final-focus control, modal or orientation policies, focus-loop or hover-highlight policies, payloads, imperative actions, or custom close behavior.
+
+This thin wrapper deliberately exposes no `children`, render functions, prop bags, insertion callbacks, selection state, or `defaultOpen` path.
