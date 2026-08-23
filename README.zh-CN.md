@@ -81,6 +81,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Checkbox Group** | 多选版对应物——checkbox + `<label>` / 描述结构 → 一个 `items={…}` 数组（`{ value, label, description }`） | `@easy-shadcn/checkbox-group` |
 | **Field** | label、控件、描述、必填标记和校验信息 → 一个表单字段封装（接受 React Hook Form / Zod 的 error 数组） | `@easy-shadcn/field` |
 | **Input Group** | InputGroup root / addon / input 嵌套 → 一个保留原生 input 契约、带逻辑 start / end addon slot 的扁平组件 | `@easy-shadcn/input-group` |
+| **Input OTP** | 一个真实 OTP input → 自动生成的连续索引 slot，可选统一分组和分隔符 | `@easy-shadcn/input-otp` |
 | **Avatar** | Avatar root / image / fallback / badge 嵌套 → 一个 fallback 必填、image / badge 可选的扁平组件 | `@easy-shadcn/avatar` |
 | **Switch** | Switch 控件 + 显式 label / description 接线 → 一个保留原语状态、事件和原生表单行为的扁平组件 | `@easy-shadcn/switch` |
 | **Pagination** | item 总数、客户端受控 / 非受控变更、真实路由链接和紧凑 boundary / sibling 窗口 → shadcn Pagination 原语之上的扁平组件 | `@easy-shadcn/pagination` |

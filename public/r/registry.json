@@ -173,6 +173,20 @@
       ]
     },
     {
+      "name": "input-otp",
+      "type": "registry:component",
+      "title": "Integrated Input OTP",
+      "description": "Thin single-input OTP wrapper with generated indexed slots, optional uniform groups and separators, primitive-owned value and interaction, and explicit class ownership.",
+      "registryDependencies": ["input-otp"],
+      "files": [
+        {
+          "path": "registry/ui/input-otp.tsx",
+          "type": "registry:component",
+          "target": "components/easy/input-otp.tsx"
+        }
+      ]
+    },
+    {
       "name": "avatar",
       "type": "registry:component",
       "title": "Integrated Avatar",

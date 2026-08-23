@@ -1,0 +1,103 @@
+---
+title: Input OTP
+---
+
+Input OTP generates the indexed slots, uniform groups, and separators around shadcn's accessible single-input OTP primitive.
+
+<ExamplePreview name="input-otp-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/input-otp
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/input-otp.json
+```
+
+The underlying shadcn `input-otp` primitive and its `input-otp` dependency are installed automatically.
+
+## Basic use
+
+`maxLength` is the only required Compose prop. Input OTP renders one group with one indexed slot per character:
+
+```tsx
+import { InputOTP } from "@/components/easy/input-otp"
+
+<InputOTP aria-label="Verification code" maxLength={6} />
+```
+
+Set `groupSize` to split the slots into uniform groups. Compose inserts a primitive separator between groups and keeps slot indexes contiguous:
+
+```tsx
+<InputOTP
+  aria-label="Verification code"
+  groupSize={3}
+  maxLength={6}
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `maxLength` | `number` | required | Positive integer slot count and native input maximum length. Invalid values throw `RangeError`. |
+| `groupSize` | `number` | `maxLength` | Uniform slots per group. Non-positive or non-integer values fall back to one group; values at least `maxLength` also render one group. |
+| `value` | `string` | - | Controlled OTP value. Pair with `onChange`. |
+| `defaultValue` | `string` | - | Initial OTP value in uncontrolled mode. |
+| `onChange` | `(value: string) => unknown` | - | Fires when the primitive accepts a new value. |
+| `onComplete` | `(value: string) => unknown` | - | Fires when the accepted value first reaches `maxLength`. |
+| `pattern` | `string` | - | Regular expression used by the primitive to accept characters. `input-otp` exports common digit and character patterns. |
+| `pasteTransformer` | `(pasted: string) => string` | - | Transforms clipboard text before the primitive validates and applies it. |
+| `textAlign` | `"left" \| "center" \| "right"` | `"left"` | Aligns the real input and active fake caret. |
+| `pushPasswordManagerStrategy` | `"increase-width" \| "none"` | `"increase-width"` | Delegates password-manager badge displacement to `input-otp`. |
+| `noScriptCSSFallback` | `string \| null` | built in | CSS emitted for no-JavaScript fallback. Pass `null` to disable it. |
+| `nonce` | `string` | - | CSP nonce applied to the no-JavaScript fallback style. |
+| `className` | `ClassValue` | - | Class override for the real input element. |
+| `containerClassName` | `ClassValue` | - | Class override for the shadcn InputOTP container. |
+| `groupClassName` | `ClassValue` | - | Class override applied to every generated InputOTPGroup. |
+| `slotClassName` | `ClassValue` | - | Class override applied to every generated InputOTPSlot. |
+| `separatorClassName` | `ClassValue` | - | Class override applied to generated separators only when multiple groups exist. |
+| Input props | `InputHTMLAttributes<HTMLInputElement>` | - | Native input props such as `id`, `name`, `form`, `disabled`, `required`, `autoComplete`, `inputMode`, `placeholder`, `aria-*`, `data-*`, events, and `ref`, narrowed by the primitive contract. |
+
+`children`, `render`, root `data-slot`, and `dangerouslySetInnerHTML` are Compose-owned and unavailable.
+
+## Value and validation
+
+The upstream `input-otp` package owns the real single input, focus, keyboard and paste behavior, controlled or uncontrolled value, completion timing, native form integration, and password-manager handling. Compose only derives the visual groups and slots from `maxLength` and `groupSize`.
+
+Use `pattern={REGEXP_ONLY_DIGITS}` from `input-otp` for numeric codes. A `pasteTransformer` can normalize formatted values before the same pattern check:
+
+```tsx
+import { REGEXP_ONLY_DIGITS } from "input-otp"
+
+<InputOTP
+  aria-label="Verification code"
+  maxLength={6}
+  pasteTransformer={(pasted) => pasted.replaceAll("-", "")}
+  pattern={REGEXP_ONLY_DIGITS}
+/>
+```
+
+`aria-invalid` is forwarded unchanged to the real input and mirrored onto every visual slot so the primitive's invalid styles remain visible. Compose does not infer validity or render an error message; connect supporting text with `aria-describedby` or wrap the control in `Field`.
+
+## Accessibility and form behavior
+
+The generated slots are visual projections of one real input. Give that input an accessible name through a visible `<label htmlFor>`, `aria-label`, or `aria-labelledby`. Native `name`, `form`, `required`, `disabled`, focus and keyboard props reach the same input, and the forwarded ref resolves to its `HTMLInputElement`.
+
+`placeholder` becomes the real input's accessible placeholder. The current shadcn slot does not render `input-otp`'s `placeholderChar`, so custom visible placeholder glyphs are outside this wrapper.
+
+The current `input-otp@1.5.0` development build emits a React controlled/uncontrolled warning when `defaultValue` is used because its internal input also receives a controlled value. Uncontrolled behavior still works; use controlled `value` / `onChange` when a warning-free development console is required.
+
+## Classes and ownership
+
+`className` targets the visually hidden real input; `containerClassName` targets the flex container; and the remaining class props target generated primitive parts. Class values use the repository's `ClassValue` contract and merge with primitive defaults. Slot indexes, group order, separator structure, invalid mirroring, and primitive children remain Compose-owned.
+
+## When to use the primitive instead
+
+Use `components/ui/input-otp` directly for heterogeneous group sizes, custom separators, custom slot or caret rendering, visible placeholder glyphs, arbitrary children, or a replaced render tree. These structures are inexpensive with the primitive, so this thin wrapper deliberately keeps only automatic uniform grouping.

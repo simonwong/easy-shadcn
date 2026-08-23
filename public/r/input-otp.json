@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "input-otp",
+  "title": "Integrated Input OTP",
+  "description": "Thin single-input OTP wrapper with generated indexed slots, optional uniform groups and separators, primitive-owned value and interaction, and explicit class ownership.",
+  "registryDependencies": [
+    "input-otp"
+  ],
+  "files": [
+    {
+      "path": "registry/ui/input-otp.tsx",
+      "content": "\"use client\";\n\nimport type { ClassValue } from \"clsx\";\nimport { type ComponentProps, Fragment } from \"react\";\nimport {\n  InputOTPGroup,\n  InputOTP as InputOTPPrimitive,\n  InputOTPSeparator,\n  InputOTPSlot,\n} from \"@/components/ui/input-otp\";\nimport { cn } from \"@/lib/utils\";\n\nexport type InputOTPProps = Omit<\n  ComponentProps<typeof InputOTPPrimitive>,\n  | \"children\"\n  | \"className\"\n  | \"containerClassName\"\n  | \"dangerouslySetInnerHTML\"\n  | \"data-slot\"\n  | \"defaultValue\"\n  | \"render\"\n> & {\n  children?: never;\n  className?: ClassValue;\n  containerClassName?: ClassValue;\n  dangerouslySetInnerHTML?: never;\n  \"data-slot\"?: never;\n  defaultValue?: string;\n  groupClassName?: ClassValue;\n  /**\n   * Uniform slot count per group. Invalid values render one group; values at\n   * least `maxLength` also render one group.\n   */\n  groupSize?: number;\n  render?: never;\n  /** Applied only when multiple groups produce separators. */\n  separatorClassName?: ClassValue;\n  slotClassName?: ClassValue;\n};\n\nexport const InputOTP = ({\n  \"aria-invalid\": ariaInvalid,\n  children: _children,\n  className,\n  containerClassName,\n  dangerouslySetInnerHTML: _dangerouslySetInnerHTML,\n  \"data-slot\": _dataSlot,\n  groupClassName,\n  groupSize,\n  maxLength,\n  render: _render,\n  separatorClassName,\n  slotClassName,\n  ...inputProps\n}: InputOTPProps) => {\n  if (!Number.isInteger(maxLength) || maxLength <= 0) {\n    throw new RangeError(\"InputOTP maxLength must be a positive integer.\");\n  }\n\n  const effectiveGroupSize =\n    Number.isInteger(groupSize) && groupSize !== undefined && groupSize > 0\n      ? Math.min(groupSize, maxLength)\n      : maxLength;\n  const groupCount = Math.ceil(maxLength / effectiveGroupSize);\n\n  return (\n    <InputOTPPrimitive\n      aria-invalid={ariaInvalid}\n      className={cn(className)}\n      containerClassName={cn(containerClassName)}\n      maxLength={maxLength}\n      {...inputProps}\n    >\n      {Array.from({ length: groupCount }, (_, groupIndex) => {\n        const start = groupIndex * effectiveGroupSize;\n        const length = Math.min(effectiveGroupSize, maxLength - start);\n\n        return (\n          <Fragment key={start}>\n            {groupIndex > 0 && (\n              <InputOTPSeparator\n                className={cn(\n                  \"flex items-center [&_svg:not([class*='size-'])]:size-4\",\n                  separatorClassName\n                )}\n              />\n            )}\n            <InputOTPGroup className={cn(groupClassName)}>\n              {Array.from({ length }, (__, slotOffset) => {\n                const index = start + slotOffset;\n\n                return (\n                  <InputOTPSlot\n                    aria-invalid={ariaInvalid}\n                    className={cn(slotClassName)}\n                    index={index}\n                    key={index}\n                  />\n                );\n              })}\n            </InputOTPGroup>\n          </Fragment>\n        );\n      })}\n    </InputOTPPrimitive>\n  );\n};\n\nexport default InputOTP;\n",
+      "type": "registry:component",
+      "target": "components/easy/input-otp.tsx"
+    }
+  ],
+  "type": "registry:component"
+}

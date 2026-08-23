@@ -81,6 +81,7 @@ The four data-driven components lead the list: **Table**, **Select**, **Combobox
 | **Checkbox Group** | The multi-select counterpart — checkbox + `<label>` / description markup into an `items={…}` array of `{ value, label, description }` | `@easy-shadcn/checkbox-group` |
 | **Field** | Label, control, description, a required marker and validation messages into one form-field wrapper (accepts React Hook Form / Zod error arrays) | `@easy-shadcn/field` |
 | **Input Group** | InputGroup root / addon / input nesting into one native input contract with flat logical start and end addon slots | `@easy-shadcn/input-group` |
+| **Input OTP** | One real OTP input into generated indexed slots with optional uniform groups and separators | `@easy-shadcn/input-otp` |
 | **Avatar** | Avatar root / image / fallback / badge nesting into one component with a required fallback and optional image or badge | `@easy-shadcn/avatar` |
 | **Switch** | Switch control plus explicit label and description wiring into one component while preserving primitive state, events, and native form behavior | `@easy-shadcn/switch` |
 | **Pagination** | Item totals, client-controlled / uncontrolled changes, genuine route links, and compact boundary / sibling windows over shadcn Pagination primitives | `@easy-shadcn/pagination` |

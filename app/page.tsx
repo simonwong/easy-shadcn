@@ -221,6 +221,10 @@ const lines = [
         blurb: "Start and end addons around an input. No flex gymnastics.",
       },
       {
+        name: "Input OTP",
+        blurb: "One real input. Slots, groups, and separators generated.",
+      },
+      {
         name: "Radio Group",
         blurb:
           "Options array in. Wired-up radio rows out. Labels and a11y included.",
