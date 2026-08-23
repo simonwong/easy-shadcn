@@ -58,7 +58,7 @@ const DIRECTION_CONTRACT = `
 DIRECTION CONTRACT — easy-shadcn landing (seed 9183be20)
 THESIS: easy-shadcn is wayfinding for shadcn/ui — one glance locates every component and the command that installs it. Refuses the category default: dark gradient hero, bento grid, fake terminal glow.
 OWN-WORLD: warm off-white #FAF9F7 ground, ink #111 type, logo coral #EB5436 as the single accent (from the brand mark), warm gray #5C5C54 secondary. Barlow Semi Condensed destination type, Barlow body, Geist Mono for code and commands. One accent word per headline, quiet hairlines, drawn SVG arrows.
-STORY: three seconds in, the visitor knows nested children become flat props; the route map shows all 27 stops; one install command is at hand; the express line covers the npm package.
+STORY: three seconds in, the visitor knows nested children become flat props; the route map shows all 28 stops; one install command is at hand; the express line covers the npm package.
 FIRST VIEWPORT: quiet masthead with the coral-slash logo; condensed destination headline "THE EASY WAY TO SHADCN" with EASY in logo coral; short platform-information sub; one solid ink primary action; one clean install card.
 FORM: grounded candidate "transit wayfinding", assigned by the roll (position 6 of 7), raised by donations: cape (one-pull collapse motion), ekiben (catalogue as numbered map), hoarding (one decisive word), hypercard (solid-inversion states), cutting bench (rank by allocation). Quieter pass: user-pinned logo coral replaced the roll's yellow field; ticker, ticket perforation, rail dots, and dark plates were distilled out.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
@@ -171,6 +171,11 @@ const lines = [
       {
         name: "Card",
         blurb: "Flat slots for title, description, action and footer.",
+      },
+      {
+        name: "Empty",
+        blurb:
+          "Media, title, description and content. No compound scaffolding.",
       },
       {
         name: "Progress",
@@ -489,7 +494,7 @@ function Hero() {
 
 function ServiceFacts() {
   const stats = [
-    { value: "27", label: "components", note: "and growing" },
+    { value: "28", label: "components", note: "and growing" },
     { value: "80/20", label: "by design", note: "no slot abuse" },
     { value: "01", label: "line install", note: "shadcn CLI" },
     { value: "100%", label: "yours", note: "MIT, copy & own" },
@@ -589,7 +594,7 @@ function RouteMap() {
         <div className="grid grid-cols-12 gap-y-8 md:gap-8">
           <div className="col-span-12 md:col-span-7">
             <h2 className="font-bold font-display text-[clamp(2.6rem,6vw,5rem)] uppercase leading-[0.9] tracking-[-0.01em]">
-              Twenty-seven stops.
+              Twenty-eight stops.
               <br />
               Four <span className="text-[var(--signal)]">lines.</span>
             </h2>

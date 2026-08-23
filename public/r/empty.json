@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "empty",
+  "title": "Integrated Empty",
+  "description": "Thin flat-props Empty wrapper built on shadcn's Empty primitive: optional media, title, description, and caller-owned content slots with fixed primitive hierarchy, media variants, and per-slot class overrides.",
+  "registryDependencies": [
+    "empty"
+  ],
+  "files": [
+    {
+      "path": "registry/ui/empty.tsx",
+      "content": "import type { ClassValue } from \"clsx\";\nimport type { ComponentProps, ReactNode } from \"react\";\nimport {\n  EmptyContent,\n  EmptyDescription,\n  EmptyHeader,\n  EmptyMedia,\n  Empty as EmptyRoot,\n  EmptyTitle,\n} from \"@/components/ui/empty\";\nimport { cn } from \"@/lib/utils\";\n\ninterface EmptyOwnedProps {\n  children?: never;\n  className?: ClassValue;\n  content?: ReactNode;\n  contentClassName?: ClassValue;\n  dangerouslySetInnerHTML?: never;\n  \"data-slot\"?: never;\n  description?: ReactNode;\n  descriptionClassName?: ClassValue;\n  headerClassName?: ClassValue;\n  media?: ReactNode;\n  mediaClassName?: ClassValue;\n  /** Applies only when media renders. */\n  mediaVariant?: NonNullable<ComponentProps<typeof EmptyMedia>[\"variant\"]>;\n  title?: ReactNode;\n  titleClassName?: ClassValue;\n  [dataAttribute: `data-${string}`]:\n    | boolean\n    | null\n    | number\n    | string\n    | undefined;\n}\n\nexport interface EmptyProps\n  extends Omit<ComponentProps<typeof EmptyRoot>, keyof EmptyOwnedProps>,\n    EmptyOwnedProps {}\n\nconst hasNode = (node: ReactNode): boolean =>\n  node !== null && node !== undefined && typeof node !== \"boolean\";\n\nexport const Empty = ({\n  children: _ignoredChildren,\n  className,\n  content,\n  contentClassName,\n  \"data-slot\": _ignoredDataSlot,\n  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,\n  description,\n  descriptionClassName,\n  headerClassName,\n  media,\n  mediaClassName,\n  mediaVariant,\n  title,\n  titleClassName,\n  ...rootProps\n}: EmptyProps) => {\n  const hasHeader = hasNode(media) || hasNode(title) || hasNode(description);\n\n  return (\n    <EmptyRoot className={cn(className)} {...rootProps}>\n      {hasHeader ? (\n        <EmptyHeader className={cn(headerClassName)}>\n          {hasNode(media) ? (\n            <EmptyMedia className={cn(mediaClassName)} variant={mediaVariant}>\n              {media}\n            </EmptyMedia>\n          ) : null}\n          {hasNode(title) ? (\n            <EmptyTitle className={cn(titleClassName)}>{title}</EmptyTitle>\n          ) : null}\n          {hasNode(description) ? (\n            <EmptyDescription className={cn(descriptionClassName)}>\n              {description}\n            </EmptyDescription>\n          ) : null}\n        </EmptyHeader>\n      ) : null}\n      {hasNode(content) ? (\n        <EmptyContent className={cn(contentClassName)}>{content}</EmptyContent>\n      ) : null}\n    </EmptyRoot>\n  );\n};\n\nexport default Empty;\n",
+      "type": "registry:component",
+      "target": "components/easy/empty.tsx"
+    }
+  ],
+  "type": "registry:component"
+}
