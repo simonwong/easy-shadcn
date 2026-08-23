@@ -77,6 +77,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Breadcrumb** | 手写嵌套的 `<BreadcrumbList>` / `<BreadcrumbItem>` / `<BreadcrumbLink>` / `<BreadcrumbSeparator>` → 一个 `items={…}` 数组，自动识别当前页，`maxItems` 折叠省略号 | `@easy-shadcn/breadcrumb` |
 | **Tooltip** | `<TooltipProvider>` / `<Tooltip>` / `<TooltipTrigger>` / `<TooltipContent>` 四层嵌套 → 一个 `children` 触发元素 + 一个 `content` prop | `@easy-shadcn/tooltip` |
 | **Popover** | base-ui Popover 各部件 → 一个 `children` 触发元素 + `title` / `description` / `content` / `footer` slot | `@easy-shadcn/popover` |
+| **Context Menu** | 右键 / 长按 trigger + 扁平 actions，坐标、焦点、键盘与关闭行为仍由原语负责 | `@easy-shadcn/context-menu` |
 | **Radio Group** | 逐个手接的 `<RadioGroupItem>` 控件 + `<label>` / 描述结构 → 一个 `items={…}` 数组（`{ value, label, description }`） | `@easy-shadcn/radio-group` |
 | **Checkbox Group** | 多选版对应物——checkbox + `<label>` / 描述结构 → 一个 `items={…}` 数组（`{ value, label, description }`） | `@easy-shadcn/checkbox-group` |
 | **Field** | label、控件、描述、必填标记和校验信息 → 一个表单字段封装（接受 React Hook Form / Zod 的 error 数组） | `@easy-shadcn/field` |
