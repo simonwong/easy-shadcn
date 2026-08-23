@@ -1,0 +1,87 @@
+---
+title: Empty
+---
+
+Empty flattens shadcn's empty-state primitives into media, title, description, and content props.
+
+<ExamplePreview name="empty-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/empty
+```
+
+Or install via the full URL (zero configuration):
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/empty.json
+```
+
+The underlying shadcn `empty` primitive is installed automatically.
+
+## Props
+
+| Prop                   | Type                      | Default     | Description                                                                                   |
+| ---------------------- | ------------------------- | ----------- | --------------------------------------------------------------------------------------------- |
+| `media`                | `ReactNode`               | -           | Caller-owned media rendered through `EmptyMedia`.                                             |
+| `title`                | `ReactNode`               | -           | Caller-owned title content rendered through `EmptyTitle`; never the root HTML `title` attr.   |
+| `description`          | `ReactNode`               | -           | Caller-owned supporting content rendered through `EmptyDescription`.                          |
+| `content`              | `ReactNode`               | -           | Caller-owned controls or other content rendered through `EmptyContent`.                       |
+| `mediaVariant`         | `"default" \| "icon"` | `"default"` | Official `EmptyMedia` variant. It is inert when `media` is absent.                             |
+| `className`            | `ClassValue`              | -           | Class override for the Empty root, merged through `cn`.                                       |
+| `headerClassName`      | `ClassValue`              | -           | Class override for the shared `EmptyHeader`.                                                  |
+| `mediaClassName`       | `ClassValue`              | -           | Class override for `EmptyMedia`.                                                              |
+| `titleClassName`       | `ClassValue`              | -           | Class override for `EmptyTitle`.                                                              |
+| `descriptionClassName` | `ClassValue`              | -           | Class override for `EmptyDescription`.                                                        |
+| `contentClassName`     | `ClassValue`              | -           | Class override for `EmptyContent`.                                                            |
+
+All non-owned root `div` props pass through unchanged, including `id`, `role`, `aria-*`, custom `data-*`, `style`, DOM events, `contentEditable`, `suppressContentEditableWarning`, and `ref`. The ref resolves to the root `HTMLDivElement`. The component adds no role, border, background, text, or other semantic policy.
+
+## Structure and presence
+
+Empty always renders the official fixed order:
+
+```text
+Empty
+├─ EmptyHeader (when media, title, or description is present)
+│  ├─ EmptyMedia
+│  ├─ EmptyTitle
+│  └─ EmptyDescription
+└─ EmptyContent
+```
+
+Each child is optional. The header is shared by whichever header slots are present, and content always follows it. Content alone renders without an empty header. A slot class name by itself never creates a wrapper.
+
+Presence follows React rendering semantics: `null`, `undefined`, `true`, and `false` are absent; `0` and `""` are present and retain their wrapper. Changing slot values removes stale wrappers while preserving the fixed order.
+
+`mediaVariant` preserves the primitive's `"default"` default, which suits avatars and image-style media. Choose `"icon"` for the primitive's icon treatment. Supplying a variant without `media` has no visible or structural effect.
+
+## Ownership and accessibility
+
+The Compose layer owns the fixed child tree and primitive identity. `children`, `dangerouslySetInnerHTML`, and `data-slot` are rejected by TypeScript and stripped at runtime for untyped callers. `title` is a visible content slot and never leaks to the root as the native hover-title attribute. Root and slot classes are merged through `cn`, so caller Tailwind conflicts override primitive defaults at their named seam without leaking to siblings.
+
+Empty intentionally owns no interactions. Buttons, links, inputs, status text, and their behavior remain inside the caller-owned `content` node. The root receives no automatic landmark or live-region role. Add the role, ARIA relationship, and announcement strategy required by the surrounding screen.
+
+The primitive `EmptyTitle` is a styled `div`, not a semantic heading. Pass a heading element when the title participates in the page outline:
+
+```tsx
+<Empty
+  aria-labelledby="empty-orders-title"
+  title={<h2 id="empty-orders-title">No orders</h2>}
+/>
+```
+
+Treat decorative icons as hidden from assistive technology. Give informative media an accessible name through the media node itself.
+
+## Server rendering and editable roots
+
+Empty is stateless, has no effects, and adds no client boundary. It can render on the server; only caller-supplied interactive content or surrounding state requires `"use client"`.
+
+`contentEditable` and `suppressContentEditableWarning` remain ordinary root `div` props. The warning flag only controls React's warning; it does not provide another way to inject children or replace the fixed structure.
+
+## When to use the primitive instead
+
+Use `components/ui/empty` directly for reordered or interleaved parts, extra wrappers, multiple header or content groups, custom primitive order, prop bags, polymorphic roots, layout or state APIs, loading and error flows, built-in copy, or automatic semantics. Those cases are deliberately outside this thin Compose wrapper.

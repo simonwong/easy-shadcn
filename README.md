@@ -72,6 +72,7 @@ The four data-driven components lead the list: **Table**, **Select**, **Combobox
 | **Combobox** | An always-searchable, single-select autocomplete preset over Select | `@easy-shadcn/combobox` |
 | **Date Picker** | Single / multiple / range under one `mode` prop, with an optional typed-input trigger and min / max / disabled-date bounds | `@easy-shadcn/date-picker` |
 | **Card** | `<CardHeader><CardTitle>…` ladders into flat `title` / `description` / `action` / `footer` props | `@easy-shadcn/card` |
+| **Empty** | Empty root / header / media / title / description / content nesting into flat optional slots with fixed primitive order | `@easy-shadcn/empty` |
 | **Tabs** | A whole `<TabsList>` + repeated triggers into an `items={…}` array of `{ value, trigger, content }` | `@easy-shadcn/tabs` |
 | **Accordion** | The repeated `<AccordionItem><AccordionTrigger>…<AccordionContent>…` triple into an `items={…}` array of `{ value, trigger, content }`, single or multiple open | `@easy-shadcn/accordion` |
 | **Breadcrumb** | Hand-nested `<BreadcrumbList>` / `<BreadcrumbItem>` / `<BreadcrumbLink>` / `<BreadcrumbSeparator>` markup into an `items={…}` array, with auto current-page and `maxItems` ellipsis | `@easy-shadcn/breadcrumb` |

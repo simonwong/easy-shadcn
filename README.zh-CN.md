@@ -72,6 +72,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Combobox** | 始终可搜索的单选自动补全，Select 之上的预设 | `@easy-shadcn/combobox` |
 | **Date Picker** | 单选 / 多选 / 范围统一在一个 `mode` prop 下，可选的输入框触发器，以及 min / max / 禁用日期边界 | `@easy-shadcn/date-picker` |
 | **Card** | `<CardHeader><CardTitle>…` 嵌套梯子 → 扁平 `title` / `description` / `action` / `footer` props | `@easy-shadcn/card` |
+| **Empty** | Empty root / header / media / title / description / content 嵌套 → 固定原语顺序的扁平可选 slots | `@easy-shadcn/empty` |
 | **Tabs** | 完整的 `<TabsList>` + 一堆 trigger → 一个 `items={…}` 数组（`{ value, trigger, content }`） | `@easy-shadcn/tabs` |
 | **Accordion** | 每行重复的 `<AccordionItem><AccordionTrigger>…<AccordionContent>…` 三件套 → 一个 `items={…}` 数组（`{ value, trigger, content }`），单开或多开 | `@easy-shadcn/accordion` |
 | **Breadcrumb** | 手写嵌套的 `<BreadcrumbList>` / `<BreadcrumbItem>` / `<BreadcrumbLink>` / `<BreadcrumbSeparator>` → 一个 `items={…}` 数组，自动识别当前页，`maxItems` 折叠省略号 | `@easy-shadcn/breadcrumb` |

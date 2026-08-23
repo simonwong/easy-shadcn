@@ -388,6 +388,20 @@
       ]
     },
     {
+      "name": "empty",
+      "type": "registry:component",
+      "title": "Integrated Empty",
+      "description": "Thin flat-props Empty wrapper built on shadcn's Empty primitive: optional media, title, description, and caller-owned content slots with fixed primitive hierarchy, media variants, and per-slot class overrides.",
+      "registryDependencies": ["empty"],
+      "files": [
+        {
+          "path": "registry/ui/empty.tsx",
+          "type": "registry:component",
+          "target": "components/easy/empty.tsx"
+        }
+      ]
+    },
+    {
       "name": "calendar",
       "type": "registry:component",
       "title": "Integrated Calendar",
