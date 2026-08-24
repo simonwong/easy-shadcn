@@ -1,0 +1,137 @@
+---
+title: Menu
+---
+
+Menu is the persistent, Ant Design-style navigation owner for easy-shadcn. One item tree covers action leaves, links, submenus, groups, separators, controlled or uncontrolled selection, and controlled or uncontrolled open state. It is not a renamed Dropdown Menu, Context Menu, Command, or Menubar.
+
+<ExamplePreview name="menu-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/menu
+```
+
+Or install via the full URL:
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/menu.json
+```
+
+Menu owns its persistent navigation markup and state adapter directly. Its chevron icon packages are installed automatically.
+
+## Basic use
+
+The first use case needs only `items`. Add `value` / `onValueChange` when the parent owns selection.
+
+```tsx
+import { Menu } from "@/components/easy/menu"
+
+<Menu
+  aria-label="Workspace navigation"
+  items={[
+    { key: "overview", label: "Overview" },
+    { key: "activity", label: "Activity" },
+  ]}
+  value={section}
+  onValueChange={setSection}
+/>
+```
+
+Action leaves render buttons. Add `href` to render a real link. `onSelect(key, item)` runs for either kind and is also available when `selectable={false}`.
+
+## Nested items and modes
+
+An item with `children` is a submenu. Open state uses the standard controlled triplet: `openKeys`, `defaultOpenKeys`, and `onOpenKeysChange`.
+
+```tsx
+<Menu
+  defaultOpenKeys={["team"]}
+  items={[
+    {
+      key: "team",
+      label: "Team",
+      children: [
+        { key: "members", label: "Members" },
+        { key: "roles", label: "Roles" },
+      ],
+    },
+  ]}
+  mode="inline"
+/>
+```
+
+| Mode | Layout | Submenu behavior |
+| --- | --- | --- |
+| `vertical` | Vertical root | Popup beside its parent; closes after leaf selection or outside pointer down. |
+| `horizontal` | Horizontal root | Top-level popup opens below; deeper popups open beside their parent. |
+| `inline` | Vertical root | Children stay in document flow; caller-controlled or user-toggled open state persists after selection. |
+
+## Selection
+
+Single selection is the default and uses `string | undefined`. Add `multiple` to use `string[]` without changing the item model.
+
+```tsx
+<Menu
+  multiple
+  defaultValue={["inbox"]}
+  items={items}
+  onValueChange={(keys) => console.log(keys)}
+/>
+```
+
+`selectable={false}` disables selection ownership but preserves `onSelect`; use it when items dispatch actions without representing current navigation. Disabled leaves and submenus neither select nor open.
+
+## Item model
+
+Every item needs a stable, unique `key`.
+
+| Kind | Required fields | Optional fields | Behavior |
+| --- | --- | --- | --- |
+| Leaf | `key`, `label` | `href`, `target`, `rel`, `icon`, `extra`, `disabled`, class fields | Button without `href`; anchor with `href`. |
+| Submenu | `key`, `label`, `children` | `icon`, `extra`, `disabled`, class fields | Owns one entry in `openKeys`. |
+| Group | `type: "group"`, `key`, `label`, `children` | `className`, `labelClassName` | Non-selectable label plus nested items. |
+| Separator | `type: "separator"`, `key` | `className` | Semantic separator. |
+
+`icon`, `label`, and `extra` are content slots. Their matching `xxxClassName` fields style only the wrapper owned by Menu.
+
+## Keyboard and accessibility
+
+- Menu uses one roving tab stop. Arrow Up / Down move through visible enabled items; Home / End jump to the first / last item.
+- Arrow Right opens a submenu and enters it. In horizontal mode Arrow Down opens a top-level submenu. Arrow Left or Escape closes a nested submenu and returns focus to its trigger.
+- Popup modes close on outside pointer down. Hidden submenu items are excluded from keyboard movement.
+- Pass `aria-label` or `aria-labelledby` when the surrounding navigation does not already provide a clear name.
+- Links stay anchors. Disabled links lose `href`, expose `aria-disabled`, and leave the tab sequence.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `items` | `MenuItem[]` | required | Recursive item tree. Empty arrays are valid. |
+| `mode` | `"vertical" \| "horizontal" \| "inline"` | `"vertical"` | Root layout and submenu placement model. |
+| `value` | `string \| string[]` | - | Controlled selection; array form requires `multiple`. |
+| `defaultValue` | `string \| string[]` | - | Initial uncontrolled selection; array form requires `multiple`. |
+| `onValueChange` | `(value) => void` | - | Receives next single key or key array. |
+| `multiple` | `boolean` | `false` | Enables multiple selection and array values. |
+| `selectable` | `boolean` | `true` | Whether leaf activation changes selection. |
+| `onSelect` | `(key, item) => void` | - | Runs after an enabled leaf activates, independent of `selectable`. |
+| `openKeys` | `string[]` | - | Controlled open submenu keys. |
+| `defaultOpenKeys` | `string[]` | `[]` | Initial uncontrolled open submenu keys. |
+| `onOpenKeysChange` | `(keys: string[]) => void` | - | Receives the complete next open-key set. |
+| `itemClassName` | `ClassValue` | - | Class merged into every leaf or submenu trigger. |
+| `iconClassName` | `ClassValue` | - | Class merged into every icon wrapper. |
+| `labelClassName` | `ClassValue` | - | Class merged into every item label wrapper. |
+| `extraClassName` | `ClassValue` | - | Class merged into every extra wrapper. |
+| `submenuClassName` | `ClassValue` | - | Class merged into every submenu list. |
+| `className` | `ClassValue` | - | Root menu class. Other compatible list props are forwarded. |
+
+## Which menu component?
+
+- Use `Menu` for persistent application or site navigation with selected and expanded state.
+- Use `DropdownMenu` for a trigger-attached temporary action list.
+- Use `ContextMenu` for a right-click or long-press action list.
+- Use Command for searchable quick actions. Command is not selection navigation.
+
+Dropdown Menu and Context Menu remain separate components because their trigger, coordinates, focus restoration, dismissal, and portal lifecycles differ from persistent Menu.

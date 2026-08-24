@@ -10,7 +10,7 @@
 <p align="center"><em>the easy way to shadcn.</em></p>
 
 <p align="center">
-  Flat-prop wrappers over <a href="https://ui.shadcn.com">shadcn/ui</a>: nested children collapse into one tag, and the data-driven components — Table, Select, Combobox, Date Picker — ship <strong>antd-grade DX</strong> on the shadcn base.
+  Flat-prop wrappers over <a href="https://ui.shadcn.com">shadcn/ui</a>: nested children collapse into one tag, and the data-driven components — Table, Select, Combobox, Date Picker, Menu, Choice Group — ship <strong>antd-grade DX</strong> on the shadcn base.
   <br/>
   Installed through the shadcn CLI, so the code lands in your repo and the primitive is always one import away.
 </p>
@@ -63,7 +63,7 @@ Every wrapper trades a nested ladder for flat props. Card, before and after:
 
 ## Components
 
-The four data-driven components lead the list: **Table**, **Select**, **Combobox** and **Date Picker** own real state — selection tallies, async races, single / multiple / range logic — and aim for the capability surface of their antd equivalent, still shipped as copy-in registry source.
+The six data-driven components lead the list: **Table**, **Select**, **Combobox**, **Date Picker**, **Menu**, and **Choice Group** own real state — selection tallies, async races, nested navigation, and single / multiple / range logic — and aim for the capability surface of their antd equivalent, still shipped as copy-in registry source.
 
 | Component | What it collapses | Install |
 |-----------|-------------------|---------|
@@ -71,6 +71,8 @@ The four data-driven components lead the list: **Table**, **Select**, **Combobox
 | **Select** | Dropdown, searchable, multi-select chips and async / server-side-filtered loading in one `items` / `loadItems`-driven component | `@easy-shadcn/select` |
 | **Combobox** | An always-searchable, single-select autocomplete preset over Select | `@easy-shadcn/combobox` |
 | **Date Picker** | Single / multiple / range under one `mode` prop, with an optional typed-input trigger and min / max / disabled-date bounds | `@easy-shadcn/date-picker` |
+| **Menu** | Persistent navigation from one recursive item tree, including links, actions, submenus, groups, selection, open state, and three layout modes | `@easy-shadcn/menu` |
+| **Choice Group** | One items/value API for single or multiple selection rendered as radio, checkbox, or toggle controls | `@easy-shadcn/choice-group` |
 | **Card** | `<CardHeader><CardTitle>…` ladders into flat `title` / `description` / `action` / `footer` props | `@easy-shadcn/card` |
 | **Empty** | Empty root / header / media / title / description / content nesting into flat optional slots with fixed primitive order | `@easy-shadcn/empty` |
 | **Tabs** | A whole `<TabsList>` + repeated triggers into an `items={…}` array of `{ value, trigger, content }` | `@easy-shadcn/tabs` |
@@ -79,8 +81,8 @@ The four data-driven components lead the list: **Table**, **Select**, **Combobox
 | **Tooltip** | The `<TooltipProvider>` / `<Tooltip>` / `<TooltipTrigger>` / `<TooltipContent>` nest into one `children` trigger plus a `content` prop | `@easy-shadcn/tooltip` |
 | **Popover** | The base-ui Popover parts into one `children` trigger plus `title` / `description` / `content` / `footer` slots | `@easy-shadcn/popover` |
 | **Context Menu** | Right-click / long-press trigger plus flat actions, with primitive-owned coordinates, focus, keyboard behavior and dismissal | `@easy-shadcn/context-menu` |
-| **Radio Group** | Hand-wired `<RadioGroupItem>` controls plus their `<label>` / description markup into an `items={…}` array of `{ value, label, description }` | `@easy-shadcn/radio-group` |
-| **Checkbox Group** | The multi-select counterpart — checkbox + `<label>` / description markup into an `items={…}` array of `{ value, label, description }` | `@easy-shadcn/checkbox-group` |
+| **Radio Group** *(legacy)* | Soft-deprecated compatibility wrapper; use Choice Group for new work | `@easy-shadcn/radio-group` |
+| **Checkbox Group** *(legacy)* | Soft-deprecated compatibility wrapper; use Choice Group for new work | `@easy-shadcn/checkbox-group` |
 | **Field** | Label, control, description, a required marker and validation messages into one form-field wrapper (accepts React Hook Form / Zod error arrays) | `@easy-shadcn/field` |
 | **Input Group** | InputGroup root / addon / input nesting into one native input contract with flat logical start and end addon slots | `@easy-shadcn/input-group` |
 | **Input OTP** | One real OTP input into generated indexed slots with optional uniform groups and separators | `@easy-shadcn/input-otp` |
@@ -109,7 +111,7 @@ The four data-driven components lead the list: **Table**, **Select**, **Combobox
 
 easy-shadcn is a **compose layer** over shadcn/ui — installed through the CLI, so every component lands in your repo as ordinary source you own and can patch. Three rules keep it honest:
 
-- **Thin wrappers stay thin; state-machine components go deep.** A wrapper like Card or Tabs exists only to fold a recurring nested pattern into flat props — rebuilding the missing case on the primitive costs a dozen lines, so the API stays minimal. Table, Select, Combobox and Date Picker own real state (selection tallies, async races, selected-item merge-back); rewriting that by hand costs hundreds of lines, so they carry an obligation to approach the capability surface of their antd equivalent.
+- **Thin wrappers stay thin; state-machine components go deep.** A wrapper like Card or Tabs exists only to fold a recurring nested pattern into flat props — rebuilding the missing case on the primitive costs a dozen lines, so the API stays minimal. Table, Select, Combobox, Date Picker, Menu, and Choice Group own real state or cross-presentation adapters; rewriting that by hand is costly, so they carry an obligation to approach the capability surface of their antd equivalent.
 - **The onboarding slope is frozen.** Total prop counts may grow without limit, but the number of props you must understand to run the *first* use case never moves. Table is always `columns` + `dataSource` + `rowKey`; Select is always `items` + `value` / `onValueChange`. A new prop is admissible only if someone who never uses it stays unaware it exists.
 - **The primitive door is unlocked.** No render props, no slot objects, no "insert a node between A and B" escape hatches. Need the last stretch of flexibility? Drop down to `components/ui/*` — the compose layer never grows a second API door to get you there.
 

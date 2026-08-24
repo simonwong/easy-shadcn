@@ -4,6 +4,10 @@
 
 - **Compose layer**: The `registry/ui/*` components that wrap shadcn primitives with flat props.
 - **Primitive**: The raw `components/ui/*` shadcn components with full composition freedom.
+- **Compose capability family**: One user task and state model that may span multiple shadcn catalog entries. A family gets at most one canonical Compose owner; catalog names are inputs to coverage, not a one-file-per-name quota.
+- **Primitive-only**: A capability intentionally served by its shadcn Primitive without a Compose wrapper because another flat API would not remove meaningful state, behaviour, accessibility, or migration work. This decision is independent of whether the Primitive is currently installed locally.
+- **Out of scope**: A capability deliberately excluded from the current Compose product surface. Its absence is intentional and is reconsidered only when a concrete use case changes the trade-off.
+- **Compose coverage roadmap**: The durable ledger mapping shadcn catalog entries to a Compose capability family, Primitive-only, Out of scope, or a deferred decision. It records product coverage; GitHub issues record execution.
 - **Thin wrapper vs. State-machine component**: The two Compose tiers. A **thin wrapper** (Card, Tabs, Tooltip, Breadcrumb, Accordion, Popover) adds almost no logic — escaping to the primitive costs ~a dozen lines, so its API stays minimal. A **state-machine component** (Table, Select, Combobox, DatePicker) owns real state logic (selection tally, async race, selected-item merge-back), so escaping is expensive and its coverage is obligated to approach 100%. This tier decides how much a Compose component must cover. See [ADR-0004](docs/adr/0004-props-vocabulary.md).
 - **Command-modal**: The imperative modal state-management library in `packages/command-modal/`.
 - **Handler**: The object `useModal()` returns — the modal's live state (`visible`, `args`, …) plus the imperative verbs (`show`, `hide`, `remove`, `resolve`, `reject`, `resolveHide`). The unit an Adapter consumes.
@@ -17,6 +21,7 @@
 
 - Dual-layer architecture: primitives (`components/ui/*`) + Compose layer (`registry/ui/*`)
 - Compose API sizing & vocabulary: no single 80/20 hard line — coverage floats with escape cost (thin-wrapper vs state-machine tiers; area may approach 100%), the base-case concept count stays frozen, `xxxProps` is ownership-type-narrowed (`Omit` the keys Compose owns), and props naming follows a fixed reference order. See [ADR-0004](docs/adr/0004-props-vocabulary.md).
+- Compose coverage is classified by capability family rather than shadcn catalog page. Each upstream entry maps once to a canonical Compose owner, Primitive-only, Out of scope, or a deferred decision. See [ADR-0010](docs/adr/0010-compose-capability-coverage.md) and the [Compose coverage roadmap](docs/compose-roadmap.md).
 - `components/ui/**` is read-only, only modified via shadcn CLI
 - command-modal's only UI-library coupling is the Adapter seam; the core stays UI-agnostic. First-class targets are shadcn + antd v6; other libraries are typed-but-BYO. See [ADR-0001](docs/adr/0001-adapter-seam-and-typed-factory.md).
 - A modal's resolve (result) type is carried on `create<Props, Result>`, not at the `show()` call site. See [ADR-0002](docs/adr/0002-resolve-type-on-create.md).
@@ -25,3 +30,5 @@
 - Table requires an explicit `rowKey` (no index fallback), and header select-all governs only the visible selectable rows while preserving selected disabled / off-page keys. See [ADR-0007](docs/adr/0007-table-required-rowkey-and-selection-model.md).
 - DatePicker's `withInput` is single-mode only; typed text is a draft committed on Enter / blur / close (Escape discards, calendar clicks win) and held to the same day constraints as the calendar. See [ADR-0008](docs/adr/0008-date-picker-input-draft-commit.md).
 - Pagination separates client-side page changes from route navigation: client mode owns a controlled or uncontrolled `value` and emits `onValueChange`, while navigation mode renders route-derived links from a controlled `value` and never also mutates client state. See [ADR-0009](docs/adr/0009-pagination-client-and-navigation-modes.md).
+- Menu owns a persistent navigation tree with selected values, open submenu keys, and vertical / horizontal / inline modes. Dropdown Menu and Context Menu remain popup-action shells rather than Menu variants. See [ADR-0011](docs/adr/0011-menu-navigation-state-model.md).
+- ChoiceGroup has two independent axes: single / multiple selection and radio / checkbox / toggle presentation. Only four semantic combinations are valid, and presentation-specific Primitive event details do not cross its stable Interface. See [ADR-0012](docs/adr/0012-choice-group-selection-presentation.md).

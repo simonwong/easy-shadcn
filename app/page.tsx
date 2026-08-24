@@ -58,7 +58,7 @@ const DIRECTION_CONTRACT = `
 DIRECTION CONTRACT — easy-shadcn landing (seed 9183be20)
 THESIS: easy-shadcn is wayfinding for shadcn/ui — one glance locates every component and the command that installs it. Refuses the category default: dark gradient hero, bento grid, fake terminal glow.
 OWN-WORLD: warm off-white #FAF9F7 ground, ink #111 type, logo coral #EB5436 as the single accent (from the brand mark), warm gray #5C5C54 secondary. Barlow Semi Condensed destination type, Barlow body, Geist Mono for code and commands. One accent word per headline, quiet hairlines, drawn SVG arrows.
-STORY: three seconds in, the visitor knows nested children become flat props; the route map shows all 28 stops; one install command is at hand; the express line covers the npm package.
+STORY: three seconds in, the visitor knows nested children become flat props; the route map shows all 30 stops; one install command is at hand; the express line covers the npm package.
 FIRST VIEWPORT: quiet masthead with the coral-slash logo; condensed destination headline "THE EASY WAY TO SHADCN" with EASY in logo coral; short platform-information sub; one solid ink primary action; one clean install card.
 FORM: grounded candidate "transit wayfinding", assigned by the roll (position 6 of 7), raised by donations: cape (one-pull collapse motion), ekiben (catalogue as numbered map), hoarding (one decisive word), hypercard (solid-inversion states), cutting bench (rank by allocation). Quieter pass: user-pinned logo coral replaced the roll's yellow field; ticker, ticket perforation, rail dots, and dark plates were distilled out.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
@@ -209,6 +209,11 @@ const lines = [
           "Items array in, checked values out. Per-item disabled included.",
       },
       {
+        name: "Choice Group",
+        blurb:
+          "Single or multiple, radio, checkbox, or toggle — one value model.",
+      },
+      {
         name: "Combobox",
         blurb:
           "Type to filter items, pick one. Custom filter and empty states.",
@@ -264,6 +269,11 @@ const lines = [
       {
         name: "Context Menu",
         blurb: "Right-click target in. Flat actions at the pointer out.",
+      },
+      {
+        name: "Menu",
+        blurb:
+          "Persistent nav from one tree. Selection, submenus, groups, keys.",
       },
       {
         name: "Modal",
@@ -494,7 +504,7 @@ function Hero() {
 
 function ServiceFacts() {
   const stats = [
-    { value: "28", label: "components", note: "and growing" },
+    { value: "30", label: "components", note: "and growing" },
     { value: "80/20", label: "by design", note: "no slot abuse" },
     { value: "01", label: "line install", note: "shadcn CLI" },
     { value: "100%", label: "yours", note: "MIT, copy & own" },

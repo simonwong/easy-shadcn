@@ -1,0 +1,131 @@
+---
+title: Choice Group
+---
+
+Choice Group gives one stable `items` and value API to related choices. Selection has two modes—single or multiple—and presentation has three forms—radio, checkbox, or toggle. The public type permits only the four combinations with coherent semantics.
+
+<ExamplePreview name="choice-group-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/choice-group
+```
+
+Or install via the full URL:
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/choice-group.json
+```
+
+The shadcn Radio Group, Checkbox, and Toggle Group primitives are installed automatically.
+
+## Four valid combinations
+
+| Selection | Presentation | Value shape | Configuration |
+| --- | --- | --- | --- |
+| Single | Radio | `string \| undefined` | Default: no mode props required. |
+| Multiple | Checkbox | `string[]` | `selectionMode="multiple"` |
+| Single | Toggle | `string \| undefined` | `presentation="toggle"` |
+| Multiple | Toggle | `string[]` | `selectionMode="multiple" presentation="toggle"` |
+
+`multiple + radio` and `single + checkbox` are type errors. They are not runtime aliases with surprising behavior.
+
+## Radio and checkbox
+
+```tsx
+const items = [
+  { value: "email", label: "Email", description: "Daily digest" },
+  { value: "sms", label: "SMS", disabled: true },
+]
+
+<ChoiceGroup items={items} defaultValue="email" />
+
+<ChoiceGroup
+  items={items}
+  selectionMode="multiple"
+  defaultValue={["email"]}
+/>
+```
+
+The first example defaults to single + radio. The second defaults to multiple + checkbox. Changing between them keeps the same item schema; only the selection discriminant and value shape change.
+
+## Toggle presentation
+
+Toggle presentation supports both selection modes and the shadcn Toggle Group visual controls.
+
+```tsx
+<ChoiceGroup
+  aria-label="Density"
+  items={densityItems}
+  presentation="toggle"
+  orientation="horizontal"
+  variant="outline"
+  spacing={0}
+  defaultValue="comfortable"
+/>
+```
+
+Single toggle selection may become empty when the pressed item is toggled off, so `onValueChange` receives `undefined`. Multiple toggle selection always returns an array.
+
+## Controlled state
+
+All four combinations use `value`, `defaultValue`, and `onValueChange`. Choice Group deliberately removes Base UI event-detail objects from its callback; callers receive only the next domain value, so switching presentation does not change handler shape.
+
+```tsx
+<ChoiceGroup
+  items={channels}
+  selectionMode="multiple"
+  value={channelsValue}
+  onValueChange={setChannelsValue}
+/>
+```
+
+An explicitly supplied `value={undefined}` remains controlled for single selection. In controlled mode, interaction requests a change but visual selection moves only after the parent updates `value`.
+
+## Labels and descriptions
+
+Each item renders its label and optional description with stable `aria-labelledby` / `aria-describedby` wiring. `ariaLabel` replaces the visible label as the accessible name when product copy and spoken copy must differ.
+
+Group-level class fields merge first; item-level fields merge after them.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `value` | `string` | Stable unique option value. |
+| `label` | `ReactNode` | Visible option label. |
+| `description` | `ReactNode` | Optional helper text. |
+| `ariaLabel` | `string` | Optional explicit accessible name. |
+| `disabled` | `boolean` | Disables this option. A disabled group still wins. |
+| `optionClassName` | `ClassValue` | Radio/checkbox row or toggle item class. |
+| `controlClassName` | `ClassValue` | Radio/checkbox control; also merged into the toggle item. |
+| `labelClassName` | `ClassValue` | Visible label class. |
+| `descriptionClassName` | `ClassValue` | Description class. |
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `items` | `ChoiceGroupItem[]` | required | Homogeneous option definitions. Empty arrays render an empty semantic group. |
+| `selectionMode` | `"single" \| "multiple"` | `"single"` | Selects scalar or array value semantics. |
+| `presentation` | `"radio" \| "checkbox" \| "toggle"` | Radio for single; checkbox for multiple | Visual and interaction adapter. Invalid mode pairs are rejected by TypeScript. |
+| `value` | `string \| string[] \| undefined` | - | Controlled value, narrowed by the discriminated mode pair. |
+| `defaultValue` | `string \| string[] \| undefined` | - | Initial uncontrolled value, narrowed by the mode pair. |
+| `onValueChange` | `(value) => void` | - | Next scalar or array only; primitive event details stay private. |
+| `disabled` | `boolean` | `false` | Disables every option. |
+| `orientation` | `"vertical" \| "horizontal"` | `"vertical"` | Layout and keyboard orientation. |
+| `variant` | `"default" \| "outline"` | `"default"` | Toggle presentation only. |
+| `size` | `"default" \| "sm" \| "lg"` | `"default"` | Toggle presentation only. |
+| `spacing` | `number` | `2` | Toggle presentation only. Use `0` for joined buttons. |
+| `optionClassName` | `ClassValue` | - | Class merged into every option wrapper/control. |
+| `controlClassName` | `ClassValue` | - | Class merged into every primitive control. |
+| `labelClassName` | `ClassValue` | - | Class merged into every label. |
+| `descriptionClassName` | `ClassValue` | - | Class merged into every description. |
+| `className` | `ClassValue` | - | Root class. Other compatible group-container props are forwarded. |
+
+## Legacy group components
+
+`RadioGroup` and `CheckboxGroup` remain installable for compatibility, but are soft-deprecated. New work should use Choice Group. They receive no new capabilities; migrate when touching nearby code. There is no separate Toggle Group Compose registration—the shadcn primitive is installed as Choice Group's presentation dependency.
+
+Use the underlying primitives directly for heterogeneous option markup, custom indicators, per-checkbox indeterminate state, a parent “select all” checkbox, or primitive-specific event details and form behavior.
