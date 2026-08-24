@@ -10,7 +10,7 @@
 <p align="center"><em>更简单的 shadcn 使用方式。</em></p>
 
 <p align="center">
-  在 <a href="https://ui.shadcn.com">shadcn/ui</a> 之上的扁平 props 封装：嵌套 children 折叠成一个标签，而数据驱动的组件——Table、Select、Combobox、Date Picker——在 shadcn 底座上提供 <strong>antd 级别的开箱 DX</strong>。
+  在 <a href="https://ui.shadcn.com">shadcn/ui</a> 之上的扁平 props 封装：嵌套 children 折叠成一个标签，而数据驱动的组件——Table、Select、Combobox、Date Picker、Menu、Choice Group——在 shadcn 底座上提供 <strong>antd 级别的开箱 DX</strong>。
   <br/>
   通过 shadcn CLI 安装，代码落进你自己的仓库，原语始终只差一个 import。
 </p>
@@ -63,7 +63,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 
 ## 组件清单
 
-四个数据驱动组件排在最前：**Table**、**Select**、**Combobox**、**Date Picker** 拥有真正的状态——选中 tally、异步竞态、单选 / 多选 / 范围逻辑——对标 antd 同类组件的能力面，同时仍以 copy-in 的 registry 源码分发。
+六个数据驱动组件排在最前：**Table**、**Select**、**Combobox**、**Date Picker**、**Menu**、**Choice Group** 拥有真正的状态——选中 tally、异步竞态、嵌套导航、单选 / 多选 / 范围逻辑——对标 antd 同类组件的能力面，同时仍以 copy-in 的 registry 源码分发。
 
 | 组件 | 折叠了什么 | 安装 |
 |------|-----------|------|
@@ -71,6 +71,8 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Select** | 下拉、可搜索、多选 chips、异步 / 服务端过滤加载，统一在一个由 `items` / `loadItems` 驱动的组件里 | `@easy-shadcn/select` |
 | **Combobox** | 始终可搜索的单选自动补全，Select 之上的预设 | `@easy-shadcn/combobox` |
 | **Date Picker** | 单选 / 多选 / 范围统一在一个 `mode` prop 下，可选的输入框触发器，以及 min / max / 禁用日期边界 | `@easy-shadcn/date-picker` |
+| **Menu** | 一个递归 item tree 提供持久导航，覆盖链接、动作、子菜单、分组、选中状态、展开状态和三种布局模式 | `@easy-shadcn/menu` |
+| **Choice Group** | 一个 items/value API 覆盖单选或多选，并可呈现为 radio、checkbox 或 toggle | `@easy-shadcn/choice-group` |
 | **Card** | `<CardHeader><CardTitle>…` 嵌套梯子 → 扁平 `title` / `description` / `action` / `footer` props | `@easy-shadcn/card` |
 | **Empty** | Empty root / header / media / title / description / content 嵌套 → 固定原语顺序的扁平可选 slots | `@easy-shadcn/empty` |
 | **Tabs** | 完整的 `<TabsList>` + 一堆 trigger → 一个 `items={…}` 数组（`{ value, trigger, content }`） | `@easy-shadcn/tabs` |
@@ -79,8 +81,8 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Tooltip** | `<TooltipProvider>` / `<Tooltip>` / `<TooltipTrigger>` / `<TooltipContent>` 四层嵌套 → 一个 `children` 触发元素 + 一个 `content` prop | `@easy-shadcn/tooltip` |
 | **Popover** | base-ui Popover 各部件 → 一个 `children` 触发元素 + `title` / `description` / `content` / `footer` slot | `@easy-shadcn/popover` |
 | **Context Menu** | 右键 / 长按 trigger + 扁平 actions，坐标、焦点、键盘与关闭行为仍由原语负责 | `@easy-shadcn/context-menu` |
-| **Radio Group** | 逐个手接的 `<RadioGroupItem>` 控件 + `<label>` / 描述结构 → 一个 `items={…}` 数组（`{ value, label, description }`） | `@easy-shadcn/radio-group` |
-| **Checkbox Group** | 多选版对应物——checkbox + `<label>` / 描述结构 → 一个 `items={…}` 数组（`{ value, label, description }`） | `@easy-shadcn/checkbox-group` |
+| **Radio Group** *（legacy）* | 软废弃兼容封装；新代码使用 Choice Group | `@easy-shadcn/radio-group` |
+| **Checkbox Group** *（legacy）* | 软废弃兼容封装；新代码使用 Choice Group | `@easy-shadcn/checkbox-group` |
 | **Field** | label、控件、描述、必填标记和校验信息 → 一个表单字段封装（接受 React Hook Form / Zod 的 error 数组） | `@easy-shadcn/field` |
 | **Input Group** | InputGroup root / addon / input 嵌套 → 一个保留原生 input 契约、带逻辑 start / end addon slot 的扁平组件 | `@easy-shadcn/input-group` |
 | **Input OTP** | 一个真实 OTP input → 自动生成的连续索引 slot，可选统一分组和分隔符 | `@easy-shadcn/input-otp` |
@@ -109,7 +111,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 
 easy-shadcn 是 shadcn/ui 的**组合层**——通过 CLI 安装，每个组件都以你自己拥有、可以随手改的普通源码落进你的仓库。三条规则让它保持诚实：
 
-- **薄封装保持极小；状态机组件做深。** 像 Card、Tabs 这样的封装只为把重复的嵌套写法折叠成扁平 props——回退原语手写缺失场景只要十几行，所以 API 保持极小。Table、Select、Combobox、Date Picker 拥有真正的状态（选中 tally、异步竞态、已选项 merge-back），手写重来要几百行，所以它们有义务逼近 antd 同类组件的能力面。
+- **薄封装保持极小；状态机组件做深。** 像 Card、Tabs 这样的封装只为把重复的嵌套写法折叠成扁平 props——回退原语手写缺失场景只要十几行，所以 API 保持极小。Table、Select、Combobox、Date Picker、Menu、Choice Group 拥有真正状态或跨呈现适配，手写重来成本高，所以它们有义务逼近 antd 同类组件的能力面。
 - **入门斜率永久冻结。** props 总数可以无上限地涨，但"跑通第一个用例必须理解的 props 数"永远不动。Table 永远是 `columns` + `dataSource` + `rowKey`，Select 永远是 `items` + `value` / `onValueChange`。新 prop 只有在"不用它的人完全无感知它存在"时才允许加入。
 - **原语的大门始终敞开。** 没有 render props，没有 slot 对象，没有"在 A 和 B 之间插入节点"的逃生口。需要最后那一段灵活性？直接下沉到 `components/ui/*`——组合层永远不会为此再开第二道 API 口。
 

@@ -116,6 +116,35 @@
       ]
     },
     {
+      "name": "menu",
+      "type": "registry:component",
+      "title": "Integrated Menu",
+      "description": "Persistent Ant Design-style navigation menu with a recursive item tree, action and link leaves, submenus, groups, separators, controlled or uncontrolled selection and open state, three layout modes, and roving keyboard focus.",
+      "dependencies": ["@hugeicons/core-free-icons", "@hugeicons/react"],
+      "files": [
+        {
+          "path": "registry/ui/menu.tsx",
+          "type": "registry:component",
+          "target": "components/easy/menu.tsx"
+        }
+      ]
+    },
+    {
+      "name": "choice-group",
+      "type": "registry:component",
+      "title": "Integrated Choice Group",
+      "description": "One items and value model for single or multiple selection through radio, checkbox, or toggle presentation, with invalid mode combinations rejected by TypeScript.",
+      "dependencies": ["@base-ui/react"],
+      "registryDependencies": ["checkbox", "radio-group", "toggle-group"],
+      "files": [
+        {
+          "path": "registry/ui/choice-group.tsx",
+          "type": "registry:component",
+          "target": "components/easy/choice-group.tsx"
+        }
+      ]
+    },
+    {
       "name": "radio-group",
       "type": "registry:component",
       "title": "Integrated Radio Group",
