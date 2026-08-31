@@ -44,24 +44,70 @@ acceptProps({
   valueClassName: ["value-x", undefined],
 });
 
-// @ts-expect-error Slider requires a visible caller-owned label.
-acceptProps({});
-
-// @ts-expect-error The Compose value is scalar-only.
-acceptProps({ label: "Range", value: [20, 80] });
-
-// @ts-expect-error The Compose default value is scalar-only.
-acceptProps({ defaultValue: [20, 80], label: "Range" });
-
 acceptProps({
-  label: "Volume",
-  // @ts-expect-error Change callbacks receive a scalar number.
-  onValueChange: (_value: number[]) => undefined,
+  defaultValue: [20, 80],
+  label: "Price range",
+  minStepsBetweenValues: 5,
+  multiple: true,
+  onValueChange: (value, details) => {
+    value.map(acceptNumber);
+    acceptChangeDetails(details);
+  },
+  onValueCommitted: (value, details) => {
+    value.map(acceptNumber);
+    acceptCommitDetails(details);
+  },
+  thumbCollisionBehavior: "swap",
+  thumbLabels: ["Minimum price", "Maximum price"],
 });
 
 acceptProps({
+  label: "Thresholds",
+  multiple: true,
+  thumbLabels: ["Low", "Target", "High"],
+  value: [10, 40, 90],
+});
+
+// @ts-expect-error Multi-thumb change callbacks receive an array.
+acceptProps({
+  label: "Range",
+  multiple: true,
+  onValueChange: (_value: number) => undefined,
+  thumbLabels: ["Minimum", "Maximum"],
+});
+
+// @ts-expect-error Slider requires a visible caller-owned label.
+acceptProps({});
+
+// @ts-expect-error Array values require the explicit multi-thumb discriminator.
+acceptProps({ label: "Range", value: [20, 80] });
+
+// @ts-expect-error Array defaults require the explicit multi-thumb discriminator.
+acceptProps({ defaultValue: [20, 80], label: "Range" });
+
+// @ts-expect-error Multi-thumb mode requires distinct accessible names.
+acceptProps({ label: "Range", multiple: true, value: [20, 80] });
+
+// @ts-expect-error Multi-thumb values are arrays.
+acceptProps({
+  label: "Range",
+  multiple: true,
+  thumbLabels: ["Minimum", "Maximum"],
+  value: 50,
+});
+
+// @ts-expect-error Scalar mode cannot accept multi-thumb labels.
+acceptProps({ label: "Volume", thumbLabels: ["Volume"] });
+
+// @ts-expect-error Scalar mode change callbacks receive a scalar number.
+acceptProps({
   label: "Volume",
-  // @ts-expect-error Commit callbacks receive a scalar number.
+  onValueChange: (_value: number[]) => undefined,
+});
+
+// @ts-expect-error Scalar mode commit callbacks receive a scalar number.
+acceptProps({
+  label: "Volume",
   onValueCommitted: (_value: number[]) => undefined,
 });
 
@@ -77,10 +123,10 @@ acceptProps({
 // @ts-expect-error Root replacement is a primitive escape path.
 acceptProps({ label: "Volume", render: <div /> });
 
-// @ts-expect-error Range spacing belongs to the multi-thumb primitive.
+// @ts-expect-error Range spacing requires multi-thumb mode.
 acceptProps({ label: "Range", minStepsBetweenValues: 2 });
 
-// @ts-expect-error Thumb collision policy belongs to the multi-thumb primitive.
+// @ts-expect-error Thumb collision policy requires multi-thumb mode.
 acceptProps({ label: "Range", thumbCollisionBehavior: "swap" });
 
 // @ts-expect-error Formatting is intentionally outside the thin wrapper.

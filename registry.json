@@ -303,7 +303,7 @@
       "name": "slider",
       "type": "registry:component",
       "title": "Integrated Slider",
-      "description": "Thin accessible single-value Slider wrapper with a visible label, live numeric value, scalar callbacks, primitive-owned interaction and form behavior, and explicit class and semantic ownership.",
+      "description": "Accessible scalar and multi-thumb Slider with a discriminated number/array API, live values, distinct thumb names, collision and spacing controls, and primitive-owned interaction and form behavior.",
       "registryDependencies": ["slider"],
       "files": [
         {

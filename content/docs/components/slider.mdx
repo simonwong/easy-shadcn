@@ -2,7 +2,7 @@
 title: Slider
 ---
 
-Slider provides an accessible visible label and live numeric value for the common single-value slider case.
+Slider keeps the common scalar control small and adds an explicit multi-thumb branch for ranges and thresholds. Both modes provide a visible label, live value, native form inputs, and Base UI's keyboard and pointer behavior.
 
 <ExamplePreview name="slider-demo" />
 
@@ -14,77 +14,99 @@ With the [`@easy-shadcn` namespace](/docs/installation) configured:
 pnpm dlx shadcn@latest add @easy-shadcn/slider
 ```
 
-Or install via the full URL (zero configuration):
+Or install via the full URL:
 
 ```shell
 pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/slider.json
 ```
 
-The underlying shadcn `slider` primitive is installed automatically.
+The shadcn `slider` primitive is installed automatically.
 
-## Basic use
+## Scalar mode
 
-The first use case needs only `label`. The slider starts at `min` (0 by default), renders one thumb, and shows its current numeric value:
+The base case remains `label` plus optional scalar state. Omitting `multiple` preserves the original `number` value and callback types.
 
 ```tsx
-import { Slider } from "@/components/easy/slider"
-
 <Slider label="Volume" />
+
+<Slider
+  label="Temperature"
+  onValueChange={setTemperature}
+  value={temperature}
+/>
 ```
 
-## Props
+An uncontrolled scalar starts at `defaultValue ?? min`. The visible value follows accepted primitive changes; calling `details.cancel()` in `onValueChange` leaves both primitive state and the visible mirror unchanged.
+
+## Multi-thumb mode
+
+Add `multiple` to switch values and callbacks to `number[]`. `thumbLabels` is required so assistive technology can distinguish every thumb. Use at least two values and names for a multi-thumb control; the rendered thumb count follows the value array length.
+
+```tsx
+<Slider
+  defaultValue={[20, 80]}
+  label="Price range"
+  minStepsBetweenValues={5}
+  multiple
+  thumbCollisionBehavior="none"
+  thumbLabels={["Minimum price", "Maximum price"]}
+/>
+```
+
+Without `value` or `defaultValue`, multi mode starts at `[min, max]`. It supports any thumb count, not only two-value ranges:
+
+```tsx
+<Slider
+  label="Thresholds"
+  multiple
+  thumbLabels={["Low", "Target", "High"]}
+  value={[10, 40, 90]}
+/>
+```
+
+The live value uses raw numbers joined by an en dash, such as `10 – 40 – 90`. Formatting remains a Primitive escape path.
+
+## Shared props
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `label` | `ReactNode` | required | Visible caller-owned content that names the nested slider input. |
-| `value` | `number` | - | Controlled scalar value. Pair with `onValueChange`. |
-| `defaultValue` | `number` | `min` | Initial scalar value in uncontrolled mode. |
-| `onValueChange` | `(value: number, details: Slider.Root.ChangeEventDetails) => void` | - | Fires while the value changes. `details.cancel()` prevents the primitive update and the visible-value mirror. |
-| `onValueCommitted` | `(value: number, details: Slider.Root.CommitEventDetails) => void` | - | Fires when an interaction commits. |
-| `showValue` | `boolean` | `true` | Shows the current raw numeric value beside the label. |
+| `label` | `ReactNode` | required | Visible name for the scalar control or multi-thumb group. |
+| `showValue` | `boolean` | `true` | Shows the current scalar or en-dash-separated array beside the label. |
 | `min` | `number` | `0` | Minimum allowed value. Must be less than `max`. |
 | `max` | `number` | `100` | Maximum allowed value. Must be greater than `min`. |
 | `step` | `number` | `1` | Normal pointer and keyboard increment. |
 | `largeStep` | `number` | `10` | Page Up / Page Down and Shift + Arrow increment. |
-| `disabled` | `boolean` | `false` | Disables interaction and form control behavior. |
-| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Primitive orientation. Give vertical sliders an explicit height through `className`. |
-| `thumbAlignment` | `"center" \| "edge" \| "edge-client-only"` | `"edge"` | Primitive thumb alignment; `edge` is the shadcn default. |
-| `name` | `string` | - | Name for native form submission. |
-| `form` | `string` | - | ID of the owning form when the slider is rendered outside it. |
-| `aria-labelledby` | `string` | - | External naming ids appended after the generated visible-label id. |
-| `className` | `ClassValue` | - | Class override for the shadcn Slider primitive root. |
+| `disabled` | `boolean` | `false` | Disables interaction and form controls. |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Primitive orientation. Give vertical sliders a height through `className`. |
+| `thumbAlignment` | `"center" \| "edge" \| "edge-client-only"` | `"edge"` | Thumb alignment; `edge` matches shadcn. |
+| `name` | `string` | - | Native form field name. Multi mode submits one value per thumb under the same name. |
+| `form` | `string` | - | Owning form id when rendered outside the form. |
+| `aria-labelledby` | `string` | - | External naming ids merged with the generated visible-label relationship. |
+| `className` | `ClassValue` | - | Class override for the Slider primitive root. |
 | `labelClassName` | `ClassValue` | - | Class override for the visible label. |
-| `valueClassName` | `ClassValue` | - | Class override for the visible value when rendered. |
+| `valueClassName` | `ClassValue` | - | Class override for the live value. |
 
-Other safe primitive-root props such as `id`, `style`, data attributes that are not primitive state markers, and root event handlers are forwarded.
+Other safe primitive-root props such as `id`, `style`, non-state data attributes, and root event handlers are forwarded.
 
-## Scalar value boundary
+## Discriminated value props
 
-This Compose component intentionally supports one scalar value. The current shadcn Slider creates thumbs from array length, so Compose wraps every public scalar as a one-element array at the primitive boundary and unwraps callback values back to `number`. The primitive still owns controlled or uncontrolled state, constraints, pointer and keyboard behavior, focus, validation, and form submission.
+| Mode | Value props | Mode-only props |
+| --- | --- | --- |
+| `multiple` omitted or `false` | `value?: number`, `defaultValue?: number`, scalar callbacks | none |
+| `multiple={true}` | `value?: number[]`, `defaultValue?: number[]`, array callbacks | required `thumbLabels`; optional `minStepsBetweenValues`, `thumbCollisionBehavior` |
 
-When `value` is defined, it is authoritative and the visible value follows caller rerenders. Otherwise, the primitive starts from `defaultValue ?? min`, and accepted changes update the local visible-value mirror. The callback details are Base UI's native objects; calling `details.cancel()` in `onValueChange` leaves both the primitive state and the visible value unchanged.
+`thumbCollisionBehavior` follows Base UI: `"push"` lets a dragged thumb push others, `"swap"` swaps positions, and `"none"` prevents crossing. `minStepsBetweenValues` counts `step` intervals rather than raw units.
 
-`showValue` only controls the visual number. It does not remove the slider's `aria-valuenow`, change form submission, or alter interaction.
+## Accessibility, forms, and SSR
 
-## Accessibility and keyboard
+Scalar mode associates the visible label with its one nested range input. Multi mode names the Base UI slider group with the visible label and gives every thumb input its own `thumbLabels[index]` name. A missing, blank, or short runtime label array falls back to `Value N` instead of throwing, but callers should supply distinct contextual names such as “Minimum price” and “Maximum price”.
 
-Compose emits a stable generated id for the visible label during the first server render and passes the resulting `aria-labelledby` relationship through the shadcn root to the nested range input. Caller-provided `aria-labelledby` tokens are normalized, deduplicated, and appended after the internal label id.
+Every multi thumb has an explicit Base UI `index`, so the correct inputs and names are present in server markup before hydration. With `name`, browsers submit each thumb as a same-name form entry; use `FormData.getAll(name)` to read the array.
 
-The primitive preserves its native keyboard contract:
+The primitive preserves Arrow, Page Up / Down, Shift + Arrow, Home, and End behavior. It owns bounds, step validation, sorting, focus, pointer dragging, collision handling, and cancelable event details.
 
-- Arrow keys change by `step`.
-- Page Up / Page Down change by `largeStep`.
-- Shift + Arrow also uses `largeStep`.
-- Home and End move to `min` and `max`.
+## Ownership and escape path
 
-The visible value, input value, and `aria-valuenow` update together. `orientation="vertical"` changes the primitive semantics and layout; add a height such as `className="h-40"` so the control has space to render.
+Compose owns the label/value layout, thumb count, thumb names, indices, primitive descendants, state markers, numeric ARIA, and group name. `className` still targets the Slider root rather than the outer layout.
 
-## Classes and ownership
-
-`className` targets the shadcn Slider root, while `labelClassName` and `valueClassName` target the two caller-facing content slots. The wrapper layout is fixed. Primitive state markers, numeric ARIA, `role`, child structure, raw HTML, and root replacement remain Compose-owned so passthrough props cannot silently desynchronize the control.
-
-## When to use the primitive instead
-
-Use `components/ui/slider` directly for range or multi-thumb values, thumb-specific accessible labels, minimum distance or collision behavior, custom number formatting or locale, descriptions and validation messages, marks, ticks, tooltips, editable numeric inputs, custom descendants, or a replaced root.
-
-Those cases are inexpensive to compose with the existing primitive, so this thin wrapper deliberately excludes arrays, `minStepsBetweenValues`, `thumbCollisionBehavior`, `format`, `locale`, `children`, `render`, prop bags, slots objects, and render callbacks.
+Use `components/ui/slider` or Base UI parts directly for custom formatting or locale, marks, ticks, tooltips, editable numeric inputs, thumb-specific visual props, descriptions and validation messages, arbitrary descendants, or a replaced root.
