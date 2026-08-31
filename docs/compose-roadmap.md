@@ -15,7 +15,6 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 
 | Priority | Capability | Next decision or module | Compose value |
 | --- | --- | --- | --- |
-| P1 | Popover family | Decide the shared Popover/Hover Card owner and the hover, focus, delay, and controlled-open boundary. Tooltip stays separate. | Medium |
 | P1 | Slider | Design a discriminated scalar/multi-thumb value surface without changing the scalar base case. | High |
 | P1 | Modal ownership | Prevent `confirmProps` / `cancelProps` from replacing Compose-owned `onClick` wiring. | High |
 | P1 | Existing Compose depth | Audit current modules for AsyncButton-like behavioural leverage or ownership bugs; do not add props for shallow parity. | Varies |
@@ -27,6 +26,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-08-24 | Menu family | Shipped canonical `Menu` item tree, selection/open state, vertical/horizontal/inline modes, and keyboard navigation. Dropdown Menu and Context Menu remain separate trigger shells. |
 | 2026-08-24 | Choice list | Shipped `ChoiceGroup` for the four valid single/multiple × radio/checkbox/toggle combinations. Soft-deprecated `RadioGroup` and `CheckboxGroup`; no separate Toggle Group Compose registration. |
 | 2026-08-31 | Toast | Shipped one Base UI-backed global queue with a stable callable facade for status, id upserts, update, close, action, and Promise lifecycles. |
+| 2026-08-31 | Popover family | Shipped one `Popover` Interface with separate click and hover/focus primitive adapters. Tooltip remains separate; Hover Card has no second Compose registration. |
 
 ## Compose: current and planned
 
@@ -49,7 +49,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Input composition | Input Group | `InputGroup` | Keep | Medium | Own adornment and grouped-control composition; plain Input stays Primitive-only. |
 | One-time password | Input OTP | `InputOTP` | Keep | Medium | Retain specialized interaction and form semantics. |
 | Pagination | Pagination | `Pagination` | Keep and deepen | High | Own client-state vs navigation-mode contract. |
-| Floating content | Popover, Hover Card | `Popover` family | Design | Medium | Share only the content/open foundation; hover/focus delay must not leak into ordinary Popover. |
+| Floating content | Popover, Hover Card | `Popover` | Keep | Medium | `interaction="click"` uses Popover; `interaction="hover"` uses Preview Card with delay controls. Shared slots and open vocabulary survive migration; Tooltip stays separate. |
 | Progress | Progress | `Progress` | Keep | Low | Preserve current wrapper; Spinner and Skeleton remain Primitive-only. |
 | Choice list | Radio Group, Toggle Group | `ChoiceGroup` | Keep and deepen | High | Single/multiple selection; radio/checkbox/toggle presentation. Existing `RadioGroup` and `CheckboxGroup` are soft-deprecated. |
 | Edge panel | Sheet | `Sheet` | Keep | Medium | Binary edge-positioned dialog. Drawer gestures and snap points are excluded. |
@@ -131,6 +131,6 @@ Use this before opening any component-factory task:
 | Command palette | Treat as Command, not Menu. |
 | Radio list, checkbox list, toggle list | Deepen `ChoiceGroup`; do not create separate new group owners. |
 | Single Checkbox, Switch, Toggle | Keep independent boolean controls; do not route to ChoiceGroup. |
-| Hover Card | Route to Popover family design; do not merge with Tooltip. |
+| Hover Card | Use `Popover interaction="hover"`; do not create a second Compose owner or merge it with Tooltip. |
 | Async action button | Enhance `AsyncButton`; do not wrap base Button again. |
 | Generic list row | Use Item Primitive or create a domain-specific list only after a concrete state model exists. |

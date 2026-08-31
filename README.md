@@ -79,7 +79,7 @@ The six data-driven components lead the list: **Table**, **Select**, **Combobox*
 | **Accordion** | The repeated `<AccordionItem><AccordionTrigger>…<AccordionContent>…` triple into an `items={…}` array of `{ value, trigger, content }`, single or multiple open | `@easy-shadcn/accordion` |
 | **Breadcrumb** | Hand-nested `<BreadcrumbList>` / `<BreadcrumbItem>` / `<BreadcrumbLink>` / `<BreadcrumbSeparator>` markup into an `items={…}` array, with auto current-page and `maxItems` ellipsis | `@easy-shadcn/breadcrumb` |
 | **Tooltip** | The `<TooltipProvider>` / `<Tooltip>` / `<TooltipTrigger>` / `<TooltipContent>` nest into one `children` trigger plus a `content` prop | `@easy-shadcn/tooltip` |
-| **Popover** | The base-ui Popover parts into one `children` trigger plus `title` / `description` / `content` / `footer` slots | `@easy-shadcn/popover` |
+| **Popover** | Click popovers and hover/focus link previews into one trigger plus `title` / `description` / `content` / `footer` API | `@easy-shadcn/popover` |
 | **Context Menu** | Right-click / long-press trigger plus flat actions, with primitive-owned coordinates, focus, keyboard behavior and dismissal | `@easy-shadcn/context-menu` |
 | **Radio Group** *(legacy)* | Soft-deprecated compatibility wrapper; use Choice Group for new work | `@easy-shadcn/radio-group` |
 | **Checkbox Group** *(legacy)* | Soft-deprecated compatibility wrapper; use Choice Group for new work | `@easy-shadcn/checkbox-group` |
