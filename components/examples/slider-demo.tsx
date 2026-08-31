@@ -6,6 +6,7 @@ import { Slider } from "@/registry/ui/slider";
 
 const Demo = () => {
   const [temperature, setTemperature] = useState(20);
+  const [priceRange, setPriceRange] = useState([20, 80]);
   const [submitted, setSubmitted] = useState("not submitted");
 
   return (
@@ -43,6 +44,21 @@ const Demo = () => {
       </section>
 
       <section className="space-y-3">
+        <h3 className="font-medium text-sm">Multi-thumb range</h3>
+        <Slider
+          form="slider-form"
+          label="Price range"
+          minStepsBetweenValues={5}
+          multiple
+          name="price-range"
+          onValueChange={setPriceRange}
+          thumbCollisionBehavior="none"
+          thumbLabels={["Minimum price", "Maximum price"]}
+          value={priceRange}
+        />
+      </section>
+
+      <section className="space-y-3">
         <h3 className="font-medium text-sm">Hidden value</h3>
         <Slider defaultValue={65} label="Opacity" showValue={false} />
       </section>
@@ -66,10 +82,13 @@ const Demo = () => {
         <h3 className="font-medium text-sm">Native form</h3>
         <form
           className="space-y-3"
+          id="slider-form"
           onSubmit={(event) => {
             event.preventDefault();
             const data = new FormData(event.currentTarget);
-            setSubmitted(String(data.get("form-volume") ?? "missing"));
+            const volume = String(data.get("form-volume") ?? "missing");
+            const range = data.getAll("price-range").join(" – ");
+            setSubmitted(`${volume}; range: ${range}`);
           }}
         >
           <Slider defaultValue={35} label="Form volume" name="form-volume" />

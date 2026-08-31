@@ -15,7 +15,6 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 
 | Priority | Capability | Next decision or module | Compose value |
 | --- | --- | --- | --- |
-| P1 | Slider | Design a discriminated scalar/multi-thumb value surface without changing the scalar base case. | High |
 | P1 | Modal ownership | Prevent `confirmProps` / `cancelProps` from replacing Compose-owned `onClick` wiring. | High |
 | P1 | Existing Compose depth | Audit current modules for AsyncButton-like behavioural leverage or ownership bugs; do not add props for shallow parity. | Varies |
 
@@ -27,6 +26,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-08-24 | Choice list | Shipped `ChoiceGroup` for the four valid single/multiple × radio/checkbox/toggle combinations. Soft-deprecated `RadioGroup` and `CheckboxGroup`; no separate Toggle Group Compose registration. |
 | 2026-08-31 | Toast | Shipped one Base UI-backed global queue with a stable callable facade for status, id upserts, update, close, action, and Promise lifecycles. |
 | 2026-08-31 | Popover family | Shipped one `Popover` Interface with separate click and hover/focus primitive adapters. Tooltip remains separate; Hover Card has no second Compose registration. |
+| 2026-08-31 | Slider | Shipped a scalar-preserving `multiple=true` branch with array callbacks, per-thumb accessible names, native multi-value forms, minimum spacing, and collision policy. |
 
 ## Compose: current and planned
 
@@ -53,7 +53,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Progress | Progress | `Progress` | Keep | Low | Preserve current wrapper; Spinner and Skeleton remain Primitive-only. |
 | Choice list | Radio Group, Toggle Group | `ChoiceGroup` | Keep and deepen | High | Single/multiple selection; radio/checkbox/toggle presentation. Existing `RadioGroup` and `CheckboxGroup` are soft-deprecated. |
 | Edge panel | Sheet | `Sheet` | Keep | Medium | Binary edge-positioned dialog. Drawer gestures and snap points are excluded. |
-| Range input | Slider | `Slider` | Keep and deepen | High | Add scalar/multi-thumb modes without raising the scalar base-case concept count; define per-thumb accessible names. |
+| Range input | Slider | `Slider` | Keep | High | Scalar mode keeps the original `number` API. `multiple=true` switches to arrays, requires per-thumb accessible names, and exposes spacing/collision policy without changing the base case. |
 | Tabs | Tabs | `Tabs` | Keep | Low | Homogeneous tab items; heterogeneous bodies use Primitive. |
 | Notification | Toast | `Toast` | Keep | High | One global facade delegates queue/timer/focus state to Base UI while owning stable status, action, update, close, and Promise semantics. |
 | Tooltip | Tooltip | `Tooltip` | Keep | Low | Separate from Popover/Hover Card because purpose and interaction contract differ. |
