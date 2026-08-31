@@ -15,7 +15,6 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 
 | Priority | Capability | Next decision or module | Compose value |
 | --- | --- | --- | --- |
-| P0 | Toast | Design notification queue, lifecycle, update, dismissal, and promise semantics before implementation. | High |
 | P1 | Popover family | Decide the shared Popover/Hover Card owner and the hover, focus, delay, and controlled-open boundary. Tooltip stays separate. | Medium |
 | P1 | Slider | Design a discriminated scalar/multi-thumb value surface without changing the scalar base case. | High |
 | P1 | Modal ownership | Prevent `confirmProps` / `cancelProps` from replacing Compose-owned `onClick` wiring. | High |
@@ -27,6 +26,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | --- | --- | --- |
 | 2026-08-24 | Menu family | Shipped canonical `Menu` item tree, selection/open state, vertical/horizontal/inline modes, and keyboard navigation. Dropdown Menu and Context Menu remain separate trigger shells. |
 | 2026-08-24 | Choice list | Shipped `ChoiceGroup` for the four valid single/multiple × radio/checkbox/toggle combinations. Soft-deprecated `RadioGroup` and `CheckboxGroup`; no separate Toggle Group Compose registration. |
+| 2026-08-31 | Toast | Shipped one Base UI-backed global queue with a stable callable facade for status, id upserts, update, close, action, and Promise lifecycles. |
 
 ## Compose: current and planned
 
@@ -55,7 +55,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Edge panel | Sheet | `Sheet` | Keep | Medium | Binary edge-positioned dialog. Drawer gestures and snap points are excluded. |
 | Range input | Slider | `Slider` | Keep and deepen | High | Add scalar/multi-thumb modes without raising the scalar base-case concept count; define per-thumb accessible names. |
 | Tabs | Tabs | `Tabs` | Keep | Low | Homogeneous tab items; heterogeneous bodies use Primitive. |
-| Notification | Toast | `Toast` | Build | High | Must own queue and lifecycle rather than only flatten Toast markup. |
+| Notification | Toast | `Toast` | Keep | High | One global facade delegates queue/timer/focus state to Base UI while owning stable status, action, update, close, and Promise semantics. |
 | Tooltip | Tooltip | `Tooltip` | Keep | Low | Separate from Popover/Hover Card because purpose and interaction contract differ. |
 
 ### Project-specific enhancement owners

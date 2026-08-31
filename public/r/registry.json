@@ -314,6 +314,20 @@
       ]
     },
     {
+      "name": "toast",
+      "type": "registry:component",
+      "title": "Integrated Toast",
+      "description": "Global Base UI notification queue with a stable callable facade for status, id upserts, updates, closing, owned actions, and Promise lifecycles.",
+      "registryDependencies": ["toast"],
+      "files": [
+        {
+          "path": "registry/ui/toast.tsx",
+          "type": "registry:component",
+          "target": "components/easy/toast.tsx"
+        }
+      ]
+    },
+    {
       "name": "sheet",
       "type": "registry:component",
       "title": "Integrated Sheet",
