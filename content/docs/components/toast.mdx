@@ -1,0 +1,131 @@
+---
+title: Toast
+---
+
+Toast provides one global notification queue on shadcn's Base UI Toast primitive. Mount `Toast` once, then call the `toast` facade from client event handlers. The queue owns stacking, timeouts, swipe dismissal, status transitions, updates, actions, and Promise lifecycles.
+
+<ExamplePreview name="toast-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/toast
+```
+
+Or install via the full URL:
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/toast.json
+```
+
+The shadcn `toast` primitive is installed automatically.
+
+## Mount the queue
+
+Render one `Toast` near the application root. `limit` controls visible notifications and `timeout` sets the default auto-close duration.
+
+```tsx
+import { Toast } from "@/components/easy/toast"
+
+export default function RootLayout({ children }) {
+  return (
+    <body>
+      {children}
+      <Toast limit={3} timeout={5000} />
+    </body>
+  )
+}
+```
+
+`Toaster` is an alias for teams already using shadcn's mount name.
+
+## Add and update notifications
+
+The callable form is the smallest API. It returns a stable id for later updates or closing. Passing the same `id` again updates the existing notification and refreshes its timer.
+
+```tsx
+const id = toast("Uploading", { description: "report.pdf" })
+
+toast.update(id, "Uploaded", { type: "success" })
+toast.close(id)
+toast.close() // close all
+```
+
+Status helpers select the matching icon and state:
+
+```tsx
+toast.success("Saved")
+toast.info("New version available")
+toast.warning("Storage almost full")
+toast.error("Upload failed")
+toast.loading("Uploading")
+```
+
+A loading notification does not auto-close. Update it to a non-loading type or close it explicitly.
+
+## Actions
+
+`action.label` and `action.onClick` own action content and behavior. The notification closes after the callback unless it calls `event.preventDefault()`.
+
+```tsx
+toast("Draft saved", {
+  action: {
+    label: "Undo",
+    onClick: () => restoreDraft(),
+  },
+  actionButtonProps: { className: "min-w-20" },
+})
+```
+
+`actionButtonProps` accepts shadcn Button props except `children`, `dangerouslySetInnerHTML`, and `onClick`; those keys cannot replace Compose-owned wiring.
+
+## Promise lifecycle
+
+`toast.promise` creates one loading notification, updates it on settlement, and returns a Promise with the original resolve value or rejection.
+
+```tsx
+const event = await toast.promise(createEvent(), {
+  loading: "Creating event",
+  success: (value) => ({
+    title: "Event created",
+    description: value.name,
+  }),
+  error: (reason) => ({
+    title: "Create failed",
+    description: reason instanceof Error ? reason.message : "Unknown error",
+  }),
+})
+```
+
+Each state accepts a React node. Object states require `title` and may add `description`, `timeout`, or `priority`.
+
+## API
+
+### `Toast`
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `limit` | `number` | `3` | Maximum active notifications before the oldest is limited and exits. |
+| `timeout` | `number` | `5000` | Default auto-close duration in milliseconds. `0` keeps notifications open. |
+
+### `ToastOptions`
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | Stable identity. Reusing it updates the existing notification. |
+| `type` | `"default" \| "success" \| "info" \| "warning" \| "error" \| "loading"` | Visual and lifecycle status. |
+| `description` | `ReactNode` | Secondary content below the title. |
+| `timeout` | `number` | Per-notification timeout override. |
+| `priority` | `"low" \| "high"` | Polite or urgent screen-reader announcement priority. |
+| `action` | `{ label, onClick? }` | Optional action; closes by default after activation. |
+| `actionButtonProps` | shadcn Button props | Button attributes except Compose-owned `children`, `dangerouslySetInnerHTML`, and `onClick`. |
+| `onClose` | `() => void` | Runs when close begins. |
+| `onRemove` | `() => void` | Runs after the closing transition removes the notification. |
+
+## Accessibility and escape path
+
+Base UI owns the live region, queue timing, focus management, and swipe behavior. Pressing `F6` moves focus into the notification viewport; interactive controls remain keyboard accessible.
+
+The Compose facade intentionally uses one global queue. Scoped managers, anchored notifications, custom renderers, custom data, and primitive-part styling use `components/ui/toast` directly.

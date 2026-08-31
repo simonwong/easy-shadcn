@@ -91,6 +91,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Pagination** | item 总数、客户端受控 / 非受控变更、真实路由链接和紧凑 boundary / sibling 窗口 → shadcn Pagination 原语之上的扁平组件 | `@easy-shadcn/pagination` |
 | **Carousel** | 有序 slide 数据 → 具名 shadcn / Embla 轮播，保留原语负责的滚动、控制、插件和 API | `@easy-shadcn/carousel` |
 | **Progress** | Progress label / value / track / indicator 组合 → 一个带标签、固定 0–100 语义并支持确定 / 不确定状态的百分比进度条 | `@easy-shadcn/progress` |
+| **Toast** | 一个全局通知队列，提供命令式状态、同 ID 更新、关闭、action 与 Promise 生命周期助手 | `@easy-shadcn/toast` |
 | **Slider** | shadcn Slider 原语之上的可访问可见标签、实时标量值与原生表单单 thumb 封装 | `@easy-shadcn/slider` |
 | **Sheet** | 常规侧边面板的扁平 trigger / title / description / content / footer slot、原生 Dialog 生命周期与可滚动正文 | `@easy-shadcn/sheet` |
 | **Async Button** | `onClick` 返回 Promise 的手动 `useState` loading 流程 | `@easy-shadcn/async-button` |
