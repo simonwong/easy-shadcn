@@ -77,8 +77,8 @@
       "name": "popover",
       "type": "registry:component",
       "title": "Integrated Popover",
-      "description": "Drop-anywhere Popover that flattens shadcn's base-ui Popover parts into one component: wrap an element as the trigger, then compose the popup with title / description / content / footer slots and side/align positioning.",
-      "registryDependencies": ["popover"],
+      "description": "One rich floating-content API with click Popover and hover/focus Preview Card adapters, shared title / description / content / footer slots, and side/align positioning.",
+      "registryDependencies": ["popover", "hover-card"],
       "files": [
         {
           "path": "registry/ui/popover.tsx",

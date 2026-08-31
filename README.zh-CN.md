@@ -79,7 +79,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Accordion** | 每行重复的 `<AccordionItem><AccordionTrigger>…<AccordionContent>…` 三件套 → 一个 `items={…}` 数组（`{ value, trigger, content }`），单开或多开 | `@easy-shadcn/accordion` |
 | **Breadcrumb** | 手写嵌套的 `<BreadcrumbList>` / `<BreadcrumbItem>` / `<BreadcrumbLink>` / `<BreadcrumbSeparator>` → 一个 `items={…}` 数组，自动识别当前页，`maxItems` 折叠省略号 | `@easy-shadcn/breadcrumb` |
 | **Tooltip** | `<TooltipProvider>` / `<Tooltip>` / `<TooltipTrigger>` / `<TooltipContent>` 四层嵌套 → 一个 `children` 触发元素 + 一个 `content` prop | `@easy-shadcn/tooltip` |
-| **Popover** | base-ui Popover 各部件 → 一个 `children` 触发元素 + `title` / `description` / `content` / `footer` slot | `@easy-shadcn/popover` |
+| **Popover** | 点击 Popover 与 hover/focus 链接预览 → 一个 trigger + `title` / `description` / `content` / `footer` API | `@easy-shadcn/popover` |
 | **Context Menu** | 右键 / 长按 trigger + 扁平 actions，坐标、焦点、键盘与关闭行为仍由原语负责 | `@easy-shadcn/context-menu` |
 | **Radio Group** *（legacy）* | 软废弃兼容封装；新代码使用 Choice Group | `@easy-shadcn/radio-group` |
 | **Checkbox Group** *（legacy）* | 软废弃兼容封装；新代码使用 Choice Group | `@easy-shadcn/checkbox-group` |

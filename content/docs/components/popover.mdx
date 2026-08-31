@@ -2,7 +2,7 @@
 title: Popover
 ---
 
-Popover flattens shadcn's Popover parts (`Popover` / `PopoverTrigger` / `PopoverContent` and the portal + positioner inside, plus `PopoverHeader` / `PopoverTitle` / `PopoverDescription`) into a single drop-anywhere component: wrap any element as the trigger, then compose the popup with the `title`, `description`, `content`, and `footer` slots.
+Popover provides one rich floating-content API with two interaction adapters. The default click mode uses shadcn Popover for editable or interactive content. `interaction="hover"` uses shadcn Hover Card / Base UI Preview Card for supplemental link previews opened by hover or focus. Both modes keep the same trigger, content slots, positioning, and open-state vocabulary.
 
 <ExamplePreview name="popover-demo" />
 
@@ -14,40 +14,17 @@ With the [`@easy-shadcn` namespace](/docs/installation) configured:
 pnpm dlx shadcn@latest add @easy-shadcn/popover
 ```
 
-Or install via the full URL (zero configuration):
+Or install via the full URL:
 
 ```shell
 pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/popover.json
 ```
 
-## Props
+The shadcn `popover` and `hover-card` primitives are installed automatically.
 
-| Prop           | Type                                                                       | Default    | Description                                                                 |
-| -------------- | -------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------- |
-| `children`     | `ReactElement`                                                             | -          | The trigger. Must be a single element — it becomes the trigger itself.     |
-| `content`      | `ReactNode`                                                                | -          | The popup body, wrapped in `data-slot="popover-body"`.                     |
-| `title`        | `ReactNode`                                                                | -          | Header title.                                                              |
-| `description`  | `ReactNode`                                                                | -          | Header description rendered below the title.                               |
-| `footer`       | `ReactNode`                                                                | -          | Footer content, wrapped in `data-slot="popover-footer"`.                   |
-| `side`         | `"top" \| "bottom" \| "left" \| "right" \| "inline-start" \| "inline-end"` | `"bottom"` | Which side of the trigger the popup is placed on.                          |
-| `sideOffset`   | `number`                                                                   | `4`        | Gap between the trigger and the popup.                                     |
-| `align`        | `"start" \| "center" \| "end"`                                             | `"center"` | Alignment along the chosen side.                                           |
-| `alignOffset`  | `number`                                                                   | `0`        | Offset along the alignment axis.                                           |
-| `anchor`       | positioning anchor                                                         | trigger    | Element the popup is positioned against, defaulting to the trigger.        |
-| `open`         | `boolean`                                                                  | -          | Controlled open state.                                                     |
-| `defaultOpen`  | `boolean`                                                                  | `false`    | Initial open state (uncontrolled).                                         |
-| `onOpenChange` | `(open: boolean, eventDetails) => void`                                    | -          | Called when the open state changes.                                        |
-| `disabled`     | `boolean`                                                                  | `false`    | Disables the trigger — the popover never opens.                            |
+## Click mode
 
-Every slot accepts a class override: `headerClassName`, `titleClassName`, `descriptionClassName`, `contentClassName` (the body), and `footerClassName`. All other props (`className`, `data-*`, event handlers, etc.) are forwarded to the popup container (`data-slot="popover-content"`).
-
-## Slot structure
-
-The popup is composed of three optional regions, in order:
-
-- **Header** — `title` (`data-slot="popover-title"`) and `description` (`data-slot="popover-description"`) together inside `data-slot="popover-header"`.
-- **Body** — `content` inside `data-slot="popover-body"`.
-- **Footer** — `footer` inside `data-slot="popover-footer"`.
+Click mode is the default and preserves the original Popover API. Use it for forms, controls, and other content the user deliberately opens and interacts with.
 
 ```tsx
 <Popover
@@ -60,9 +37,68 @@ The popup is composed of three optional regions, in order:
 </Popover>
 ```
 
+## Hover and focus mode
+
+Set `interaction="hover"` for a preview of a link destination. The Preview Card primitive owns hover intent, focus opening, safe pointer movement between the link and popup, dismissal, and open/close delays.
+
+```tsx
+<Popover
+  closeDelay={200}
+  content="Open the profile to see current projects."
+  delay={300}
+  description="easy-shadcn maintainer"
+  interaction="hover"
+  title="Simon Wong"
+>
+  <a href="/profile">Simon Wong</a>
+</Popover>
+```
+
+Hover previews are supplemental. Do not put unique or essential information in them: touch and screen-reader users cannot rely on hover-card content. The link destination must remain useful on its own.
+
+## Props
+
+### Shared
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactElement` | - | Single trigger element. Click mode commonly uses a button; hover mode should use a link. |
+| `content` | `ReactNode` | - | Popup body in `data-slot="popover-body"`. |
+| `title` | `ReactNode` | - | Optional header title. |
+| `description` | `ReactNode` | - | Optional header description. |
+| `footer` | `ReactNode` | - | Optional footer content. |
+| `side` | `"top" \| "bottom" \| "left" \| "right" \| "inline-start" \| "inline-end"` | `"bottom"` | Popup side. |
+| `sideOffset` | `number` | `4` | Gap from the trigger. |
+| `align` | `"start" \| "center" \| "end"` | `"center"` | Alignment along the chosen side. |
+| `alignOffset` | `number` | mode default | Offset along the alignment axis. Click defaults to `0`; hover defaults to `4`. |
+| `open` | `boolean` | - | Controlled open state. |
+| `defaultOpen` | `boolean` | `false` | Initial uncontrolled state. |
+| `onOpenChange` | primitive callback | - | Exact callback for the selected primitive adapter. |
+
+Every slot accepts a class override: `headerClassName`, `titleClassName`, `descriptionClassName`, `contentClassName` for the body, and `footerClassName`. Remaining popup props such as `className`, `data-*`, and event handlers are forwarded to `data-slot="popover-content"`.
+
+### Interaction discriminator
+
+| Mode | Extra props | Excluded props |
+| --- | --- | --- |
+| `interaction="click"` or omitted | `disabled` | `delay`, `closeDelay` |
+| `interaction="hover"` | `delay` (`600` ms), `closeDelay` (`300` ms) | `disabled` |
+
+The TypeScript union enforces this boundary. Changing a click popover to a hover preview keeps all shared props and adds only the `interaction` discriminator.
+
+## Slot structure
+
+Both adapters expose the same optional regions in order:
+
+- Header: `title` and `description` inside `data-slot="popover-header"`.
+- Body: `content` inside `data-slot="popover-body"`.
+- Footer: `footer` inside `data-slot="popover-footer"`.
+
+The trigger uses `data-slot="popover-trigger"`; the popup uses `data-slot="popover-content"`. No extra trigger wrapper is added.
+
 ## Notes
 
-- `children` must be a single element that forwards props and a ref (a DOM tag like `<button>`, or a component built with `forwardRef` / Base UI's `render`). It becomes the trigger directly — no extra wrapper element is added.
-- The header is only rendered when at least one of `title` or `description` is present; the body and footer are only rendered when their prop is present, so an empty region produces no markup.
-- Slot values follow React's rendering rules: `null`, `undefined`, and booleans are treated as absent, while valid falsy nodes such as `0` or `""` render normally.
-- For custom arrows, advanced positioning (collision boundary/padding, sticky), modal mode with a backdrop, or heterogeneous popup layouts, compose the `components/ui/popover` primitives directly instead.
+- `children` must forward props and a ref. Hover mode should receive an anchor whose destination contains the complete information.
+- Click titles and descriptions use the Popover dialog semantics. Hover titles and descriptions are ordinary preview content rather than dialog labels.
+- `null`, `undefined`, and booleans omit a slot; valid falsy nodes such as `0` and `""` render.
+- Use `Tooltip` for concise descriptive text. Use the underlying primitives for custom arrows, modal backdrops, payload-driven shared preview cards, custom trigger handles, or heterogeneous layouts.

@@ -32,6 +32,22 @@ const Demo = () => (
     <Popover content="This one starts open via defaultOpen." defaultOpen>
       <AsyncButton variant="outline">Default open</AsyncButton>
     </Popover>
+
+    <Popover
+      closeDelay={200}
+      content="Open the profile to see current projects and activity."
+      delay={200}
+      description="easy-shadcn maintainer"
+      interaction="hover"
+      title="Simon Wong"
+    >
+      <a
+        className="inline-flex h-8 items-center rounded-md border px-3 font-medium text-sm underline-offset-4 hover:underline"
+        href="#profile"
+      >
+        Preview profile
+      </a>
+    </Popover>
   </div>
 );
 

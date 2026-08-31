@@ -1,11 +1,29 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { Popover } from "./popover";
+import {
+  Popover,
+  type PopoverClickProps,
+  type PopoverHoverProps,
+} from "./popover";
 
-const renderPopover = (props: Partial<Parameters<typeof Popover>[0]> = {}) =>
+const renderPopover = (props: Partial<PopoverClickProps> = {}) =>
   render(
     <Popover content="Popover body" {...props}>
       <button type="button">Trigger</button>
+    </Popover>
+  );
+
+const renderHoverPopover = (props: Partial<PopoverHoverProps> = {}) =>
+  render(
+    <Popover
+      closeDelay={0}
+      content="Profile preview"
+      delay={0}
+      interaction="hover"
+      {...props}
+    >
+      <a href="/profile">Simon</a>
     </Popover>
   );
 
@@ -184,6 +202,168 @@ describe("Popover", () => {
       expect(slot("popover-description")?.className).toContain("description-x");
       expect(slot("popover-body")?.className).toContain("body-x");
       expect(slot("popover-footer")?.className).toContain("footer-x");
+    });
+  });
+
+  describe("hover interaction", () => {
+    it("renders the child link as the trigger without an extra wrapper", () => {
+      renderHoverPopover();
+
+      const trigger = screen.getByRole("link", { name: "Simon" });
+      expect(trigger.getAttribute("data-slot")).toBe("popover-trigger");
+      expect(screen.getAllByRole("link")).toHaveLength(1);
+    });
+
+    it("opens on hover and reports the primitive reason", async () => {
+      const onOpenChange = vi.fn();
+      renderHoverPopover({ onOpenChange });
+
+      fireEvent.mouseEnter(screen.getByRole("link", { name: "Simon" }));
+
+      await waitFor(() =>
+        expect(screen.getByText("Profile preview")).toBeTruthy()
+      );
+      expect(onOpenChange).toHaveBeenCalledWith(
+        true,
+        expect.objectContaining({ reason: "trigger-hover" })
+      );
+    });
+
+    it("opens an uncontrolled preview when the child owns an id", async () => {
+      render(
+        <Popover content="Explicit id preview" delay={0} interaction="hover">
+          <a href="/explicit" id="explicit-profile-link">
+            Explicit link
+          </a>
+        </Popover>
+      );
+
+      fireEvent.mouseEnter(screen.getByRole("link", { name: "Explicit link" }));
+
+      await waitFor(() =>
+        expect(screen.getByText("Explicit id preview")).toBeTruthy()
+      );
+    });
+
+    it("opens on focus for keyboard users", async () => {
+      renderHoverPopover();
+
+      fireEvent.focus(screen.getByRole("link", { name: "Simon" }));
+
+      await waitFor(() =>
+        expect(screen.getByText("Profile preview")).toBeTruthy()
+      );
+    });
+
+    it("closes after pointer leaves the trigger", async () => {
+      renderHoverPopover();
+      const trigger = screen.getByRole("link", { name: "Simon" });
+
+      fireEvent.mouseEnter(trigger);
+      await screen.findByText("Profile preview");
+      fireEvent.mouseLeave(trigger);
+
+      await waitFor(() =>
+        expect(screen.queryByText("Profile preview")).toBeNull()
+      );
+    });
+
+    it("supports controlled open state without caller-owned trigger ids", () => {
+      renderHoverPopover({ open: true });
+
+      expect(screen.getByText("Profile preview")).toBeTruthy();
+    });
+
+    it("supports defaultOpen without a caller-owned trigger id", () => {
+      renderHoverPopover({ defaultOpen: true });
+
+      expect(screen.getByText("Profile preview")).toBeTruthy();
+    });
+
+    it("uses an explicit child id for initially open adapter state", () => {
+      render(
+        <Popover content="Named preview" defaultOpen interaction="hover">
+          <a href="/named" id="profile-link">
+            Named link
+          </a>
+        </Popover>
+      );
+
+      expect(screen.getByRole("link", { name: "Named link" }).id).toBe(
+        "profile-link"
+      );
+      expect(screen.getByText("Named preview")).toBeTruthy();
+    });
+
+    it("routes hover open requests through controlled state", async () => {
+      const Controlled = () => {
+        const [open, setOpen] = useState(false);
+
+        return (
+          <Popover
+            content="Controlled preview"
+            delay={0}
+            interaction="hover"
+            onOpenChange={(nextOpen) => setOpen(nextOpen)}
+            open={open}
+          >
+            <a href="/controlled">Controlled link</a>
+          </Popover>
+        );
+      };
+
+      render(<Controlled />);
+      fireEvent.mouseEnter(
+        screen.getByRole("link", { name: "Controlled link" })
+      );
+
+      await waitFor(() =>
+        expect(screen.getByText("Controlled preview")).toBeTruthy()
+      );
+    });
+
+    it("keeps an explicit child id in controlled hover state", () => {
+      render(
+        <Popover content="Controlled named preview" interaction="hover" open>
+          <a href="/controlled-named" id="controlled-profile-link">
+            Controlled named link
+          </a>
+        </Popover>
+      );
+
+      expect(
+        screen.getByRole("link", { name: "Controlled named link" }).id
+      ).toBe("controlled-profile-link");
+      expect(screen.getByText("Controlled named preview")).toBeTruthy();
+    });
+
+    it("uses the unified slot structure and forwards popup props", () => {
+      renderHoverPopover({
+        className: "popup-x",
+        content: "Body",
+        contentClassName: "body-x",
+        description: "Description",
+        descriptionClassName: "description-x",
+        footer: "Footer",
+        footerClassName: "footer-x",
+        headerClassName: "header-x",
+        open: true,
+        side: "top",
+        title: "Title",
+        titleClassName: "title-x",
+      });
+
+      expect(slot("popover-header")?.className).toContain("header-x");
+      expect(slot("popover-title")?.className).toContain("title-x");
+      expect(slot("popover-description")?.className).toContain("description-x");
+      expect(slot("popover-body")?.className).toContain("body-x");
+      expect(slot("popover-footer")?.className).toContain("footer-x");
+      expect(slot("popover-content")?.className).toContain("popup-x");
+      expect(
+        slot("popover-content")
+          ?.closest("[data-side]")
+          ?.getAttribute("data-side")
+      ).toBe("top");
     });
   });
 });
