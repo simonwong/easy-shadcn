@@ -15,7 +15,6 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 
 | Priority | Capability | Next decision or module | Compose value |
 | --- | --- | --- | --- |
-| P1 | Modal ownership | Prevent `confirmProps` / `cancelProps` from replacing Compose-owned `onClick` wiring. | High |
 | P1 | Existing Compose depth | Audit current modules for AsyncButton-like behavioural leverage or ownership bugs; do not add props for shallow parity. | Varies |
 
 ## Completed decisions
@@ -27,6 +26,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-08-31 | Toast | Shipped one Base UI-backed global queue with a stable callable facade for status, id upserts, update, close, action, and Promise lifecycles. |
 | 2026-08-31 | Popover family | Shipped one `Popover` Interface with separate click and hover/focus primitive adapters. Tooltip remains separate; Hover Card has no second Compose registration. |
 | 2026-08-31 | Slider | Shipped a scalar-preserving `multiple=true` branch with array callbacks, per-thumb accessible names, native multi-value forms, minimum spacing, and collision policy. |
+| 2026-08-31 | Modal ownership | Narrowed and runtime-sanitized Modal and AlertModal action prop bags so labels, raw HTML, and click handlers cannot replace Compose-owned action/close wiring. |
 
 ## Compose: current and planned
 
@@ -34,7 +34,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | --- | --- | --- | --- | --- | --- |
 | Disclosure | Accordion, Collapsible | `Accordion` | Keep | Low | A one-item Accordion covers the common Collapsible task; heterogeneous structure escapes to Primitive. |
 | Alert | Alert | `Alert` | Keep | Low | Presentational convenience only. |
-| Modal feedback | Dialog, Alert Dialog | `Modal`, `AlertDialog` | Keep; fix Modal ownership | High | Dialog maps to imperative Modal handling; Alert Dialog remains the confirm/cancel specialization. `Modal` button prop bags must not override its internal action wiring. |
+| Modal feedback | Dialog, Alert Dialog | `Modal`, `AlertDialog` | Keep | High | Dialog maps to imperative Modal handling; Alert Dialog remains the confirm/cancel specialization. Modal and AlertModal action prop bags enforce Compose-owned labels and action/close wiring. |
 | Identity media | Avatar | `Avatar` | Keep | Low | Preserve current wrapper; no broader media abstraction. |
 | Breadcrumb navigation | Breadcrumb | `Breadcrumb` | Keep | Low | Homogeneous navigation items only. |
 | Date selection | Calendar, Date Picker | `Calendar`, `DatePicker` | Keep | High | DatePicker composes Calendar with input/popover state; Calendar remains useful alone. |

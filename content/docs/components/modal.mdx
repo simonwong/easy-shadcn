@@ -12,7 +12,7 @@ With the [`@easy-shadcn` namespace](/docs/installation) configured:
 pnpm dlx shadcn@latest add @easy-shadcn/modal
 ```
 
-Or install via the full URL (zero configuration):
+The full URL also works after the `@easy-shadcn` namespace is configured; the mapping is required to resolve the internal `async-button` dependency:
 
 ```shell
 pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/modal.json
@@ -94,7 +94,7 @@ Any component created with `Modal.create` can be driven imperatively — `useMod
 | `footer` | `ReactNode` | - | Replaces the default footer entirely. |
 | `onConfirm` / `onCancel` | `() => void \| Promise<void>` | - | Enables the default OK/Cancel footer. Async handlers show a pending state; a rejection keeps the modal open. |
 | `confirmText` / `cancelText` | `ReactNode` | `"OK"` / `"Cancel"` | Default footer button labels. |
-| `confirmProps` / `cancelProps` | `AsyncButtonProps` | - | Extra props for the default footer buttons (e.g. `{ variant: "destructive" }`). |
+| `confirmProps` / `cancelProps` | `Omit<AsyncButtonProps, "children" \| "dangerouslySetInnerHTML" \| "onClick">` | - | Extra props for the default footer buttons (e.g. `{ variant: "destructive" }`). |
 | `open` / `defaultOpen` / `onOpenChange` | - | - | Controlled / uncontrolled open state. |
 | `trigger` | `ReactElement` | - | Rendered as the `DialogTrigger`. |
 | `showCloseButton` | `boolean` | `true` | The top-right close button. |
@@ -102,6 +102,8 @@ Any component created with `Modal.create` can be driven imperatively — `useMod
 | `onOpenChangeComplete` | `(open: boolean) => void` | - | Base UI's post-transition hook, fired after the open/close animation completes. Forwarded to the underlying Dialog. |
 
 Class overrides: `className` (dialog content), `headerClassName`, `titleClassName`, `descriptionClassName`, `contentClassName` (body), `footerClassName`.
+
+Modal owns default-footer behavior and labels. Use `onConfirm` / `onCancel` for actions and `confirmText` / `cancelText` for labels; those paths cannot be replaced through the button prop bags. Use `footer` when the whole action row must be custom. Other `AsyncButton` props remain available, including `variant`, `loading`, `disabled`, icons, `type`, `form`, and `render`.
 
 ### `AlertModal`
 

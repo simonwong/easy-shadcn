@@ -120,11 +120,11 @@ behavior, or repeated accessibility wiring.
 These are not reasons to grow the product surface, but they should become
 maintenance work:
 
-1. [`Modal`](../../registry/ui/modal/modal.tsx) still types `cancelProps` and
-   `confirmProps` as the full AsyncButton props and spreads them after its own
-   `onClick`. A caller can therefore override confirm/cancel + close wiring.
-   Narrow both bags with `Omit<..., "children" | "onClick">`, matching the
-   corrected AlertDialog pattern and ADR-0004's ownership rule.
+1. **Resolved:** [`Modal`](../../registry/ui/modal/modal.tsx) and AlertModal now
+   narrow `cancelProps` / `confirmProps` by omitting `children`,
+   `dangerouslySetInnerHTML`, and `onClick`, then strip those keys at runtime.
+   Callers use the dedicated text and action props, so button bags cannot
+   replace labels, crash rendering through raw HTML, or bypass close wiring.
 2. [ADR-0004](../adr/0004-props-vocabulary.md) previously called AlertDialog's
    button bags unsafe and Tabs' item field `label`. Current source has already
    fixed both; the roadmap/ADR integration refreshed those stale consequence

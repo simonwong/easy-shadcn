@@ -8,7 +8,12 @@ import {
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import AlertModalHelper from "./alert-modal-helper";
-import { AlertModal, Modal } from "./index";
+import {
+  AlertModal,
+  type AlertModalProps,
+  Modal,
+  type ModalProps,
+} from "./index";
 
 const deferred = () => {
   let resolve!: () => void;
@@ -115,6 +120,54 @@ describe("Modal", () => {
     expect(screen.getByText("Custom footer")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "OK" })).toBeNull();
   });
+
+  it("owns both action labels and click wiring at runtime", async () => {
+    const hostileClick = vi.fn();
+    const onCancel = vi.fn();
+    const onConfirm = vi.fn();
+    const onOpenChange = vi.fn();
+    const hostileProps = {
+      children: "Replace",
+      className: "action-x",
+      dangerouslySetInnerHTML: { __html: "Replace" },
+      onClick: hostileClick,
+      variant: "destructive",
+    } as unknown as NonNullable<ModalProps["confirmProps"]>;
+
+    render(
+      <Modal
+        cancelProps={hostileProps}
+        cancelText="Dismiss"
+        confirmProps={hostileProps}
+        confirmText="Save"
+        onCancel={onCancel}
+        onConfirm={onConfirm}
+        onOpenChange={onOpenChange}
+        open
+        title="Owned actions"
+      />
+    );
+
+    const cancel = screen.getByRole("button", { name: "Dismiss" });
+    const confirm = screen.getByRole("button", { name: "Save" });
+    expect(cancel.className).toContain("action-x");
+    expect(cancel.className).toContain("bg-destructive/10");
+
+    fireEvent.click(cancel);
+    await waitFor(() => {
+      expect(onCancel).toHaveBeenCalledTimes(1);
+    });
+    fireEvent.click(confirm);
+    await waitFor(() => {
+      expect(onConfirm).toHaveBeenCalledTimes(1);
+    });
+
+    expect(onOpenChange).toHaveBeenCalledTimes(2);
+    expect(onOpenChange).toHaveBeenNthCalledWith(1, false);
+    expect(onOpenChange).toHaveBeenNthCalledWith(2, false);
+    expect(hostileClick).not.toHaveBeenCalled();
+    expect(screen.queryByText("Replace")).toBeNull();
+  });
 });
 
 describe("AlertModal", () => {
@@ -157,6 +210,54 @@ describe("AlertModal", () => {
     );
 
     expect(screen.getByRole("button", { name: "Delete" })).toBeTruthy();
+  });
+
+  it("owns both action labels and click wiring at runtime", async () => {
+    const hostileClick = vi.fn();
+    const onCancel = vi.fn();
+    const onConfirm = vi.fn();
+    const onOpenChange = vi.fn();
+    const hostileProps = {
+      children: "Replace",
+      className: "action-x",
+      dangerouslySetInnerHTML: { __html: "Replace" },
+      onClick: hostileClick,
+      variant: "destructive",
+    } as unknown as NonNullable<AlertModalProps["confirmProps"]>;
+
+    render(
+      <AlertModal
+        cancelProps={hostileProps}
+        cancelText="Dismiss alert"
+        confirmProps={hostileProps}
+        confirmText="Save alert"
+        onCancel={onCancel}
+        onConfirm={onConfirm}
+        onOpenChange={onOpenChange}
+        open
+        title="Owned alert actions"
+      />
+    );
+
+    const cancel = screen.getByRole("button", { name: "Dismiss alert" });
+    const confirm = screen.getByRole("button", { name: "Save alert" });
+    expect(cancel.className).toContain("action-x");
+    expect(cancel.className).toContain("bg-destructive/10");
+
+    fireEvent.click(cancel);
+    await waitFor(() => {
+      expect(onCancel).toHaveBeenCalledTimes(1);
+    });
+    fireEvent.click(confirm);
+    await waitFor(() => {
+      expect(onConfirm).toHaveBeenCalledTimes(1);
+    });
+
+    expect(onOpenChange).toHaveBeenCalledTimes(2);
+    expect(onOpenChange).toHaveBeenNthCalledWith(1, false);
+    expect(onOpenChange).toHaveBeenNthCalledWith(2, false);
+    expect(hostileClick).not.toHaveBeenCalled();
+    expect(screen.queryByText("Replace")).toBeNull();
   });
 });
 

@@ -20,27 +20,38 @@ import {
 import { cn } from "@/lib/utils";
 import { AsyncButton } from "../async-button";
 
+type ModalActionProps = Omit<
+  ComponentProps<typeof AsyncButton>,
+  "children" | "dangerouslySetInnerHTML" | "onClick"
+>;
+
+const getSafeActionProps = (
+  props: ModalActionProps | undefined
+): ModalActionProps => {
+  const {
+    children: _ignoredChildren,
+    dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+    onClick: _ignoredOnClick,
+    ...safeProps
+  } = (props ?? {}) as ComponentProps<typeof AsyncButton>;
+
+  return safeProps;
+};
+
 export interface ModalProps {
   /**
-   * Base UI Dialog's post-transition hook — fires after the open/close
-   * animation completes (with the resulting `open` state). Forwarded straight
-   * to the underlying Dialog. command-modal's adapter wires teardown here.
+   * Extra props for the default footer's cancel AsyncButton. The label, raw
+   * HTML, and click handler are Compose-owned; use cancelText and onCancel.
    */
-  onOpenChangeComplete?: (open: boolean) => void;
-  /**
-   * Extra props for the default footer's cancel AsyncButton. Passing
-   * `onClick` replaces the built-in close handler — prefer `onCancel`.
-   */
-  cancelProps?: ComponentProps<typeof AsyncButton>;
+  cancelProps?: ModalActionProps;
   cancelText?: ReactNode;
   children?: ReactNode;
   className?: ClassValue;
   /**
-   * Extra props for the default footer's confirm AsyncButton. Passing
-   * `onClick` replaces the built-in confirm-and-close handler — prefer
-   * `onConfirm`.
+   * Extra props for the default footer's confirm AsyncButton. The label, raw
+   * HTML, and click handler are Compose-owned; use confirmText and onConfirm.
    */
-  confirmProps?: ComponentProps<typeof AsyncButton>;
+  confirmProps?: ModalActionProps;
   confirmText?: ReactNode;
   contentClassName?: ClassValue;
   defaultOpen?: boolean;
@@ -65,6 +76,12 @@ export interface ModalProps {
    */
   onConfirm?: () => void | Promise<void>;
   onOpenChange?: (open: boolean) => void;
+  /**
+   * Base UI Dialog's post-transition hook — fires after the open/close
+   * animation completes (with the resulting `open` state). Forwarded straight
+   * to the underlying Dialog. command-modal's adapter wires teardown here.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
   open?: boolean;
   showCloseButton?: boolean;
   title?: ReactNode;
@@ -119,26 +136,28 @@ export const Modal: React.FC<ModalProps> = ({
     cancelText !== undefined ||
     confirmProps !== undefined ||
     cancelProps !== undefined;
+  const safeCancelProps = getSafeActionProps(cancelProps);
+  const safeConfirmProps = getSafeActionProps(confirmProps);
   const footerNode =
     footer ??
     (hasDefaultFooter ? (
       <>
         <AsyncButton
+          {...safeCancelProps}
           onClick={async () => {
             await onCancel?.();
             close();
           }}
-          variant="outline"
-          {...cancelProps}
+          variant={safeCancelProps.variant ?? "outline"}
         >
           {cancelText ?? "Cancel"}
         </AsyncButton>
         <AsyncButton
+          {...safeConfirmProps}
           onClick={async () => {
             await onConfirm?.();
             close();
           }}
-          {...confirmProps}
         >
           {confirmText ?? "OK"}
         </AsyncButton>

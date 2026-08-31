@@ -6,7 +6,7 @@ description: Configure the @easy-shadcn registry and install components.
 easy-shadcn components are distributed through the shadcn CLI. You can install them in two ways:
 
 - **Recommended**: Configure the `@easy-shadcn` namespace once, then install any component with a short command.
-- **Quick try**: Install directly via the full JSON URL — no configuration required.
+- **Quick try**: Install a standalone component directly via its full JSON URL. Components with internal `@easy-shadcn/*` dependencies still require the namespace mapping.
 
 ## Recommended: Configure the `@easy-shadcn` Namespace
 
@@ -37,16 +37,15 @@ If you'd rather not edit the file manually, run this command once at your projec
 node -e 'const f="components.json",fs=require("fs"),c=JSON.parse(fs.readFileSync(f,"utf8"));c.registries={...c.registries,"@easy-shadcn":"https://easy-shadcn.vercel.app/r/{name}.json"};fs.writeFileSync(f,JSON.stringify(c,null,2)+"\n")'
 ```
 
-## Alternative: Install via Full URL
+## Alternative: Install a Standalone Component via Full URL
 
-You can skip the namespace config entirely and pass the JSON URL to the shadcn CLI:
+You can skip the namespace config for a component whose registry dependencies are all built into shadcn:
 
 ```shell
 pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/card.json
-pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/modal.json
 ```
 
-Zero configuration, but you'll need to type the full URL every time.
+The CLI still resolves internal dependencies by their declared names. Components such as `modal`, which depends on `@easy-shadcn/async-button`, therefore need the namespace mapping even when the top-level item is addressed by full URL. The recommended namespace setup works for every component.
 
 ## Why Namespaced?
 

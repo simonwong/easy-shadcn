@@ -20,25 +20,37 @@ import {
 import { cn } from "@/lib/utils";
 import { AsyncButton } from "../async-button";
 
+type AlertModalActionProps = Omit<
+  ComponentProps<typeof AsyncButton>,
+  "children" | "dangerouslySetInnerHTML" | "onClick"
+>;
+
+const getSafeActionProps = (
+  props: AlertModalActionProps | undefined
+): AlertModalActionProps => {
+  const {
+    children: _ignoredChildren,
+    dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+    onClick: _ignoredOnClick,
+    ...safeProps
+  } = (props ?? {}) as ComponentProps<typeof AsyncButton>;
+
+  return safeProps;
+};
+
 export interface AlertModalProps {
   /**
-   * Base UI AlertDialog's post-transition hook — fires after the open/close
-   * animation completes (with the resulting `open` state). Forwarded straight
-   * to the underlying AlertDialog. command-modal's adapter wires teardown here.
+   * Extra props for the cancel AsyncButton. The label, raw HTML, and click
+   * handler are Compose-owned; use cancelText and onCancel.
    */
-  onOpenChangeComplete?: (open: boolean) => void;
-  /**
-   * Extra props for the cancel AsyncButton. Passing `onClick` replaces the
-   * built-in close handler — prefer `onCancel`.
-   */
-  cancelProps?: ComponentProps<typeof AsyncButton>;
+  cancelProps?: AlertModalActionProps;
   cancelText?: ReactNode;
   className?: ClassValue;
   /**
-   * Extra props for the confirm AsyncButton. Passing `onClick` replaces the
-   * built-in confirm-and-close handler — prefer `onConfirm`.
+   * Extra props for the confirm AsyncButton. The label, raw HTML, and click
+   * handler are Compose-owned; use confirmText and onConfirm.
    */
-  confirmProps?: ComponentProps<typeof AsyncButton>;
+  confirmProps?: AlertModalActionProps;
   confirmText?: ReactNode;
   defaultOpen?: boolean;
   description?: ReactNode;
@@ -60,6 +72,12 @@ export interface AlertModalProps {
    */
   onConfirm?: () => void | Promise<void>;
   onOpenChange?: (open: boolean) => void;
+  /**
+   * Base UI AlertDialog's post-transition hook — fires after the open/close
+   * animation completes (with the resulting `open` state). Forwarded straight
+   * to the underlying AlertDialog. command-modal's adapter wires teardown here.
+   */
+  onOpenChangeComplete?: (open: boolean) => void;
   open?: boolean;
   /** Hide the cancel button for single-action alerts. @default true */
   showCancel?: boolean;
@@ -104,6 +122,8 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   };
 
   const close = () => handleOpenChange(false);
+  const safeCancelProps = getSafeActionProps(cancelProps);
+  const safeConfirmProps = getSafeActionProps(confirmProps);
 
   return (
     <AlertDialog
@@ -135,22 +155,22 @@ export const AlertModal: React.FC<AlertModalProps> = ({
             <>
               {showCancel && (
                 <AsyncButton
+                  {...safeCancelProps}
                   onClick={async () => {
                     await onCancel?.();
                     close();
                   }}
-                  variant="outline"
-                  {...cancelProps}
+                  variant={safeCancelProps.variant ?? "outline"}
                 >
                   {cancelText ?? "Cancel"}
                 </AsyncButton>
               )}
               <AsyncButton
+                {...safeConfirmProps}
                 onClick={async () => {
                   await onConfirm?.();
                   close();
                 }}
-                {...confirmProps}
               >
                 {confirmText ?? "OK"}
               </AsyncButton>
