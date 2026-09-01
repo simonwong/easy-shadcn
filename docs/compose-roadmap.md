@@ -39,6 +39,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-09-02 | Calendar interface ownership | Reserved the primitive caption layout, component adapters, root marker, date library, six-week grid, navigation visibility, and caption formatter at type and runtime seams while preserving DayPicker selection unions and safe root/formatter customization. |
 | 2026-09-02 | Calendar customization fidelity | Preserved primitive caption class/style/animation data and routed custom month/year triggers, panels, options, and decade labels through DayPicker's resolved labels/formatters with locale, numerals, and time-zone context. |
 | 2026-09-02 | Calendar navigation state | Routed time-zone-aware custom month/year/decade mutations through DayPicker, separated visual indices from chronological offsets, and fixed disable, reverse-order, partial-decade, month-bound, actual-slot, stale-view, and reset-token behavior. |
+| 2026-09-02 | Field ownership | Protected the generated group role, root slot/orientation/disabled/invalid markers, raw-HTML boundary, and flat-control id/description/invalid wiring while preserving composition children, ordinary root props, primitive-slot exports, and opaque caller control behavior. |
 
 ## Compose: current and planned
 
