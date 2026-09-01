@@ -6,7 +6,7 @@ The repository uses shadcn's `base-nova` style. Its current Toast primitive is b
 
 `Toast` mounts one application-wide Base UI provider and renderer. A callable `toast` facade exposes add, status helpers, update, close, and Promise transitions while keeping title mapping and status names stable. The facade delegates queue state to Base UI; it does not duplicate the store.
 
-Actions use `action.label` and `action.onClick`. `actionButtonProps` omits `children`, `dangerouslySetInnerHTML`, and `onClick` at the type boundary, and the runtime adapter discards injected values for those keys. A successful action closes its notification; `event.preventDefault()` keeps it open. Promise state React nodes consistently map to the title, while object states explicitly name `title` and optional notification fields. Promise transitions delegate to Base UI's manager so resolver failures and close/update races retain the primitive's tested lifecycle.
+Actions use `action.label` and `action.onClick`. `actionButtonProps` omits the Compose-owned element, role/disabled semantics, primitive slot, label, raw HTML, and click keys at the type boundary; the runtime adapter discards injected values for the same keys. A successful action closes its notification; `event.preventDefault()` keeps it open. Promise state React nodes consistently map to the title, while object states explicitly name `title` and optional notification fields. Promise transitions delegate to Base UI's manager so resolver failures and close/update races retain the primitive's tested lifecycle.
 
 The Compose owner is one global queue. Scoped managers, anchored notifications, custom rendering, arbitrary data, and primitive-part styling remain Primitive escape paths.
 

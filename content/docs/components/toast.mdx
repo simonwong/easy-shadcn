@@ -79,7 +79,7 @@ toast("Draft saved", {
 })
 ```
 
-`actionButtonProps` accepts shadcn Button props except `children`, `dangerouslySetInnerHTML`, and `onClick`; those keys cannot replace Compose-owned wiring.
+`actionButtonProps` accepts supported shadcn Button styling/form props. Toast owns the native action element, role/disabled semantics, primitive slot, label, raw HTML, and click wiring; those keys are rejected at type and runtime boundaries.
 
 ## Promise lifecycle
 
@@ -120,7 +120,7 @@ Each state accepts a React node. Object states require `title` and may add `desc
 | `timeout` | `number` | Per-notification timeout override. |
 | `priority` | `"low" \| "high"` | Polite or urgent screen-reader announcement priority. |
 | `action` | `{ label, onClick? }` | Optional action; closes by default after activation. |
-| `actionButtonProps` | shadcn Button props | Button attributes except Compose-owned `children`, `dangerouslySetInnerHTML`, and `onClick`. |
+| `actionButtonProps` | shadcn Button props | Supported styling/form attributes; Compose-owned element, role/disabled semantics, slot, label, raw HTML, and click keys are excluded. |
 | `onClose` | `() => void` | Runs when close begins. |
 | `onRemove` | `() => void` | Runs after the closing transition removes the notification. |
 

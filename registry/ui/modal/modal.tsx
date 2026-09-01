@@ -22,7 +22,7 @@ import { AsyncButton } from "../async-button";
 
 type ModalActionProps = Omit<
   ComponentProps<typeof AsyncButton>,
-  "children" | "dangerouslySetInnerHTML" | "onClick"
+  "children" | "onClick"
 >;
 
 const getSafeActionProps = (
@@ -30,7 +30,6 @@ const getSafeActionProps = (
 ): ModalActionProps => {
   const {
     children: _ignoredChildren,
-    dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
     onClick: _ignoredOnClick,
     ...safeProps
   } = (props ?? {}) as ComponentProps<typeof AsyncButton>;

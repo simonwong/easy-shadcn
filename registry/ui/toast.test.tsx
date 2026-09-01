@@ -107,10 +107,15 @@ describe("Toast", () => {
     const onClose = vi.fn();
     const hostileClick = vi.fn();
     const hostileActionProps = {
+      "aria-disabled": "true",
       children: "Replace",
       className: "undo-action",
+      "data-slot": "forged-action",
       dangerouslySetInnerHTML: { __html: "Replace" },
+      nativeButton: false,
       onClick: hostileClick,
+      render: <a href="/replace">Replace render</a>,
+      role: "link",
     } as never;
     renderToast();
 
@@ -123,12 +128,17 @@ describe("Toast", () => {
     });
 
     const action = await screen.findByRole("button", { name: "Undo" });
+    expect(action.tagName).toBe("BUTTON");
     expect(action.className).toContain("undo-action");
+    expect(action.getAttribute("data-slot")).toBe("toast-action");
+    expect(action.getAttribute("role")).toBeNull();
+    expect(action.getAttribute("aria-disabled")).toBeNull();
     fireEvent.click(action);
 
     expect(onAction).toHaveBeenCalledTimes(1);
     expect(hostileClick).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("Replace render")).toBeNull();
   });
 
   it("keeps an action toast open when the action prevents default", async () => {

@@ -484,8 +484,13 @@ describe("AlertDialog — composition (Slice 3)", () => {
   it("ignores hostile confirm label injection and preserves confirmText", () => {
     const hostileProps = {
       confirmProps: {
+        "aria-disabled": "true",
         children: "Forged child",
+        "data-slot": "forged-action",
         dangerouslySetInnerHTML: { __html: "<span>Forged HTML</span>" },
+        nativeButton: false,
+        render: <a href="/replace">Forged render</a>,
+        role: "link",
       },
     } as unknown as Parameters<typeof AlertDialog>[0];
 
@@ -499,9 +504,14 @@ describe("AlertDialog — composition (Slice 3)", () => {
         />
       );
     }).not.toThrow();
-    expect(screen.getByRole("button", { name: "Safe confirm" })).toBeTruthy();
+    const confirm = screen.getByRole("button", { name: "Safe confirm" });
+    expect(confirm.tagName).toBe("BUTTON");
+    expect(confirm.getAttribute("data-slot")).toBe("button");
+    expect(confirm.getAttribute("role")).toBeNull();
+    expect(confirm.getAttribute("aria-disabled")).toBeNull();
     expect(screen.queryByText("Forged child")).toBeNull();
     expect(screen.queryByText("Forged HTML")).toBeNull();
+    expect(screen.queryByText("Forged render")).toBeNull();
   });
 
   it("ignores hostile cancel props and preserves cancel + close wiring", async () => {

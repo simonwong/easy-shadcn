@@ -127,10 +127,15 @@ describe("Modal", () => {
     const onConfirm = vi.fn();
     const onOpenChange = vi.fn();
     const hostileProps = {
+      "aria-disabled": "true",
       children: "Replace",
       className: "action-x",
+      "data-slot": "forged-action",
       dangerouslySetInnerHTML: { __html: "Replace" },
+      nativeButton: false,
       onClick: hostileClick,
+      render: <a href="/replace">Replace render</a>,
+      role: "link",
       variant: "destructive",
     } as unknown as NonNullable<ModalProps["confirmProps"]>;
 
@@ -150,8 +155,13 @@ describe("Modal", () => {
 
     const cancel = screen.getByRole("button", { name: "Dismiss" });
     const confirm = screen.getByRole("button", { name: "Save" });
+    expect(cancel.tagName).toBe("BUTTON");
+    expect(confirm.tagName).toBe("BUTTON");
     expect(cancel.className).toContain("action-x");
     expect(cancel.className).toContain("bg-destructive/10");
+    expect(cancel.getAttribute("data-slot")).toBe("button");
+    expect(cancel.getAttribute("role")).toBeNull();
+    expect(cancel.getAttribute("aria-disabled")).toBeNull();
 
     fireEvent.click(cancel);
     await waitFor(() => {
@@ -167,6 +177,7 @@ describe("Modal", () => {
     expect(onOpenChange).toHaveBeenNthCalledWith(2, false);
     expect(hostileClick).not.toHaveBeenCalled();
     expect(screen.queryByText("Replace")).toBeNull();
+    expect(screen.queryByText("Replace render")).toBeNull();
   });
 });
 
@@ -218,10 +229,15 @@ describe("AlertModal", () => {
     const onConfirm = vi.fn();
     const onOpenChange = vi.fn();
     const hostileProps = {
+      "aria-disabled": "true",
       children: "Replace",
       className: "action-x",
+      "data-slot": "forged-action",
       dangerouslySetInnerHTML: { __html: "Replace" },
+      nativeButton: false,
       onClick: hostileClick,
+      render: <a href="/replace">Replace render</a>,
+      role: "link",
       variant: "destructive",
     } as unknown as NonNullable<AlertModalProps["confirmProps"]>;
 
@@ -241,8 +257,13 @@ describe("AlertModal", () => {
 
     const cancel = screen.getByRole("button", { name: "Dismiss alert" });
     const confirm = screen.getByRole("button", { name: "Save alert" });
+    expect(cancel.tagName).toBe("BUTTON");
+    expect(confirm.tagName).toBe("BUTTON");
     expect(cancel.className).toContain("action-x");
     expect(cancel.className).toContain("bg-destructive/10");
+    expect(cancel.getAttribute("data-slot")).toBe("button");
+    expect(cancel.getAttribute("role")).toBeNull();
+    expect(cancel.getAttribute("aria-disabled")).toBeNull();
 
     fireEvent.click(cancel);
     await waitFor(() => {
@@ -258,6 +279,7 @@ describe("AlertModal", () => {
     expect(onOpenChange).toHaveBeenNthCalledWith(2, false);
     expect(hostileClick).not.toHaveBeenCalled();
     expect(screen.queryByText("Replace")).toBeNull();
+    expect(screen.queryByText("Replace render")).toBeNull();
   });
 });
 

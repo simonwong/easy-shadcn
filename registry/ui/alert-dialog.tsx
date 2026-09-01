@@ -28,7 +28,7 @@ const hasNode = (node: ReactNode): boolean =>
 
 type AlertDialogActionProps = Omit<
   ComponentProps<typeof AsyncButton>,
-  "children" | "dangerouslySetInnerHTML" | "onClick"
+  "children" | "onClick"
 >;
 
 const getSafeActionProps = (
@@ -36,7 +36,6 @@ const getSafeActionProps = (
 ): AlertDialogActionProps => {
   const {
     children: _ignoredChildren,
-    dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
     onClick: _ignoredOnClick,
     ...safeProps
   } = (props ?? {}) as ComponentProps<typeof AsyncButton>;

@@ -95,8 +95,8 @@ behavior, or repeated accessibility wiring.
 
 | Current Compose | Owned leverage |
 | --- | --- |
-| [Alert Dialog](../../registry/ui/alert-dialog.tsx) | Owns controlled/uncontrolled open state plus async confirm/cancel completion through AsyncButton. Its button prop bags omit `children`, `dangerouslySetInnerHTML`, and `onClick`, then strip the same keys at runtime. |
-| [Async Button](../../registry/ui/async-button.tsx) | Owns promise-derived busy state, delayed loading, same-frame double-submit blocking, disabled behavior, and spinner placement. This is the reference enhancement pattern. |
+| [Alert Dialog](../../registry/ui/alert-dialog.tsx) | Owns controlled/uncontrolled open state plus async confirm/cancel completion through AsyncButton. Its action prop bags preserve supported AsyncButton customization while rejecting element/semantic replacement, labels, and click wiring at type and runtime seams. |
+| [Async Button](../../registry/ui/async-button.tsx) | Owns a native button, promise-derived busy state, delayed loading, same-frame double-submit blocking, disabled semantics, primitive slot, and spinner placement. This is the reference enhancement pattern. |
 | [Calendar](../../registry/ui/calendar.tsx) | Adds month/year/decade view state and navigation on top of react-day-picker, including keyboard/ARIA naming. |
 | [Date Picker](../../registry/ui/date-picker.tsx) | Owns popover state, single/multiple/range value plumbing, and manual-input draft/commit races. The input lifecycle is recorded in [ADR-0008](../adr/0008-date-picker-input-draft-commit.md). |
 | [Field](../../registry/ui/field.tsx) | Owns label/control/description/error ids, `aria-describedby`, `aria-invalid`, required output, and form-error normalization. |
@@ -120,12 +120,15 @@ behavior, or repeated accessibility wiring.
 These are not reasons to grow the product surface, but they should become
 maintenance work:
 
-1. **Resolved:** [`Modal`](../../registry/ui/modal/modal.tsx), AlertModal, and
-   [`AlertDialog`](../../registry/ui/alert-dialog.tsx) now
-   narrow `cancelProps` / `confirmProps` by omitting `children`,
-   `dangerouslySetInnerHTML`, and `onClick`, then strip those keys at runtime.
-   Callers use the dedicated text and action props, so button bags cannot
-   replace labels, crash rendering through raw HTML, or bypass close wiring.
+1. **Resolved:** [`AsyncButton`](../../registry/ui/async-button.tsx) now owns its
+   native button element, Promise-derived busy/disabled semantics, primitive
+   slot marker, and generated spinner structure at both type and runtime seams.
+   [`Modal`](../../registry/ui/modal/modal.tsx), AlertModal,
+   [`AlertDialog`](../../registry/ui/alert-dialog.tsx), and
+   [`Toast`](../../registry/ui/toast.tsx) apply the same ownership contract to
+   action prop bags in addition to owning action labels and click/close wiring.
+   JavaScript or `any` callers cannot restore the rejected element, raw HTML,
+   role, ARIA, slot, label, or handler paths.
 2. [ADR-0004](../adr/0004-props-vocabulary.md) previously called Tabs' item
    field `label`. Current source already uses `trigger`; the refreshed
    consequence note is not active implementation debt.

@@ -12,7 +12,6 @@ const safeProps = {
   endIcon: <span>End</span>,
   form: "alert-dialog-form",
   loading: false,
-  render: <button type="button" />,
   size: "sm" as const,
   startIcon: <span>Start</span>,
   type: "submit" as const,
@@ -28,6 +27,8 @@ acceptConfirmProps({ children: "Replace" });
 acceptConfirmProps({ dangerouslySetInnerHTML: { __html: "Replace" } });
 // @ts-expect-error AlertDialog owns confirm behavior.
 acceptConfirmProps({ onClick: () => undefined });
+// @ts-expect-error AlertDialog owns the confirm button element.
+acceptConfirmProps({ render: <a href="/replace">Replace</a> });
 
 // @ts-expect-error AlertDialog owns the cancel label.
 acceptCancelProps({ children: "Replace" });
@@ -35,3 +36,5 @@ acceptCancelProps({ children: "Replace" });
 acceptCancelProps({ dangerouslySetInnerHTML: { __html: "Replace" } });
 // @ts-expect-error AlertDialog owns cancel behavior.
 acceptCancelProps({ onClick: () => undefined });
+// @ts-expect-error AlertDialog owns the cancel button element.
+acceptCancelProps({ render: <a href="/replace">Replace</a> });

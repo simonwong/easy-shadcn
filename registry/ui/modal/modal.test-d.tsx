@@ -16,7 +16,6 @@ const safeProps = {
   endIcon: <span>End</span>,
   form: "modal-form",
   loading: false,
-  render: <button type="button" />,
   size: "sm" as const,
   startIcon: <span>Start</span>,
   type: "submit" as const,
@@ -34,6 +33,8 @@ acceptModalConfirmProps({ children: "Replace" });
 acceptModalConfirmProps({ dangerouslySetInnerHTML: { __html: "Replace" } });
 // @ts-expect-error Modal owns confirm behavior.
 acceptModalConfirmProps({ onClick: () => undefined });
+// @ts-expect-error Modal owns the confirm button element.
+acceptModalConfirmProps({ render: <a href="/replace">Replace</a> });
 
 // @ts-expect-error Modal owns the cancel label.
 acceptModalCancelProps({ children: "Replace" });
@@ -41,6 +42,8 @@ acceptModalCancelProps({ children: "Replace" });
 acceptModalCancelProps({ dangerouslySetInnerHTML: { __html: "Replace" } });
 // @ts-expect-error Modal owns cancel behavior.
 acceptModalCancelProps({ onClick: () => undefined });
+// @ts-expect-error Modal owns the cancel button element.
+acceptModalCancelProps({ render: <a href="/replace">Replace</a> });
 
 // @ts-expect-error AlertModal owns the confirm label.
 acceptAlertConfirmProps({ children: "Replace" });
@@ -48,6 +51,8 @@ acceptAlertConfirmProps({ children: "Replace" });
 acceptAlertConfirmProps({ dangerouslySetInnerHTML: { __html: "Replace" } });
 // @ts-expect-error AlertModal owns confirm behavior.
 acceptAlertConfirmProps({ onClick: () => undefined });
+// @ts-expect-error AlertModal owns the confirm button element.
+acceptAlertConfirmProps({ render: <a href="/replace">Replace</a> });
 
 // @ts-expect-error AlertModal owns the cancel label.
 acceptAlertCancelProps({ children: "Replace" });
@@ -55,3 +60,5 @@ acceptAlertCancelProps({ children: "Replace" });
 acceptAlertCancelProps({ dangerouslySetInnerHTML: { __html: "Replace" } });
 // @ts-expect-error AlertModal owns cancel behavior.
 acceptAlertCancelProps({ onClick: () => undefined });
+// @ts-expect-error AlertModal owns the cancel button element.
+acceptAlertCancelProps({ render: <a href="/replace">Replace</a> });

@@ -174,4 +174,30 @@ describe("AsyncButton", () => {
       expect(svg.getAttribute("aria-hidden")).toBe("true");
     }
   });
+
+  it("owns its button structure and derived busy state at runtime", () => {
+    const hostileProps = {
+      "aria-busy": "false",
+      "aria-disabled": "false",
+      "data-slot": "forged-button",
+      dangerouslySetInnerHTML: { __html: "Replace" },
+      nativeButton: false,
+      render: <a href="/replace">Replace render</a>,
+      role: "link",
+    } as unknown as Parameters<typeof AsyncButton>[0];
+
+    render(
+      <AsyncButton loading {...hostileProps}>
+        Save
+      </AsyncButton>
+    );
+
+    const button = screen.getByRole("button", { name: "Save" });
+    expect(button.tagName).toBe("BUTTON");
+    expect(button.getAttribute("aria-busy")).toBe("true");
+    expect(button.hasAttribute("disabled")).toBe(true);
+    expect(button.getAttribute("data-slot")).toBe("button");
+    expect(screen.queryByText("Replace")).toBeNull();
+    expect(screen.queryByText("Replace render")).toBeNull();
+  });
 });

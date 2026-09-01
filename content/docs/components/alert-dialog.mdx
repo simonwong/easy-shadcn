@@ -49,7 +49,7 @@ import { AlertDialog } from "@/components/easy/alert-dialog"
 | `onConfirm` / `onCancel` | `() => void \| Promise<void>` | - | Footer handlers. Async handlers show a pending spinner; a rejection keeps the dialog open. |
 | `confirmText` / `cancelText` | `ReactNode` | `"OK"` / `"Cancel"` | Footer button labels. |
 | `showCancel` | `boolean` | `true` | Hide the cancel button for single-action alerts. |
-| `confirmProps` / `cancelProps` | `Omit<AsyncButtonProps, "children" \| "dangerouslySetInnerHTML" \| "onClick">` | - | Extra props for the footer buttons. Labels, raw HTML, and click handlers are owned by the dialog; typed and JavaScript / `any` callers cannot replace the action or close wiring. |
+| `confirmProps` / `cancelProps` | `Omit<AsyncButtonProps, "children" \| "onClick">` | - | Extra props for the footer buttons. Button elements/semantics, labels, and click handlers are owned; typed and JavaScript / `any` callers cannot replace the action or close wiring. |
 | `footer` | `ReactNode` | - | Replaces the entire button row. When set, all button-related props are ignored. |
 | `variant` | `"default" \| "destructive"` | `"default"` | Confirm-button color sugar. `confirmProps.variant` overrides it. The cancel button defaults to `outline`; `cancelProps.variant` overrides that default. |
 | `size` | `"default" \| "sm"` | `"default"` | Forwarded to the `AlertDialogContent` primitive. |
