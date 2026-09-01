@@ -21,11 +21,21 @@ export interface AccordionItem {
   value: string;
 }
 
+interface AccordionOwnedRootProps {
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-disabled"?: never;
+  "data-orientation"?: never;
+  "data-slot"?: never;
+  render?: never;
+}
+
 export interface AccordionProps
   extends Omit<
-    AccordionPrimitive.Root.Props<string>,
-    "children" | "defaultValue" | "onValueChange" | "render" | "value"
-  > {
+      AccordionPrimitive.Root.Props<string>,
+      "defaultValue" | "onValueChange" | "value" | keyof AccordionOwnedRootProps
+    >,
+    AccordionOwnedRootProps {
   contentClassName?: ClassValue;
   defaultValue?: string[];
   itemClassName?: ClassValue;
@@ -39,14 +49,29 @@ export interface AccordionProps
 }
 
 export const Accordion = ({
+  children: _ignoredChildren,
+  "data-disabled": _ignoredDataDisabled,
+  "data-orientation": _ignoredDataOrientation,
+  "data-slot": _ignoredDataSlot,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+  disabled = false,
   items,
   itemClassName,
   triggerClassName,
   contentClassName,
   className,
+  orientation = "vertical",
+  render: _ignoredRender,
   ...rootProps
 }: AccordionProps) => (
-  <AccordionRoot className={className} {...rootProps}>
+  <AccordionRoot
+    {...rootProps}
+    className={className}
+    data-disabled={disabled ? "" : undefined}
+    data-orientation={orientation}
+    disabled={disabled}
+    orientation={orientation}
+  >
     {items.map((item) => (
       <AccordionItemPrimitive
         className={cn(itemClassName, item.itemClassName)}

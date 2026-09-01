@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { Tabs, type TabsItem } from "./tabs";
+import { Tabs, type TabsItem, type TabsProps } from "./tabs";
 
 const baseItems: TabsItem[] = [
   { content: "First content", trigger: "First", value: "first" },
@@ -119,5 +119,37 @@ describe("Tabs", () => {
     const panel = container.querySelector('[data-slot="tabs-content"]');
     expect(panel?.className).toContain("content-root");
     expect(panel?.className).toContain("content-item");
+  });
+
+  it("owns its generated root structure and state markers at runtime", () => {
+    const hostileProps = {
+      children: "Forged child",
+      "data-activation-direction": "forged",
+      "data-orientation": "vertical",
+      "data-slot": "forged-tabs",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      render: <section>Forged render</section>,
+    } as unknown as TabsProps;
+
+    expect(() => {
+      render(
+        <Tabs
+          {...hostileProps}
+          defaultValue="first"
+          items={baseItems}
+          orientation="horizontal"
+        />
+      );
+    }).not.toThrow();
+
+    const root = document.querySelector('[data-slot="tabs"]');
+    expect(root?.tagName).toBe("DIV");
+    expect(root?.getAttribute("data-orientation")).toBe("horizontal");
+    expect(root?.getAttribute("data-activation-direction")).not.toBe("forged");
+    expect(screen.getAllByRole("tab")).toHaveLength(2);
+    expect(screen.getByRole("tabpanel").textContent).toBe("First content");
+    fireEvent.click(screen.getByRole("tab", { name: "Second" }));
+    expect(screen.getByRole("tabpanel").textContent).toBe("Second content");
+    expect(document.body.textContent).not.toContain("Forged");
   });
 });

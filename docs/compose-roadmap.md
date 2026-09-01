@@ -31,12 +31,13 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-09-02 | Action-control ownership | Closed Base UI element-replacement and conflicting semantic paths on AsyncButton and the Modal, AlertModal, AlertDialog, and Toast action prop bags. |
 | 2026-09-02 | Form-control ownership | Fixed InputGroup's void input and primitive slot, and fixed Switch's root element, role, generated thumb, state semantics, size, and slot markers at type and runtime seams. |
 | 2026-09-02 | Structural-root ownership | Protected Alert, Avatar, Card, Breadcrumb, and both Popover adapters from raw HTML, element replacement, and conflicting root/popup markers while preserving caller-owned content and trigger escape hatches. |
+| 2026-09-02 | Accordion/Tabs ownership | Protected both items-driven collection roots from raw HTML, element replacement, and forged primitive state markers while preserving safe root props and caller-owned item content. |
 
 ## Compose: current and planned
 
 | Capability family | Official shadcn entries | Canonical Compose owner | State | Compose value | Boundary |
 | --- | --- | --- | --- | --- | --- |
-| Disclosure | Accordion, Collapsible | `Accordion` | Keep | Low | A one-item Accordion covers the common Collapsible task; heterogeneous structure escapes to Primitive. |
+| Disclosure | Accordion, Collapsible | `Accordion` | Keep | Low | Fixed items-driven root and state markers; a one-item Accordion covers Collapsible, while heterogeneous structure escapes to Primitive. |
 | Alert | Alert | `Alert` | Keep | Low | Flat content slots with fixed alert role, root marker, and generated child order. |
 | Modal feedback | Dialog, Alert Dialog | `Modal`, `AlertDialog` | Keep | High | Dialog maps to imperative Modal handling; Alert Dialog remains the confirm/cancel specialization. Modal, AlertModal, and AlertDialog action prop bags enforce Compose-owned button elements, semantics, labels, and action/close wiring. |
 | Identity media | Avatar | `Avatar` | Keep | Low | Fixed root/image/fallback/badge structure; caller retains content and root ARIA/role. |
@@ -58,7 +59,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Choice list | Radio Group, Toggle Group | `ChoiceGroup` | Keep and deepen | High | Single/multiple selection; radio/checkbox/toggle presentation. Existing `RadioGroup` and `CheckboxGroup` are soft-deprecated. |
 | Edge panel | Sheet | `Sheet` | Keep | Medium | Binary edge-positioned dialog. Drawer gestures and snap points are excluded. |
 | Range input | Slider | `Slider` | Keep | High | Scalar mode keeps the original `number` API. `multiple=true` switches to arrays, requires per-thumb accessible names, and exposes spacing/collision policy without changing the base case. |
-| Tabs | Tabs | `Tabs` | Keep | Low | Homogeneous tab items; heterogeneous bodies use Primitive. |
+| Tabs | Tabs | `Tabs` | Keep | Low | Fixed items-driven tablist/panels and primitive state markers; heterogeneous bodies use Primitive. |
 | Notification | Toast | `Toast` | Keep | High | One global facade delegates queue/timer/focus state to Base UI while owning stable status, action element/label/click wiring, update, close, and Promise semantics. |
 | Tooltip | Tooltip | `Tooltip` | Keep | Low | Separate from Popover/Hover Card because purpose and interaction contract differ. |
 

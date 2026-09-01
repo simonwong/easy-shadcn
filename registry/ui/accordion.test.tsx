@@ -1,6 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { Accordion, type AccordionItem } from "./accordion";
+import {
+  Accordion,
+  type AccordionItem,
+  type AccordionProps,
+} from "./accordion";
 
 const baseItems: AccordionItem[] = [
   { content: "First content", trigger: "First", value: "first" },
@@ -144,5 +148,37 @@ describe("Accordion", () => {
 
     expect(container.querySelector('[data-slot="accordion"]')).not.toBeNull();
     expect(container.querySelector('[data-slot="accordion-item"]')).toBeNull();
+  });
+
+  it("owns its generated root structure and state markers at runtime", () => {
+    const hostileProps = {
+      children: "Forged child",
+      "data-disabled": "",
+      "data-orientation": "horizontal",
+      "data-slot": "forged-accordion",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      render: <section>Forged render</section>,
+    } as unknown as AccordionProps;
+
+    expect(() => {
+      render(
+        <Accordion
+          {...hostileProps}
+          defaultValue={["first"]}
+          disabled={false}
+          items={baseItems}
+          orientation="vertical"
+        />
+      );
+    }).not.toThrow();
+
+    const root = document.querySelector('[data-slot="accordion"]');
+    expect(root?.tagName).toBe("DIV");
+    expect(root?.getAttribute("data-disabled")).toBeNull();
+    expect(root?.getAttribute("data-orientation")).toBe("vertical");
+    expect(trigger("First").getAttribute("aria-expanded")).toBe("true");
+    fireEvent.click(trigger("Second"));
+    expect(trigger("Second").getAttribute("aria-expanded")).toBe("true");
+    expect(document.body.textContent).not.toContain("Forged");
   });
 });

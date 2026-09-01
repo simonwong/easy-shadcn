@@ -21,11 +21,21 @@ export interface TabsItem {
   value: string;
 }
 
+interface TabsOwnedRootProps {
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-activation-direction"?: never;
+  "data-orientation"?: never;
+  "data-slot"?: never;
+  render?: never;
+}
+
 export interface TabsProps
   extends Omit<
-    TabsPrimitive.Root.Props,
-    "children" | "defaultValue" | "onValueChange" | "render" | "value"
-  > {
+      TabsPrimitive.Root.Props,
+      "defaultValue" | "onValueChange" | "value" | keyof TabsOwnedRootProps
+    >,
+    TabsOwnedRootProps {
   contentClassName?: ClassValue;
   defaultValue?: string;
   items: TabsItem[];
@@ -41,16 +51,23 @@ export interface TabsProps
 }
 
 export const Tabs = ({
+  children: _ignoredChildren,
+  "data-activation-direction": _ignoredDataActivationDirection,
+  "data-orientation": _ignoredDataOrientation,
+  "data-slot": _ignoredDataSlot,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
   items,
   keepMounted,
   listClassName,
   triggerClassName,
   contentClassName,
   className,
+  orientation,
+  render: _ignoredRender,
   variant,
   ...rootProps
 }: TabsProps) => (
-  <TabsRoot className={className} {...rootProps}>
+  <TabsRoot {...rootProps} className={className} orientation={orientation}>
     {items.length > 0 && (
       <TabsList className={cn(listClassName)} variant={variant}>
         {items.map((item) => (
