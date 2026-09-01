@@ -55,8 +55,10 @@ accessibility, migration adapters, or repeated wiring, deepen or create it.**
   scalar/multi-thumb modes.
 - **2 new modules are ready for product decisions:** Toast and an AntD-style
   Menu. They are not wrappers around the current dropdown components.
-- **2 additional high-leverage capabilities need later boundary decisions:**
-  Sidebar and Command. Neither should be folded into Menu by name alone.
+- **Command is now resolved:** `CommandPalette` owns the Dialog-scoped search,
+  invocation, async action, error, and stale-settlement transaction.
+- **1 additional high-leverage capability needs a later boundary decision:**
+  Sidebar. It should not be folded into Menu by name alone.
 - Native Select, Drawer, generic List, Conversation, Chart, and Questionnaire
   are explicitly out of scope for this map.
 
@@ -102,6 +104,7 @@ behavior, or repeated accessibility wiring.
 | [Date Picker](../../registry/ui/date-picker.tsx) | Owns popover state, single/multiple/range value plumbing, and manual-input draft/commit races. The input lifecycle is recorded in [ADR-0008](../adr/0008-date-picker-input-draft-commit.md). |
 | [Field](../../registry/ui/field.tsx) | Owns label/control/description/error ids, root role/slot/orientation/disabled/invalid markers, flat-control `id`/`aria-describedby`/`aria-invalid`, required output, and form-error normalization at type and runtime seams. Caller control refs, events, role/data, behavior, and content remain opaque. |
 | [Menu](../../registry/ui/menu.tsx) | Owns the recursive item tree, scalar/array selection, controlled open keys, roving focus, submenu dismissal, root role/orientation/mode, and a chained keyboard dispatcher. Its public root ref is merged with the internal focus/outside-dismiss ref. |
+| [Command Palette](../../registry/ui/command-palette.tsx) | Owns one Dialog-scoped searchable action transaction: platform Mod+K, internal query, grouped static actions, synchronous single-flight locking, Promise success/failure, actual-close reset, and stale-settlement isolation. The boundary research is recorded in [Command Palette product boundary](command-palette-boundary.md) and [ADR-0016](../adr/0016-command-palette-dialog-state-machine.md). |
 | [Modal](../../registry/ui/modal/modal.tsx) | Owns Dialog slots, open state, async confirm/cancel completion, and the command-modal Adapter seam described by [ADR-0001](../adr/0001-adapter-seam-and-typed-factory.md). Keep Modal as the Dialog capability. |
 | [Pagination](../../registry/ui/pagination.tsx) | Owns normalization, page-window/ellipsis generation, controlled/uncontrolled client state, and safe separation from native navigation, as recorded in [ADR-0009](../adr/0009-pagination-client-and-navigation-modes.md). |
 | [Progress](../../registry/ui/progress.tsx) | Owns determinate/indeterminate value semantics plus accessible name/value wiring. Spinner and Skeleton remain primitives; they do not need to become Progress modes. |
@@ -226,12 +229,13 @@ from `items[]` alone. Open a later decision ticket for the navigation-tree seam,
 route ownership, persistence, mobile behavior, and heterogeneous header/footer
 content.
 
-**Command** is not Menu. The official structure combines an input, filtered
-list, empty state, groups, separators, shortcuts, and an optional Dialog
-([official docs](https://ui.shadcn.com/docs/components/command)). A future
-CommandPalette could own filtering, keyboard invocation, async actions, and
-Modal integration; defer it until that task is requested. Sharing item
-vocabulary with Menu is allowed, but sharing one behavior Interface is not.
+#### Resolved after this snapshot
+
+**Command** now maps to `CommandPalette`, not Menu. The delivered owner fixes a
+Dialog-scoped search and async-action transaction while leaving inline lists,
+custom ranking, remote results, nested pages, and arbitrary composition on the
+Primitive. See the [boundary research](command-palette-boundary.md) and
+[ADR-0016](../adr/0016-command-palette-dialog-state-machine.md).
 
 ## Recommended frontier after this audit
 
@@ -241,5 +245,5 @@ vocabulary with Menu is allowed, but sharing one behavior Interface is not.
 4. Decide Popover/Hover Card's shared Interface and primitive adapter boundary.
 5. Decide Slider scalar/multi-thumb typing and accessible naming.
 6. Fix Modal's owned button prop bags as maintenance work.
-7. Only then decide implementation order. Sidebar and Command remain later
-   boundary tickets; all explicit out-of-scope items stay off the frontier.
+7. Command Palette is delivered. Sidebar remains the next boundary ticket; all
+   explicit out-of-scope items stay off the frontier.

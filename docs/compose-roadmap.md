@@ -15,7 +15,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 
 | Priority | Capability | Next decision or module | Compose value |
 | --- | --- | --- | --- |
-| P1 | Existing Compose depth | Audit current modules for AsyncButton-like behavioural leverage or ownership bugs; do not add props for shallow parity. | Varies |
+| P1 | Sidebar boundary | Decide whether one bounded navigation shell can own desktop/mobile open state without hiding necessary header, footer, route, and persistence composition. | High |
 
 ## Completed decisions
 
@@ -40,6 +40,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-09-02 | Calendar customization fidelity | Preserved primitive caption class/style/animation data and routed custom month/year triggers, panels, options, and decade labels through DayPicker's resolved labels/formatters with locale, numerals, and time-zone context. |
 | 2026-09-02 | Calendar navigation state | Routed time-zone-aware custom month/year/decade mutations through DayPicker, separated visual indices from chronological offsets, and fixed disable, reverse-order, partial-decade, month-bound, actual-slot, stale-view, and reset-token behavior. |
 | 2026-09-02 | Field ownership | Protected the generated group role, root slot/orientation/disabled/invalid markers, raw-HTML boundary, and flat-control id/description/invalid wiring while preserving composition children, ordinary root props, primitive-slot exports, and opaque caller control behavior. |
+| 2026-09-02 | Command Palette | Shipped one Dialog-scoped searchable action owner with platform Mod+K, static groups, internal query, async single-flight, retryable errors, actual-close reset, and stale-settlement isolation. |
 
 ## Compose: current and planned
 
@@ -56,6 +57,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Boolean controls | Checkbox, Switch | `Checkbox`, `Switch` | Keep | Low | Single boolean values stay independent. Switch owns its root element, role, thumb, derived ARIA/data state, size, and slot markers. |
 | Select | Select, Combobox | `Select` | Keep and deepen | High | `Combobox` remains a thin searchable preset, never a second state owner. Native Select is excluded separately. |
 | Menu family | Context Menu, Dropdown Menu | `Menu` | Keep and deepen | High | Menu owns item tree, root semantics, keyboard routing, selection, and open state. Existing `ContextMenu` and `DropdownMenu` stay as right-click/dropdown shells. |
+| Searchable quick actions | Command | `CommandPalette` | Keep | High | Owns the Dialog/open/query transaction, platform hotkey, grouped static actions, async single-flight, retryable failure, and stale settlement; custom query/ranking/remote/composition stays Primitive. |
 | Data table | Table, Data Table | `Table` | Keep and deepen | High | One owner for generated table structure, loading state, row identity, selection, bulk eligibility, and the row-checkbox state seam. |
 | Empty state | Empty | `Empty` | Keep | Medium | Common empty-state structure; domain workflows stay outside it. |
 | Form layout | Field | `Field` | Keep | Medium | Own common label/control/description/error composition, root state markers, and flat-control id/ARIA wiring. |
@@ -124,7 +126,6 @@ These are neither approved Compose work nor durable exclusions. Keep them out of
 
 | Official shadcn entry | Current stance | Question to answer |
 | --- | --- | --- |
-| Command | Defer | Searchable quick actions are not Menu. Is there a reusable action/search state machine beyond the existing Primitive? |
 | Menubar | Defer | Menu can supply its item model later; no separate Menubar Compose shell is urgent. |
 | Navigation Menu | Defer | Can one flat model cover responsive navigation without hiding necessary composition? |
 | Sidebar | Defer | Does the existing shadcn state model already provide the useful abstraction, or is a Compose owner valuable? |
@@ -141,7 +142,7 @@ Use this before opening any component-factory task:
 | Dialog | Use `Modal`; use `AlertDialog` only for confirm/cancel semantics. |
 | Dropdown Menu, Context Menu | Reuse canonical `Menu` item/state model while keeping trigger shells distinct. |
 | Menubar | Defer shell; later consume `Menu` model. |
-| Command palette | Treat as Command, not Menu. |
+| Command palette | Use `CommandPalette`, not Menu; custom query, ranking, remote results, or nested pages use the Command Primitive. |
 | Radio list, checkbox list, toggle list | Deepen `ChoiceGroup`; do not create separate new group owners. |
 | Single Checkbox, Switch, Toggle | Keep independent boolean controls; do not route to ChoiceGroup. |
 | Hover Card | Use `Popover interaction="hover"`; do not create a second Compose owner or merge it with Tooltip. |

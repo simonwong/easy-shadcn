@@ -10,7 +10,7 @@
 <p align="center"><em>更简单的 shadcn 使用方式。</em></p>
 
 <p align="center">
-  在 <a href="https://ui.shadcn.com">shadcn/ui</a> 之上的扁平 props 封装：嵌套 children 折叠成一个标签，而数据驱动的组件——Table、Select、Combobox、Date Picker、Menu、Choice Group——在 shadcn 底座上提供 <strong>antd 级别的开箱 DX</strong>。
+  在 <a href="https://ui.shadcn.com">shadcn/ui</a> 之上的扁平 props 封装：嵌套 children 折叠成一个标签，而数据驱动的组件——Table、Select、Combobox、Date Picker、Menu、Command Palette、Choice Group——在 shadcn 底座上提供 <strong>antd 级别的开箱 DX</strong>。
   <br/>
   通过 shadcn CLI 安装，代码落进你自己的仓库，原语始终只差一个 import。
 </p>
@@ -63,7 +63,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 
 ## 组件清单
 
-六个数据驱动组件排在最前：**Table**、**Select**、**Combobox**、**Date Picker**、**Menu**、**Choice Group** 拥有真正的状态——选中 tally、异步竞态、嵌套导航、单选 / 多选 / 范围逻辑——对标 antd 同类组件的能力面，同时仍以 copy-in 的 registry 源码分发。
+七个数据驱动组件排在最前：**Table**、**Select**、**Combobox**、**Date Picker**、**Menu**、**Command Palette**、**Choice Group** 拥有真正的状态——选中 tally、异步竞态、快捷动作、嵌套导航、单选 / 多选 / 范围逻辑——同时仍以 copy-in 的 registry 源码分发。
 
 | 组件 | 折叠了什么 | 安装 |
 |------|-----------|------|
@@ -72,6 +72,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 | **Combobox** | 始终可搜索的单选自动补全，Select 之上的预设 | `@easy-shadcn/combobox` |
 | **Date Picker** | 单选 / 多选 / 范围统一在一个 `mode` prop 下，可选的输入框触发器，以及 min / max / 禁用日期边界 | `@easy-shadcn/date-picker` |
 | **Menu** | 一个递归 item tree 提供持久导航，覆盖链接、动作、子菜单、分组、选中状态、展开状态和三种布局模式 | `@easy-shadcn/menu` |
+| **Command Palette** | 静态动作 → Mod+K 可搜索 Dialog，内置分组投影、异步单飞、可重试错误与旧 Promise 隔离 | `@easy-shadcn/command-palette` |
 | **Choice Group** | 一个 items/value API 覆盖单选或多选，并可呈现为 radio、checkbox 或 toggle | `@easy-shadcn/choice-group` |
 | **Card** | `<CardHeader><CardTitle>…` 嵌套梯子 → 扁平 `title` / `description` / `action` / `footer` props | `@easy-shadcn/card` |
 | **Empty** | Empty root / header / media / title / description / content 嵌套 → 固定原语顺序的扁平可选 slots | `@easy-shadcn/empty` |
@@ -112,7 +113,7 @@ pnpm dlx shadcn@latest add @easy-shadcn/card
 
 easy-shadcn 是 shadcn/ui 的**组合层**——通过 CLI 安装，每个组件都以你自己拥有、可以随手改的普通源码落进你的仓库。三条规则让它保持诚实：
 
-- **薄封装保持极小；状态机组件做深。** 像 Card、Tabs 这样的封装只为把重复的嵌套写法折叠成扁平 props——回退原语手写缺失场景只要十几行，所以 API 保持极小。Table、Select、Combobox、Date Picker、Menu、Choice Group 拥有真正状态或跨呈现适配，手写重来成本高，所以它们有义务逼近 antd 同类组件的能力面。
+- **薄封装保持极小；状态机组件做深。** 像 Card、Tabs 这样的封装只为把重复的嵌套写法折叠成扁平 props——回退原语手写缺失场景只要十几行，所以 API 保持极小。Table、Select、Combobox、Date Picker、Menu、Command Palette、Choice Group 拥有真正状态或跨呈现适配，手写重来成本高，所以能力覆盖跟随其拥有的任务边界。
 - **入门斜率永久冻结。** props 总数可以无上限地涨，但"跑通第一个用例必须理解的 props 数"永远不动。Table 永远是 `columns` + `dataSource` + `rowKey`，Select 永远是 `items` + `value` / `onValueChange`。新 prop 只有在"不用它的人完全无感知它存在"时才允许加入。
 - **原语的大门始终敞开。** 没有 render props，没有 slot 对象，没有"在 A 和 B 之间插入节点"的逃生口。需要最后那一段灵活性？直接下沉到 `components/ui/*`——组合层永远不会为此再开第二道 API 口。
 
