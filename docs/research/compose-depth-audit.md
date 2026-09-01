@@ -106,7 +106,7 @@ behavior, or repeated accessibility wiring.
 | [Pagination](../../registry/ui/pagination.tsx) | Owns normalization, page-window/ellipsis generation, controlled/uncontrolled client state, and safe separation from native navigation, as recorded in [ADR-0009](../adr/0009-pagination-client-and-navigation-modes.md). |
 | [Progress](../../registry/ui/progress.tsx) | Owns determinate/indeterminate value semantics plus accessible name/value wiring. Spinner and Skeleton remain primitives; they do not need to become Progress modes. |
 | [Select](../../registry/ui/select.tsx) | Owns single/multiple value state, search, clear/chips UI, async single-flight loading, retry/error state, and selected-label merge-back. The async contract is recorded in [ADR-0006](../adr/0006-select-async-loading-contract.md). |
-| [Table](../../registry/ui/table.tsx) | Owns row identity, selection, visible select-all preservation, empty/loading output, and accessibility diagnostics. The identity/selection contract is recorded in [ADR-0007](../adr/0007-table-required-rowkey-and-selection-model.md). Data Table is already this module, not another Compose. |
+| [Table](../../registry/ui/table.tsx) | Owns generated table descendants, the loading-derived root busy state, row identity, selection, visible select-all preservation, empty/loading output, and accessibility diagnostics. Its root rejects structure and state-marker overrides while preserving caller refs, semantics, events, and ordinary attributes. The identity/selection contract is recorded in [ADR-0007](../adr/0007-table-required-rowkey-and-selection-model.md). Data Table is already this module, not another Compose. |
 
 ### Concrete deepening candidates
 
@@ -141,6 +141,10 @@ maintenance work:
    state-marker overrides at both type and runtime seams. Caller-owned item
    content, accessible naming, refs, events, and ordinary root styling stay
    intact.
+4. **Partially resolved:** [`Table`](../../registry/ui/table.tsx) now rejects
+   generated-child/raw-HTML replacement plus caller-forged root busy and slot
+   markers. Its deeper `getCheckboxProps` element, state-marker, readonly bulk
+   selection, and state-class ownership findings remain a separate batch.
 
 ## Missing official capabilities: disposition
 

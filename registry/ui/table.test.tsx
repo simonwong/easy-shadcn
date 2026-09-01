@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { useState } from "react";
+import { createRef, useState } from "react";
 import {
   afterEach,
   beforeEach,
@@ -14,6 +14,7 @@ import {
   Table,
   type TableCheckboxProps,
   type TableColumn,
+  type TableProps,
 } from "./table";
 
 interface User {
@@ -1395,21 +1396,47 @@ describe("Table", () => {
     );
   });
 
-  it("a11y: managed table attrs are not overridden by passthrough props", () => {
-    const { container } = render(
-      <Table
-        aria-busy={false}
-        caption="Tasks"
-        columns={BASIC_COLUMNS}
-        data-slot="consumer-table"
-        dataSource={[]}
-        loading
-        rowKey="id"
-      />
-    );
-    const table = container.querySelector("table");
-    expect(table?.getAttribute("aria-busy")).toBe("true");
-    expect(table?.getAttribute("data-slot")).toBe("easy-table");
+  it("owns generated root structure, busy state, and slot marker", () => {
+    const onClick = vi.fn();
+    const rootRef = createRef<HTMLTableElement>();
+    const unsafeProps = {
+      "aria-busy": false,
+      children: <tbody data-hostile-child="" />,
+      "data-consumer": "kept",
+      "data-slot": "consumer-table",
+      "data-testid": "table-root",
+      dangerouslySetInnerHTML: { __html: "<tbody>forged</tbody>" },
+      onClick,
+      ref: rootRef,
+      role: "grid",
+    } as unknown as TableProps<User>;
+
+    expect(() => {
+      render(
+        <Table
+          {...unsafeProps}
+          caption="Tasks"
+          columns={BASIC_COLUMNS}
+          dataSource={[]}
+          loading
+          rowKey="id"
+        />
+      );
+    }).not.toThrow();
+
+    const table = screen.getByTestId("table-root");
+    expect(table.tagName).toBe("TABLE");
+    expect(rootRef.current).toBe(table);
+    expect(table.getAttribute("aria-busy")).toBe("true");
+    expect(table.getAttribute("data-slot")).toBe("easy-table");
+    expect(table.getAttribute("data-consumer")).toBe("kept");
+    expect(table.getAttribute("role")).toBe("grid");
+    expect(table.querySelector("[data-hostile-child]")).toBeNull();
+    expect(table.textContent).not.toContain("forged");
+    expect(screen.getByText("Loading…")).toBeTruthy();
+
+    fireEvent.click(table);
+    expect(onClick).toHaveBeenCalledOnce();
   });
 
   it("a11y: loading and empty cells contain role=status for SR announcement", () => {
