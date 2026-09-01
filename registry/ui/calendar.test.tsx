@@ -1,8 +1,140 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { ru } from "date-fns/locale";
 import { describe, expect, it, vi } from "vitest";
 import { Calendar, type CalendarProps } from "./calendar";
 
 describe("Calendar", () => {
+  it("preserves primitive caption classes, styles, and animation data", () => {
+    render(
+      <Calendar
+        animate
+        classNames={{ month_caption: "consumer-caption" }}
+        defaultMonth={new Date(2026, 8, 1)}
+        styles={{ month_caption: { color: "rgb(1, 2, 3)" } }}
+      />
+    );
+
+    const caption = document.querySelector('[data-slot="easy-month-caption"]');
+    expect(caption?.getAttribute("class")).toContain("consumer-caption");
+    expect(caption?.getAttribute("class")).toContain("relative");
+    expect(caption?.getAttribute("data-animated-caption")).toBe("true");
+    expect(caption?.getAttribute("style")).toContain("color: rgb(1, 2, 3)");
+    expect(caption?.querySelectorAll("button")).toHaveLength(2);
+  });
+
+  it("uses resolved explicit and locale labels for custom panel controls", () => {
+    render(
+      <Calendar
+        defaultMonth={new Date(2026, 8, 1)}
+        labels={{ labelMonthDropdown: () => "Explicit month" }}
+        locale={{
+          labels: {
+            labelMonthDropdown: "Locale month",
+            labelYearDropdown: "Locale year",
+          },
+        }}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Explicit month" }));
+    expect(
+      screen.getByRole("listbox", { name: "Explicit month" })
+    ).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Locale year" }));
+    expect(screen.getByRole("listbox", { name: "Locale year" })).toBeTruthy();
+  });
+
+  it("uses resolved formatters with locale, numerals, and time zone", () => {
+    const formatMonthDropdown = vi.fn(
+      (date: Date, dateLib?: { formatNumber: (value: number) => string }) =>
+        `month-${dateLib?.formatNumber(date.getMonth() + 1)}`
+    );
+    const formatYearDropdown = vi.fn(
+      (date: Date, dateLib?: { formatNumber: (value: number) => string }) =>
+        `year-${dateLib?.formatNumber(date.getFullYear())}`
+    );
+
+    render(
+      <Calendar
+        defaultMonth={new Date("2026-09-15T12:00:00.000Z")}
+        formatters={{ formatMonthDropdown, formatYearDropdown }}
+        locale={{ code: "en-US" }}
+        numerals="arab"
+        timeZone="UTC"
+      />
+    );
+
+    const monthTrigger = screen.getByRole("button", {
+      name: "Choose the Month",
+    });
+    const yearTrigger = screen.getByRole("button", {
+      name: "Choose the Year",
+    });
+    expect(monthTrigger.textContent).toBe("month-٩");
+    expect(yearTrigger.textContent).toBe("year-٢٠٢٦");
+
+    fireEvent.click(monthTrigger);
+    expect(screen.getByRole("option", { name: "month-١" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Choose the Year" }));
+    expect(screen.getByRole("option", { name: "year-٢٠٢٦" })).toBeTruthy();
+    expect(screen.getByText("year-٢٠٢٠ – year-٢٠٢٩")).toBeTruthy();
+
+    const dateLib = formatYearDropdown.mock.calls.at(-1)?.[1] as
+      | { options?: Record<string, unknown> }
+      | undefined;
+    expect(dateLib?.options).toMatchObject({
+      numerals: "arab",
+      timeZone: "UTC",
+    });
+    expect(
+      (dateLib?.options?.locale as { code?: string } | undefined)?.code
+    ).toBe("en-US");
+  });
+
+  it("keeps the default days caption full while month options stay short", () => {
+    render(<Calendar defaultMonth={new Date(2026, 0, 1)} />);
+
+    const monthTrigger = screen.getByRole("button", {
+      name: "Choose the Month",
+    });
+    expect(monthTrigger.textContent).toBe("January");
+
+    fireEvent.click(monthTrigger);
+    expect(screen.getByRole("option", { name: "Jan" })).toBeTruthy();
+  });
+
+  it("preserves contextual full-month grammar in the days caption", () => {
+    render(<Calendar defaultMonth={new Date(2026, 0, 1)} locale={ru} />);
+
+    expect(
+      screen.getByRole("button", { name: "Choose the Month" }).textContent
+    ).toBe("января");
+  });
+
+  it("keeps resolved defaults when optional formatters are explicitly undefined", () => {
+    render(
+      <Calendar
+        defaultMonth={new Date(2026, 0, 1)}
+        formatters={{
+          formatMonthDropdown: undefined,
+          formatYearDropdown: undefined,
+        }}
+      />
+    );
+
+    const monthTrigger = screen.getByRole("button", {
+      name: "Choose the Month",
+    });
+    expect(monthTrigger.textContent).toBe("January");
+    expect(
+      screen.getByRole("button", { name: "Choose the Year" }).textContent
+    ).toBe("2026");
+
+    fireEvent.click(monthTrigger);
+    expect(screen.getByRole("option", { name: "Jan" })).toBeTruthy();
+  });
+
   it("strips primitive overrides owned by its custom panel interface", () => {
     const hostileCaption = vi.fn(() => {
       throw new Error("consumer caption formatter executed");
