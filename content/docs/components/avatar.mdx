@@ -36,7 +36,7 @@ The underlying shadcn `avatar` primitive is installed automatically.
 | `fallbackClassName` | `ClassValue`               | -           | Class override for `AvatarFallback`.                                                              |
 | `badgeClassName`    | `ClassValue`               | -           | Class override for `AvatarBadge`.                                                                 |
 
-Safe root props such as `id`, `style`, `aria-*`, `data-*`, event handlers, and `ref` are forwarded to the underlying Avatar root. The ref resolves to its `HTMLSpanElement`. `children`, `dangerouslySetInnerHTML`, and the primitive's custom `render` escape hatch are unavailable because the Compose layer owns the child structure.
+Safe root props such as `id`, `style`, `aria-*`, non-owned `data-*`, event handlers, `role`, and `ref` are forwarded to the underlying Avatar root. The ref resolves to its `HTMLSpanElement`. The Compose layer fixes the `span` root, generated children, `data-slot`, and the `data-size` derived from `size`; `children`, `dangerouslySetInnerHTML`, `render`, `data-slot`, and `data-size` are rejected by TypeScript and stripped at runtime.
 
 ## Image and fallback behavior
 

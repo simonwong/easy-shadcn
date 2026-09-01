@@ -32,7 +32,7 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/card.json
 | `dividers`    | `boolean \| { header?: boolean; footer?: boolean }`  | `false`     | Shows the header bottom border and/or the footer top border with its muted background.       |
 | `size`        | `"default" \| "sm"`                                  | `"default"` | Compact paddings and typography, forwarded to the underlying `Card` primitive.               |
 
-Every slot accepts a class override: `headerClassName`, `titleClassName`, `descriptionClassName`, `actionClassName`, `contentClassName`, and `footerClassName`. All other props (`className`, `data-*`, event handlers, etc.) are forwarded to the root element.
+Every slot accepts a class override: `headerClassName`, `titleClassName`, `descriptionClassName`, `actionClassName`, `contentClassName`, and `footerClassName`. Other safe root props (`className`, non-owned `data-*`, ARIA, event handlers, etc.) are forwarded. The Compose layer fixes `data-slot="card"`, derives `data-size` from `size`, and generates descendants around the caller-owned `children` body; raw HTML and those two data attributes are rejected by TypeScript and stripped at runtime.
 
 ## Notes
 

@@ -8,11 +8,19 @@ import {
 } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 
+interface AlertOwnedRootProps {
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-slot"?: never;
+  role?: never;
+}
+
 export interface AlertProps
   extends Omit<
-    ComponentProps<typeof AlertRoot>,
-    "children" | "dangerouslySetInnerHTML" | "title"
-  > {
+      ComponentProps<typeof AlertRoot>,
+      "title" | keyof AlertOwnedRootProps
+    >,
+    AlertOwnedRootProps {
   action?: ReactNode;
   actionClassName?: ClassValue;
   description?: ReactNode;
@@ -26,6 +34,9 @@ const hasNode = (node: ReactNode): boolean =>
   node !== null && node !== undefined && typeof node !== "boolean";
 
 export const Alert = ({
+  children: _ignoredChildren,
+  "data-slot": _ignoredDataSlot,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
   icon,
   title,
   titleClassName,
@@ -33,6 +44,7 @@ export const Alert = ({
   descriptionClassName,
   action,
   actionClassName,
+  role: _ignoredRole,
   ...rootProps
 }: AlertProps) => (
   <AlertRoot {...rootProps}>

@@ -68,3 +68,25 @@ acceptProps({
   // @ts-expect-error Trigger ids are internal adapter plumbing.
   triggerId: "forged",
 });
+
+acceptProps({
+  children: trigger,
+  content: "Body",
+  // @ts-expect-error Popup element replacement bypasses the generated click content.
+  render: <section />,
+});
+
+acceptProps({
+  children: previewTrigger,
+  content: "Preview",
+  interaction: "hover",
+  // @ts-expect-error Popup element replacement bypasses the generated hover content.
+  render: <section />,
+});
+
+acceptProps({
+  children: trigger,
+  content: "Body",
+  // @ts-expect-error The popup slot marker is Compose-owned.
+  "data-slot": "bypass",
+});

@@ -366,4 +366,65 @@ describe("Popover", () => {
       ).toBe("top");
     });
   });
+
+  it("owns click popup structure while preserving the trigger escape hatch", () => {
+    const onTriggerClick = vi.fn();
+    const hostileProps = {
+      "data-slot": "forged-popup",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      render: <section>Forged render</section>,
+    } as unknown as PopoverClickProps;
+
+    expect(() => {
+      render(
+        <Popover {...hostileProps} content="Owned click body" defaultOpen>
+          <button id="owned-trigger" onClick={onTriggerClick} type="button">
+            <strong>Owned trigger</strong>
+          </button>
+        </Popover>
+      );
+    }).not.toThrow();
+
+    const popup = slot("popover-content");
+    const trigger = screen.getByRole("button", { name: "Owned trigger" });
+    expect(popup?.tagName).toBe("DIV");
+    expect(slot("popover-body")?.textContent).toBe("Owned click body");
+    expect(trigger.id).toBe("owned-trigger");
+    expect(trigger.querySelector("strong")).not.toBeNull();
+    fireEvent.click(trigger);
+    expect(onTriggerClick).toHaveBeenCalledOnce();
+    expect(document.body.textContent).not.toContain("Forged");
+  });
+
+  it("owns hover popup structure while preserving the trigger escape hatch", () => {
+    const hostileProps = {
+      "data-slot": "forged-popup",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      render: <section>Forged render</section>,
+    } as unknown as PopoverHoverProps;
+
+    expect(() => {
+      render(
+        <Popover
+          {...hostileProps}
+          content="Owned hover body"
+          defaultOpen
+          interaction="hover"
+        >
+          <a data-owner="caller" href="/owned" id="owned-hover-trigger">
+            <strong>Owned hover trigger</strong>
+          </a>
+        </Popover>
+      );
+    }).not.toThrow();
+
+    const popup = slot("popover-content");
+    const trigger = screen.getByRole("link", { name: "Owned hover trigger" });
+    expect(popup?.tagName).toBe("DIV");
+    expect(slot("popover-body")?.textContent).toBe("Owned hover body");
+    expect(trigger.id).toBe("owned-hover-trigger");
+    expect(trigger.getAttribute("data-owner")).toBe("caller");
+    expect(trigger.querySelector("strong")).not.toBeNull();
+    expect(document.body.textContent).not.toContain("Forged");
+  });
 });

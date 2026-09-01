@@ -20,3 +20,9 @@ acceptProps({ children: "Bypass" });
 
 // @ts-expect-error Raw HTML conflicts with Compose-owned descendants.
 acceptProps({ dangerouslySetInnerHTML: { __html: "Bypass" } });
+
+// @ts-expect-error Alert owns the root alert role.
+acceptProps({ role: "status" });
+
+// @ts-expect-error The primitive root slot is Compose-owned.
+acceptProps({ "data-slot": "bypass" });

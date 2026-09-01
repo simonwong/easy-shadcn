@@ -1,6 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { Breadcrumb, type BreadcrumbItem } from "./breadcrumb";
+import {
+  Breadcrumb,
+  type BreadcrumbItem,
+  type BreadcrumbProps,
+} from "./breadcrumb";
 
 const baseItems: BreadcrumbItem[] = [
   { href: "/", label: "Home" },
@@ -224,5 +228,34 @@ describe("Breadcrumb", () => {
       container.querySelector('[data-slot="breadcrumb-list"]')
     ).not.toBeNull();
     expect(container.querySelector('[data-slot="breadcrumb-item"]')).toBeNull();
+  });
+
+  it("owns its generated list and primitive root slot at runtime", () => {
+    const hostileProps = {
+      children: "Forged child",
+      "data-slot": "forged-breadcrumb",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+    } as unknown as BreadcrumbProps;
+
+    expect(() => {
+      render(
+        <Breadcrumb
+          {...hostileProps}
+          aria-label="Owned trail"
+          items={baseItems}
+        />
+      );
+    }).not.toThrow();
+
+    const root = document.querySelector('[data-slot="breadcrumb"]');
+    expect(root?.getAttribute("aria-label")).toBe("Owned trail");
+    expect(root?.querySelector('[data-slot="breadcrumb-list"]')).not.toBeNull();
+    expect(
+      root?.querySelectorAll('[data-slot="breadcrumb-separator"]')
+    ).toHaveLength(2);
+    expect(root?.querySelector('[aria-current="page"]')?.textContent).toBe(
+      "Accordion"
+    );
+    expect(document.body.textContent).not.toContain("Forged");
   });
 });

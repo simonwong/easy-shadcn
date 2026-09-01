@@ -33,7 +33,7 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/breadcrumb.json
 | `pageClassName`       | `string`           | -       | Class override for the current `BreadcrumbPage`.                                     |
 | `separatorClassName`  | `string`           | -       | Class override applied to every `BreadcrumbSeparator`.                               |
 
-All other props (`className`, `aria-label`, etc.) are forwarded to the underlying `nav`.
+Other safe nav props (`className`, `aria-label`, `role`, style, event handlers, and non-owned data attributes) are forwarded to the underlying `nav`. The Compose layer owns its generated list children and `data-slot="breadcrumb"`; `children`, raw HTML, and `data-slot` are rejected by TypeScript and stripped at runtime.
 
 ### BreadcrumbItem
 

@@ -37,11 +37,18 @@ interface PopoverSlotProps {
   titleClassName?: string;
 }
 
+interface PopoverOwnedContentProps {
+  dangerouslySetInnerHTML?: never;
+  "data-slot"?: never;
+  render?: never;
+}
+
 export type PopoverClickProps = PopoverSlotProps &
   Omit<
     ClickContentProps,
-    "children" | "content" | "dangerouslySetInnerHTML" | "title"
+    "children" | "content" | "title" | keyof PopoverOwnedContentProps
   > &
+  PopoverOwnedContentProps &
   Pick<ClickRootProps, "defaultOpen" | "onOpenChange" | "open"> & {
     /** Available only in click mode; Preview Card triggers have no disabled contract. */
     disabled?: ClickTriggerProps["disabled"];
@@ -56,8 +63,9 @@ export type PopoverClickProps = PopoverSlotProps &
 export type PopoverHoverProps = PopoverSlotProps &
   Omit<
     HoverContentProps,
-    "children" | "content" | "dangerouslySetInnerHTML" | "title"
+    "children" | "content" | "title" | keyof PopoverOwnedContentProps
   > &
+  PopoverOwnedContentProps &
   Pick<HoverRootProps, "defaultOpen" | "onOpenChange" | "open"> & {
     /** Close delay in milliseconds. Available only with `interaction="hover"`. */
     closeDelay?: HoverTriggerProps["closeDelay"];
@@ -101,6 +109,8 @@ const ClickPopover = ({
   children,
   content,
   contentClassName,
+  "data-slot": _ignoredDataSlot,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
   title,
   titleClassName,
   description,
@@ -113,6 +123,7 @@ const ClickPopover = ({
   onOpenChange,
   disabled,
   interaction: _interaction,
+  render: _ignoredRender,
   ...contentProps
 }: PopoverClickProps) => (
   <PopoverRoot
@@ -148,6 +159,8 @@ const HoverPopover = ({
   children,
   content,
   contentClassName,
+  "data-slot": _ignoredDataSlot,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
   title,
   titleClassName,
   description,
@@ -161,6 +174,7 @@ const HoverPopover = ({
   delay,
   closeDelay,
   interaction: _interaction,
+  render: _ignoredRender,
   ...contentProps
 }: PopoverHoverProps) => {
   const generatedTriggerId = useId();

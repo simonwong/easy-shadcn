@@ -16,8 +16,15 @@ export interface BreadcrumbItem {
   label: ReactNode;
 }
 
+interface BreadcrumbOwnedRootProps {
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-slot"?: never;
+}
+
 export interface BreadcrumbProps
-  extends Omit<ComponentProps<"nav">, "children"> {
+  extends Omit<ComponentProps<"nav">, keyof BreadcrumbOwnedRootProps>,
+    BreadcrumbOwnedRootProps {
   itemClassName?: string;
   items: BreadcrumbItem[];
   linkClassName?: string;
@@ -50,6 +57,9 @@ const toKey = (item: BreadcrumbItem, index: number): string => {
 };
 
 export const Breadcrumb = ({
+  children: _ignoredChildren,
+  "data-slot": _ignoredDataSlot,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
   items,
   separator,
   maxItems,

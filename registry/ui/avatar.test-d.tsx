@@ -33,5 +33,11 @@ acceptProps({ dangerouslySetInnerHTML: { __html: "Bypass" }, fallback: "AL" });
 // @ts-expect-error Root rendering is fixed by the Compose component.
 acceptProps({ fallback: "AL", render: <div /> });
 
+// @ts-expect-error The primitive root slot is Compose-owned.
+acceptProps({ "data-slot": "bypass", fallback: "AL" });
+
+// @ts-expect-error The size marker is derived from size.
+acceptProps({ "data-size": "sm", fallback: "AL" });
+
 // @ts-expect-error Complete image prop bags remain on the primitive.
 acceptProps({ fallback: "AL", srcSet: "/avatar@2x.png 2x" });

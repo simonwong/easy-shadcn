@@ -11,7 +11,15 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-export interface CardProps extends Omit<React.ComponentProps<"div">, "title"> {
+interface CardOwnedRootProps {
+  dangerouslySetInnerHTML?: never;
+  "data-size"?: never;
+  "data-slot"?: never;
+}
+
+export interface CardProps
+  extends Omit<React.ComponentProps<"div">, "title" | keyof CardOwnedRootProps>,
+    CardOwnedRootProps {
   action?: ReactNode;
   actionClassName?: string;
   contentClassName?: string;
@@ -44,6 +52,9 @@ export const Card: React.FC<CardProps> = ({
   headerClassName,
   children,
   className,
+  "data-size": _ignoredDataSize,
+  "data-slot": _ignoredDataSlot,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
   dividers,
   size,
   ...restProps

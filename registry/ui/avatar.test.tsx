@@ -1,7 +1,7 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import { createRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Avatar } from "./avatar";
+import { Avatar, type AvatarProps } from "./avatar";
 
 class MockImage {
   complete = false;
@@ -325,5 +325,32 @@ describe("Avatar", () => {
         expect(element.getAttribute(attribute)).toBeNull();
       }
     }
+  });
+
+  it("owns its root element, descendants, slot, and size marker at runtime", () => {
+    const hostileProps = {
+      children: "Forged child",
+      "data-size": "sm",
+      "data-slot": "forged-avatar",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      render: <div>Forged render</div>,
+    } as unknown as AvatarProps;
+
+    expect(() => {
+      render(
+        <Avatar {...hostileProps} badge="Owned badge" fallback="AL" size="lg" />
+      );
+    }).not.toThrow();
+
+    const root = document.querySelector('[data-slot="avatar"]');
+    expect(root?.tagName).toBe("SPAN");
+    expect(root?.getAttribute("data-size")).toBe("lg");
+    expect(
+      root?.querySelector('[data-slot="avatar-fallback"]')?.textContent
+    ).toBe("AL");
+    expect(root?.querySelector('[data-slot="avatar-badge"]')?.textContent).toBe(
+      "Owned badge"
+    );
+    expect(document.body.textContent).not.toContain("Forged");
   });
 });

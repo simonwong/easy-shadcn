@@ -75,7 +75,7 @@ Hover previews are supplemental. Do not put unique or essential information in t
 | `defaultOpen` | `boolean` | `false` | Initial uncontrolled state. |
 | `onOpenChange` | primitive callback | - | Exact callback for the selected primitive adapter. |
 
-Every slot accepts a class override: `headerClassName`, `titleClassName`, `descriptionClassName`, `contentClassName` for the body, and `footerClassName`. Remaining popup props such as `className`, `data-*`, and event handlers are forwarded to `data-slot="popover-content"`.
+Every slot accepts a class override: `headerClassName`, `titleClassName`, `descriptionClassName`, `contentClassName` for the body, and `footerClassName`. Remaining safe popup props such as `className`, non-owned `data-*`, ARIA, and event handlers are forwarded to `data-slot="popover-content"`. Both adapters reject and runtime-strip popup `render`, raw HTML, and `data-slot` because the Compose layer owns the popup element and slot tree.
 
 ### Interaction discriminator
 
@@ -95,6 +95,8 @@ Both adapters expose the same optional regions in order:
 - Footer: `footer` inside `data-slot="popover-footer"`.
 
 The trigger uses `data-slot="popover-trigger"`; the popup uses `data-slot="popover-content"`. No extra trigger wrapper is added.
+
+The trigger element remains caller-owned: its children, id, handlers, navigation, and custom attributes are passed to the selected primitive without recursive sanitization. Use the primitive directly when the popup element or child order must change.
 
 ## Notes
 

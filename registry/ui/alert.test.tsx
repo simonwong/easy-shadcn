@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { Alert } from "./alert";
+import { Alert, type AlertProps } from "./alert";
 
 describe("Alert", () => {
   it("renders flat title and description with alert semantics", () => {
@@ -194,5 +194,39 @@ describe("Alert", () => {
     expect(
       container.querySelector('[data-slot="alert-action"]')?.className
     ).toContain("action-x");
+  });
+
+  it("owns its generated descendants, root role, and primitive slot at runtime", () => {
+    const hostileProps = {
+      children: "Forged child",
+      "data-slot": "forged-alert",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      role: "status",
+    } as unknown as AlertProps;
+
+    expect(() => {
+      render(
+        <Alert
+          {...hostileProps}
+          action="Owned action"
+          description="Owned description"
+          title="Owned title"
+        />
+      );
+    }).not.toThrow();
+
+    const root = screen.getByRole("alert");
+    expect(root.getAttribute("data-slot")).toBe("alert");
+    expect(root.querySelector('[data-slot="alert-title"]')?.textContent).toBe(
+      "Owned title"
+    );
+    expect(
+      root.querySelector('[data-slot="alert-description"]')?.textContent
+    ).toBe("Owned description");
+    expect(root.querySelector('[data-slot="alert-action"]')?.textContent).toBe(
+      "Owned action"
+    );
+    expect(screen.queryByText("Forged child")).toBeNull();
+    expect(screen.queryByText("Forged HTML")).toBeNull();
   });
 });
