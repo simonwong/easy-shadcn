@@ -10,17 +10,28 @@ const WHITESPACE_PATTERN = /\s+/;
 
 type SwitchControlProps = ComponentProps<typeof SwitchControl>;
 
-export interface SwitchProps
-  extends Omit<
-    SwitchControlProps,
-    | "children"
-    | "className"
-    | "dangerouslySetInnerHTML"
-    | "nativeButton"
-    | "render"
-  > {
+interface SwitchOwnedProps {
+  "aria-checked"?: never;
+  "aria-disabled"?: never;
+  "aria-readonly"?: never;
+  "aria-required"?: never;
+  children?: never;
   /** Class override for the visible Switch control. */
   className?: ClassValue;
+  dangerouslySetInnerHTML?: never;
+  "data-checked"?: never;
+  "data-dirty"?: never;
+  "data-disabled"?: never;
+  "data-filled"?: never;
+  "data-focused"?: never;
+  "data-invalid"?: never;
+  "data-readonly"?: never;
+  "data-required"?: never;
+  "data-size"?: never;
+  "data-slot"?: never;
+  "data-touched"?: never;
+  "data-unchecked"?: never;
+  "data-valid"?: never;
   /** Optional supporting content announced after the label. */
   description?: ReactNode;
   /** Class override for the description content. */
@@ -29,9 +40,16 @@ export interface SwitchProps
   label: ReactNode;
   /** Class override for the label content. */
   labelClassName?: ClassValue;
+  nativeButton?: never;
   /** Class override for the outer option layout. */
   optionClassName?: ClassValue;
+  render?: never;
+  role?: never;
 }
+
+export interface SwitchProps
+  extends Omit<SwitchControlProps, keyof SwitchOwnedProps>,
+    SwitchOwnedProps {}
 
 const hasNode = (node: ReactNode): boolean =>
   node !== null && node !== undefined && typeof node !== "boolean";
@@ -46,15 +64,37 @@ const mergeIds = (...values: (string | undefined)[]): string | undefined => {
 };
 
 export const Switch = ({
+  "aria-checked": _ignoredAriaChecked,
+  "aria-disabled": _ignoredAriaDisabled,
   "aria-describedby": ariaDescribedBy,
   "aria-labelledby": ariaLabelledBy,
+  "aria-readonly": _ignoredAriaReadonly,
+  "aria-required": _ignoredAriaRequired,
+  children: _ignoredChildren,
   className,
+  "data-checked": _ignoredDataChecked,
+  "data-dirty": _ignoredDataDirty,
+  "data-disabled": _ignoredDataDisabled,
+  "data-filled": _ignoredDataFilled,
+  "data-focused": _ignoredDataFocused,
+  "data-invalid": _ignoredDataInvalid,
+  "data-readonly": _ignoredDataReadonly,
+  "data-required": _ignoredDataRequired,
+  "data-size": _ignoredDataSize,
+  "data-slot": _ignoredDataSlot,
+  "data-touched": _ignoredDataTouched,
+  "data-unchecked": _ignoredDataUnchecked,
+  "data-valid": _ignoredDataValid,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
   description,
   descriptionClassName,
   label,
   labelClassName,
   optionClassName,
   id,
+  nativeButton: _ignoredNativeButton,
+  render: _ignoredRender,
+  role: _ignoredRole,
   ...controlProps
 }: SwitchProps) => {
   const autoId = useId();

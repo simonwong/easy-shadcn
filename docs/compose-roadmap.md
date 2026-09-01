@@ -29,6 +29,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-08-31 | Modal ownership | Narrowed and runtime-sanitized Modal and AlertModal action prop bags so labels, raw HTML, and click handlers cannot replace Compose-owned action/close wiring. |
 | 2026-09-01 | AlertDialog ownership | Applied the same type and runtime ownership contract to declarative AlertDialog action prop bags. |
 | 2026-09-02 | Action-control ownership | Closed Base UI element-replacement and conflicting semantic paths on AsyncButton and the Modal, AlertModal, AlertDialog, and Toast action prop bags. |
+| 2026-09-02 | Form-control ownership | Fixed InputGroup's void input and primitive slot, and fixed Switch's root element, role, generated thumb, state semantics, size, and slot markers at type and runtime seams. |
 
 ## Compose: current and planned
 
@@ -42,13 +43,13 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Date selection | Calendar, Date Picker | `Calendar`, `DatePicker` | Keep | High | DatePicker composes Calendar with input/popover state; Calendar remains useful alone. |
 | Content container | Card | `Card` | Keep | Low | Flat common slots; unusual layouts use Primitive. |
 | Carousel | Carousel | `Carousel` | Keep | Medium | Retain interaction and item flattening. |
-| Boolean controls | Checkbox, Switch | `Checkbox`, `Switch` | Keep | Low | Single boolean values stay independent; they are not ChoiceGroup. |
+| Boolean controls | Checkbox, Switch | `Checkbox`, `Switch` | Keep | Low | Single boolean values stay independent. Switch owns its root element, role, thumb, derived ARIA/data state, size, and slot markers. |
 | Select | Select, Combobox | `Select` | Keep and deepen | High | `Combobox` remains a thin searchable preset, never a second state owner. Native Select is excluded separately. |
 | Menu family | Context Menu, Dropdown Menu | `Menu` | Keep and deepen | High | Menu owns item tree and menu state. Existing `ContextMenu` and `DropdownMenu` stay as right-click/dropdown shells. |
 | Data table | Table, Data Table | `Table` | Keep and deepen | High | One owner for rendering, selection, pagination-facing state, and row identity. |
 | Empty state | Empty | `Empty` | Keep | Medium | Common empty-state structure; domain workflows stay outside it. |
 | Form layout | Field | `Field` | Keep | Medium | Own common label/control/description/error composition. |
-| Input composition | Input Group | `InputGroup` | Keep | Medium | Own adornment and grouped-control composition; plain Input stays Primitive-only. |
+| Input composition | Input Group | `InputGroup` | Keep | Medium | Own adornment, grouped-control composition, void input structure, and primitive slot; plain Input stays Primitive-only. |
 | One-time password | Input OTP | `InputOTP` | Keep | Medium | Retain specialized interaction and form semantics. |
 | Pagination | Pagination | `Pagination` | Keep and deepen | High | Own client-state vs navigation-mode contract. |
 | Floating content | Popover, Hover Card | `Popover` | Keep | Medium | `interaction="click"` uses Popover; `interaction="hover"` uses Preview Card with delay controls. Shared slots and open vocabulary survive migration; Tooltip stays separate. |

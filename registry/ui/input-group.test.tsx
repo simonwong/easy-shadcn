@@ -9,7 +9,7 @@ import type {
 import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Field } from "./field";
-import { InputGroup } from "./input-group";
+import { InputGroup, type InputGroupProps } from "./input-group";
 
 const input = (name: string) =>
   screen.getByRole("textbox", { name }) as HTMLInputElement;
@@ -355,5 +355,23 @@ describe("InputGroup", () => {
     expect(control.readOnly).toBe(true);
     expect(control.required).toBe(true);
     expect(data.get("displayName")).toBe("Ada");
+  });
+
+  it("owns the void input structure and primitive slot at runtime", () => {
+    const hostileProps = {
+      children: <span>Forged child</span>,
+      "data-slot": "forged-control",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+    } as unknown as InputGroupProps;
+
+    expect(() => {
+      render(<InputGroup aria-label="Owned input" {...hostileProps} />);
+    }).not.toThrow();
+
+    const control = input("Owned input");
+    expect(control.tagName).toBe("INPUT");
+    expect(control.getAttribute("data-slot")).toBe("input-group-control");
+    expect(screen.queryByText("Forged child")).toBeNull();
+    expect(screen.queryByText("Forged HTML")).toBeNull();
   });
 });

@@ -57,7 +57,7 @@ Add `description` when the option needs supporting copy; the component creates t
 | `ref`                  | `React.Ref<HTMLElement>`                  | -           | Ref to the visible switch control, which renders as a `span`.      |
 | `inputRef`             | `React.Ref<HTMLInputElement>`             | -           | Ref to the hidden checkbox input.                                  |
 
-Other safe primitive props, including `aria-*`, `data-*`, `style`, root event handlers, `ref`, and `inputRef`, are forwarded to their primitive targets.
+Other safe primitive props, including caller-owned naming and description ARIA, non-owned `data-*`, `style`, root event handlers, `ref`, and `inputRef`, are forwarded to their primitive targets. The Compose layer owns the root role, state-derived ARIA/data attributes, size and slot markers, element type, and generated thumb.
 
 ## Label, description, and IDs
 
@@ -118,10 +118,10 @@ const inputRef = useRef<HTMLInputElement>(null)
 
 ## Class ownership
 
-`className`, `style`, root events, ARIA props, and data attributes target the visible primitive control. `optionClassName` targets only the outer layout, while `labelClassName` and `descriptionClassName` style their corresponding content elements. Content slots deliberately stop at content plus `xxxClassName`; there is no wrapper props bag or shared `contentClassName`.
+`className`, `style`, root events, caller-owned naming and description ARIA, and non-owned data attributes target the visible primitive control. `aria-checked`, `aria-disabled`, `aria-readonly`, `aria-required`, primitive state data attributes, `data-size`, `data-slot`, and `role` are derived from supported Switch props or fixed structure, so TypeScript rejects them and runtime sanitization protects JavaScript or `any` callers. `optionClassName` targets only the outer layout, while `labelClassName` and `descriptionClassName` style their corresponding content elements. Content slots deliberately stop at content plus `xxxClassName`; there is no wrapper props bag or shared `contentClassName`.
 
 ## When to use the primitive instead
 
-Use `components/ui/switch` directly for a custom thumb, a different child order, control-right layouts, a replaced root element, or advanced Field composition. The Compose component intentionally excludes `children`, `render`, `nativeButton`, and raw HTML because those props would bypass its owned structure.
+Use `components/ui/switch` directly for a custom thumb, a different child order, control-right layouts, a replaced root element, custom root semantics, or advanced Field composition. The Compose component intentionally excludes `children`, `render`, `nativeButton`, raw HTML, and conflicting role/state attributes because those props would bypass its owned structure and derived semantics.
 
 Do not wrap this already-labeled Compose Switch in flat Compose `Field` mode. For Field errors, required markers, or orientation behavior, compose `Field` with the low-level Switch primitive instead.
