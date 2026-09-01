@@ -3,21 +3,28 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { ClassValue } from "clsx";
-import { addMonths } from "date-fns";
 import type React from "react";
 import {
+  type ButtonHTMLAttributes,
   createContext,
   type HTMLAttributes,
   type TableHTMLAttributes,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
   type CalendarMonth,
   DateLib,
+  Months as DayPickerMonths,
+  Nav as DayPickerNav,
+  NextMonthButton as DayPickerNextMonthButton,
+  PreviousMonthButton as DayPickerPreviousMonthButton,
   defaultLocale,
+  type NavProps,
   useDayPicker,
 } from "react-day-picker";
 import { Button } from "@/components/ui/button";
@@ -28,10 +35,6 @@ export type CalendarView = "days" | "months" | "years";
 
 const MONTH_INDICES = Array.from({ length: 12 }, (_, i) => i);
 const DECADE_SIZE = 10;
-
-function toMonthIndex(date: Date) {
-  return date.getFullYear() * 12 + date.getMonth();
-}
 
 type CalendarPrimitiveProps = React.ComponentProps<typeof CalendarPrimitive>;
 
@@ -70,23 +73,45 @@ export type CalendarProps =
 type CaptionCtxValue = {
   views: Record<number, CalendarView>;
   setViewForIndex: (index: number, view: CalendarView) => void;
-  startYear: number;
-  endYear: number;
-  startMonth?: Date;
-  endMonth?: Date;
-  currentMonth: Date;
-  handleMonthChange: (date: Date) => void;
+  pruneViews: (activeCount: number) => void;
   hasCustomMonthFormatter: boolean;
   monthsClassName?: ClassValue;
   yearsClassName?: ClassValue;
 };
 
-const CaptionCtx = createContext<CaptionCtxValue | null>(null);
-const MonthIndexCtx = createContext<number>(0);
+type MonthSlotCtxValue = {
+  calendarMonth: CalendarMonth;
+  displayIndex: number;
+};
 
-function useCalendarFormatting() {
-  const { dayPickerProps, formatters, labels } = useDayPicker();
-  const dateLib = useMemo(
+const CaptionCtx = createContext<CaptionCtxValue | null>(null);
+const MonthSlotCtx = createContext<MonthSlotCtxValue | null>(null);
+
+function clampMonth(
+  date: Date,
+  dateLib: DateLib,
+  startMonth?: Date,
+  endMonth?: Date
+) {
+  if (startMonth && dateLib.differenceInCalendarMonths(date, startMonth) < 0) {
+    return dateLib.startOfMonth(startMonth);
+  }
+  if (endMonth && dateLib.differenceInCalendarMonths(date, endMonth) > 0) {
+    return dateLib.startOfMonth(endMonth);
+  }
+  return dateLib.startOfMonth(date);
+}
+
+function getMonthOffset(
+  displayIndex: number,
+  monthCount: number,
+  reverseMonths?: boolean
+) {
+  return reverseMonths ? monthCount - 1 - displayIndex : displayIndex;
+}
+
+function useCalendarDateLib(dayPickerProps: CalendarPrimitiveProps) {
+  return useMemo(
     () =>
       new DateLib({
         firstWeekContainsDate: dayPickerProps.firstWeekContainsDate,
@@ -111,8 +136,56 @@ function useCalendarFormatting() {
       dayPickerProps.weekStartsOn,
     ]
   );
+}
+
+function useCalendarFormatting() {
+  const { dayPickerProps, formatters, labels } = useDayPicker();
+  const dateLib = useCalendarDateLib(dayPickerProps);
 
   return { dateLib, formatters, labels };
+}
+
+function useHasOpenPanel() {
+  const ctx = useContext(CaptionCtx)!;
+  const { months } = useDayPicker();
+  return Object.entries(ctx.views).some(
+    ([index, view]) => Number(index) < months.length && view !== "days"
+  );
+}
+
+function CalendarMonths(props: HTMLAttributes<HTMLDivElement>) {
+  const ctx = useContext(CaptionCtx)!;
+  const { months } = useDayPicker();
+  useEffect(
+    () => ctx.pruneViews(months.length),
+    [ctx.pruneViews, months.length]
+  );
+  return <DayPickerMonths {...props} />;
+}
+
+function CalendarNav(props: NavProps) {
+  if (useHasOpenPanel()) {
+    return <span hidden />;
+  }
+  return <DayPickerNav {...props} />;
+}
+
+function CalendarPreviousMonthButton(
+  props: ButtonHTMLAttributes<HTMLButtonElement>
+) {
+  if (useHasOpenPanel()) {
+    return <span hidden />;
+  }
+  return <DayPickerPreviousMonthButton {...props} />;
+}
+
+function CalendarNextMonthButton(
+  props: ButtonHTMLAttributes<HTMLButtonElement>
+) {
+  if (useHasOpenPanel()) {
+    return <span hidden />;
+  }
+  return <DayPickerNextMonthButton {...props} />;
 }
 
 function NavButton({
@@ -149,17 +222,17 @@ type MonthSlotProps = {
 } & HTMLAttributes<HTMLDivElement>;
 
 function MonthSlot({
-  calendarMonth: _calendarMonth,
+  calendarMonth,
   displayIndex,
   children,
   ...rest
 }: MonthSlotProps) {
   return (
-    <MonthIndexCtx.Provider value={displayIndex}>
+    <MonthSlotCtx.Provider value={{ calendarMonth, displayIndex }}>
       <div data-slot="easy-month" {...rest}>
         {children}
       </div>
-    </MonthIndexCtx.Provider>
+    </MonthSlotCtx.Provider>
   );
 }
 
@@ -182,47 +255,52 @@ function MonthCaption({
 }: MonthCaptionProps) {
   const ctx = useContext(CaptionCtx)!;
   const { dateLib, formatters, labels } = useCalendarFormatting();
+  const { dayPickerProps, goToMonth, months } = useDayPicker();
   const view = ctx.views[displayIndex] ?? "days";
   const setView = (v: CalendarView) => ctx.setViewForIndex(displayIndex, v);
+  const navigationDisabled = Boolean(dayPickerProps.disableNavigation);
+  const startYear = dayPickerProps.startMonth
+    ? dateLib.getYear(dayPickerProps.startMonth)
+    : dateLib.getYear(dateLib.today()) - 100;
+  const endYear = dayPickerProps.endMonth
+    ? dateLib.getYear(dayPickerProps.endMonth)
+    : dateLib.getYear(dateLib.today()) + 100;
+  const monthOffset = getMonthOffset(
+    displayIndex,
+    months.length,
+    dayPickerProps.reverseMonths
+  );
 
-  const yr = calendarMonth.date.getFullYear();
-  const mo = calendarMonth.date.getMonth();
+  const yr = dateLib.getYear(calendarMonth.date);
   const decadeStart = Math.floor(yr / DECADE_SIZE) * DECADE_SIZE;
   const monthLabel = labels.labelMonthDropdown(dateLib.options);
   const yearLabel = labels.labelYearDropdown(dateLib.options);
   const formatYear = (year: number) =>
     formatters.formatYearDropdown(dateLib.newDate(year, 0, 1), dateLib);
+  const navigateToPanelMonth = (date: Date) => {
+    if (navigationDisabled) {
+      return;
+    }
+    const nextPanelMonth = clampMonth(
+      date,
+      dateLib,
+      dayPickerProps.startMonth,
+      dayPickerProps.endMonth
+    );
+    goToMonth(dateLib.addMonths(nextPanelMonth, -monthOffset));
+  };
 
   const changeYear = (delta: number) => {
     const next = yr + delta;
-    if (next < ctx.startYear || next > ctx.endYear) {
+    if (next < startYear || next > endYear) {
       return;
     }
-    let nextPanelMonth = new Date(next, mo, 1);
-    if (
-      ctx.startMonth &&
-      toMonthIndex(nextPanelMonth) < toMonthIndex(ctx.startMonth)
-    ) {
-      nextPanelMonth = ctx.startMonth;
-    }
-    if (
-      ctx.endMonth &&
-      toMonthIndex(nextPanelMonth) > toMonthIndex(ctx.endMonth)
-    ) {
-      nextPanelMonth = ctx.endMonth;
-    }
-    ctx.handleMonthChange(
-      new Date(
-        nextPanelMonth.getFullYear(),
-        nextPanelMonth.getMonth() - displayIndex,
-        1
-      )
-    );
+    navigateToPanelMonth(dateLib.setYear(calendarMonth.date, next));
   };
 
   const changeDecade = (delta: number) => {
-    ctx.handleMonthChange(
-      new Date(yr + delta * DECADE_SIZE, mo - displayIndex, 1)
+    navigateToPanelMonth(
+      dateLib.setYear(calendarMonth.date, yr + delta * DECADE_SIZE)
     );
   };
 
@@ -233,12 +311,13 @@ function MonthCaption({
         <NavButton
           aria-label="Previous year"
           direction="left"
-          disabled={yr <= ctx.startYear}
+          disabled={navigationDisabled || yr <= startYear}
           onClick={() => changeYear(-1)}
         />
         <Button
           aria-label={yearLabel}
           className="font-medium text-sm"
+          disabled={navigationDisabled}
           onClick={() => setView("years")}
           size="sm"
           variant="ghost"
@@ -248,7 +327,7 @@ function MonthCaption({
         <NavButton
           aria-label="Next year"
           direction="right"
-          disabled={yr >= ctx.endYear}
+          disabled={navigationDisabled || yr >= endYear}
           onClick={() => changeYear(1)}
         />
       </>
@@ -259,7 +338,7 @@ function MonthCaption({
         <NavButton
           aria-label="Previous decade"
           direction="left"
-          disabled={decadeStart - DECADE_SIZE < ctx.startYear}
+          disabled={navigationDisabled || decadeStart <= startYear}
           onClick={() => changeDecade(-1)}
         />
         <span className="select-none font-medium text-sm">
@@ -269,7 +348,7 @@ function MonthCaption({
         <NavButton
           aria-label="Next decade"
           direction="right"
-          disabled={decadeStart + DECADE_SIZE * 2 > ctx.endYear}
+          disabled={navigationDisabled || decadeStart + DECADE_SIZE > endYear}
           onClick={() => changeDecade(1)}
         />
       </>
@@ -280,6 +359,7 @@ function MonthCaption({
         <Button
           aria-label={monthLabel}
           className="font-medium text-sm"
+          disabled={navigationDisabled}
           onClick={() => setView("months")}
           size="sm"
           variant="ghost"
@@ -291,6 +371,7 @@ function MonthCaption({
         <Button
           aria-label={yearLabel}
           className="font-medium text-sm"
+          disabled={navigationDisabled}
           onClick={() => setView("years")}
           size="sm"
           variant="ghost"
@@ -326,7 +407,8 @@ function MonthGrid({
 }: TableHTMLAttributes<HTMLTableElement>) {
   const ctx = useContext(CaptionCtx)!;
   const { dateLib, formatters, labels } = useCalendarFormatting();
-  const displayIndex = useContext(MonthIndexCtx);
+  const { dayPickerProps, goToMonth, months } = useDayPicker();
+  const { calendarMonth, displayIndex } = useContext(MonthSlotCtx)!;
   const view = ctx.views[displayIndex] ?? "days";
 
   if (view === "days") {
@@ -337,23 +419,53 @@ function MonthGrid({
     );
   }
 
-  const monthDate = addMonths(ctx.currentMonth, displayIndex);
-  const yr = monthDate.getFullYear();
-  const mo = monthDate.getMonth();
+  const monthDate = calendarMonth.date;
+  const yr = dateLib.getYear(monthDate);
+  const mo = dateLib.getMonth(monthDate);
   const decadeStart = Math.floor(yr / DECADE_SIZE) * DECADE_SIZE;
   const monthLabel = labels.labelMonthDropdown(dateLib.options);
   const yearLabel = labels.labelYearDropdown(dateLib.options);
 
   const setView = (v: CalendarView) => ctx.setViewForIndex(displayIndex, v);
+  const navigationDisabled = Boolean(dayPickerProps.disableNavigation);
+  const startYear = dayPickerProps.startMonth
+    ? dateLib.getYear(dayPickerProps.startMonth)
+    : dateLib.getYear(dateLib.today()) - 100;
+  const endYear = dayPickerProps.endMonth
+    ? dateLib.getYear(dayPickerProps.endMonth)
+    : dateLib.getYear(dateLib.today()) + 100;
+  const monthOffset = getMonthOffset(
+    displayIndex,
+    months.length,
+    dayPickerProps.reverseMonths
+  );
+  const navigateToPanelMonth = (date: Date) => {
+    if (navigationDisabled) {
+      return;
+    }
+    const nextPanelMonth = clampMonth(
+      date,
+      dateLib,
+      dayPickerProps.startMonth,
+      dayPickerProps.endMonth
+    );
+    goToMonth(dateLib.addMonths(nextPanelMonth, -monthOffset));
+  };
   const isMonthDisabled = (m: number) => {
-    const value = toMonthIndex(new Date(yr, m, 1));
-    const min = ctx.startMonth && toMonthIndex(ctx.startMonth);
-    const max = ctx.endMonth && toMonthIndex(ctx.endMonth);
-
-    if (min !== undefined && value < min) {
+    if (navigationDisabled) {
       return true;
     }
-    if (max !== undefined && value > max) {
+    const value = dateLib.newDate(yr, m, 1);
+    if (
+      dayPickerProps.startMonth &&
+      dateLib.differenceInCalendarMonths(value, dayPickerProps.startMonth) < 0
+    ) {
+      return true;
+    }
+    if (
+      dayPickerProps.endMonth &&
+      dateLib.differenceInCalendarMonths(value, dayPickerProps.endMonth) > 0
+    ) {
       return true;
     }
     return false;
@@ -362,11 +474,14 @@ function MonthGrid({
     if (isMonthDisabled(m)) {
       return;
     }
-    ctx.handleMonthChange(new Date(yr, m - displayIndex, 1));
+    navigateToPanelMonth(dateLib.setMonth(monthDate, m));
     setView("days");
   };
   const selectYear = (y: number) => {
-    ctx.handleMonthChange(new Date(y, mo - displayIndex, 1));
+    if (navigationDisabled) {
+      return;
+    }
+    navigateToPanelMonth(dateLib.setYear(monthDate, y));
     setView("months");
   };
 
@@ -411,6 +526,9 @@ function MonthGrid({
     { length: DECADE_SIZE + 2 },
     (_, i) => decadeStart - 1 + i
   );
+  if (dayPickerProps.reverseYears) {
+    decadeYears.reverse();
+  }
 
   return (
     <div
@@ -429,7 +547,7 @@ function MonthGrid({
         );
         const isOutside = y < decadeStart || y > decadeStart + DECADE_SIZE - 1;
         const isCurrent = y === yr;
-        const isDisabled = y < ctx.startYear || y > ctx.endYear;
+        const isDisabled = navigationDisabled || y < startYear || y > endYear;
         return (
           <Button
             aria-selected={isCurrent}
@@ -453,6 +571,10 @@ const calendarComponents = {
   Month: MonthSlot,
   MonthCaption,
   MonthGrid,
+  Months: CalendarMonths,
+  Nav: CalendarNav,
+  NextMonthButton: CalendarNextMonthButton,
+  PreviousMonthButton: CalendarPreviousMonthButton,
 };
 
 export const Calendar = (props: CalendarProps) => {
@@ -475,6 +597,7 @@ export const Calendar = (props: CalendarProps) => {
     month: controlledMonth,
     defaultMonth,
     onMonthChange,
+    numberOfMonths = 1,
     style,
     ...rest
   } = props;
@@ -485,18 +608,32 @@ export const Calendar = (props: CalendarProps) => {
       ([, formatter]) => formatter !== undefined
     )
   ) as CalendarFormatterProps;
-
   const [views, setViews] = useState<Record<number, CalendarView>>(
     defaultView ? { 0: defaultView } : {}
   );
   const setViewForIndex = (index: number, view: CalendarView) => {
     setViews((prev) => ({ ...prev, [index]: view }));
   };
+  const pruneViews = useCallback((activeCount: number) => {
+    setViews((previous) => {
+      const next = Object.fromEntries(
+        Object.entries(previous).filter(
+          ([index]) => Number(index) < activeCount
+        )
+      );
+      return Object.keys(next).length === Object.keys(previous).length
+        ? previous
+        : next;
+    });
+  }, []);
 
+  const previousResetViewsKey = useRef(resetViewsKey);
   useEffect(() => {
-    if (resetViewsKey) {
-      setViews({});
+    if (Object.is(previousResetViewsKey.current, resetViewsKey)) {
+      return;
     }
+    previousResetViewsKey.current = resetViewsKey;
+    setViews({});
   }, [resetViewsKey]);
 
   const [internalMonth, setInternalMonth] = useState(
@@ -510,25 +647,14 @@ export const Calendar = (props: CalendarProps) => {
     onMonthChange?.(next);
   };
 
-  const [nowYear] = useState(() => new Date().getFullYear());
-  const startYear = startMonth?.getFullYear() ?? nowYear - 100;
-  const endYear = endMonth?.getFullYear() ?? nowYear + 100;
-
-  const anyPanelOpen = Object.values(views).some((v) => v && v !== "days");
-
   return (
     <CaptionCtx.Provider
       value={{
-        currentMonth,
-        endYear,
-        endMonth,
-        handleMonthChange,
         hasCustomMonthFormatter:
           safeFormatters.formatMonthDropdown !== undefined,
         monthsClassName,
+        pruneViews,
         setViewForIndex,
-        startMonth,
-        startYear,
         views,
         yearsClassName,
       }}
@@ -544,9 +670,9 @@ export const Calendar = (props: CalendarProps) => {
         endMonth={endMonth}
         fixedWeeks
         formatters={safeFormatters}
-        hideNavigation={anyPanelOpen}
         locale={locale}
         month={currentMonth}
+        numberOfMonths={numberOfMonths}
         onMonthChange={handleMonthChange}
         startMonth={startMonth}
         style={{ "--cell-size": "32px", ...style } as React.CSSProperties}
