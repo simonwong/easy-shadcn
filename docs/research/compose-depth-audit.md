@@ -95,8 +95,8 @@ behavior, or repeated accessibility wiring.
 
 | Current Compose | Owned leverage |
 | --- | --- |
-| [Alert Dialog](../../registry/ui/alert-dialog.tsx) | Owns controlled/uncontrolled open state plus async confirm/cancel completion through AsyncButton. Its button prop bags omit `children`, `dangerouslySetInnerHTML`, and `onClick`, then strip the same keys at runtime. |
-| [Async Button](../../registry/ui/async-button.tsx) | Owns promise-derived busy state, delayed loading, same-frame double-submit blocking, disabled behavior, and spinner placement. This is the reference enhancement pattern. |
+| [Alert Dialog](../../registry/ui/alert-dialog.tsx) | Owns controlled/uncontrolled open state plus async confirm/cancel completion through AsyncButton. Its action prop bags preserve supported AsyncButton customization while rejecting element/semantic replacement, labels, and click wiring at type and runtime seams. |
+| [Async Button](../../registry/ui/async-button.tsx) | Owns a native button, promise-derived busy state, delayed loading, same-frame double-submit blocking, disabled semantics, primitive slot, and spinner placement. This is the reference enhancement pattern. |
 | [Calendar](../../registry/ui/calendar.tsx) | Adds month/year/decade view state and navigation on top of react-day-picker, including keyboard/ARIA naming. |
 | [Date Picker](../../registry/ui/date-picker.tsx) | Owns popover state, single/multiple/range value plumbing, and manual-input draft/commit races. The input lifecycle is recorded in [ADR-0008](../adr/0008-date-picker-input-draft-commit.md). |
 | [Field](../../registry/ui/field.tsx) | Owns label/control/description/error ids, `aria-describedby`, `aria-invalid`, required output, and form-error normalization. |

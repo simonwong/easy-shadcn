@@ -30,7 +30,7 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/async-button.json
 | `endIcon`   | `ReactNode`                                                   | -       | Icon rendered after `children`. Replaced by the spinner while loading when `startIcon` is absent. |
 | `disabled`  | `boolean`                                                     | `false` | Disables the button. The button is also disabled automatically while loading.                   |
 
-All other props (`variant`, `size`, `className`, etc.) are inherited from shadcn's `Button` and forwarded as-is.
+Supported shadcn Button props such as `variant`, `size`, `className`, `type`, and `form` are forwarded. `AsyncButton` always owns the native button element, role, busy/disabled semantics, primitive slot marker, and generated spinner structure, so `render`, `nativeButton`, conflicting raw HTML/ARIA, `role`, and `data-slot` are rejected at both type and runtime boundaries.
 
 ## Loading indicator placement
 

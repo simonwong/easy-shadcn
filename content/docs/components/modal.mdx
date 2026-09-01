@@ -94,7 +94,7 @@ Any component created with `Modal.create` can be driven imperatively — `useMod
 | `footer` | `ReactNode` | - | Replaces the default footer entirely. |
 | `onConfirm` / `onCancel` | `() => void \| Promise<void>` | - | Enables the default OK/Cancel footer. Async handlers show a pending state; a rejection keeps the modal open. |
 | `confirmText` / `cancelText` | `ReactNode` | `"OK"` / `"Cancel"` | Default footer button labels. |
-| `confirmProps` / `cancelProps` | `Omit<AsyncButtonProps, "children" \| "dangerouslySetInnerHTML" \| "onClick">` | - | Extra props for the default footer buttons (e.g. `{ variant: "destructive" }`). |
+| `confirmProps` / `cancelProps` | `Omit<AsyncButtonProps, "children" \| "onClick">` | - | Extra props for the default footer buttons (e.g. `{ variant: "destructive" }`). AsyncButton-owned element/semantic keys are excluded too. |
 | `open` / `defaultOpen` / `onOpenChange` | - | - | Controlled / uncontrolled open state. |
 | `trigger` | `ReactElement` | - | Rendered as the `DialogTrigger`. |
 | `showCloseButton` | `boolean` | `true` | The top-right close button. |
@@ -103,7 +103,7 @@ Any component created with `Modal.create` can be driven imperatively — `useMod
 
 Class overrides: `className` (dialog content), `headerClassName`, `titleClassName`, `descriptionClassName`, `contentClassName` (body), `footerClassName`.
 
-Modal owns default-footer behavior and labels. Use `onConfirm` / `onCancel` for actions and `confirmText` / `cancelText` for labels; those paths cannot be replaced through the button prop bags. Use `footer` when the whole action row must be custom. Other `AsyncButton` props remain available, including `variant`, `loading`, `disabled`, icons, `type`, `form`, and `render`.
+Modal owns default-footer behavior, button elements/semantics, and labels. Use `onConfirm` / `onCancel` for actions and `confirmText` / `cancelText` for labels; those paths cannot be replaced through the button prop bags. Use `footer` when the whole action row must be custom. Supported `AsyncButton` props remain available, including `variant`, `loading`, `disabled`, icons, `type`, and `form`.
 
 ### `AlertModal`
 
