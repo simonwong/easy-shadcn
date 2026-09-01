@@ -21,3 +21,6 @@ acceptProps({ children: <input /> });
 
 // @ts-expect-error Raw HTML is invalid for the owned void input.
 acceptProps({ dangerouslySetInnerHTML: { __html: "Bypass" } });
+
+// @ts-expect-error The primitive slot marker is Compose-owned.
+acceptProps({ "data-slot": "bypass" });

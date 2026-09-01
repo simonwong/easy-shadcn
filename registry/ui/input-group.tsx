@@ -9,11 +9,18 @@ import {
 } from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
 
+interface InputGroupOwnedInputProps {
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-slot"?: never;
+}
+
 export interface InputGroupProps
   extends Omit<
-    ComponentProps<typeof InputGroupInput>,
-    "children" | "className" | "dangerouslySetInnerHTML"
-  > {
+      ComponentProps<typeof InputGroupInput>,
+      "className" | keyof InputGroupOwnedInputProps
+    >,
+    InputGroupOwnedInputProps {
   /** Class override for the InputGroup root. All other inherited props target the input. */
   className?: ClassValue;
   /** Content for the logical inline-end addon. */
@@ -32,7 +39,10 @@ const hasNode = (node: ReactNode): boolean =>
   node !== null && node !== undefined && typeof node !== "boolean";
 
 export const InputGroup = ({
+  children: _ignoredChildren,
   className,
+  "data-slot": _ignoredDataSlot,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
   inputClassName,
   startAddon,
   startAddonClassName,

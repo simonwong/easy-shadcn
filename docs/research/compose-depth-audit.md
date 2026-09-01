@@ -81,10 +81,10 @@ depth.
 | [Context Menu](../../registry/ui/context-menu.tsx) | Flattens a context-triggered action list. Keep the current component; do not redefine it as the future navigation Menu. |
 | [Dropdown Menu](../../registry/ui/dropdown-menu.tsx) | Flattens trigger + positioned action list. Keep the current component; Dropdown is a trigger/positioning shell around action-menu behavior, not the future navigation Menu. |
 | [Empty](../../registry/ui/empty.tsx) | Flattens media/title/description/content slots. Keep thin. |
-| [Input Group](../../registry/ui/input-group.tsx) | Flattens addon/input composition. Keep thin. |
+| [Input Group](../../registry/ui/input-group.tsx) | Flattens addon/input composition while fixing the void input structure and primitive slot at type and runtime seams. Keep thin. |
 | [Input OTP](../../registry/ui/input-otp.tsx) | Generates groups, separators, and slots from `maxLength`/`groupSize`; the primitive owns input state. Keep the generated-structure wrapper thin. |
 | [Sheet](../../registry/ui/sheet.tsx) | Flattens edge, title, body, footer, and open state over Dialog. Keep Sheet only. Drawer gestures and snap points are not folded into it. |
-| [Switch](../../registry/ui/switch.tsx) | Owns label/description ids and ARIA relationships for one immediate boolean setting. Keep independent from ChoiceGroup. |
+| [Switch](../../registry/ui/switch.tsx) | Owns label/description ids, ARIA relationships, root semantics, state attributes, and generated thumb at type and runtime seams for one immediate boolean setting. Keep independent from ChoiceGroup. |
 | [Tabs](../../registry/ui/tabs.tsx) | Maps homogeneous `items[]` to triggers/content and delegates value state. Keep thin. The source already uses `trigger`; ADR-0004's old `label` cleanup note is stale. |
 | [Tooltip](../../registry/ui/tooltip.tsx) | Flattens trigger/content and provider delay. Keep separate from Popover: tooltip semantics and content constraints differ from rich interactive overlays. |
 

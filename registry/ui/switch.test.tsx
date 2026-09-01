@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { Switch } from "./switch";
+import { Switch, type SwitchProps } from "./switch";
 
 describe("Switch", () => {
   it("renders a labeled uncontrolled option and toggles exactly once", () => {
@@ -503,5 +503,62 @@ describe("Switch", () => {
     expect(description.classList.contains("description-class")).toBe(true);
     expect(control.closest("label")).toBeNull();
     expect(onPointerDown).toHaveBeenCalledOnce();
+  });
+
+  it("owns its generated structure and derived semantics at runtime", () => {
+    const onCheckedChange = vi.fn();
+    const hostileProps = {
+      "aria-checked": true,
+      "aria-disabled": true,
+      "aria-readonly": true,
+      "aria-required": true,
+      children: "Forged child",
+      "data-checked": "",
+      "data-disabled": "",
+      "data-dirty": "",
+      "data-filled": "",
+      "data-focused": "",
+      "data-invalid": "",
+      "data-readonly": "",
+      "data-required": "",
+      "data-size": "sm",
+      "data-slot": "forged-switch",
+      "data-touched": "",
+      "data-valid": "",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      nativeButton: true,
+      render: <a href="/replace">Forged render</a>,
+      role: "checkbox",
+    } as unknown as SwitchProps;
+
+    expect(() => {
+      render(
+        <Switch
+          {...hostileProps}
+          label="Owned switch"
+          onCheckedChange={onCheckedChange}
+        />
+      );
+    }).not.toThrow();
+
+    const control = screen.getByRole("switch", { name: "Owned switch" });
+    expect(control.tagName).toBe("SPAN");
+    expect(control.getAttribute("aria-checked")).toBe("false");
+    expect(control.getAttribute("aria-disabled")).toBeNull();
+    expect(control.getAttribute("aria-readonly")).toBeNull();
+    expect(control.getAttribute("aria-required")).toBeNull();
+    expect(control.getAttribute("data-checked")).toBeNull();
+    expect(control.hasAttribute("data-unchecked")).toBe(true);
+    expect(control.getAttribute("data-disabled")).toBeNull();
+    expect(control.getAttribute("data-size")).toBe("default");
+    expect(control.getAttribute("data-slot")).toBe("switch");
+    expect(control.querySelector('[data-slot="switch-thumb"]')).not.toBeNull();
+    expect(screen.queryByText("Forged child")).toBeNull();
+    expect(screen.queryByText("Forged HTML")).toBeNull();
+    expect(screen.queryByText("Forged render")).toBeNull();
+
+    fireEvent.click(control);
+    expect(onCheckedChange).toHaveBeenCalledOnce();
+    expect(control.getAttribute("aria-checked")).toBe("true");
   });
 });

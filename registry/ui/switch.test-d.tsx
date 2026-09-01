@@ -53,5 +53,32 @@ acceptProps({ label: "Notifications", render: <button type="button" /> });
 // @ts-expect-error The visible root remains the primitive span contract.
 acceptProps({ label: "Notifications", nativeButton: true });
 
+// @ts-expect-error Checked ARIA is derived from checked state.
+acceptProps({ "aria-checked": true, label: "Notifications" });
+
+// @ts-expect-error Disabled ARIA is derived from disabled state.
+acceptProps({ "aria-disabled": true, label: "Notifications" });
+
+// @ts-expect-error Readonly ARIA is derived from readOnly state.
+acceptProps({ "aria-readonly": true, label: "Notifications" });
+
+// @ts-expect-error Required ARIA is derived from required state.
+acceptProps({ "aria-required": true, label: "Notifications" });
+
+// @ts-expect-error Checked data state is primitive-owned.
+acceptProps({ "data-checked": "", label: "Notifications" });
+
+// @ts-expect-error Disabled data state is primitive-owned.
+acceptProps({ "data-disabled": "", label: "Notifications" });
+
+// @ts-expect-error The size marker is derived from size.
+acceptProps({ "data-size": "sm", label: "Notifications" });
+
+// @ts-expect-error The primitive slot marker is Compose-owned.
+acceptProps({ "data-slot": "bypass", label: "Notifications" });
+
+// @ts-expect-error Switch owns its root role.
+acceptProps({ label: "Notifications", role: "checkbox" });
+
 // @ts-expect-error Content slots expose their own class hooks, not a shared wrapper hook.
 acceptProps({ contentClassName: "content-x", label: "Notifications" });

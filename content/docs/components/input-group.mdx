@@ -32,13 +32,15 @@ The underlying shadcn `input-group` primitive is installed automatically.
 | `inputClassName`      | `ClassValue`      | -       | Class override for the actual `InputGroupInput`.                                                             |
 | `startAddonClassName` | `ClassValue`      | -       | Class override for the logical start addon wrapper.                                                          |
 | `endAddonClassName`   | `ClassValue`      | -       | Class override for the logical end addon wrapper.                                                            |
-| Input props           | `InputGroupInput` props | - | Native input props forwarded to the actual input, except `children`, `className`, and `dangerouslySetInnerHTML`. |
+| Input props           | `InputGroupInput` props | - | Native input props forwarded to the actual input, except `children`, `className`, `dangerouslySetInnerHTML`, and `data-slot`. |
 
 There are no required Compose props. An Input Group with only native input props is the basic use case.
 
 ### Prop ownership
 
-`className` is the only top-level prop owned by the root. `inputClassName` and every inherited input prop target the actual input, including `id`, `name`, `value`, `defaultValue`, `onChange`, keyboard and focus events, `style`, `data-*`, `aria-*`, and `ref`. The ref resolves to an `HTMLInputElement`.
+`className` is the only top-level prop owned by the root. `inputClassName` and every inherited input prop target the actual input, including `id`, `name`, `value`, `defaultValue`, `onChange`, keyboard and focus events, `style`, non-owned `data-*`, `aria-*`, and `ref`. The ref resolves to an `HTMLInputElement`.
+
+The Compose layer fixes the control as a void `input` and owns its primitive `data-slot`. `children`, raw HTML, and `data-slot` are rejected by TypeScript and stripped at runtime, including for JavaScript or `any` callers.
 
 Root events, root `style` / `data-*`, and a root ref are intentionally unavailable. Use the primitive when the group container itself needs those props.
 
