@@ -30,7 +30,7 @@ Whether a slot gets an `xxxProps` escape is decided by *what the slot's content 
 1. **Content slots** — `title`, `description`, `footer`, `content`, etc., whose type is `ReactNode`. **Never add `xxxProps`.** The slot interior is already 100% caller-controlled (they hand you the node); the only thing they can't reach is the wrapping element, and a wrapper has nothing but styling needs. `xxxClassName` is the ceiling. This is a hard rule.
 2. **Interactive-component slots** — buttons, checkboxes, inputs: components with their own props surface. `xxxProps` is legitimate and its count is **not** capped. But it **must Omit, at the type level, every key the Compose layer has taken over** (`onClick`, `checked`, `onCheckedChange`, `children`, …) — a documentation note is not enough, because a passthrough spread will silently win at runtime.
    - Positive example: `registry/ui/table.tsx`'s `TableCheckboxProps` is `Omit<…, "checked" | "children" | "defaultChecked" | "indeterminate" | "onCheckedChange">`, so no external prop can desync the selection state.
-   - Corrected example: Modal and AlertModal formerly exposed un-narrowed AsyncButton prop bags. Their `confirmProps` / `cancelProps` now omit `children`, `dangerouslySetInnerHTML`, and `onClick` and strip the same keys at runtime. The Compose-owned action, label, and close wiring therefore survive JavaScript or `any` callers as well as typed callers.
+   - Corrected example: Modal, AlertModal, and AlertDialog formerly exposed AsyncButton prop bags that were un-narrowed or only type-narrowed. Their `confirmProps` / `cancelProps` now omit `children`, `dangerouslySetInnerHTML`, and `onClick` and strip the same keys at runtime. The Compose-owned action, label, and close wiring therefore survive JavaScript or `any` callers as well as typed callers.
 3. **Slots the Compose state must flow into** — use the function form `(record, index) => Partial<Props>` (the `getCheckboxProps` pattern). It, too, Omits the state keys, and the function is required to be **pure and non-throwing** (it runs for every row on every render; throwing unmounts the surrounding tree).
 
 Verdict: **count was never the problem; un-narrowed ownership is.**
@@ -52,5 +52,5 @@ Names are chosen against a fixed priority of reference frames:
 ## Consequences
 
 - **Sanctioned inconsistency.** `multiple` (Select) vs `mode` (DatePicker) is now explicitly an acceptable cost of frame-1 primitive alignment, not a defect. Reviewers should not "harmonize" it.
-- **Completed cleanup — Modal action ownership.** Modal and AlertModal action prop bags now exclude both label injection paths and click wiring while preserving all other AsyncButton capabilities. Full custom action rows use `footer`.
+- **Completed cleanup — modal-family action ownership.** Modal, AlertModal, and AlertDialog action prop bags now exclude both label injection paths and click wiring while preserving all other AsyncButton capabilities. Full custom action rows use `footer`.
 - Future component reviews decide props by Rules A/B (sizing), the three slot categories (`xxxProps`), and the reference-frame order (naming) — no more coin-flips at the 80/20 line.
