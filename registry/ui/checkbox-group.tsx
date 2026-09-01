@@ -17,11 +17,32 @@ export interface CheckboxGroupItem {
   value: string;
 }
 
+interface CheckboxGroupOwnedRootProps {
+  "aria-disabled"?: never;
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-dirty"?: never;
+  "data-disabled"?: never;
+  "data-filled"?: never;
+  "data-focused"?: never;
+  "data-invalid"?: never;
+  "data-slot"?: never;
+  "data-touched"?: never;
+  "data-valid"?: never;
+  onChange?: never;
+  render?: never;
+  role?: never;
+}
+
 export interface CheckboxGroupProps
   extends Omit<
-    CheckboxGroupRoot.Props,
-    "children" | "defaultValue" | "onValueChange" | "render" | "value"
-  > {
+      CheckboxGroupRoot.Props,
+      | "defaultValue"
+      | "onValueChange"
+      | "value"
+      | keyof CheckboxGroupOwnedRootProps
+    >,
+    CheckboxGroupOwnedRootProps {
   defaultValue?: string[];
   descriptionClassName?: ClassValue;
   itemClassName?: ClassValue;
@@ -36,12 +57,27 @@ export interface CheckboxGroupProps
 }
 
 export const CheckboxGroup = ({
+  "aria-disabled": _ignoredAriaDisabled,
+  children: _ignoredChildren,
+  "data-dirty": _ignoredDataDirty,
+  "data-disabled": _ignoredDataDisabled,
+  "data-filled": _ignoredDataFilled,
+  "data-focused": _ignoredDataFocused,
+  "data-invalid": _ignoredDataInvalid,
+  "data-slot": _ignoredDataSlot,
+  "data-touched": _ignoredDataTouched,
+  "data-valid": _ignoredDataValid,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+  disabled = false,
   items,
   optionClassName,
   itemClassName,
   labelClassName,
   descriptionClassName,
   className,
+  onChange: _ignoredOnChange,
+  render: _ignoredRender,
+  role: _ignoredRole,
   ...rootProps
 }: CheckboxGroupProps) => {
   const baseId = useId();
@@ -50,9 +86,11 @@ export const CheckboxGroup = ({
     // The base-ui group root is unstyled; bake RadioGroup's layout here so
     // components/ui stays untouched (there is no styled checkbox-group there).
     <CheckboxGroupRoot
+      {...rootProps}
+      aria-disabled={disabled || undefined}
       className={cn("grid w-full gap-2", className)}
       data-slot="checkbox-group"
-      {...rootProps}
+      disabled={disabled}
     >
       {items.map((item, index) => {
         // Derive ids from the index, not item.value: values may contain

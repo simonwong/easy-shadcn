@@ -32,6 +32,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-09-02 | Form-control ownership | Fixed InputGroup's void input and primitive slot, and fixed Switch's root element, role, generated thumb, state semantics, size, and slot markers at type and runtime seams. |
 | 2026-09-02 | Structural-root ownership | Protected Alert, Avatar, Card, Breadcrumb, and both Popover adapters from raw HTML, element replacement, and conflicting root/popup markers while preserving caller-owned content and trigger escape hatches. |
 | 2026-09-02 | Accordion/Tabs ownership | Protected both items-driven collection roots from raw HTML, element replacement, and forged primitive state markers while preserving safe root props and caller-owned item content. |
+| 2026-09-02 | Choice-list ownership | Protected all four `ChoiceGroup` adapters and the soft-deprecated `RadioGroup` / `CheckboxGroup` roots from structure, role, orientation, disabled, and primitive-state overrides while preserving caller naming, refs, events, styles, and value contracts. |
 
 ## Compose: current and planned
 
@@ -56,7 +57,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Pagination | Pagination | `Pagination` | Keep and deepen | High | Own client-state vs navigation-mode contract. |
 | Floating content | Popover, Hover Card | `Popover` | Keep | Medium | Click and hover adapters share a fixed popup/slot structure; the caller-owned trigger remains the escape hatch. Tooltip stays separate. |
 | Progress | Progress | `Progress` | Keep | Low | Preserve current wrapper; Spinner and Skeleton remain Primitive-only. |
-| Choice list | Radio Group, Toggle Group | `ChoiceGroup` | Keep and deepen | High | Single/multiple selection; radio/checkbox/toggle presentation. Existing `RadioGroup` and `CheckboxGroup` are soft-deprecated. |
+| Choice list | Radio Group, Toggle Group | `ChoiceGroup` | Keep and deepen | High | Single/multiple selection; radio/checkbox/toggle presentation with fixed root semantics and state markers. Existing `RadioGroup` and `CheckboxGroup` are soft-deprecated. |
 | Edge panel | Sheet | `Sheet` | Keep | Medium | Binary edge-positioned dialog. Drawer gestures and snap points are excluded. |
 | Range input | Slider | `Slider` | Keep | High | Scalar mode keeps the original `number` API. `multiple=true` switches to arrays, requires per-thumb accessible names, and exposes spacing/collision policy without changing the base case. |
 | Tabs | Tabs | `Tabs` | Keep | Low | Fixed items-driven tablist/panels and primitive state markers; heterogeneous bodies use Primitive. |

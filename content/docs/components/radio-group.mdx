@@ -38,7 +38,7 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/radio-group.json
 | `labelClassName`       | `ClassValue`                              | -       | Class override applied to every label.                                      |
 | `descriptionClassName` | `ClassValue`                              | -       | Class override applied to every description.                                |
 
-All other props (`className`, `readOnly`, `form`, etc.) are forwarded to the underlying RadioGroup root.
+Caller-owned root props (`className`, `readOnly`, `form`, accessible naming, refs, safe events, etc.) are forwarded to the underlying RadioGroup root. Generated children, the `radiogroup` role, state-derived ARIA/data attributes, the primitive slot marker, raw HTML, polymorphic rendering, and native `onChange` remain Compose-owned at both type and runtime seams.
 
 ### RadioGroupItem
 

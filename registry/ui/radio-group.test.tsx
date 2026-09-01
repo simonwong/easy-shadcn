@@ -1,6 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { RadioGroup, type RadioGroupItem } from "./radio-group";
+import {
+  RadioGroup,
+  type RadioGroupItem,
+  type RadioGroupProps,
+} from "./radio-group";
 
 const baseItems: RadioGroupItem[] = [
   { label: "Option A", value: "a" },
@@ -133,5 +138,73 @@ describe("RadioGroup", () => {
 
     expect(container.querySelector('[data-slot="radio-group"]')).not.toBeNull();
     expect(screen.queryByRole("radio")).toBeNull();
+  });
+
+  it("owns generated structure, role, ARIA state, and primitive markers", () => {
+    const nativeOnChange = vi.fn();
+    const hostileProps = {
+      "aria-disabled": true,
+      "aria-readonly": true,
+      "aria-required": true,
+      children: "Forged child",
+      "data-dirty": "",
+      "data-disabled": "",
+      "data-filled": "",
+      "data-focused": "",
+      "data-invalid": "",
+      "data-slot": "forged-radio-group",
+      "data-touched": "",
+      "data-valid": "",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      onChange: nativeOnChange,
+      render: <section>Forged render</section>,
+      role: "listbox",
+    } as unknown as RadioGroupProps;
+    const rootRef = createRef<HTMLDivElement>();
+    const inputRef = createRef<HTMLInputElement>();
+    const onClick = vi.fn();
+    const onValueChange = vi.fn();
+
+    expect(() => {
+      render(
+        <RadioGroup
+          {...hostileProps}
+          aria-label="Plans"
+          disabled={false}
+          inputRef={inputRef}
+          items={baseItems}
+          onClick={onClick}
+          onValueChange={onValueChange}
+          readOnly={false}
+          ref={rootRef}
+          required={false}
+        />
+      );
+    }).not.toThrow();
+
+    const root = screen.getByRole("radiogroup", { name: "Plans" });
+    expect(rootRef.current).toBe(root);
+    expect(inputRef.current).not.toBeNull();
+    expect(root.getAttribute("data-slot")).toBe("radio-group");
+    expect(root.getAttribute("aria-disabled")).toBeNull();
+    expect(root.getAttribute("aria-readonly")).toBeNull();
+    expect(root.getAttribute("aria-required")).toBeNull();
+    for (const attribute of [
+      "data-dirty",
+      "data-disabled",
+      "data-filled",
+      "data-focused",
+      "data-invalid",
+      "data-touched",
+      "data-valid",
+    ]) {
+      expect(root.getAttribute(attribute)).toBeNull();
+    }
+    expect(document.body.textContent).not.toContain("Forged");
+
+    fireEvent.click(radio("Option A"));
+    expect(onClick).toHaveBeenCalled();
+    expect(onValueChange).toHaveBeenCalledWith("a", expect.anything());
+    expect(nativeOnChange).not.toHaveBeenCalled();
   });
 });

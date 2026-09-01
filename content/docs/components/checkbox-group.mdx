@@ -37,7 +37,7 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/checkbox-group.json
 | `labelClassName`       | `ClassValue`                                | -       | Class override applied to every label.                                          |
 | `descriptionClassName` | `ClassValue`                                | -       | Class override applied to every description.                                     |
 
-All other props (`className`, `data-*`, `style`, etc.) are forwarded to the underlying CheckboxGroup root.
+Caller-owned root props (`className`, accessible naming, refs, safe events, ordinary `data-*`, `style`, etc.) are forwarded to the underlying CheckboxGroup root. Generated children, the `group` role, disabled ARIA, primitive state/data markers, raw HTML, polymorphic rendering, and native `onChange` remain Compose-owned at both type and runtime seams.
 
 ### CheckboxGroupItem
 

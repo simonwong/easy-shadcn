@@ -1,6 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { type CSSProperties, createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { ChoiceGroup, type ChoiceGroupItem } from "./choice-group";
+import {
+  ChoiceGroup,
+  type ChoiceGroupItem,
+  type ChoiceGroupProps,
+} from "./choice-group";
 
 const items: ChoiceGroupItem[] = [
   { label: "Email", value: "email" },
@@ -305,5 +310,127 @@ describe("ChoiceGroup", () => {
     expect(toggle.getAttribute("aria-describedby")).toBe(
       screen.getByText("Daily digest").id
     );
+  });
+
+  it.each([
+    { expectedRole: "radiogroup", props: {} },
+    {
+      expectedRole: "group",
+      props: { selectionMode: "multiple" as const },
+    },
+    {
+      expectedRole: "group",
+      props: { presentation: "toggle" as const },
+    },
+    {
+      expectedRole: "group",
+      props: {
+        presentation: "toggle" as const,
+        selectionMode: "multiple" as const,
+      },
+    },
+  ])("owns the $expectedRole root structure and state markers for %#", ({
+    expectedRole,
+    props,
+  }) => {
+    const nativeOnChange = vi.fn();
+    const hostileProps = {
+      "aria-disabled": true,
+      "aria-orientation": "vertical",
+      children: "Forged child",
+      "data-dirty": "",
+      "data-disabled": "",
+      "data-filled": "",
+      "data-focused": "",
+      "data-invalid": "",
+      "data-multiple": "",
+      "data-orientation": "vertical",
+      "data-size": "lg",
+      "data-spacing": "99",
+      "data-touched": "",
+      "data-valid": "",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      onChange: nativeOnChange,
+      render: <section>Forged render</section>,
+      role: "listbox",
+    } as unknown as ChoiceGroupProps;
+
+    const unsafeProps = {
+      ...hostileProps,
+      ...props,
+      "aria-label": "Channels",
+      "data-testid": "choice-root",
+      disabled: false,
+      items,
+      orientation: "horizontal",
+    } as unknown as ChoiceGroupProps;
+
+    expect(() => {
+      render(<ChoiceGroup {...unsafeProps} />);
+    }).not.toThrow();
+
+    const root = screen.getByTestId("choice-root");
+    expect(root.getAttribute("role")).toBe(expectedRole);
+    expect(root.getAttribute("aria-disabled")).toBeNull();
+    expect(root.getAttribute("aria-orientation")).toBe("horizontal");
+    expect(root.getAttribute("data-disabled")).toBeNull();
+    expect(root.getAttribute("data-orientation")).toBe("horizontal");
+    for (const attribute of [
+      "data-dirty",
+      "data-filled",
+      "data-focused",
+      "data-invalid",
+      "data-touched",
+      "data-valid",
+    ]) {
+      expect(root.getAttribute(attribute)).toBeNull();
+    }
+    expect(screen.getByText("Email")).toBeTruthy();
+    expect(document.body.textContent).not.toContain("Forged");
+    let control: HTMLElement;
+    if (expectedRole === "radiogroup") {
+      control = screen.getByRole("radio", { name: "Email" });
+    } else if (props.presentation === "toggle") {
+      control = screen.getByRole("button", { name: "Email" });
+    } else {
+      control = screen.getByRole("checkbox", { name: "Email" });
+    }
+    fireEvent.click(control);
+    expect(nativeOnChange).not.toHaveBeenCalled();
+  });
+
+  it("preserves root refs and safe events while protecting toggle style state", () => {
+    const ref = createRef<HTMLDivElement>();
+    const onClick = vi.fn();
+    const onKeyDown = vi.fn();
+    render(
+      <ChoiceGroup
+        items={items}
+        onClick={onClick}
+        onKeyDown={onKeyDown}
+        orientation="vertical"
+        presentation="toggle"
+        ref={ref}
+        selectionMode="multiple"
+        size="sm"
+        spacing={4}
+        style={{ "--gap": 99, color: "red" } as CSSProperties}
+        variant="outline"
+      />
+    );
+
+    const root = screen.getByRole("group");
+    expect(ref.current).toBe(root);
+    expect(root.getAttribute("data-multiple")).toBe("");
+    expect(root.getAttribute("data-size")).toBe("sm");
+    expect(root.getAttribute("data-spacing")).toBe("4");
+    expect(root.getAttribute("data-variant")).toBe("outline");
+    expect(root.style.getPropertyValue("--gap")).toBe("4");
+    expect(root.style.color).toBe("red");
+
+    fireEvent.click(root);
+    fireEvent.keyDown(root, { key: "ArrowDown" });
+    expect(onClick).toHaveBeenCalledOnce();
+    expect(onKeyDown).toHaveBeenCalledOnce();
   });
 });
