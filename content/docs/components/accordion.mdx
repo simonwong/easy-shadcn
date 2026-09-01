@@ -35,7 +35,7 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/accordion.json
 | `triggerClassName` | `ClassValue`                                  | -       | Class override applied to every `AccordionTrigger`.                                  |
 | `contentClassName` | `ClassValue`                                  | -       | Class override applied to every `AccordionContent`.                                  |
 
-All other props (`className`, `orientation`, `loopFocus`, etc.) are forwarded to the underlying Accordion root.
+Other safe root props (`className`, `role`, ARIA, `orientation`, `loopFocus`, etc.) are forwarded to the underlying Accordion root. The Compose layer owns the generated items, root element, primitive slot, and state markers: `children`, raw HTML, `render`, `data-slot`, `data-disabled`, and `data-orientation` are rejected by TypeScript and stripped at runtime. `data-disabled` and `data-orientation` are derived from the supported root props.
 
 ### AccordionItem
 

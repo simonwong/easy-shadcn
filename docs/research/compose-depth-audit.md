@@ -70,7 +70,7 @@ depth.
 
 | Current Compose | Evidence and disposition |
 | --- | --- |
-| [Accordion](../../registry/ui/accordion.tsx) | Maps homogeneous `items[]` to trigger/content pairs and delegates all selection state to Base UI. Keep thin. A one-item use already covers the common Collapsible task; document that instead of adding a separate Compose. |
+| [Accordion](../../registry/ui/accordion.tsx) | Maps homogeneous `items[]` to trigger/content pairs, fixes the generated root/children and state markers at type and runtime seams, and delegates selection state to Base UI. Keep thin. A one-item use already covers the common Collapsible task. |
 | [Alert](../../registry/ui/alert.tsx) | Flattens icon/title/description/action slots while fixing the alert role, root marker, and generated child order at type and runtime seams. Keep thin. |
 | [Avatar](../../registry/ui/avatar.tsx) | Flattens image/fallback/badge composition while fixing the root element, descendants, slot, and size marker at type and runtime seams. Keep thin. |
 | [Breadcrumb](../../registry/ui/breadcrumb.tsx) | Generates homogeneous breadcrumb entries and separators while protecting the generated nav list and root marker at type and runtime seams. Keep thin. |
@@ -85,7 +85,7 @@ depth.
 | [Input OTP](../../registry/ui/input-otp.tsx) | Generates groups, separators, and slots from `maxLength`/`groupSize`; the primitive owns input state. Keep the generated-structure wrapper thin. |
 | [Sheet](../../registry/ui/sheet.tsx) | Flattens edge, title, body, footer, and open state over Dialog. Keep Sheet only. Drawer gestures and snap points are not folded into it. |
 | [Switch](../../registry/ui/switch.tsx) | Owns label/description ids, ARIA relationships, root semantics, state attributes, and generated thumb at type and runtime seams for one immediate boolean setting. Keep independent from ChoiceGroup. |
-| [Tabs](../../registry/ui/tabs.tsx) | Maps homogeneous `items[]` to triggers/content and delegates value state. Keep thin. The source already uses `trigger`; ADR-0004's old `label` cleanup note is stale. |
+| [Tabs](../../registry/ui/tabs.tsx) | Maps homogeneous `items[]` to triggers/content, fixes the generated root/children and primitive state markers at type and runtime seams, and delegates value state. Keep thin. The source already uses `trigger`. |
 | [Tooltip](../../registry/ui/tooltip.tsx) | Flattens trigger/content and provider delay. Keep separate from Popover: tooltip semantics and content constraints differ from rich interactive overlays. |
 
 ### Already deep

@@ -34,7 +34,7 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/tabs.json
 | `triggerClassName` | `ClassValue`                               | -           | Class override applied to every `TabsTrigger`.                                            |
 | `contentClassName` | `ClassValue`                               | -           | Class override applied to every `TabsContent`.                                            |
 
-All other props (`className`, `orientation`, etc.) are forwarded to the underlying Tabs root.
+Other safe root props (`className`, `role`, ARIA, `orientation`, and events) are forwarded to the underlying Tabs root. The Compose layer owns the generated list/panels, root element, primitive slot, orientation marker, and activation-direction state: `children`, raw HTML, `render`, `data-slot`, `data-orientation`, and `data-activation-direction` are rejected by TypeScript and stripped at runtime.
 
 ### TabsItem
 
