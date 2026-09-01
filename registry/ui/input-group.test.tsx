@@ -318,7 +318,7 @@ describe("InputGroup", () => {
     expect(root.getAttribute("aria-invalid")).toBeNull();
   });
 
-  it("preserves explicit Field control attributes", () => {
+  it("merges explicit Field control attributes with generated wiring", () => {
     render(
       <Field description="Generated description" label="Account">
         <InputGroup
@@ -330,8 +330,11 @@ describe("InputGroup", () => {
     );
 
     const control = input("Account");
+    const description = screen.getByText("Generated description");
     expect(control.id).toBe("custom-account");
-    expect(control.getAttribute("aria-describedby")).toBe("custom-description");
+    expect(control.getAttribute("aria-describedby")).toBe(
+      `${description.id} custom-description`
+    );
     expect(control.getAttribute("aria-invalid")).toBe("grammar");
   });
 

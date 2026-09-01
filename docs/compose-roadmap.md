@@ -57,7 +57,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Menu family | Context Menu, Dropdown Menu | `Menu` | Keep and deepen | High | Menu owns item tree, root semantics, keyboard routing, selection, and open state. Existing `ContextMenu` and `DropdownMenu` stay as right-click/dropdown shells. |
 | Data table | Table, Data Table | `Table` | Keep and deepen | High | One owner for generated table structure, loading state, row identity, selection, bulk eligibility, and the row-checkbox state seam. |
 | Empty state | Empty | `Empty` | Keep | Medium | Common empty-state structure; domain workflows stay outside it. |
-| Form layout | Field | `Field` | Keep | Medium | Own common label/control/description/error composition. |
+| Form layout | Field | `Field` | Keep | Medium | Own common label/control/description/error composition, root state markers, and flat-control id/ARIA wiring. |
 | Input composition | Input Group | `InputGroup` | Keep | Medium | Own adornment, grouped-control composition, void input structure, and primitive slot; plain Input stays Primitive-only. |
 | One-time password | Input OTP | `InputOTP` | Keep | Medium | Retain specialized interaction and form semantics. |
 | Pagination | Pagination | `Pagination` | Keep and deepen | High | Own client-state vs navigation-mode contract. |

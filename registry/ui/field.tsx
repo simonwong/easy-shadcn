@@ -1,10 +1,9 @@
 "use client";
 
-import { Slot } from "@radix-ui/react-slot";
 import type { ClassValue } from "clsx";
 import type React from "react";
 import type { ReactNode } from "react";
-import { isValidElement, useId } from "react";
+import { cloneElement, Fragment, isValidElement, useId } from "react";
 import {
   Field as BaseField,
   FieldContent as BaseFieldContent,
@@ -17,8 +16,23 @@ import { cn } from "@/lib/utils";
 
 export type FieldErrorItem = { message?: string } | undefined;
 
+interface FieldOwnedRootProps {
+  "aria-disabled"?: never;
+  "aria-invalid"?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-disabled"?: never;
+  "data-invalid"?: never;
+  "data-orientation"?: never;
+  "data-slot"?: never;
+  role?: never;
+}
+
 export interface FieldProps
-  extends Omit<React.ComponentProps<"div">, "className"> {
+  extends Omit<
+      React.ComponentProps<"div">,
+      "className" | keyof FieldOwnedRootProps
+    >,
+    FieldOwnedRootProps {
   className?: ClassValue;
   contentClassName?: ClassValue;
   description?: ReactNode;
@@ -33,6 +47,23 @@ export interface FieldProps
   orientation?: "vertical" | "horizontal" | "responsive";
   required?: boolean;
 }
+
+interface WireableControlProps {
+  "aria-describedby"?: string;
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"];
+  id?: string;
+}
+
+const WHITESPACE_PATTERN = /\s+/;
+
+const mergeIds = (...values: (string | undefined)[]): string | undefined => {
+  const tokens = values
+    .flatMap((value) => value?.split(WHITESPACE_PATTERN) ?? [])
+    .filter(Boolean);
+  const merged = [...new Set(tokens)].join(" ");
+
+  return merged || undefined;
+};
 
 // RHF/zod issue arrays are plain objects, never renderable nodes — they get
 // routed through the primitive's deduplicating errors list.
@@ -95,30 +126,28 @@ const FlatFieldBody = ({
 }: FlatFieldBodyProps) => {
   const autoId = useId();
 
-  const childElement = isValidElement(children) ? children : null;
-  const childId = childElement
-    ? (childElement.props as { id?: string }).id
-    : undefined;
+  const childElement =
+    isValidElement<WireableControlProps>(children) && children.type !== Fragment
+      ? children
+      : null;
+  const childId = childElement?.props.id;
   const controlId =
     htmlFor ?? childId ?? (childElement ? `${autoId}-control` : undefined);
   const descriptionId = description ? `${autoId}-description` : undefined;
   const errorId = hasError ? `${autoId}-error` : undefined;
-  const describedBy =
-    [descriptionId, errorId].filter(Boolean).join(" ") || undefined;
-
-  // Wire the control for assistive technologies. Slot lets explicit props on
-  // the child win, so user-provided id/aria-* always take precedence.
-  const control = childElement ? (
-    <Slot
-      aria-describedby={describedBy}
-      aria-invalid={isInvalid || undefined}
-      id={controlId}
-    >
-      {children}
-    </Slot>
-  ) : (
-    children
+  const describedBy = mergeIds(
+    descriptionId,
+    errorId,
+    childElement?.props["aria-describedby"]
   );
+
+  const control = childElement
+    ? cloneElement(childElement, {
+        "aria-describedby": describedBy,
+        "aria-invalid": isInvalid ? true : childElement.props["aria-invalid"],
+        id: controlId,
+      })
+    : children;
 
   const labelNode = label ? (
     <BaseFieldLabel className={cn(labelClassName)} htmlFor={controlId}>
@@ -160,6 +189,8 @@ const FlatFieldBody = ({
 };
 
 export const Field: React.FC<FieldProps> = ({
+  "aria-disabled": _ignoredAriaDisabled,
+  "aria-invalid": _ignoredAriaInvalid,
   label,
   description,
   error,
@@ -174,6 +205,12 @@ export const Field: React.FC<FieldProps> = ({
   contentClassName,
   children,
   className,
+  "data-disabled": _ignoredDataDisabled,
+  "data-invalid": _ignoredDataInvalid,
+  "data-orientation": _ignoredDataOrientation,
+  "data-slot": _ignoredDataSlot,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+  role: _ignoredRole,
   ...restProps
 }) => {
   const messageArray = toMessageArray(error);
