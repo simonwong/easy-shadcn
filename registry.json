@@ -130,6 +130,20 @@
       ]
     },
     {
+      "name": "command-palette",
+      "type": "registry:component",
+      "title": "Integrated Command Palette",
+      "description": "Task-level searchable action palette with Mod+K invocation, grouped static actions, controlled or uncontrolled Dialog state, and single-flight async success, error, retry, and stale-settlement handling.",
+      "registryDependencies": ["command"],
+      "files": [
+        {
+          "path": "registry/ui/command-palette.tsx",
+          "type": "registry:component",
+          "target": "components/easy/command-palette.tsx"
+        }
+      ]
+    },
+    {
       "name": "choice-group",
       "type": "registry:component",
       "title": "Integrated Choice Group",

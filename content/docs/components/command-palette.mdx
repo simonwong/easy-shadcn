@@ -1,0 +1,134 @@
+---
+title: Command Palette
+---
+
+Command Palette is the task-level searchable action owner for easy-shadcn. Give it static actions and it owns the Dialog, Mod+K listener, query lifecycle, grouped projection, single-flight async feedback, retryable failure, and stale-Promise isolation.
+
+<ExamplePreview name="command-palette-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/command-palette
+```
+
+Or install via the full URL:
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/command-palette.json
+```
+
+The registry installs the official shadcn Command and Dialog dependencies. It does not install Compose Modal or `@easy-shadcn/command-modal`.
+
+## Basic use
+
+`items` is the only required prop. The default global shortcut is Mod+K (`⌘K` or `Ctrl+K`).
+
+```tsx
+import { CommandPalette } from "@/components/easy/command-palette"
+
+<CommandPalette
+  items={[
+    {
+      label: "Create project",
+      value: "create-project",
+      onSelect: () => createProject(),
+    },
+    {
+      label: "Sync workspace",
+      value: "sync-workspace",
+      keywords: ["refresh", "pull"],
+      onSelect: () => syncWorkspace(),
+    },
+  ]}
+/>
+```
+
+Action and group values must be non-empty and unique across the whole palette. Search matches each action's value, label, and keywords. Exact ranking and tie order remain cmdk behavior.
+
+## Trigger, groups, and async actions
+
+<ExamplePreview name="command-palette-lifecycle-demo" />
+
+Add one caller-owned trigger when the palette should be discoverable. Its element, attributes, handler, disabled state, and ref remain caller-owned through Dialog trigger composition.
+
+Groups are exactly one level deep. An action may return a Promise-like value. While it is pending, the input and every action are disabled, the list exposes `aria-busy`, and repeated activation cannot start another action. Success requests close. A throw or rejection keeps the current query, announces the error, restores input focus, and unlocks retry.
+
+```tsx
+<CommandPalette
+  items={[
+    {
+      type: "group",
+      value: "workspace",
+      label: "Workspace",
+      items: [
+        {
+          value: "sync",
+          label: "Sync workspace",
+          description: "Pull the latest workspace data",
+          shortcut: "⌘S",
+          onSelect: () => syncWorkspace(),
+        },
+      ],
+    },
+  ]}
+  trigger={<Button variant="outline">Commands</Button>}
+/>
+```
+
+Closing during pending work ends only the palette's UI transaction; it does not cancel the external side effect. A later settlement from that old session is ignored, and a reopened palette is immediately unlocked.
+
+## Controlled open state
+
+Use the standard `open` / `defaultOpen` / `onOpenChange` vocabulary. `open` is authoritative when present. Query, error, and pending UI reset only after the observed open state actually becomes false. A controlled parent may reject a close request without losing the current query or leaving actions locked.
+
+Set `hotkey={false}` for every additional palette in the same document. One enabled global listener per document is the supported configuration. The listener ignores repeated, composing, default-prevented, Alt/Shift-modified, and editable-target events.
+
+## Item model
+
+| Kind | Required fields | Optional fields | Behavior |
+| --- | --- | --- | --- |
+| Action | `value`, `label`, `onSelect` | `type: "item"`, `keywords`, `icon`, `description`, `shortcut`, `disabled`, `className` | Executes once; closes after success or remains open after failure. |
+| Group | `type: "group"`, `value`, `label`, `items` | `className`, `headingClassName` | Adds one heading around action children; groups cannot nest. |
+
+`label` is the action's exact accessible name. `description` becomes its accessible description. Icons and shortcut hints are presentation-only and hidden from the accessibility tree.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `items` | `readonly CommandPaletteEntry[]` | required | Static flat actions and one-level groups. |
+| `open` | `boolean` | - | Controlled Dialog visibility. |
+| `defaultOpen` | `boolean` | `false` | Initial uncontrolled visibility. |
+| `onOpenChange` | `(open: boolean) => void` | - | Receives open and close requests. |
+| `trigger` | `ReactElement` | - | Optional caller-owned composed trigger. |
+| `hotkey` | `boolean` | `true` | Enables the fixed global Mod+K listener. |
+| `loop` | `boolean` | `true` | Delegates active-item wrapping to Command. |
+| `title` | `ReactNode` | `"Command palette"` | Dialog accessible name content. |
+| `description` | `ReactNode` | `"Search for a command to run."` | Dialog accessible description content. |
+| `inputLabel` | `string` | `"Search commands"` | Exact accessible name for the search input. |
+| `placeholder` | `string` | `"Type a command or search..."` | Search input placeholder. |
+| `emptyMessage` | `ReactNode` | `"No results found."` | Empty-result content. |
+| `loadingMessage` | `ReactNode` | `"Running command..."` | Polite pending announcement. |
+| `errorMessage` | `ReactNode` | `"Command failed. Try again."` | Failure alert content. |
+| `className` | `ClassValue` | - | Dialog surface class. |
+| `inputClassName` | `ClassValue` | - | Search input class. |
+| `listClassName` | `ClassValue` | - | Command list class. |
+| `groupClassName` | `ClassValue` | - | Class merged into every group. |
+| `headingClassName` | `ClassValue` | - | Class merged into every group heading. |
+| `itemClassName` | `ClassValue` | - | Class merged into every action. |
+| `descriptionClassName` | `ClassValue` | - | Action-description wrapper class. |
+| `shortcutClassName` | `ClassValue` | - | Shortcut wrapper class. |
+| `emptyClassName` | `ClassValue` | - | Empty-result class. |
+| `loadingClassName` | `ClassValue` | - | Pending status class. |
+| `errorClassName` | `ClassValue` | - | Failure alert class. |
+
+## Ownership and escape hatch
+
+Command Palette fixes its Dialog, input, list, groups, items, selection handlers, pending state, spinner, and live regions. It intentionally has no children, render props, slots object, primitive prop bags, controlled query, custom ranking, remote source, nested pages, separators, keep-open actions, or router integration.
+
+Use the shadcn Command Primitive for inline command lists, nested pages, custom filtering or ranking, remote results, virtualization, arbitrary headers or footers, and other composition-heavy palettes.
+
+Built-in copy is English and is part of the API. Override the direct copy props, edit the installed source, or wrap the component to localize it; there is no locale system.
