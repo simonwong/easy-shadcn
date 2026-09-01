@@ -22,16 +22,30 @@ import { AsyncButton } from "../async-button";
 
 type ModalActionProps = Omit<
   ComponentProps<typeof AsyncButton>,
-  "children" | "dangerouslySetInnerHTML" | "onClick"
+  | "aria-busy"
+  | "aria-disabled"
+  | "children"
+  | "data-slot"
+  | "dangerouslySetInnerHTML"
+  | "nativeButton"
+  | "onClick"
+  | "render"
+  | "role"
 >;
 
 const getSafeActionProps = (
   props: ModalActionProps | undefined
 ): ModalActionProps => {
   const {
+    "aria-busy": _ignoredAriaBusy,
+    "aria-disabled": _ignoredAriaDisabled,
     children: _ignoredChildren,
+    "data-slot": _ignoredDataSlot,
     dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+    nativeButton: _ignoredNativeButton,
     onClick: _ignoredOnClick,
+    render: _ignoredRender,
+    role: _ignoredRole,
     ...safeProps
   } = (props ?? {}) as ComponentProps<typeof AsyncButton>;
 

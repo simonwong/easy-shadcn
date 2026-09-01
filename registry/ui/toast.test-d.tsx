@@ -63,3 +63,11 @@ toast("Saved", {
     onClick: () => undefined,
   },
 });
+
+toast("Saved", {
+  action: { label: "Undo" },
+  actionButtonProps: {
+    // @ts-expect-error Toast owns the action button element.
+    render: <a href="/replace">Replace</a>,
+  },
+});

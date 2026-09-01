@@ -28,6 +28,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-08-31 | Slider | Shipped a scalar-preserving `multiple=true` branch with array callbacks, per-thumb accessible names, native multi-value forms, minimum spacing, and collision policy. |
 | 2026-08-31 | Modal ownership | Narrowed and runtime-sanitized Modal and AlertModal action prop bags so labels, raw HTML, and click handlers cannot replace Compose-owned action/close wiring. |
 | 2026-09-01 | AlertDialog ownership | Applied the same type and runtime ownership contract to declarative AlertDialog action prop bags. |
+| 2026-09-02 | Action-control ownership | Closed Base UI element-replacement and conflicting semantic paths on AsyncButton and the Modal, AlertModal, AlertDialog, and Toast action prop bags. |
 
 ## Compose: current and planned
 
@@ -35,7 +36,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | --- | --- | --- | --- | --- | --- |
 | Disclosure | Accordion, Collapsible | `Accordion` | Keep | Low | A one-item Accordion covers the common Collapsible task; heterogeneous structure escapes to Primitive. |
 | Alert | Alert | `Alert` | Keep | Low | Presentational convenience only. |
-| Modal feedback | Dialog, Alert Dialog | `Modal`, `AlertDialog` | Keep | High | Dialog maps to imperative Modal handling; Alert Dialog remains the confirm/cancel specialization. Modal, AlertModal, and AlertDialog action prop bags enforce Compose-owned labels and action/close wiring. |
+| Modal feedback | Dialog, Alert Dialog | `Modal`, `AlertDialog` | Keep | High | Dialog maps to imperative Modal handling; Alert Dialog remains the confirm/cancel specialization. Modal, AlertModal, and AlertDialog action prop bags enforce Compose-owned button elements, semantics, labels, and action/close wiring. |
 | Identity media | Avatar | `Avatar` | Keep | Low | Preserve current wrapper; no broader media abstraction. |
 | Breadcrumb navigation | Breadcrumb | `Breadcrumb` | Keep | Low | Homogeneous navigation items only. |
 | Date selection | Calendar, Date Picker | `Calendar`, `DatePicker` | Keep | High | DatePicker composes Calendar with input/popover state; Calendar remains useful alone. |
@@ -56,7 +57,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Edge panel | Sheet | `Sheet` | Keep | Medium | Binary edge-positioned dialog. Drawer gestures and snap points are excluded. |
 | Range input | Slider | `Slider` | Keep | High | Scalar mode keeps the original `number` API. `multiple=true` switches to arrays, requires per-thumb accessible names, and exposes spacing/collision policy without changing the base case. |
 | Tabs | Tabs | `Tabs` | Keep | Low | Homogeneous tab items; heterogeneous bodies use Primitive. |
-| Notification | Toast | `Toast` | Keep | High | One global facade delegates queue/timer/focus state to Base UI while owning stable status, action, update, close, and Promise semantics. |
+| Notification | Toast | `Toast` | Keep | High | One global facade delegates queue/timer/focus state to Base UI while owning stable status, action element/label/click wiring, update, close, and Promise semantics. |
 | Tooltip | Tooltip | `Tooltip` | Keep | Low | Separate from Popover/Hover Card because purpose and interaction contract differ. |
 
 ### Project-specific enhancement owners
@@ -65,7 +66,7 @@ These have no one-to-one official catalog entry:
 
 | Compose owner | Related Primitive | Why it exists |
 | --- | --- | --- |
-| `AsyncButton` | Button | Owns async pending/completion behaviour and prevents repeated caller wiring. Base Button remains Primitive-only. |
+| `AsyncButton` | Button | Owns a native button, async pending/completion semantics, spinner structure, and repeated-submit protection. Base Button remains Primitive-only. |
 | `CheckboxGroup` | Checkbox | Legacy list-selection owner. Keep install compatibility during soft deprecation; `ChoiceGroup` becomes canonical. |
 | `Menu` | Context Menu, Dropdown Menu, later Menubar | Canonical menu item/state model. Trigger and shell behaviours remain separate adapters. |
 

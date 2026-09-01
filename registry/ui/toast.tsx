@@ -29,15 +29,22 @@ export interface ToastAction {
   onClick?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
 }
 
+interface ToastActionOwnedProps {
+  "aria-disabled"?: never;
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-slot"?: never;
+  nativeButton?: never;
+  onClick?: never;
+  render?: never;
+  role?: never;
+}
+
 export type ToastActionButtonProps = Omit<
   ComponentProps<typeof Button>,
-  | "children"
-  | "className"
-  | "dangerouslySetInnerHTML"
-  | "onClick"
-  | "render"
-  | "style"
+  "className" | "style" | keyof ToastActionOwnedProps
 > &
+  ToastActionOwnedProps &
   Pick<ComponentProps<"button">, "className" | "style">;
 
 export interface ToastOptions {
@@ -95,11 +102,18 @@ const createActionProps = (
   getId: () => ToastId
 ): ComponentProps<"button"> => {
   const {
+    "aria-disabled": _ignoredAriaDisabled,
     children: _ignoredChildren,
+    "data-slot": _ignoredDataSlot,
     dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+    nativeButton: _ignoredNativeButton,
     onClick: _ignoredOnClick,
+    render: _ignoredRender,
+    role: _ignoredRole,
     ...safeButtonProps
-  } = (actionButtonProps ?? {}) as ComponentProps<typeof Button>;
+  } = (actionButtonProps ?? {}) as ComponentProps<typeof Button> & {
+    "data-slot"?: string;
+  };
 
   return {
     ...safeButtonProps,

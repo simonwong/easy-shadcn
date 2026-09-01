@@ -29,36 +29,54 @@ export type AsyncButtonClickHandler = (
   e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
 ) => void | Promise<void>;
 
+interface AsyncButtonOwnedProps {
+  "aria-busy"?: never;
+  "aria-disabled"?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-slot"?: never;
+  nativeButton?: never;
+  render?: never;
+  role?: never;
+}
+
 export type AsyncButtonProps = Omit<
   React.ComponentProps<typeof Button>,
-  "onClick"
-> & {
-  onClick?: AsyncButtonClickHandler;
-  /**
-   * Controlled loading state. When provided, takes precedence over the
-   * auto-managed Promise loading; pass `false` to fully suppress the spinner
-   * even while an async `onClick` is in flight. Switching back to undefined
-   * (uncontrolled) mid-flight is not supported.
-   */
-  loading?: boolean;
-  /**
-   * Icon rendered before `children`. While loading, this slot is replaced by
-   * the spinner (taking precedence over `endIcon`).
-   */
-  startIcon?: React.ReactNode;
-  /**
-   * Icon rendered after `children`. While loading and `startIcon` is absent,
-   * this slot is replaced by the spinner.
-   */
-  endIcon?: React.ReactNode;
-};
+  "onClick" | keyof AsyncButtonOwnedProps
+> &
+  AsyncButtonOwnedProps & {
+    onClick?: AsyncButtonClickHandler;
+    /**
+     * Controlled loading state. When provided, takes precedence over the
+     * auto-managed Promise loading; pass `false` to fully suppress the spinner
+     * even while an async `onClick` is in flight. Switching back to undefined
+     * (uncontrolled) mid-flight is not supported.
+     */
+    loading?: boolean;
+    /**
+     * Icon rendered before `children`. While loading, this slot is replaced by
+     * the spinner (taking precedence over `endIcon`).
+     */
+    startIcon?: React.ReactNode;
+    /**
+     * Icon rendered after `children`. While loading and `startIcon` is absent,
+     * this slot is replaced by the spinner.
+     */
+    endIcon?: React.ReactNode;
+  };
 
 export const AsyncButton: React.FC<AsyncButtonProps> = ({
+  "aria-busy": _ignoredAriaBusy,
+  "aria-disabled": _ignoredAriaDisabled,
+  "data-slot": _ignoredDataSlot,
   loading,
   disabled,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+  nativeButton: _ignoredNativeButton,
   onClick,
   children,
   className,
+  render: _ignoredRender,
+  role: _ignoredRole,
   startIcon,
   endIcon,
   size,
