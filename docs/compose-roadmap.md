@@ -37,6 +37,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-09-02 | Table root ownership | Protected Table's generated descendants, loading-derived busy state, and root slot marker while preserving caller-owned table refs, semantics, events, and ordinary attributes. |
 | 2026-09-02 | Table selection ownership | Protected the row checkbox element, selection state, derived semantics, and slot marker; fixed readonly bulk selection, state-aware classes, refs/events, and nullish JavaScript getter returns. |
 | 2026-09-02 | Calendar interface ownership | Reserved the primitive caption layout, component adapters, root marker, date library, six-week grid, navigation visibility, and caption formatter at type and runtime seams while preserving DayPicker selection unions and safe root/formatter customization. |
+| 2026-09-02 | Calendar customization fidelity | Preserved primitive caption class/style/animation data and routed custom month/year triggers, panels, options, and decade labels through DayPicker's resolved labels/formatters with locale, numerals, and time-zone context. |
 
 ## Compose: current and planned
 
@@ -47,7 +48,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Modal feedback | Dialog, Alert Dialog | `Modal`, `AlertDialog` | Keep | High | Dialog maps to imperative Modal handling; Alert Dialog remains the confirm/cancel specialization. Modal, AlertModal, and AlertDialog action prop bags enforce Compose-owned button elements, semantics, labels, and action/close wiring. |
 | Identity media | Avatar | `Avatar` | Keep | Low | Fixed root/image/fallback/badge structure; caller retains content and root ARIA/role. |
 | Breadcrumb navigation | Breadcrumb | `Breadcrumb` | Keep | Low | Homogeneous navigation items with a fixed generated list; caller retains nav labeling and role. |
-| Date selection | Calendar, Date Picker | `Calendar`, `DatePicker` | Keep | High | DatePicker composes Calendar with input/popover state; Calendar fixes its custom-panel adapters and date-math interface while preserving DayPicker selection unions and caller-owned root props. |
+| Date selection | Calendar, Date Picker | `Calendar`, `DatePicker` | Keep | High | DatePicker composes Calendar with input/popover state; Calendar fixes its custom-panel adapters and date-math interface while preserving DayPicker selection unions, root props, caption styling, and resolved label/formatter customization. |
 | Content container | Card | `Card` | Keep | Low | Flat common slots and derived root markers; unusual layouts use Primitive. |
 | Carousel | Carousel | `Carousel` | Keep | Medium | Retain interaction and item flattening. |
 | Boolean controls | Checkbox, Switch | `Checkbox`, `Switch` | Keep | Low | Single boolean values stay independent. Switch owns its root element, role, thumb, derived ARIA/data state, size, and slot markers. |

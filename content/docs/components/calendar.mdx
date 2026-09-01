@@ -44,6 +44,10 @@ All props from shadcn's `Calendar` (i.e. `react-day-picker`'s `DayPicker`) are f
 | `selected`         | `Date \| DateRange \| Date[]`                     | -                       | The selected value. Type narrows from `mode`.                               |
 | `onSelect`         | `(value) => void`                                 | -                       | Called when the selection changes.                                          |
 | `locale`           | `Locale`                                          | -                       | `date-fns` locale for month / weekday labels and format.                    |
+| `labels`           | `Partial<Labels>`                                 | DayPicker defaults      | Accessible labels, including the custom month and year controls.            |
+| `formatters`       | `Partial<Formatters>`                             | DayPicker defaults      | Formats day, month, and year output; `formatCaption` is reserved.            |
+| `numerals`         | `Numerals`                                        | `"latn"`                | Numbering system used by the custom year surfaces and DayPicker.             |
+| `timeZone`         | `string`                                          | local time zone         | Time zone used when formatting custom month and year surfaces.               |
 | `numberOfMonths`   | `number`                                          | `1`                     | Number of months shown side-by-side.                                        |
 | `defaultMonth`     | `Date`                                            | current month           | Initial month displayed.                                                    |
 | `month`            | `Date`                                            | -                       | Controlled visible month. Use with `onMonthChange`.                         |
@@ -65,6 +69,8 @@ The calendar manages three internal views:
 ## Notes
 
 - **Reserved props.** `captionLayout`, `components`, `data-slot`, `dateLib`, `fixedWeeks`, and `hideNavigation` are managed internally to drive the panel navigation, root marker, and date math. `formatters.formatCaption` is reserved because the custom caption renders its own controls. These paths are rejected by TypeScript and stripped at runtime. If you need to customize them, use the `components/ui/calendar` primitive directly.
+- `labels.labelMonthDropdown` and `labels.labelYearDropdown` name both the caption triggers and their panels. `formatMonthDropdown` / `formatYearDropdown` also apply to those custom surfaces and receive a locale-, numeral-, and time-zone-aware `DateLib`.
+- `classNames.month_caption`, `styles.month_caption`, and DayPicker caption animation data are preserved on the custom caption. `month_grid` customization still belongs to the days grid; use `monthsClassName` / `yearsClassName` for the two custom panels.
 - The month and year caption buttons replace the native `<select>` dropdowns that `react-day-picker` renders with `captionLayout="dropdown"`. This gives a consistent, styled experience across platforms.
 - The year panel defaults to ±100 years from today when `startMonth` / `endMonth` are not provided.
 - `startMonth` / `endMonth` also bound the custom month panel, so out-of-range months are disabled before the day grid is shown.

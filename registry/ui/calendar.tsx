@@ -3,8 +3,7 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { ClassValue } from "clsx";
-import type { Locale as DateFnsLocale } from "date-fns";
-import { addMonths, format } from "date-fns";
+import { addMonths } from "date-fns";
 import type React from "react";
 import {
   createContext,
@@ -12,9 +11,15 @@ import {
   type TableHTMLAttributes,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
-import type { CalendarMonth } from "react-day-picker";
+import {
+  type CalendarMonth,
+  DateLib,
+  defaultLocale,
+  useDayPicker,
+} from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarPrimitive } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -63,7 +68,6 @@ export type CalendarProps =
   };
 
 type CaptionCtxValue = {
-  locale: CalendarPrimitiveProps["locale"];
   views: Record<number, CalendarView>;
   setViewForIndex: (index: number, view: CalendarView) => void;
   startYear: number;
@@ -72,12 +76,44 @@ type CaptionCtxValue = {
   endMonth?: Date;
   currentMonth: Date;
   handleMonthChange: (date: Date) => void;
+  hasCustomMonthFormatter: boolean;
   monthsClassName?: ClassValue;
   yearsClassName?: ClassValue;
 };
 
 const CaptionCtx = createContext<CaptionCtxValue | null>(null);
 const MonthIndexCtx = createContext<number>(0);
+
+function useCalendarFormatting() {
+  const { dayPickerProps, formatters, labels } = useDayPicker();
+  const dateLib = useMemo(
+    () =>
+      new DateLib({
+        firstWeekContainsDate: dayPickerProps.firstWeekContainsDate,
+        locale: { ...defaultLocale, ...dayPickerProps.locale },
+        numerals: dayPickerProps.numerals,
+        timeZone: dayPickerProps.timeZone,
+        useAdditionalDayOfYearTokens:
+          dayPickerProps.useAdditionalDayOfYearTokens,
+        useAdditionalWeekYearTokens: dayPickerProps.useAdditionalWeekYearTokens,
+        weekStartsOn: dayPickerProps.broadcastCalendar
+          ? 1
+          : dayPickerProps.weekStartsOn,
+      }),
+    [
+      dayPickerProps.broadcastCalendar,
+      dayPickerProps.firstWeekContainsDate,
+      dayPickerProps.locale,
+      dayPickerProps.numerals,
+      dayPickerProps.timeZone,
+      dayPickerProps.useAdditionalDayOfYearTokens,
+      dayPickerProps.useAdditionalWeekYearTokens,
+      dayPickerProps.weekStartsOn,
+    ]
+  );
+
+  return { dateLib, formatters, labels };
+}
 
 function NavButton({
   "aria-label": ariaLabel,
@@ -129,18 +165,33 @@ function MonthSlot({
 
 type MonthCaptionProps = {
   calendarMonth: CalendarMonth;
+  "data-slot"?: string;
+  "data-view"?: string;
   displayIndex: number;
 } & HTMLAttributes<HTMLDivElement>;
 
-function MonthCaption({ calendarMonth, displayIndex }: MonthCaptionProps) {
+function MonthCaption({
+  calendarMonth,
+  children: _ignoredChildren,
+  className,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+  "data-slot": _ignoredDataSlot,
+  "data-view": _ignoredDataView,
+  displayIndex,
+  ...captionProps
+}: MonthCaptionProps) {
   const ctx = useContext(CaptionCtx)!;
+  const { dateLib, formatters, labels } = useCalendarFormatting();
   const view = ctx.views[displayIndex] ?? "days";
   const setView = (v: CalendarView) => ctx.setViewForIndex(displayIndex, v);
-  const fmtLocale = { locale: ctx.locale as DateFnsLocale };
 
   const yr = calendarMonth.date.getFullYear();
   const mo = calendarMonth.date.getMonth();
   const decadeStart = Math.floor(yr / DECADE_SIZE) * DECADE_SIZE;
+  const monthLabel = labels.labelMonthDropdown(dateLib.options);
+  const yearLabel = labels.labelYearDropdown(dateLib.options);
+  const formatYear = (year: number) =>
+    formatters.formatYearDropdown(dateLib.newDate(year, 0, 1), dateLib);
 
   const changeYear = (delta: number) => {
     const next = yr + delta;
@@ -186,12 +237,13 @@ function MonthCaption({ calendarMonth, displayIndex }: MonthCaptionProps) {
           onClick={() => changeYear(-1)}
         />
         <Button
+          aria-label={yearLabel}
           className="font-medium text-sm"
           onClick={() => setView("years")}
           size="sm"
           variant="ghost"
         >
-          {format(new Date(yr, 0, 1), "yyyy", fmtLocale)}
+          {formatYear(yr)}
         </Button>
         <NavButton
           aria-label="Next year"
@@ -211,7 +263,8 @@ function MonthCaption({ calendarMonth, displayIndex }: MonthCaptionProps) {
           onClick={() => changeDecade(-1)}
         />
         <span className="select-none font-medium text-sm">
-          {decadeStart} – {decadeStart + DECADE_SIZE - 1}
+          {formatYear(decadeStart)} –{" "}
+          {formatYear(decadeStart + DECADE_SIZE - 1)}
         </span>
         <NavButton
           aria-label="Next decade"
@@ -225,20 +278,24 @@ function MonthCaption({ calendarMonth, displayIndex }: MonthCaptionProps) {
     content = (
       <>
         <Button
+          aria-label={monthLabel}
           className="font-medium text-sm"
           onClick={() => setView("months")}
           size="sm"
           variant="ghost"
         >
-          {format(calendarMonth.date, "MMMM", fmtLocale)}
+          {ctx.hasCustomMonthFormatter
+            ? formatters.formatMonthDropdown(calendarMonth.date, dateLib)
+            : dateLib.format(calendarMonth.date, "MMMM")}
         </Button>
         <Button
+          aria-label={yearLabel}
           className="font-medium text-sm"
           onClick={() => setView("years")}
           size="sm"
           variant="ghost"
         >
-          {format(calendarMonth.date, "yyyy", fmtLocale)}
+          {formatters.formatYearDropdown(calendarMonth.date, dateLib)}
         </Button>
       </>
     );
@@ -246,11 +303,13 @@ function MonthCaption({ calendarMonth, displayIndex }: MonthCaptionProps) {
 
   return (
     <div
+      {...captionProps}
       className={cn(
         "relative z-10 flex h-(--cell-size) w-full items-center [&_button]:pointer-events-auto",
         view === "days"
           ? "pointer-events-none justify-center gap-0.5 px-(--cell-size)"
-          : "justify-between"
+          : "justify-between",
+        className
       )}
       data-slot="easy-month-caption"
       data-view={view}
@@ -266,6 +325,7 @@ function MonthGrid({
   ...rest
 }: TableHTMLAttributes<HTMLTableElement>) {
   const ctx = useContext(CaptionCtx)!;
+  const { dateLib, formatters, labels } = useCalendarFormatting();
   const displayIndex = useContext(MonthIndexCtx);
   const view = ctx.views[displayIndex] ?? "days";
 
@@ -281,7 +341,8 @@ function MonthGrid({
   const yr = monthDate.getFullYear();
   const mo = monthDate.getMonth();
   const decadeStart = Math.floor(yr / DECADE_SIZE) * DECADE_SIZE;
-  const fmtLocale = { locale: ctx.locale as DateFnsLocale };
+  const monthLabel = labels.labelMonthDropdown(dateLib.options);
+  const yearLabel = labels.labelYearDropdown(dateLib.options);
 
   const setView = (v: CalendarView) => ctx.setViewForIndex(displayIndex, v);
   const isMonthDisabled = (m: number) => {
@@ -312,7 +373,7 @@ function MonthGrid({
   if (view === "months") {
     return (
       <div
-        aria-label="Choose month"
+        aria-label={monthLabel}
         className={cn(
           "grid w-full flex-1 grid-cols-3 content-center gap-2 px-1",
           ctx.monthsClassName
@@ -321,7 +382,10 @@ function MonthGrid({
         role="listbox"
       >
         {MONTH_INDICES.map((m) => {
-          const label = format(new Date(yr, m, 1), "MMM", fmtLocale);
+          const label = formatters.formatMonthDropdown(
+            dateLib.newDate(yr, m, 1),
+            dateLib
+          );
           const isCurrent = m === mo;
           const isDisabled = isMonthDisabled(m);
           return (
@@ -350,7 +414,7 @@ function MonthGrid({
 
   return (
     <div
-      aria-label="Choose year"
+      aria-label={yearLabel}
       className={cn(
         "grid w-full flex-1 grid-cols-3 content-center gap-2 px-1",
         ctx.yearsClassName
@@ -359,6 +423,10 @@ function MonthGrid({
       role="listbox"
     >
       {decadeYears.map((y) => {
+        const label = formatters.formatYearDropdown(
+          dateLib.newDate(y, mo, 1),
+          dateLib
+        );
         const isOutside = y < decadeStart || y > decadeStart + DECADE_SIZE - 1;
         const isCurrent = y === yr;
         const isDisabled = y < ctx.startYear || y > ctx.endYear;
@@ -373,7 +441,7 @@ function MonthGrid({
             size="sm"
             variant={isCurrent ? "default" : "ghost"}
           >
-            {y}
+            {label}
           </Button>
         );
       })}
@@ -410,8 +478,13 @@ export const Calendar = (props: CalendarProps) => {
     style,
     ...rest
   } = props;
-  const { formatCaption: _ignoredFormatCaption, ...safeFormatters } =
+  const { formatCaption: _ignoredFormatCaption, ...formatterOverrides } =
     formatters ?? {};
+  const safeFormatters = Object.fromEntries(
+    Object.entries(formatterOverrides).filter(
+      ([, formatter]) => formatter !== undefined
+    )
+  ) as CalendarFormatterProps;
 
   const [views, setViews] = useState<Record<number, CalendarView>>(
     defaultView ? { 0: defaultView } : {}
@@ -450,7 +523,8 @@ export const Calendar = (props: CalendarProps) => {
         endYear,
         endMonth,
         handleMonthChange,
-        locale,
+        hasCustomMonthFormatter:
+          safeFormatters.formatMonthDropdown !== undefined,
         monthsClassName,
         setViewForIndex,
         startMonth,
