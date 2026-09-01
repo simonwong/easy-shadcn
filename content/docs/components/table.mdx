@@ -116,7 +116,7 @@ If a field is not directly renderable as `ReactNode` (for example `Date` or an o
 
 Set `selectable` to render a left-side checkbox column. The selection prop pair follows the same controlled / uncontrolled shape as other components in this library (`value` / `onValueChange` → `selectedRowKeys` / `onSelectedRowKeysChange`). The change callback receives both the new keys and the matching records in `dataSource` order, so you don't have to re-look-up rows. The header checkbox shows a distinct indeterminate (dash) icon while a non-empty proper subset is selected.
 
-Per-row checkbox configuration goes through `getCheckboxProps(record, index)` — pass `disabled: true` to gate a row out (it will also be skipped by "select all"). `getCheckboxProps` is the one `xxxProps` escape hatch in this library, kept for parity with Antd's Table API. Checkbox state props such as `checked`, `defaultChecked`, `indeterminate`, `children`, and `onCheckedChange` are owned by the Table and are rejected by the public type contract; forced runtime values are stripped.
+Per-row checkbox configuration goes through `getCheckboxProps(record, index)` — pass `disabled: true` or `readOnly: true` to gate a row out of header bulk selection. `getCheckboxProps` is the one `xxxProps` escape hatch in this library, kept for parity with Antd's Table API. Table fixes the checkbox element, indicator, role, selection state, derived ARIA/state markers, and slot marker at both type and runtime seams. Caller-owned form props, accessible naming/description, refs, state-aware classes/styles, safe events, and ordinary data attributes remain available. A normal `onClick` observes the event without replacing selection; Base UI's explicit `event.preventBaseUIHandler()` cancels its toggle.
 
 <ExamplePreview name="table-selection-demo" />
 
@@ -217,7 +217,7 @@ The Table ships with the WCAG defaults you'd expect, plus development-only warni
 | `selectedRowKeys` | `string[]` | — | Controlled selected keys. |
 | `defaultSelectedRowKeys` | `string[]` | `[]` | Uncontrolled initial keys. |
 | `onSelectedRowKeysChange` | `(keys, rows) => void` | — | Called with the next keys and the matching records. |
-| `getCheckboxProps` | `(record, index) => Partial<TableCheckboxProps>` | — | Per-row Checkbox props (base-ui `Checkbox.Root` shape minus Table-owned state props — typically `disabled`, `aria-label`, `data-*`; see [Base UI Checkbox](https://base-ui.com/react/components/checkbox)). `disabled: true` gates the row out of "select all". |
+| `getCheckboxProps` | `(record, index) => Partial<TableCheckboxProps>` | — | Per-row caller-owned Checkbox props (for example `disabled`, `readOnly`, `aria-label`, form props, refs, safe events, and ordinary `data-*`; see [Base UI Checkbox](https://base-ui.com/react/components/checkbox)). Table-owned element, state, derived ARIA/data, and indicator props are excluded. `disabled` and `readOnly` gate the row out of header bulk selection. |
 | `selectionColumnClassName` | `ClassValue` | — | className for the selection column's `th` and `td`. |
 | `selectionColumnLabel` | `string` | `"Selection"` | Visually-hidden column name for the selection `<th>` (announced before "Select all" by screen readers). |
 | `headerClassName` | `ClassValue` | — | className on `<thead>`. |

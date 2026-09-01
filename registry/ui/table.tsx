@@ -127,14 +127,46 @@ export type RowKey<T> =
 
 type SelectionCheckboxProps = ComponentProps<typeof CheckboxPrimitive.Root>;
 
+interface TableCheckboxOwnedProps {
+  "aria-checked"?: never;
+  "aria-disabled"?: never;
+  "aria-readonly"?: never;
+  "aria-required"?: never;
+  checked?: never;
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-checked"?: never;
+  "data-dirty"?: never;
+  "data-disabled"?: never;
+  "data-filled"?: never;
+  "data-focused"?: never;
+  "data-indeterminate"?: never;
+  "data-invalid"?: never;
+  "data-parent"?: never;
+  "data-readonly"?: never;
+  "data-required"?: never;
+  "data-slot"?: never;
+  "data-touched"?: never;
+  "data-unchecked"?: never;
+  "data-valid"?: never;
+  defaultChecked?: never;
+  indeterminate?: never;
+  nativeButton?: never;
+  onCheckedChange?: never;
+  parent?: never;
+  render?: never;
+  role?: never;
+}
+
 export type TableCheckboxProps = Omit<
   SelectionCheckboxProps,
-  | "checked"
-  | "children"
-  | "defaultChecked"
-  | "indeterminate"
-  | "onCheckedChange"
->;
+  keyof TableCheckboxOwnedProps
+> &
+  TableCheckboxOwnedProps;
+
+type UnsafeTableCheckboxProps = Partial<SelectionCheckboxProps> & {
+  [Key in keyof TableCheckboxOwnedProps]?: unknown;
+};
 
 const ROW_INTERACTIVE_SELECTOR = [
   "a[href]",
@@ -150,6 +182,9 @@ const ROW_INTERACTIVE_SELECTOR = [
   '[role="link"]',
   '[role="menuitem"]',
 ].join(",");
+
+const SELECTION_CHECKBOX_CLASS_NAME =
+  "peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input outline-none transition-colors after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:border-muted-foreground/30 disabled:bg-muted data-checked:border-primary data-indeterminate:border-primary data-checked:bg-primary data-indeterminate:bg-primary data-checked:text-primary-foreground data-indeterminate:text-primary-foreground dark:bg-input/30";
 
 function isFromInteractiveDescendant(
   currentTarget: HTMLElement,
@@ -167,18 +202,14 @@ function SelectionCheckbox({
   indeterminate,
   ...rest
 }: SelectionCheckboxProps) {
+  const mergedClassName: SelectionCheckboxProps["className"] =
+    typeof className === "function"
+      ? (state) => cn(SELECTION_CHECKBOX_CLASS_NAME, className(state))
+      : cn(SELECTION_CHECKBOX_CLASS_NAME, className);
+
   return (
     <CheckboxPrimitive.Root
-      className={cn(
-        // Disabled visual tokens (Round 7): swap the default
-        // `disabled:opacity-50` for an explicit grey fill + soft border so an
-        // unchecked-disabled checkbox is clearly distinguishable from a normal
-        // unchecked one. `data-checked:*` / `data-indeterminate:*` selectors
-        // sit later in the cascade and still override the fill when the row
-        // is both checked AND disabled (rare but legal).
-        "peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input outline-none transition-colors after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:border-muted-foreground/30 disabled:bg-muted data-checked:border-primary data-indeterminate:border-primary data-checked:bg-primary data-indeterminate:bg-primary data-checked:text-primary-foreground data-indeterminate:text-primary-foreground dark:bg-input/30",
-        className
-      )}
+      className={mergedClassName}
       data-slot="easy-table-selection-checkbox"
       indeterminate={indeterminate}
       {...rest}
@@ -199,6 +230,44 @@ function SelectionCheckbox({
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );
+}
+
+function sanitizeTableCheckboxProps(
+  props: UnsafeTableCheckboxProps | null | undefined
+): Partial<TableCheckboxProps> {
+  const {
+    "aria-checked": _ignoredAriaChecked,
+    "aria-disabled": _ignoredAriaDisabled,
+    "aria-readonly": _ignoredAriaReadonly,
+    "aria-required": _ignoredAriaRequired,
+    checked: _ignoredChecked,
+    children: _ignoredChildren,
+    "data-checked": _ignoredDataChecked,
+    "data-dirty": _ignoredDataDirty,
+    "data-disabled": _ignoredDataDisabled,
+    "data-filled": _ignoredDataFilled,
+    "data-focused": _ignoredDataFocused,
+    "data-indeterminate": _ignoredDataIndeterminate,
+    "data-invalid": _ignoredDataInvalid,
+    "data-parent": _ignoredDataParent,
+    "data-readonly": _ignoredDataReadonly,
+    "data-required": _ignoredDataRequired,
+    "data-slot": _ignoredDataSlot,
+    "data-touched": _ignoredDataTouched,
+    "data-unchecked": _ignoredDataUnchecked,
+    "data-valid": _ignoredDataValid,
+    dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+    defaultChecked: _ignoredDefaultChecked,
+    indeterminate: _ignoredIndeterminate,
+    nativeButton: _ignoredNativeButton,
+    onCheckedChange: _ignoredOnCheckedChange,
+    parent: _ignoredParent,
+    render: _ignoredRender,
+    role: _ignoredRole,
+    ...safeProps
+  } = props ?? {};
+
+  return safeProps as Partial<TableCheckboxProps>;
 }
 
 // ---------------------------------------------------------------------------
@@ -245,8 +314,8 @@ export interface TableProps<T>
    * Per ADR-0004: Table is a state-machine component, so per-row checkbox
    * control is in-scope coverage (Rule A), and this is the category-3 ownership
    * pattern — the returned checkbox state props are owned by the Table so
-   * external props can't desync the selection state. `disabled: true` excludes
-   * the row from the header "select all" tally.
+   * external props can't desync the selection state. `disabled: true` or
+   * `readOnly: true` excludes the row from header bulk selection.
    *
    * Keep this function pure and non-throwing — it's invoked for every row on
    * every render. Throwing here unmounts the surrounding tree (error boundary
@@ -443,7 +512,9 @@ export function Table<T>({
     }
     const checkboxProps =
       selectionEnabled && getCheckboxProps
-        ? getCheckboxProps(record, index)
+        ? sanitizeTableCheckboxProps(
+            getCheckboxProps(record, index) as UnsafeTableCheckboxProps
+          )
         : {};
     return {
       checkboxProps,
@@ -465,7 +536,7 @@ export function Table<T>({
   const selectableRows: typeof rowMeta = [];
   let selectedSelectableCount = 0;
   for (const meta of rowMeta) {
-    if (meta.checkboxProps.disabled) {
+    if (meta.checkboxProps.disabled || meta.checkboxProps.readOnly) {
       continue;
     }
     selectableRows.push(meta);
@@ -668,15 +739,17 @@ export function Table<T>({
   };
 
   const handleToggleAll = (next: boolean) => {
-    // Preserve any currently-selected keys that point to disabled or
-    // since-removed rows — the header only governs the selectable subset.
+    // Preserve selected rows outside the header's selectable subset, including
+    // disabled, readonly, and since-removed rows.
     const preserved = currentSelected.filter((k) => {
       const meta = metaByKey.get(k);
       // Row no longer in dataSource: keep it (caller owns lifecycle).
       if (!meta) {
         return true;
       }
-      return Boolean(meta.checkboxProps.disabled);
+      return Boolean(
+        meta.checkboxProps.disabled || meta.checkboxProps.readOnly
+      );
     });
     if (next) {
       const additions = selectableRows.map((r) => r.key);
@@ -827,17 +900,6 @@ export function Table<T>({
                 ? rowClassName(record, index)
                 : rowClassName;
             const interactive = Boolean(onRowClick);
-            // External checkbox state props are intentionally discarded — Table
-            // owns selection state. `aria-label` is left intact so consumers can
-            // override the opaque default below.
-            const {
-              checked: _ignoredChecked,
-              children: _ignoredChildren,
-              defaultChecked: _ignoredDefaultChecked,
-              indeterminate: _ignoredIndeterminate,
-              onCheckedChange: _ignoredOnCheckedChange,
-              ...passthroughCheckboxProps
-            } = checkboxProps as Partial<SelectionCheckboxProps>;
             return (
               <TableRow
                 className={cn(
@@ -880,7 +942,7 @@ export function Table<T>({
                   >
                     <SelectionCheckbox
                       aria-label={`Select row ${key}`}
-                      {...passthroughCheckboxProps}
+                      {...checkboxProps}
                       checked={selected}
                       onCheckedChange={(next) => handleToggleRow(key, next)}
                     />

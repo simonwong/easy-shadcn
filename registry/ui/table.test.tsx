@@ -1177,6 +1177,214 @@ describe("Table", () => {
     expect(container.querySelector("[data-child='forced']")).toBeNull();
   });
 
+  it("getCheckboxProps: strips hostile element, semantic, and state props", () => {
+    const externalOnChange = vi.fn();
+    const onChange = vi.fn();
+    const { container } = render(
+      <Table
+        caption="Members"
+        columns={BASIC_COLUMNS}
+        dataSource={[USERS[0]]}
+        getCheckboxProps={() =>
+          ({
+            "aria-checked": "mixed",
+            "aria-disabled": "true",
+            "aria-readonly": "true",
+            "aria-required": "true",
+            checked: true,
+            children: <span data-hostile-child="">forged child</span>,
+            "data-checked": "forged",
+            "data-disabled": "forged",
+            "data-indeterminate": "forged",
+            "data-parent": "forged",
+            "data-safe": "kept",
+            "data-slot": "forged",
+            dangerouslySetInnerHTML: { __html: "forged html" },
+            defaultChecked: true,
+            indeterminate: true,
+            nativeButton: true,
+            onCheckedChange: externalOnChange,
+            parent: true,
+            render: <button data-hostile-render="" type="button" />,
+            role: "switch",
+          }) as never
+        }
+        onSelectedRowKeysChange={onChange}
+        rowKey="id"
+        selectable
+      />
+    );
+
+    const checkbox = container.querySelector<HTMLElement>(
+      '[data-slot="easy-table-selection-cell"] [data-safe="kept"]'
+    );
+    expect(checkbox?.tagName).toBe("SPAN");
+    expect(checkbox?.getAttribute("role")).toBe("checkbox");
+    expect(checkbox?.getAttribute("aria-checked")).toBe("false");
+    expect(checkbox?.getAttribute("aria-disabled")).toBeNull();
+    expect(checkbox?.getAttribute("aria-readonly")).toBeNull();
+    expect(checkbox?.getAttribute("aria-required")).toBeNull();
+    expect(checkbox?.getAttribute("data-slot")).toBe(
+      "easy-table-selection-checkbox"
+    );
+    expect(checkbox?.hasAttribute("data-unchecked")).toBe(true);
+    expect(checkbox?.hasAttribute("data-checked")).toBe(false);
+    expect(checkbox?.hasAttribute("data-indeterminate")).toBe(false);
+    expect(checkbox?.hasAttribute("data-disabled")).toBe(false);
+    expect(checkbox?.hasAttribute("data-parent")).toBe(false);
+    expect(container.querySelector("[data-hostile-child]")).toBeNull();
+    expect(container.querySelector("[data-hostile-render]")).toBeNull();
+    expect(container.textContent).not.toContain("forged");
+
+    fireEvent.click(checkbox as HTMLElement);
+    expect(onChange).toHaveBeenCalledOnce();
+    expect(externalOnChange).not.toHaveBeenCalled();
+  });
+
+  it("getCheckboxProps: readonly rows stay unchanged during bulk selection", () => {
+    const onChange = vi.fn();
+    render(
+      <Table
+        caption="Members"
+        columns={BASIC_COLUMNS}
+        dataSource={USERS}
+        defaultSelectedRowKeys={["u1"]}
+        getCheckboxProps={(record) => ({ readOnly: record.id === "u1" })}
+        onSelectedRowKeysChange={onChange}
+        rowKey="id"
+        selectable
+      />
+    );
+
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[1]);
+    expect(onChange).not.toHaveBeenCalled();
+
+    fireEvent.click(checkboxes[0]);
+    expect(onChange).toHaveBeenLastCalledWith(["u2", "u3", "u1"], USERS);
+    fireEvent.click(checkboxes[0]);
+    expect(onChange).toHaveBeenLastCalledWith(["u1"], [USERS[0]]);
+  });
+
+  it("getCheckboxProps: all readonly rows disable select all", () => {
+    render(
+      <Table
+        caption="Members"
+        columns={BASIC_COLUMNS}
+        dataSource={USERS}
+        getCheckboxProps={() => ({ readOnly: true })}
+        rowKey="id"
+        selectable
+      />
+    );
+
+    expect(
+      screen.getAllByRole("checkbox")[0].hasAttribute("data-disabled")
+    ).toBe(true);
+  });
+
+  it("getCheckboxProps: merges state class callbacks with internal classes", () => {
+    const className = vi.fn(
+      (state: {
+        checked: boolean;
+        disabled: boolean;
+        readOnly: boolean;
+        required: boolean;
+      }) =>
+        `state-${state.checked}-${state.disabled}-${state.readOnly}-${state.required}`
+    );
+    const { container } = render(
+      <Table
+        caption="Members"
+        columns={BASIC_COLUMNS}
+        dataSource={[USERS[0]]}
+        getCheckboxProps={() => ({
+          className,
+          disabled: true,
+          readOnly: true,
+          required: true,
+        })}
+        rowKey="id"
+        selectable
+        selectedRowKeys={["u1"]}
+      />
+    );
+
+    const checkbox = container.querySelector(
+      '[data-slot="easy-table-selection-cell"] [role="checkbox"]'
+    );
+    expect(className).toHaveBeenCalled();
+    expect(checkbox?.className).toContain("state-true-true-true-true");
+    expect(checkbox?.className).toContain("peer");
+  });
+
+  it("getCheckboxProps: preserves visible and hidden input refs", () => {
+    const rootRef = createRef<HTMLElement>();
+    const inputRef = createRef<HTMLInputElement>();
+    render(
+      <Table
+        caption="Members"
+        columns={BASIC_COLUMNS}
+        dataSource={[USERS[0]]}
+        getCheckboxProps={() => ({ inputRef, ref: rootRef })}
+        rowKey="id"
+        selectable
+      />
+    );
+
+    expect(rootRef.current?.tagName).toBe("SPAN");
+    expect(inputRef.current?.tagName).toBe("INPUT");
+    expect(inputRef.current?.type).toBe("checkbox");
+  });
+
+  it("getCheckboxProps: onClick observes selection and can cancel Base UI", () => {
+    const observedClick = vi.fn();
+    const cancelledClick = vi.fn((event) => event.preventBaseUIHandler());
+    const onChange = vi.fn();
+    render(
+      <Table
+        caption="Members"
+        columns={BASIC_COLUMNS}
+        dataSource={USERS.slice(0, 2)}
+        getCheckboxProps={(record) => ({
+          onClick: record.id === "u1" ? observedClick : cancelledClick,
+        })}
+        onSelectedRowKeysChange={onChange}
+        rowKey="id"
+        selectable
+      />
+    );
+
+    const checkboxes = screen.getAllByRole("checkbox");
+    fireEvent.click(checkboxes[1]);
+    expect(observedClick).toHaveBeenCalledOnce();
+    expect(onChange).toHaveBeenLastCalledWith(["u1"], [USERS[0]]);
+
+    fireEvent.click(checkboxes[2]);
+    expect(cancelledClick).toHaveBeenCalledOnce();
+    expect(onChange).toHaveBeenCalledOnce();
+  });
+
+  it("getCheckboxProps: nullish JavaScript returns fall back to safe props", () => {
+    const onChange = vi.fn();
+    expect(() => {
+      render(
+        <Table
+          caption="Members"
+          columns={BASIC_COLUMNS}
+          dataSource={[USERS[0]]}
+          getCheckboxProps={() => null as never}
+          onSelectedRowKeysChange={onChange}
+          rowKey="id"
+          selectable
+        />
+      );
+    }).not.toThrow();
+
+    fireEvent.click(screen.getAllByRole("checkbox")[1]);
+    expect(onChange).toHaveBeenLastCalledWith(["u1"], [USERS[0]]);
+  });
+
   // ---------------------------------------------------------------------------
   // onRowClick + keyboard a11y
   // ---------------------------------------------------------------------------
