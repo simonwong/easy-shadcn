@@ -85,6 +85,8 @@ All four combinations use `value`, `defaultValue`, and `onValueChange`. Choice G
 
 An explicitly supplied `value={undefined}` remains controlled for single selection. In controlled mode, interaction requests a change but visual selection moves only after the parent updates `value`.
 
+Choice Group owns the generated root structure, presentation role, orientation, disabled semantics, and primitive state markers. Root `children`, raw HTML, polymorphic rendering, native `onChange`, and conflicting ARIA/data state attributes are rejected at the type boundary and ignored at runtime. Caller-owned group naming (`aria-label` / `aria-labelledby`), refs, events, classes, ordinary styles, and unrelated `data-*` attributes still reach the active root. In toggle presentation, `spacing` remains the source of truth for both `data-spacing` and the internal `--gap` variable.
+
 ## Labels and descriptions
 
 Each item renders its label and optional description with stable `aria-labelledby` / `aria-describedby` wiring. `ariaLabel` replaces the visible label as the accessible name when product copy and spoken copy must differ.
@@ -122,7 +124,7 @@ Group-level class fields merge first; item-level fields merge after them.
 | `controlClassName` | `ClassValue` | - | Class merged into every primitive control. |
 | `labelClassName` | `ClassValue` | - | Class merged into every label. |
 | `descriptionClassName` | `ClassValue` | - | Class merged into every description. |
-| `className` | `ClassValue` | - | Root class. Other compatible group-container props are forwarded. |
+| `className` | `ClassValue` | - | Root class. Compatible caller-owned group props are forwarded. |
 
 ## Legacy group components
 

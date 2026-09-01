@@ -98,6 +98,7 @@ behavior, or repeated accessibility wiring.
 | [Alert Dialog](../../registry/ui/alert-dialog.tsx) | Owns controlled/uncontrolled open state plus async confirm/cancel completion through AsyncButton. Its action prop bags preserve supported AsyncButton customization while rejecting element/semantic replacement, labels, and click wiring at type and runtime seams. |
 | [Async Button](../../registry/ui/async-button.tsx) | Owns a native button, promise-derived busy state, delayed loading, same-frame double-submit blocking, disabled semantics, primitive slot, and spinner placement. This is the reference enhancement pattern. |
 | [Calendar](../../registry/ui/calendar.tsx) | Adds month/year/decade view state and navigation on top of react-day-picker, including keyboard/ARIA naming. |
+| [Choice Group](../../registry/ui/choice-group.tsx) | Owns the four valid selection/presentation combinations, scalar/array value adaptation, option accessibility wiring, root role/orientation/disabled semantics, and primitive state markers. The soft-deprecated RadioGroup and CheckboxGroup adapters keep the same root ownership guarantees without gaining new capabilities. |
 | [Date Picker](../../registry/ui/date-picker.tsx) | Owns popover state, single/multiple/range value plumbing, and manual-input draft/commit races. The input lifecycle is recorded in [ADR-0008](../adr/0008-date-picker-input-draft-commit.md). |
 | [Field](../../registry/ui/field.tsx) | Owns label/control/description/error ids, `aria-describedby`, `aria-invalid`, required output, and form-error normalization. |
 | [Modal](../../registry/ui/modal/modal.tsx) | Owns Dialog slots, open state, async confirm/cancel completion, and the command-modal Adapter seam described by [ADR-0001](../adr/0001-adapter-seam-and-typed-factory.md). Keep Modal as the Dialog capability. |
@@ -132,6 +133,12 @@ maintenance work:
 2. [ADR-0004](../adr/0004-props-vocabulary.md) previously called Tabs' item
    field `label`. Current source already uses `trigger`; the refreshed
    consequence note is not active implementation debt.
+3. **Resolved:** [`Accordion`](../../registry/ui/accordion.tsx),
+   [`Tabs`](../../registry/ui/tabs.tsx),
+   [`ChoiceGroup`](../../registry/ui/choice-group.tsx), and its compatibility
+   group adapters now reject structure and primitive-state overrides at both
+   type and runtime seams. Caller-owned item content, accessible naming, refs,
+   events, and ordinary root styling stay intact.
 
 ## Missing official capabilities: disposition
 

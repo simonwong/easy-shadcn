@@ -2,7 +2,12 @@
 
 import { CheckboxGroup as CheckboxGroupRoot } from "@base-ui/react/checkbox-group";
 import type { ClassValue } from "clsx";
-import { type ComponentProps, type ReactNode, useId } from "react";
+import {
+  type ComponentProps,
+  type CSSProperties,
+  type ReactNode,
+  useId,
+} from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   RadioGroupItem as RadioGroupItemPrimitive,
@@ -23,11 +28,38 @@ export interface ChoiceGroupItem {
   value: string;
 }
 
+interface ChoiceGroupOwnedRootProps {
+  "aria-disabled"?: never;
+  "aria-orientation"?: never;
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-dirty"?: never;
+  "data-disabled"?: never;
+  "data-filled"?: never;
+  "data-focused"?: never;
+  "data-invalid"?: never;
+  "data-multiple"?: never;
+  "data-orientation"?: never;
+  "data-size"?: never;
+  "data-spacing"?: never;
+  "data-touched"?: never;
+  "data-valid"?: never;
+  "data-variant"?: never;
+  onChange?: never;
+  render?: never;
+  role?: never;
+}
+
+interface ChoiceGroupPrimitiveSlotProps {
+  "data-slot"?: never;
+}
+
 interface ChoiceGroupBaseProps
   extends Omit<
-    ComponentProps<"div">,
-    "children" | "defaultValue" | "onChange"
-  > {
+      ComponentProps<"div">,
+      "defaultValue" | keyof ChoiceGroupOwnedRootProps
+    >,
+    ChoiceGroupOwnedRootProps {
   controlClassName?: ClassValue;
   descriptionClassName?: ClassValue;
   disabled?: boolean;
@@ -43,7 +75,9 @@ interface ChoiceGroupToggleProps {
   variant?: "default" | "outline";
 }
 
-export interface ChoiceGroupSingleRadioProps extends ChoiceGroupBaseProps {
+export interface ChoiceGroupSingleRadioProps
+  extends ChoiceGroupBaseProps,
+    ChoiceGroupPrimitiveSlotProps {
   defaultValue?: string;
   onValueChange?: (value: string | undefined) => void;
   presentation?: "radio";
@@ -56,7 +90,8 @@ export interface ChoiceGroupSingleRadioProps extends ChoiceGroupBaseProps {
 
 export interface ChoiceGroupSingleToggleProps
   extends ChoiceGroupBaseProps,
-    ChoiceGroupToggleProps {
+    ChoiceGroupToggleProps,
+    ChoiceGroupPrimitiveSlotProps {
   defaultValue?: string;
   onValueChange?: (value: string | undefined) => void;
   presentation: "toggle";
@@ -77,7 +112,8 @@ export interface ChoiceGroupMultipleCheckboxProps extends ChoiceGroupBaseProps {
 
 export interface ChoiceGroupMultipleToggleProps
   extends ChoiceGroupBaseProps,
-    ChoiceGroupToggleProps {
+    ChoiceGroupToggleProps,
+    ChoiceGroupPrimitiveSlotProps {
   defaultValue?: string[];
   onValueChange?: (value: string[]) => void;
   presentation: "toggle";
@@ -144,17 +180,37 @@ const getChoiceIds = (
 
 const RadioChoiceGroup = (props: ChoiceGroupSingleRadioProps) => {
   const {
+    "aria-disabled": _ignoredAriaDisabled,
+    "aria-orientation": _ignoredAriaOrientation,
+    children: _ignoredChildren,
     className,
     controlClassName,
+    "data-dirty": _ignoredDataDirty,
+    "data-disabled": _ignoredDataDisabled,
+    "data-filled": _ignoredDataFilled,
+    "data-focused": _ignoredDataFocused,
+    "data-invalid": _ignoredDataInvalid,
+    "data-multiple": _ignoredDataMultiple,
+    "data-orientation": _ignoredDataOrientation,
+    "data-size": _ignoredDataSize,
+    "data-slot": _ignoredDataSlot,
+    "data-spacing": _ignoredDataSpacing,
+    "data-touched": _ignoredDataTouched,
+    "data-valid": _ignoredDataValid,
+    "data-variant": _ignoredDataVariant,
+    dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
     defaultValue,
     descriptionClassName,
     disabled,
     items,
     labelClassName,
+    onChange: _ignoredOnChange,
     onValueChange,
     optionClassName,
     orientation = "vertical",
     presentation: _presentation,
+    render: _ignoredRender,
+    role: _ignoredRole,
     selectionMode: _selectionMode,
     value,
     ...rootProps
@@ -169,6 +225,7 @@ const RadioChoiceGroup = (props: ChoiceGroupSingleRadioProps) => {
     <RadioGroupRoot
       {...rootProps}
       {...radioValueProps}
+      aria-disabled={disabled || undefined}
       aria-orientation={orientation}
       className={getRootClassName(orientation, className)}
       data-orientation={orientation}
@@ -220,17 +277,36 @@ const RadioChoiceGroup = (props: ChoiceGroupSingleRadioProps) => {
 
 const CheckboxChoiceGroup = (props: ChoiceGroupMultipleCheckboxProps) => {
   const {
+    "aria-disabled": _ignoredAriaDisabled,
+    "aria-orientation": _ignoredAriaOrientation,
+    children: _ignoredChildren,
     className,
     controlClassName,
+    "data-dirty": _ignoredDataDirty,
+    "data-disabled": _ignoredDataDisabled,
+    "data-filled": _ignoredDataFilled,
+    "data-focused": _ignoredDataFocused,
+    "data-invalid": _ignoredDataInvalid,
+    "data-multiple": _ignoredDataMultiple,
+    "data-orientation": _ignoredDataOrientation,
+    "data-size": _ignoredDataSize,
+    "data-spacing": _ignoredDataSpacing,
+    "data-touched": _ignoredDataTouched,
+    "data-valid": _ignoredDataValid,
+    "data-variant": _ignoredDataVariant,
+    dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
     defaultValue,
     descriptionClassName,
     disabled,
     items,
     labelClassName,
+    onChange: _ignoredOnChange,
     onValueChange,
     optionClassName,
     orientation = "vertical",
     presentation: _presentation,
+    render: _ignoredRender,
+    role: _ignoredRole,
     selectionMode: _selectionMode,
     value,
     ...rootProps
@@ -245,6 +321,7 @@ const CheckboxChoiceGroup = (props: ChoiceGroupMultipleCheckboxProps) => {
     <CheckboxGroupRoot
       {...rootProps}
       {...checkboxValueProps}
+      aria-disabled={disabled || undefined}
       aria-orientation={orientation}
       className={getRootClassName(orientation, className)}
       data-orientation={orientation}
@@ -326,20 +403,41 @@ const getToggleDefaultValue = (
 
 const ToggleChoiceGroup = (props: ToggleChoiceGroupProps) => {
   const {
+    "aria-disabled": _ignoredAriaDisabled,
+    "aria-orientation": _ignoredAriaOrientation,
+    children: _ignoredChildren,
     className,
     controlClassName,
+    "data-dirty": _ignoredDataDirty,
+    "data-disabled": _ignoredDataDisabled,
+    "data-filled": _ignoredDataFilled,
+    "data-focused": _ignoredDataFocused,
+    "data-invalid": _ignoredDataInvalid,
+    "data-multiple": _ignoredDataMultiple,
+    "data-orientation": _ignoredDataOrientation,
+    "data-size": _ignoredDataSize,
+    "data-slot": _ignoredDataSlot,
+    "data-spacing": _ignoredDataSpacing,
+    "data-touched": _ignoredDataTouched,
+    "data-valid": _ignoredDataValid,
+    "data-variant": _ignoredDataVariant,
+    dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
     defaultValue,
     descriptionClassName,
     disabled,
     items,
     labelClassName,
+    onChange: _ignoredOnChange,
     onValueChange,
     optionClassName,
     orientation = "vertical",
     presentation: _presentation,
+    render: _ignoredRender,
+    role: _ignoredRole,
     selectionMode = "single",
     size,
     spacing,
+    style,
     value,
     variant,
     ...rootProps
@@ -355,6 +453,8 @@ const ToggleChoiceGroup = (props: ToggleChoiceGroupProps) => {
     <ToggleGroup
       {...rootProps}
       {...toggleValueProps}
+      aria-disabled={disabled || undefined}
+      aria-orientation={orientation}
       className={getRootClassName(orientation, className)}
       disabled={disabled}
       multiple={multiple}
@@ -372,6 +472,12 @@ const ToggleChoiceGroup = (props: ToggleChoiceGroupProps) => {
       orientation={orientation}
       size={size}
       spacing={spacing}
+      style={
+        {
+          ...style,
+          "--gap": spacing ?? 2,
+        } as CSSProperties
+      }
       variant={variant}
     >
       {items.map((item, index) => {

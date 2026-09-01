@@ -20,11 +20,36 @@ export interface RadioGroupItem {
   value: string;
 }
 
+interface RadioGroupOwnedRootProps {
+  "aria-disabled"?: never;
+  "aria-readonly"?: never;
+  "aria-required"?: never;
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-dirty"?: never;
+  "data-disabled"?: never;
+  "data-filled"?: never;
+  "data-focused"?: never;
+  "data-invalid"?: never;
+  "data-readonly"?: never;
+  "data-required"?: never;
+  "data-slot"?: never;
+  "data-touched"?: never;
+  "data-valid"?: never;
+  onChange?: never;
+  render?: never;
+  role?: never;
+}
+
 export interface RadioGroupProps
   extends Omit<
-    RadioGroupPrimitive.Props<string>,
-    "children" | "defaultValue" | "onValueChange" | "render" | "value"
-  > {
+      RadioGroupPrimitive.Props<string>,
+      | "defaultValue"
+      | "onValueChange"
+      | "value"
+      | keyof RadioGroupOwnedRootProps
+    >,
+    RadioGroupOwnedRootProps {
   defaultValue?: string;
   descriptionClassName?: ClassValue;
   itemClassName?: ClassValue;
@@ -39,18 +64,45 @@ export interface RadioGroupProps
 }
 
 export const RadioGroup = ({
+  "aria-disabled": _ignoredAriaDisabled,
+  "aria-readonly": _ignoredAriaReadonly,
+  "aria-required": _ignoredAriaRequired,
+  children: _ignoredChildren,
+  "data-dirty": _ignoredDataDirty,
+  "data-disabled": _ignoredDataDisabled,
+  "data-filled": _ignoredDataFilled,
+  "data-focused": _ignoredDataFocused,
+  "data-invalid": _ignoredDataInvalid,
+  "data-readonly": _ignoredDataReadonly,
+  "data-required": _ignoredDataRequired,
+  "data-slot": _ignoredDataSlot,
+  "data-touched": _ignoredDataTouched,
+  "data-valid": _ignoredDataValid,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+  disabled = false,
   items,
   optionClassName,
   itemClassName,
   labelClassName,
   descriptionClassName,
   className,
+  onChange: _ignoredOnChange,
+  readOnly = false,
+  render: _ignoredRender,
+  required = false,
+  role: _ignoredRole,
   ...rootProps
 }: RadioGroupProps) => {
   const baseId = useId();
 
   return (
-    <RadioGroupRoot className={className} {...rootProps}>
+    <RadioGroupRoot
+      {...rootProps}
+      className={className}
+      disabled={disabled}
+      readOnly={readOnly}
+      required={required}
+    >
       {items.map((item, index) => {
         // Derive ids from the index, not item.value: values may contain
         // whitespace, which would break the space-separated aria-labelledby /

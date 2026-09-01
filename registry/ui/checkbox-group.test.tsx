@@ -1,6 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { CheckboxGroup, type CheckboxGroupItem } from "./checkbox-group";
+import {
+  CheckboxGroup,
+  type CheckboxGroupItem,
+  type CheckboxGroupProps,
+} from "./checkbox-group";
 
 const baseItems: CheckboxGroupItem[] = [
   { label: "Option A", value: "a" },
@@ -255,5 +260,64 @@ describe("CheckboxGroup", () => {
     expect(
       container.querySelector('[data-slot="checkbox-group"]')
     ).not.toBeNull();
+  });
+
+  it("owns generated structure, role, disabled ARIA, and primitive markers", () => {
+    const nativeOnChange = vi.fn();
+    const hostileProps = {
+      "aria-disabled": true,
+      children: "Forged child",
+      "data-dirty": "",
+      "data-disabled": "",
+      "data-filled": "",
+      "data-focused": "",
+      "data-invalid": "",
+      "data-slot": "forged-checkbox-group",
+      "data-touched": "",
+      "data-valid": "",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      onChange: nativeOnChange,
+      render: <section>Forged render</section>,
+      role: "listbox",
+    } as unknown as CheckboxGroupProps;
+    const rootRef = createRef<HTMLDivElement>();
+    const onClick = vi.fn();
+    const onValueChange = vi.fn();
+
+    expect(() => {
+      render(
+        <CheckboxGroup
+          {...hostileProps}
+          aria-label="Features"
+          disabled={false}
+          items={baseItems}
+          onClick={onClick}
+          onValueChange={onValueChange}
+          ref={rootRef}
+        />
+      );
+    }).not.toThrow();
+
+    const root = screen.getByRole("group", { name: "Features" });
+    expect(rootRef.current).toBe(root);
+    expect(root.getAttribute("data-slot")).toBe("checkbox-group");
+    expect(root.getAttribute("aria-disabled")).toBeNull();
+    for (const attribute of [
+      "data-dirty",
+      "data-disabled",
+      "data-filled",
+      "data-focused",
+      "data-invalid",
+      "data-touched",
+      "data-valid",
+    ]) {
+      expect(root.getAttribute(attribute)).toBeNull();
+    }
+    expect(document.body.textContent).not.toContain("Forged");
+
+    fireEvent.click(box("Option A"));
+    expect(onClick).toHaveBeenCalled();
+    expect(onValueChange).toHaveBeenCalledWith(["a"], expect.anything());
+    expect(nativeOnChange).not.toHaveBeenCalled();
   });
 });
