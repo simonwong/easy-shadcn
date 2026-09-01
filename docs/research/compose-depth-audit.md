@@ -95,7 +95,7 @@ behavior, or repeated accessibility wiring.
 
 | Current Compose | Owned leverage |
 | --- | --- |
-| [Alert Dialog](../../registry/ui/alert-dialog.tsx) | Owns controlled/uncontrolled open state plus async confirm/cancel completion through AsyncButton. Its button prop bags now omit `children`/`onClick`; ADR-0004's AlertDialog ownership-warning example is stale. |
+| [Alert Dialog](../../registry/ui/alert-dialog.tsx) | Owns controlled/uncontrolled open state plus async confirm/cancel completion through AsyncButton. Its button prop bags omit `children`, `dangerouslySetInnerHTML`, and `onClick`, then strip the same keys at runtime. |
 | [Async Button](../../registry/ui/async-button.tsx) | Owns promise-derived busy state, delayed loading, same-frame double-submit blocking, disabled behavior, and spinner placement. This is the reference enhancement pattern. |
 | [Calendar](../../registry/ui/calendar.tsx) | Adds month/year/decade view state and navigation on top of react-day-picker, including keyboard/ARIA naming. |
 | [Date Picker](../../registry/ui/date-picker.tsx) | Owns popover state, single/multiple/range value plumbing, and manual-input draft/commit races. The input lifecycle is recorded in [ADR-0008](../adr/0008-date-picker-input-draft-commit.md). |
@@ -120,15 +120,15 @@ behavior, or repeated accessibility wiring.
 These are not reasons to grow the product surface, but they should become
 maintenance work:
 
-1. **Resolved:** [`Modal`](../../registry/ui/modal/modal.tsx) and AlertModal now
+1. **Resolved:** [`Modal`](../../registry/ui/modal/modal.tsx), AlertModal, and
+   [`AlertDialog`](../../registry/ui/alert-dialog.tsx) now
    narrow `cancelProps` / `confirmProps` by omitting `children`,
    `dangerouslySetInnerHTML`, and `onClick`, then strip those keys at runtime.
    Callers use the dedicated text and action props, so button bags cannot
    replace labels, crash rendering through raw HTML, or bypass close wiring.
-2. [ADR-0004](../adr/0004-props-vocabulary.md) previously called AlertDialog's
-   button bags unsafe and Tabs' item field `label`. Current source has already
-   fixed both; the roadmap/ADR integration refreshed those stale consequence
-   notes. They are not active implementation debt.
+2. [ADR-0004](../adr/0004-props-vocabulary.md) previously called Tabs' item
+   field `label`. Current source already uses `trigger`; the refreshed
+   consequence note is not active implementation debt.
 
 ## Missing official capabilities: disposition
 

@@ -26,21 +26,35 @@ import { AsyncButton } from "./async-button";
 const hasNode = (node: ReactNode): boolean =>
   node !== null && node !== undefined && typeof node !== "boolean";
 
+type AlertDialogActionProps = Omit<
+  ComponentProps<typeof AsyncButton>,
+  "children" | "dangerouslySetInnerHTML" | "onClick"
+>;
+
+const getSafeActionProps = (
+  props: AlertDialogActionProps | undefined
+): AlertDialogActionProps => {
+  const {
+    children: _ignoredChildren,
+    dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
+    onClick: _ignoredOnClick,
+    ...safeProps
+  } = (props ?? {}) as ComponentProps<typeof AsyncButton>;
+
+  return safeProps;
+};
+
 export interface AlertDialogProps
   extends Omit<
     AlertDialogPrimitive.Root.Props,
     "children" | "onOpenChange" | "render"
   > {
-  cancelProps?: Omit<
-    ComponentProps<typeof AsyncButton>,
-    "children" | "onClick"
-  >;
+  /** Extra props for the cancel button; label, raw HTML, and click are owned. */
+  cancelProps?: AlertDialogActionProps;
   cancelText?: ReactNode;
   className?: ClassValue;
-  confirmProps?: Omit<
-    ComponentProps<typeof AsyncButton>,
-    "children" | "onClick"
-  >;
+  /** Extra props for the confirm button; label, raw HTML, and click are owned. */
+  confirmProps?: AlertDialogActionProps;
   confirmText?: ReactNode;
   description?: ReactNode;
   descriptionClassName?: ClassValue;
@@ -94,8 +108,10 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
 
   const close = () => handleOpenChange(false);
 
+  const safeCancelProps = getSafeActionProps(cancelProps);
+  const safeConfirmProps = getSafeActionProps(confirmProps);
   const confirmVariant =
-    confirmProps?.variant ??
+    safeConfirmProps.variant ??
     (variant === "destructive" ? "destructive" : undefined);
 
   return (
@@ -130,22 +146,22 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
             <>
               {showCancel && (
                 <AsyncButton
+                  {...safeCancelProps}
                   onClick={async () => {
                     await onCancel?.();
                     close();
                   }}
-                  variant="outline"
-                  {...cancelProps}
+                  variant={safeCancelProps.variant ?? "outline"}
                 >
                   {cancelText ?? "Cancel"}
                 </AsyncButton>
               )}
               <AsyncButton
+                {...safeConfirmProps}
                 onClick={async () => {
                   await onConfirm?.();
                   close();
                 }}
-                {...confirmProps}
                 variant={confirmVariant}
               >
                 {confirmText ?? "OK"}

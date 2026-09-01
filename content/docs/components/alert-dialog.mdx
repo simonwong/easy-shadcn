@@ -14,7 +14,7 @@ With the [`@easy-shadcn` namespace](/docs/installation) configured:
 pnpm dlx shadcn@latest add @easy-shadcn/alert-dialog
 ```
 
-Or install via the full URL (zero configuration):
+The full URL also works after the `@easy-shadcn` namespace is configured; the mapping is required to resolve the internal `async-button` dependency:
 
 ```shell
 pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/alert-dialog.json
@@ -49,9 +49,9 @@ import { AlertDialog } from "@/components/easy/alert-dialog"
 | `onConfirm` / `onCancel` | `() => void \| Promise<void>` | - | Footer handlers. Async handlers show a pending spinner; a rejection keeps the dialog open. |
 | `confirmText` / `cancelText` | `ReactNode` | `"OK"` / `"Cancel"` | Footer button labels. |
 | `showCancel` | `boolean` | `true` | Hide the cancel button for single-action alerts. |
-| `confirmProps` / `cancelProps` | `Omit<AsyncButtonProps, "onClick" \| "children">` | - | Extra props for the footer buttons. `onClick` and `children` are owned by the dialog (use `onConfirm` / `onCancel` and `confirmText` / `cancelText`) and cannot be overridden. |
+| `confirmProps` / `cancelProps` | `Omit<AsyncButtonProps, "children" \| "dangerouslySetInnerHTML" \| "onClick">` | - | Extra props for the footer buttons. Labels, raw HTML, and click handlers are owned by the dialog; typed and JavaScript / `any` callers cannot replace the action or close wiring. |
 | `footer` | `ReactNode` | - | Replaces the entire button row. When set, all button-related props are ignored. |
-| `variant` | `"default" \| "destructive"` | `"default"` | Confirm-button color sugar. `confirmProps.variant` overrides it; the cancel button always stays `outline`. |
+| `variant` | `"default" \| "destructive"` | `"default"` | Confirm-button color sugar. `confirmProps.variant` overrides it. The cancel button defaults to `outline`; `cancelProps.variant` overrides that default. |
 | `size` | `"default" \| "sm"` | `"default"` | Forwarded to the `AlertDialogContent` primitive. |
 
 Class overrides: `className` (dialog content), `headerClassName`, `titleClassName`, `descriptionClassName`, `footerClassName`.

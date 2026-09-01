@@ -379,6 +379,20 @@ describe("AlertDialog — composition (Slice 3)", () => {
     expect(confirm.className).not.toContain("bg-destructive/10");
   });
 
+  it("cancelProps.variant overrides the default outline variant", () => {
+    render(
+      <AlertDialog
+        cancelProps={{ variant: "secondary" }}
+        defaultOpen
+        title="T"
+      />
+    );
+
+    const cancel = screen.getByRole("button", { name: "Cancel" });
+    expect(cancel.className).toContain("bg-secondary");
+    expect(cancel.className).not.toContain("border-border");
+  });
+
   it("forwards confirmProps and cancelProps to their buttons", () => {
     render(
       <AlertDialog
@@ -439,5 +453,87 @@ describe("AlertDialog — composition (Slice 3)", () => {
       expect(onOpenChange).toHaveBeenCalledWith(false);
     });
     expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores a hostile confirmProps.onClick and preserves confirm + close wiring", async () => {
+    const hostileClick = vi.fn();
+    const onConfirm = vi.fn();
+    const onOpenChange = vi.fn();
+    const hostileProps = {
+      confirmProps: { onClick: hostileClick },
+    } as unknown as Parameters<typeof AlertDialog>[0];
+
+    render(
+      <AlertDialog
+        {...hostileProps}
+        defaultOpen
+        onConfirm={onConfirm}
+        onOpenChange={onOpenChange}
+        title="T"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "OK" }));
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(hostileClick).not.toHaveBeenCalled();
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignores hostile confirm label injection and preserves confirmText", () => {
+    const hostileProps = {
+      confirmProps: {
+        children: "Forged child",
+        dangerouslySetInnerHTML: { __html: "<span>Forged HTML</span>" },
+      },
+    } as unknown as Parameters<typeof AlertDialog>[0];
+
+    expect(() => {
+      render(
+        <AlertDialog
+          {...hostileProps}
+          confirmText="Safe confirm"
+          defaultOpen
+          title="T"
+        />
+      );
+    }).not.toThrow();
+    expect(screen.getByRole("button", { name: "Safe confirm" })).toBeTruthy();
+    expect(screen.queryByText("Forged child")).toBeNull();
+    expect(screen.queryByText("Forged HTML")).toBeNull();
+  });
+
+  it("ignores hostile cancel props and preserves cancel + close wiring", async () => {
+    const hostileClick = vi.fn();
+    const onCancel = vi.fn();
+    const onOpenChange = vi.fn();
+    const hostileProps = {
+      cancelProps: {
+        children: "Forged child",
+        dangerouslySetInnerHTML: { __html: "<span>Forged HTML</span>" },
+        onClick: hostileClick,
+      },
+    } as unknown as Parameters<typeof AlertDialog>[0];
+
+    render(
+      <AlertDialog
+        {...hostileProps}
+        cancelText="Safe cancel"
+        defaultOpen
+        onCancel={onCancel}
+        onOpenChange={onOpenChange}
+        title="T"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Safe cancel" }));
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+    expect(hostileClick).not.toHaveBeenCalled();
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("Forged child")).toBeNull();
+    expect(screen.queryByText("Forged HTML")).toBeNull();
   });
 });
