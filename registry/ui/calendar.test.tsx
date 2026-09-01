@@ -1,7 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { ru } from "date-fns/locale";
 import { describe, expect, it, vi } from "vitest";
 import { Calendar, type CalendarProps } from "./calendar";
+
+const PREVIOUS_MONTH_NAME = /Go to the Previous Month/i;
 
 describe("Calendar", () => {
   it("preserves primitive caption classes, styles, and animation data", () => {
@@ -295,5 +297,407 @@ describe("Calendar", () => {
     fireEvent.click(screen.getByRole("button", { name: "Previous year" }));
 
     expect(onMonthChange).toHaveBeenCalledWith(new Date(2026, 5, 1));
+  });
+
+  it("honors disableNavigation across custom caption and panel controls", () => {
+    const onMonthChange = vi.fn();
+    const { unmount } = render(
+      <Calendar
+        defaultMonth={new Date(2026, 0, 1)}
+        disableNavigation
+        onMonthChange={onMonthChange}
+      />
+    );
+
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Choose the Month",
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(true);
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Choose the Year",
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(true);
+
+    unmount();
+    render(
+      <Calendar
+        defaultMonth={new Date(2026, 0, 1)}
+        defaultView="months"
+        disableNavigation
+        onMonthChange={onMonthChange}
+      />
+    );
+
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Previous year",
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(true);
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Choose the Year",
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(true);
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Next year",
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(true);
+    const february = screen.getByRole("option", { name: "Feb" });
+    expect((february as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(february);
+    expect(onMonthChange).not.toHaveBeenCalled();
+  });
+
+  it("separates reverse-month visual indices from chronological offsets", () => {
+    const onMonthChange = vi.fn();
+
+    render(
+      <Calendar
+        defaultMonth={new Date(2026, 0, 1)}
+        defaultView="months"
+        numberOfMonths={2}
+        onMonthChange={onMonthChange}
+        reverseMonths
+      />
+    );
+
+    const firstPanel = screen.getAllByRole("listbox", {
+      name: "Choose the Month",
+    })[0];
+    const february = within(firstPanel).getByRole("option", { name: "Feb" });
+    expect(february.getAttribute("aria-selected")).toBe("true");
+
+    fireEvent.click(within(firstPanel).getByRole("option", { name: "Mar" }));
+    expect(onMonthChange).toHaveBeenCalledTimes(1);
+    expect(onMonthChange).toHaveBeenCalledWith(new Date(2026, 1, 1));
+  });
+
+  it("keeps controlled month authoritative while emitting one custom navigation change", () => {
+    const january = new Date(2026, 0, 1);
+    const february = new Date(2026, 1, 1);
+    const onMonthChange = vi.fn();
+    const { rerender } = render(
+      <Calendar
+        defaultView="months"
+        month={january}
+        onMonthChange={onMonthChange}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("option", { name: "Feb" }));
+
+    expect(onMonthChange).toHaveBeenCalledTimes(1);
+    expect(onMonthChange).toHaveBeenCalledWith(february);
+    expect(
+      screen.getByRole("button", { name: "Choose the Month" }).textContent
+    ).toBe("January");
+
+    rerender(<Calendar month={february} onMonthChange={onMonthChange} />);
+    expect(
+      screen.getByRole("button", { name: "Choose the Month" }).textContent
+    ).toBe("February");
+  });
+
+  it("reverses all options in the custom year panel", () => {
+    render(
+      <Calendar
+        defaultMonth={new Date(2026, 0, 1)}
+        defaultView="years"
+        reverseYears
+      />
+    );
+
+    expect(
+      screen.getAllByRole("option").map((node) => node.textContent)
+    ).toEqual([
+      "2030",
+      "2029",
+      "2028",
+      "2027",
+      "2026",
+      "2025",
+      "2024",
+      "2023",
+      "2022",
+      "2021",
+      "2020",
+      "2019",
+    ]);
+  });
+
+  it("keeps partial previous and next decades reachable", () => {
+    const previousChange = vi.fn();
+    const { unmount } = render(
+      <Calendar
+        defaultMonth={new Date(2035, 0, 1)}
+        defaultView="years"
+        onMonthChange={previousChange}
+        startMonth={new Date(2021, 0, 1)}
+      />
+    );
+
+    const previous = screen.getByRole("button", { name: "Previous decade" });
+    expect((previous as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(previous);
+    expect(
+      (screen.getByRole("option", { name: "2021" }) as HTMLButtonElement)
+        .disabled
+    ).toBe(false);
+    expect(previousChange).toHaveBeenCalledWith(new Date(2025, 0, 1));
+
+    unmount();
+    const nextChange = vi.fn();
+    render(
+      <Calendar
+        defaultMonth={new Date(2035, 0, 1)}
+        defaultView="years"
+        endMonth={new Date(2045, 11, 1)}
+        onMonthChange={nextChange}
+      />
+    );
+
+    const next = screen.getByRole("button", { name: "Next decade" });
+    expect((next as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(next);
+    expect(
+      (screen.getByRole("option", { name: "2045" }) as HTMLButtonElement)
+        .disabled
+    ).toBe(false);
+    expect(nextChange).toHaveBeenCalledWith(new Date(2045, 0, 1));
+  });
+
+  it("clamps custom year selection to month-level bounds", () => {
+    const startChange = vi.fn();
+    const { unmount } = render(
+      <Calendar
+        defaultMonth={new Date(2027, 2, 1)}
+        defaultView="years"
+        onMonthChange={startChange}
+        startMonth={new Date(2026, 5, 1)}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("option", { name: "2026" }));
+    expect(startChange).toHaveBeenCalledWith(new Date(2026, 5, 1));
+    expect(
+      screen.getByRole("option", { name: "Jun" }).getAttribute("aria-selected")
+    ).toBe("true");
+
+    unmount();
+    const endChange = vi.fn();
+    render(
+      <Calendar
+        defaultMonth={new Date(2025, 11, 1)}
+        defaultView="years"
+        endMonth={new Date(2026, 8, 1)}
+        onMonthChange={endChange}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("option", { name: "2026" }));
+    expect(endChange).toHaveBeenCalledWith(new Date(2026, 8, 1));
+    expect(
+      screen.getByRole("option", { name: "Sep" }).getAttribute("aria-selected")
+    ).toBe("true");
+  });
+
+  it("preserves the selected month in a non-local time zone", () => {
+    const onMonthChange = vi.fn();
+
+    render(
+      <Calendar
+        defaultMonth={new Date("2026-01-15T12:00:00.000Z")}
+        defaultView="months"
+        onMonthChange={onMonthChange}
+        timeZone="Pacific/Honolulu"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("option", { name: "Feb" }));
+
+    const nextMonth = onMonthChange.mock.calls[0]?.[0] as Date | undefined;
+    expect(nextMonth?.getFullYear()).toBe(2026);
+    expect(nextMonth?.getMonth()).toBe(1);
+    expect(
+      screen.getByRole("button", { name: "Choose the Month" }).textContent
+    ).toBe("February");
+  });
+
+  it("uses resolved time-zone dates for year bounds", () => {
+    render(
+      <Calendar
+        defaultMonth={new Date("2026-12-15T12:00:00.000Z")}
+        defaultView="years"
+        endMonth={new Date("2027-01-01T00:00:00.000Z")}
+        timeZone="Pacific/Honolulu"
+      />
+    );
+
+    expect(
+      (screen.getByRole("option", { name: "2027" }) as HTMLButtonElement)
+        .disabled
+    ).toBe(true);
+  });
+
+  it("ignores stale hidden panel views when numberOfMonths shrinks", () => {
+    const january = new Date(2026, 0, 1);
+    const { rerender } = render(
+      <Calendar defaultMonth={january} numberOfMonths={2} />
+    );
+
+    const captions = document.querySelectorAll(
+      '[data-slot="easy-month-caption"]'
+    );
+    fireEvent.click(
+      within(captions[1] as HTMLElement).getByRole("button", {
+        name: "Choose the Month",
+      })
+    );
+
+    rerender(<Calendar defaultMonth={january} numberOfMonths={1} />);
+
+    expect(
+      screen.getByRole("button", { name: PREVIOUS_MONTH_NAME })
+    ).toBeTruthy();
+  });
+
+  it("ignores stale views when bounds shrink the actual month slots", () => {
+    const january = new Date(2026, 0, 1);
+    const { rerender } = render(
+      <Calendar defaultMonth={january} numberOfMonths={2} />
+    );
+
+    const captions = document.querySelectorAll(
+      '[data-slot="easy-month-caption"]'
+    );
+    fireEvent.click(
+      within(captions[1] as HTMLElement).getByRole("button", {
+        name: "Choose the Month",
+      })
+    );
+
+    rerender(
+      <Calendar
+        defaultMonth={january}
+        endMonth={january}
+        numberOfMonths={2}
+        startMonth={january}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: PREVIOUS_MONTH_NAME })
+    ).toBeTruthy();
+  });
+
+  it("prunes stale views without mounted navigation adapters", () => {
+    const january = new Date(2026, 0, 1);
+    const { rerender } = render(
+      <Calendar defaultMonth={january} navLayout="after" numberOfMonths={2} />
+    );
+
+    const captions = document.querySelectorAll(
+      '[data-slot="easy-month-caption"]'
+    );
+    fireEvent.click(
+      within(captions[1] as HTMLElement).getByRole("button", {
+        name: "Choose the Month",
+      })
+    );
+
+    rerender(
+      <Calendar
+        defaultMonth={january}
+        endMonth={january}
+        navLayout="after"
+        numberOfMonths={2}
+        startMonth={january}
+      />
+    );
+    rerender(
+      <Calendar defaultMonth={january} navLayout="after" numberOfMonths={2} />
+    );
+
+    expect(
+      screen.queryByRole("listbox", { name: "Choose the Month" })
+    ).toBeNull();
+  });
+
+  it("uses actual time-zone-resolved month slots for navigation visibility", () => {
+    const defaultMonth = new Date("2026-01-15T12:00:00.000Z");
+    const { rerender } = render(
+      <Calendar
+        defaultMonth={defaultMonth}
+        numberOfMonths={2}
+        timeZone="Pacific/Honolulu"
+      />
+    );
+
+    const captions = document.querySelectorAll(
+      '[data-slot="easy-month-caption"]'
+    );
+    fireEvent.click(
+      within(captions[1] as HTMLElement).getByRole("button", {
+        name: "Choose the Month",
+      })
+    );
+
+    rerender(
+      <Calendar
+        defaultMonth={defaultMonth}
+        endMonth={new Date("2026-02-01T00:30:00.000Z")}
+        numberOfMonths={2}
+        startMonth={new Date("2026-01-31T23:30:00.000Z")}
+        timeZone="Pacific/Honolulu"
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: PREVIOUS_MONTH_NAME })
+    ).toBeTruthy();
+  });
+
+  it("treats resetViewsKey as a post-mount edge-triggered token", () => {
+    const { rerender } = render(
+      <Calendar
+        defaultMonth={new Date(2026, 0, 1)}
+        defaultView="months"
+        resetViewsKey={1}
+      />
+    );
+
+    expect(
+      screen.getByRole("listbox", { name: "Choose the Month" })
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Choose the Year" }));
+    expect(
+      screen.getByRole("listbox", { name: "Choose the Year" })
+    ).toBeTruthy();
+
+    rerender(
+      <Calendar
+        defaultMonth={new Date(2026, 0, 1)}
+        defaultView="months"
+        resetViewsKey={0}
+      />
+    );
+
+    expect(
+      screen.queryByRole("listbox", { name: "Choose the Year" })
+    ).toBeNull();
+    expect(screen.getByRole("grid")).toBeTruthy();
   });
 });

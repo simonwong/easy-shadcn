@@ -49,6 +49,9 @@ All props from shadcn's `Calendar` (i.e. `react-day-picker`'s `DayPicker`) are f
 | `numerals`         | `Numerals`                                        | `"latn"`                | Numbering system used by the custom year surfaces and DayPicker.             |
 | `timeZone`         | `string`                                          | local time zone         | Time zone used when formatting custom month and year surfaces.               |
 | `numberOfMonths`   | `number`                                          | `1`                     | Number of months shown side-by-side.                                        |
+| `disableNavigation` | `boolean`                                         | `false`                 | Disables primitive and custom month / year navigation.                      |
+| `reverseMonths`    | `boolean`                                          | `false`                 | Reverses visual month order without changing chronological navigation.      |
+| `reverseYears`     | `boolean`                                          | `false`                 | Reverses the custom year-panel option order.                                |
 | `defaultMonth`     | `Date`                                            | current month           | Initial month displayed.                                                    |
 | `month`            | `Date`                                            | -                       | Controlled visible month. Use with `onMonthChange`.                         |
 | `onMonthChange`    | `(month: Date) => void`                           | -                       | Called when the visible month changes.                                      |
@@ -57,6 +60,7 @@ All props from shadcn's `Calendar` (i.e. `react-day-picker`'s `DayPicker`) are f
 | `disabled`         | `Matcher \| Matcher[]`                            | -                       | Days matching the condition cannot be selected.                             |
 | `monthsClassName`  | `ClassValue`                                      | -                       | className for the months grid panel.                                        |
 | `yearsClassName`   | `ClassValue`                                      | -                       | className for the years grid panel.                                         |
+| `resetViewsKey`    | `number`                                          | -                       | Resets open panels to days when the token changes after mount.              |
 
 ## Views
 
@@ -74,4 +78,6 @@ The calendar manages three internal views:
 - The month and year caption buttons replace the native `<select>` dropdowns that `react-day-picker` renders with `captionLayout="dropdown"`. This gives a consistent, styled experience across platforms.
 - The year panel defaults to ±100 years from today when `startMonth` / `endMonth` are not provided.
 - `startMonth` / `endMonth` also bound the custom month panel, so out-of-range months are disabled before the day grid is shown.
+- Custom navigation follows DayPicker's `disableNavigation`, controlled `month`, `timeZone`, multi-month order, actual visible slot count, and month-level bounds. Partial first and last decades remain reachable when they contain a valid year.
+- `resetViewsKey` is edge-triggered: its initial value preserves `defaultView`; any later value change, including a change to `0`, resets every visible slot to days.
 - When `numberOfMonths > 1`, clicking any month's caption enters the panel view. After selecting, all months update together.
