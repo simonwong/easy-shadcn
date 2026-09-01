@@ -65,7 +65,7 @@ import {
 } from "@/components/easy/field"
 import { Input } from "@/components/ui/input"
 
-<Field data-invalid>
+<Field invalid>
   <FieldLabel htmlFor="username">Username</FieldLabel>
   <Input id="username" autoComplete="off" aria-invalid />
   <FieldDescription>Choose a unique username.</FieldDescription>
@@ -94,7 +94,7 @@ Pass the field error message (or the issues array) straight from the form librar
 | `children` | `ReactNode` | - | The control, such as `Input`, `Textarea`, `Select`, or `DatePicker`. |
 | `description` | `ReactNode` | - | Helper text below the control, or beside it in horizontal mode. |
 | `error` | `ReactNode \| Array<{ message?: string }>` | - | Validation message, or a form-library issues array (deduplicated, rendered as a list when multiple). When present, the wrapper gets `data-invalid` and the control gets `aria-invalid`. |
-| `invalid` | `boolean` | derived from `error` | Forces invalid styling without rendering an error message. |
+| `invalid` | `boolean` | derived from `error` | Forces the owned root invalid marker and flat-control `aria-invalid` without rendering an error message. |
 | `disabled` | `boolean` | `false` | Adds disabled state to the field wrapper. Pass `disabled` to the control too — it is intentionally not injected. |
 | `required` | `boolean` | `false` | Appends a required indicator to the label. |
 | `htmlFor` | `string` | - | Overrides the auto-generated control id used by the label. |
@@ -109,13 +109,15 @@ Pass the field error message (or the issues array) straight from the form librar
 
 In flat mode, when `children` is a single element, `Field` injects:
 
-- `id` — from `htmlFor`, the child's own `id`, or an auto-generated one (in that order); the label points at it.
-- `aria-describedby` — referencing the description and error nodes.
-- `aria-invalid` — when `error` or `invalid` is set.
+- `id` — resolved from `htmlFor`, the child's own `id`, or an auto-generated one (in that order), then written back to the control so the label cannot point at a different id.
+- `aria-describedby` — the generated description and error ids followed by any caller-provided tokens, with duplicates removed.
+- `aria-invalid` — forced to `true` when `error` or `invalid` marks the Field invalid; otherwise the child's value is preserved.
 
-Explicit props on the child always win over the injected ones. When `children` is not a single element (fragments, multiple controls), nothing is injected — wire the attributes yourself. `disabled` is never injected because it changes behavior, not just semantics.
+Only those three control props are managed. The child's ref, events, role, data attributes, content, and behavior remain caller-owned. When `children` is not a single non-Fragment element, nothing is injected — wire the attributes yourself. `disabled` is never injected because it changes behavior, not just semantics.
 
-The injection only works when the child forwards `id` / `aria-*` to its underlying DOM control — native elements and shadcn inputs do. If you pass both `htmlFor` and a child `id`, keep them identical (or pass just one), otherwise the label points at `htmlFor` while the control keeps its own id.
+The injection only works when the child forwards `id` / `aria-*` to its underlying DOM control — native elements and shadcn inputs do.
+
+The root wrapper owns its `group` role, slot/orientation markers, and disabled/invalid state markers. Use `disabled`, `invalid`, and `orientation` instead of setting their derived ARIA/data attributes. Ordinary root props still pass through, including refs, events, `id`, accessible naming/description, and unrelated `data-*`. A root `id` or `aria-describedby` describes the group itself; to add an external description to the control, put `aria-describedby` on the child and Field will merge it with its generated ids.
 
 ### Single-field slots
 

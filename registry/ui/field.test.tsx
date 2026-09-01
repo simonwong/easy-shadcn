@@ -1,5 +1,7 @@
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { createRef, Fragment } from "react";
+import { describe, expect, it, vi } from "vitest";
+import type { FieldProps } from "./field";
 import {
   Field,
   FieldContent,
@@ -203,5 +205,135 @@ describe("Field", () => {
     const field = container.querySelector('[data-slot="field"]');
     expect(field?.firstElementChild?.tagName).toBe("INPUT");
     expect(field?.querySelector('[data-slot="field-content"]')).toBeNull();
+  });
+
+  it("protects generated root structure and state from hostile props", () => {
+    const hostileProps = {
+      "aria-disabled": false,
+      "aria-invalid": true,
+      "data-disabled": "forged",
+      "data-invalid": "forged",
+      "data-orientation": "forged",
+      "data-slot": "forged",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      role: "presentation",
+    } as unknown as FieldProps;
+
+    expect(() => {
+      render(
+        <Field
+          data-testid="owned-field"
+          description="Account owner."
+          disabled
+          error="Email is required."
+          invalid
+          label="Email"
+          orientation="vertical"
+          {...hostileProps}
+        >
+          <input />
+        </Field>
+      );
+    }).not.toThrow();
+
+    const root = screen.getByTestId("owned-field");
+    expect(root.getAttribute("role")).toBe("group");
+    expect(root.getAttribute("data-slot")).toBe("field");
+    expect(root.getAttribute("data-orientation")).toBe("vertical");
+    expect(root.getAttribute("aria-disabled")).toBe("true");
+    expect(root.getAttribute("aria-invalid")).toBeNull();
+    expect(root.getAttribute("data-disabled")).toBe("true");
+    expect(root.getAttribute("data-invalid")).toBe("true");
+    expect(screen.getByText("Email")).toBeTruthy();
+    expect(screen.getByText("Account owner.")).toBeTruthy();
+    expect(screen.getByRole("alert")).toBeTruthy();
+    expect(document.body.textContent).not.toContain("Forged HTML");
+  });
+
+  it("owns the control id and merges generated description references", () => {
+    const { container } = render(
+      <Field
+        description="Account owner."
+        error="Email is required."
+        htmlFor="owned-email"
+        label="Email"
+      >
+        <input
+          aria-describedby=" external-help external-help "
+          aria-invalid={false}
+          id="caller-email"
+        />
+      </Field>
+    );
+
+    const control = container.querySelector("input");
+    const label = container.querySelector('[data-slot="field-label"]');
+    const description = container.querySelector(
+      '[data-slot="field-description"]'
+    );
+    const error = screen.getByRole("alert");
+
+    expect(control?.id).toBe("owned-email");
+    expect(label?.getAttribute("for")).toBe("owned-email");
+    expect(control?.getAttribute("aria-describedby")).toBe(
+      `${description?.id} ${error.id} external-help`
+    );
+    expect(control?.getAttribute("aria-invalid")).toBe("true");
+  });
+
+  it("preserves caller control semantics when Field does not strengthen them", () => {
+    const { container } = render(
+      <Field label="Message">
+        <input aria-invalid="grammar" id="caller-message" />
+      </Field>
+    );
+
+    const control = container.querySelector("input");
+    expect(control?.id).toBe("caller-message");
+    expect(control?.getAttribute("aria-invalid")).toBe("grammar");
+  });
+
+  it("does not treat a Fragment as a wireable single control", () => {
+    const { container } = render(
+      <Field label="Grouped input">
+        <Fragment key="control">
+          <input />
+        </Fragment>
+      </Field>
+    );
+
+    expect(container.querySelector("input")?.id).toBe("");
+    expect(
+      container.querySelector('[data-slot="field-label"]')?.getAttribute("for")
+    ).toBeNull();
+  });
+
+  it("preserves safe root props and composition-mode invalid state", () => {
+    const ref = createRef<HTMLDivElement>();
+    const onClick = vi.fn();
+    render(
+      <Field
+        aria-describedby="field-help"
+        data-testid="safe-field"
+        data-trace="field-root"
+        id="field-root"
+        invalid
+        onClick={onClick}
+        ref={ref}
+      >
+        <FieldLabel htmlFor="safe-control">Safe control</FieldLabel>
+        <input id="safe-control" />
+      </Field>
+    );
+
+    const root = screen.getByTestId("safe-field");
+    fireEvent.click(root);
+    expect(ref.current).toBe(root);
+    expect(onClick).toHaveBeenCalledOnce();
+    expect(root.id).toBe("field-root");
+    expect(root.getAttribute("aria-describedby")).toBe("field-help");
+    expect(root.getAttribute("data-trace")).toBe("field-root");
+    expect(root.getAttribute("data-invalid")).toBe("true");
+    expect(root.children).toHaveLength(2);
   });
 });
