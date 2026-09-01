@@ -101,6 +101,7 @@ behavior, or repeated accessibility wiring.
 | [Choice Group](../../registry/ui/choice-group.tsx) | Owns the four valid selection/presentation combinations, scalar/array value adaptation, option accessibility wiring, root role/orientation/disabled semantics, and primitive state markers. The soft-deprecated RadioGroup and CheckboxGroup adapters keep the same root ownership guarantees without gaining new capabilities. |
 | [Date Picker](../../registry/ui/date-picker.tsx) | Owns popover state, single/multiple/range value plumbing, and manual-input draft/commit races. The input lifecycle is recorded in [ADR-0008](../adr/0008-date-picker-input-draft-commit.md). |
 | [Field](../../registry/ui/field.tsx) | Owns label/control/description/error ids, `aria-describedby`, `aria-invalid`, required output, and form-error normalization. |
+| [Menu](../../registry/ui/menu.tsx) | Owns the recursive item tree, scalar/array selection, controlled open keys, roving focus, submenu dismissal, root role/orientation/mode, and a chained keyboard dispatcher. Its public root ref is merged with the internal focus/outside-dismiss ref. |
 | [Modal](../../registry/ui/modal/modal.tsx) | Owns Dialog slots, open state, async confirm/cancel completion, and the command-modal Adapter seam described by [ADR-0001](../adr/0001-adapter-seam-and-typed-factory.md). Keep Modal as the Dialog capability. |
 | [Pagination](../../registry/ui/pagination.tsx) | Owns normalization, page-window/ellipsis generation, controlled/uncontrolled client state, and safe separation from native navigation, as recorded in [ADR-0009](../adr/0009-pagination-client-and-navigation-modes.md). |
 | [Progress](../../registry/ui/progress.tsx) | Owns determinate/indeterminate value semantics plus accessible name/value wiring. Spinner and Skeleton remain primitives; they do not need to become Progress modes. |
@@ -135,10 +136,11 @@ maintenance work:
    consequence note is not active implementation debt.
 3. **Resolved:** [`Accordion`](../../registry/ui/accordion.tsx),
    [`Tabs`](../../registry/ui/tabs.tsx),
-   [`ChoiceGroup`](../../registry/ui/choice-group.tsx), and its compatibility
-   group adapters now reject structure and primitive-state overrides at both
-   type and runtime seams. Caller-owned item content, accessible naming, refs,
-   events, and ordinary root styling stay intact.
+   [`ChoiceGroup`](../../registry/ui/choice-group.tsx), its compatibility group
+   adapters, and [`Menu`](../../registry/ui/menu.tsx) now reject structure and
+   state-marker overrides at both type and runtime seams. Caller-owned item
+   content, accessible naming, refs, events, and ordinary root styling stay
+   intact.
 
 ## Missing official capabilities: disposition
 

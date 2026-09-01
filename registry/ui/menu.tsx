@@ -10,6 +10,7 @@ import {
   type ReactNode,
   useEffect,
   useId,
+  useImperativeHandle,
   useRef,
   useState,
 } from "react";
@@ -62,11 +63,21 @@ export type MenuItem =
   | MenuSeparatorItem
   | MenuSubmenuItem;
 
+interface MenuOwnedRootProps {
+  "aria-orientation"?: never;
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-mode"?: never;
+  onChange?: never;
+  role?: never;
+}
+
 interface MenuBaseProps
   extends Omit<
-    ComponentProps<"ul">,
-    "children" | "defaultValue" | "onChange" | "onSelect"
-  > {
+      ComponentProps<"ul">,
+      "defaultValue" | "onSelect" | keyof MenuOwnedRootProps
+    >,
+    MenuOwnedRootProps {
   defaultOpenKeys?: string[];
   extraClassName?: ClassValue;
   iconClassName?: ClassValue;
@@ -174,7 +185,11 @@ export const Menu = (props: MenuProps) => {
   const {
     "aria-label": ariaLabel,
     "aria-labelledby": ariaLabelledBy,
+    "aria-orientation": _ignoredAriaOrientation,
+    children: _ignoredChildren,
     className,
+    "data-mode": _ignoredDataMode,
+    dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
     defaultValue: _defaultValue,
     defaultOpenKeys = [],
     extraClassName,
@@ -184,11 +199,14 @@ export const Menu = (props: MenuProps) => {
     labelClassName,
     mode = "vertical",
     multiple = false,
+    onChange: _ignoredOnChange,
     onKeyDown,
     onOpenKeysChange,
     onSelect,
     onValueChange,
     openKeys,
+    ref: forwardedRef,
+    role: _ignoredRole,
     selectable = true,
     submenuClassName,
     value,
@@ -196,6 +214,11 @@ export const Menu = (props: MenuProps) => {
   } = props;
   const baseId = useId();
   const rootRef = useRef<HTMLUListElement>(null);
+  useImperativeHandle(
+    forwardedRef,
+    () => rootRef.current as HTMLUListElement,
+    []
+  );
   const valueControlled = "value" in props;
   const openControlled = "openKeys" in props;
   const [internalValue, setInternalValue] = useState<
