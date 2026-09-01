@@ -22,6 +22,8 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/menu.json
 
 Menu owns its persistent navigation markup and state adapter directly. Its chevron icon packages are installed automatically.
 
+The root `<ul>`, generated item tree, `menu` role, orientation, mode marker, and keyboard dispatcher are fixed by Menu at both type and runtime seams. Caller-owned accessible naming, refs, classes, styles, ordinary `data-*`, and native events remain available. A caller `onKeyDown` runs first; calling `preventDefault()` stops Menu's internal keyboard handling.
+
 ## Basic use
 
 The first use case needs only `items`. Add `value` / `onValueChange` when the parent owns selection.
@@ -125,7 +127,7 @@ Every item needs a stable, unique `key`.
 | `labelClassName` | `ClassValue` | - | Class merged into every item label wrapper. |
 | `extraClassName` | `ClassValue` | - | Class merged into every extra wrapper. |
 | `submenuClassName` | `ClassValue` | - | Class merged into every submenu list. |
-| `className` | `ClassValue` | - | Root menu class. Other compatible list props are forwarded. |
+| `className` | `ClassValue` | - | Root menu class. Other compatible caller-owned list props are forwarded. |
 
 ## Which menu component?
 

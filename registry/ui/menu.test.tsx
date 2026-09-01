@@ -5,8 +5,9 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { Menu, type MenuItem } from "./menu";
+import { Menu, type MenuItem, type MenuProps } from "./menu";
 
 const items: MenuItem[] = [
   { key: "overview", label: "Overview" },
@@ -304,5 +305,82 @@ describe("Menu", () => {
 
     expect(onKeyDown).toHaveBeenCalled();
     expect(document.activeElement).not.toBe(reports);
+  });
+
+  it("owns generated root structure, role, orientation, and mode", () => {
+    const nativeOnChange = vi.fn();
+    const hostileProps = {
+      "aria-orientation": "horizontal",
+      children: "Forged child",
+      "data-mode": "forged",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+      onChange: nativeOnChange,
+      role: "listbox",
+    } as unknown as MenuProps;
+    const unsafeProps = {
+      ...hostileProps,
+      "aria-label": "Workspace",
+      "data-slot": "custom-menu",
+      "data-testid": "menu-root",
+      items,
+      mode: "vertical",
+    } as unknown as MenuProps;
+
+    expect(() => {
+      render(<Menu {...unsafeProps} />);
+    }).not.toThrow();
+
+    const root = screen.getByTestId("menu-root");
+    expect(root.tagName).toBe("UL");
+    expect(root.getAttribute("role")).toBe("menu");
+    expect(root.getAttribute("aria-orientation")).toBe("vertical");
+    expect(root.getAttribute("data-mode")).toBe("vertical");
+    expect(root.getAttribute("data-slot")).toBe("custom-menu");
+    expect(screen.getByRole("menuitem", { name: "Overview" })).toBeTruthy();
+    expect(document.body.textContent).not.toContain("Forged");
+
+    fireEvent.change(root);
+    expect(nativeOnChange).not.toHaveBeenCalled();
+  });
+
+  it("merges object and callback refs without breaking keyboard routing", () => {
+    const objectRef = createRef<HTMLUListElement>();
+    const callbackNodes: (HTMLUListElement | null)[] = [];
+    const onKeyDown = vi.fn();
+    const view = render(
+      <>
+        <Menu aria-label="Object menu" items={items} ref={objectRef} />
+        <Menu
+          aria-label="Callback menu"
+          items={items}
+          onKeyDown={onKeyDown}
+          ref={(node) => {
+            callbackNodes.push(node);
+          }}
+        />
+      </>
+    );
+
+    const objectMenu = screen.getByRole("menu", { name: "Object menu" });
+    const callbackMenu = screen.getByRole("menu", { name: "Callback menu" });
+    expect(objectRef.current).toBe(objectMenu);
+    expect(callbackNodes.at(-1)).toBe(callbackMenu);
+    const mountedCallbackCount = callbackNodes.length;
+
+    const overview = screen.getAllByRole("menuitem", {
+      name: "Overview",
+    })[1];
+    const reports = screen.getAllByRole("menuitem", { name: "Reports" })[1];
+    act(() => overview.focus());
+    fireEvent.keyDown(overview, { key: "ArrowDown" });
+    expect(onKeyDown).toHaveBeenCalledOnce();
+    expect(document.activeElement).toBe(reports);
+    fireEvent.click(reports);
+    expect(callbackNodes).toHaveLength(mountedCallbackCount);
+
+    view.unmount();
+    expect(objectRef.current).toBeNull();
+    expect(callbackNodes.at(-1)).toBeNull();
+    expect(callbackNodes).toHaveLength(mountedCallbackCount + 1);
   });
 });

@@ -33,6 +33,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-09-02 | Structural-root ownership | Protected Alert, Avatar, Card, Breadcrumb, and both Popover adapters from raw HTML, element replacement, and conflicting root/popup markers while preserving caller-owned content and trigger escape hatches. |
 | 2026-09-02 | Accordion/Tabs ownership | Protected both items-driven collection roots from raw HTML, element replacement, and forged primitive state markers while preserving safe root props and caller-owned item content. |
 | 2026-09-02 | Choice-list ownership | Protected all four `ChoiceGroup` adapters and the soft-deprecated `RadioGroup` / `CheckboxGroup` roots from structure, role, orientation, disabled, and primitive-state overrides while preserving caller naming, refs, events, styles, and value contracts. |
+| 2026-09-02 | Menu ownership | Protected the recursive Menu root, role, orientation, mode, and keyboard dispatcher while merging the public root ref with the internal focus/outside-dismiss ref. |
 
 ## Compose: current and planned
 
@@ -48,7 +49,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Carousel | Carousel | `Carousel` | Keep | Medium | Retain interaction and item flattening. |
 | Boolean controls | Checkbox, Switch | `Checkbox`, `Switch` | Keep | Low | Single boolean values stay independent. Switch owns its root element, role, thumb, derived ARIA/data state, size, and slot markers. |
 | Select | Select, Combobox | `Select` | Keep and deepen | High | `Combobox` remains a thin searchable preset, never a second state owner. Native Select is excluded separately. |
-| Menu family | Context Menu, Dropdown Menu | `Menu` | Keep and deepen | High | Menu owns item tree and menu state. Existing `ContextMenu` and `DropdownMenu` stay as right-click/dropdown shells. |
+| Menu family | Context Menu, Dropdown Menu | `Menu` | Keep and deepen | High | Menu owns item tree, root semantics, keyboard routing, selection, and open state. Existing `ContextMenu` and `DropdownMenu` stay as right-click/dropdown shells. |
 | Data table | Table, Data Table | `Table` | Keep and deepen | High | One owner for rendering, selection, pagination-facing state, and row identity. |
 | Empty state | Empty | `Empty` | Keep | Medium | Common empty-state structure; domain workflows stay outside it. |
 | Form layout | Field | `Field` | Keep | Medium | Own common label/control/description/error composition. |
