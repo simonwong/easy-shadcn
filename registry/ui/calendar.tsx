@@ -30,13 +30,37 @@ function toMonthIndex(date: Date) {
 
 type CalendarPrimitiveProps = React.ComponentProps<typeof CalendarPrimitive>;
 
-export type CalendarProps = CalendarPrimitiveProps & {
-  defaultView?: CalendarView;
-  monthsClassName?: ClassValue;
-  yearsClassName?: ClassValue;
-  /** Reset all per-month views to "days". Bump this value to trigger a reset. */
-  resetViewsKey?: number;
+interface CalendarOwnedPrimitiveProps {
+  captionLayout?: never;
+  components?: never;
+  "data-slot"?: never;
+  dateLib?: never;
+  fixedWeeks?: never;
+  hideNavigation?: never;
+}
+
+type CalendarFormatterProps = Omit<
+  NonNullable<CalendarPrimitiveProps["formatters"]>,
+  "formatCaption"
+> & {
+  formatCaption?: never;
 };
+
+type CalendarSafePrimitiveProps<T> = T extends unknown
+  ? Omit<T, keyof CalendarOwnedPrimitiveProps | "formatters"> &
+      CalendarOwnedPrimitiveProps & {
+        formatters?: CalendarFormatterProps;
+      }
+  : never;
+
+export type CalendarProps =
+  CalendarSafePrimitiveProps<CalendarPrimitiveProps> & {
+    defaultView?: CalendarView;
+    monthsClassName?: ClassValue;
+    yearsClassName?: ClassValue;
+    /** Reset all per-month views to "days". Bump this value to trigger a reset. */
+    resetViewsKey?: number;
+  };
 
 type CaptionCtxValue = {
   locale: CalendarPrimitiveProps["locale"];
@@ -365,7 +389,14 @@ const calendarComponents = {
 
 export const Calendar = (props: CalendarProps) => {
   const {
+    captionLayout: _ignoredCaptionLayout,
     className,
+    components: _ignoredComponents,
+    "data-slot": _ignoredDataSlot,
+    dateLib: _ignoredDateLib,
+    fixedWeeks: _ignoredFixedWeeks,
+    formatters,
+    hideNavigation: _ignoredHideNavigation,
     monthsClassName,
     yearsClassName,
     defaultView,
@@ -379,6 +410,8 @@ export const Calendar = (props: CalendarProps) => {
     style,
     ...rest
   } = props;
+  const { formatCaption: _ignoredFormatCaption, ...safeFormatters } =
+    formatters ?? {};
 
   const [views, setViews] = useState<Record<number, CalendarView>>(
     defaultView ? { 0: defaultView } : {}
@@ -436,6 +469,7 @@ export const Calendar = (props: CalendarProps) => {
         components={calendarComponents}
         endMonth={endMonth}
         fixedWeeks
+        formatters={safeFormatters}
         hideNavigation={anyPanelOpen}
         locale={locale}
         month={currentMonth}
