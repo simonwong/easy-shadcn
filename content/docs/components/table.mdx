@@ -24,6 +24,8 @@ The underlying shadcn `table` primitive plus the Base UI Checkbox and icon packa
 
 After `shadcn add`, import from `@/components/easy/table`. The examples below import from `@/registry/ui/table` for repo-internal reasons — substitute the install path in your app.
 
+Table owns the root's generated caption/header/body/row structure, `aria-busy` state, and `data-slot` marker at both type and runtime seams. Caller-owned refs, accessible naming, roles, classes, styles, ordinary ARIA/data attributes, and native events remain available on the actual `<table>` element.
+
 ## Usage
 
 ### Basic
@@ -223,7 +225,7 @@ The Table ships with the WCAG defaults you'd expect, plus development-only warni
 | `captionClassName` | `ClassValue` | — | className on `<caption>`. |
 | `emptyClassName` | `ClassValue` | — | className on the empty-state cell. |
 | `loadingClassName` | `ClassValue` | — | className on the loading-state cell. |
-| `className` | `ClassValue` | — | className on the `<table>` element. |
+| `className` | `ClassValue` | — | className on the `<table>` element. Other caller-owned native table props and refs are forwarded; generated children, raw HTML, `aria-busy`, and the root slot marker are fixed by Table. |
 
 ### `TableColumn<T>`
 

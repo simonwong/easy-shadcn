@@ -205,8 +205,19 @@ function SelectionCheckbox({
 // Table
 // ---------------------------------------------------------------------------
 
+interface TableOwnedRootProps {
+  "aria-busy"?: never;
+  children?: never;
+  dangerouslySetInnerHTML?: never;
+  "data-slot"?: never;
+}
+
 export interface TableProps<T>
-  extends Omit<React.ComponentProps<"table">, "children" | "className"> {
+  extends Omit<
+      React.ComponentProps<"table">,
+      "className" | keyof TableOwnedRootProps
+    >,
+    TableOwnedRootProps {
   /** className on `<tbody>`. */
   bodyClassName?: ClassValue;
   /** Caption rendered inside `<caption>`. */
@@ -373,7 +384,11 @@ function shouldEmitDevWarnings(): boolean {
 }
 
 export function Table<T>({
+  "aria-busy": _ignoredAriaBusy,
+  children: _ignoredChildren,
   columns,
+  "data-slot": _ignoredDataSlot,
+  dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
   dataSource,
   rowKey,
   loading,
