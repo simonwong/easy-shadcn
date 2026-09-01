@@ -64,7 +64,7 @@ The calendar manages three internal views:
 
 ## Notes
 
-- **Reserved props.** `captionLayout`, `components`, `fixedWeeks`, and `hideNavigation` are managed internally to drive the panel navigation — passing them has no effect. If you need to customize those, use the `components/ui/calendar` primitive directly.
+- **Reserved props.** `captionLayout`, `components`, `data-slot`, `dateLib`, `fixedWeeks`, and `hideNavigation` are managed internally to drive the panel navigation, root marker, and date math. `formatters.formatCaption` is reserved because the custom caption renders its own controls. These paths are rejected by TypeScript and stripped at runtime. If you need to customize them, use the `components/ui/calendar` primitive directly.
 - The month and year caption buttons replace the native `<select>` dropdowns that `react-day-picker` renders with `captionLayout="dropdown"`. This gives a consistent, styled experience across platforms.
 - The year panel defaults to ±100 years from today when `startMonth` / `endMonth` are not provided.
 - `startMonth` / `endMonth` also bound the custom month panel, so out-of-range months are disabled before the day grid is shown.
