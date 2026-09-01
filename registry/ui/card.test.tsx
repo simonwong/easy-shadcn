@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { Card } from "./card";
+import { Card, type CardProps } from "./card";
 
 const slot = (container: HTMLElement, name: string) =>
   container.querySelector(`[data-slot="${name}"]`);
@@ -140,5 +140,39 @@ describe("Card", () => {
 
     expect(slot(container, "card")?.getAttribute("data-size")).toBe("sm");
     expect(screen.getByTestId("stat-card")).toBe(slot(container, "card"));
+  });
+
+  it("owns its root raw HTML, primitive slot, and size marker at runtime", () => {
+    const hostileProps = {
+      "data-size": "default",
+      "data-slot": "forged-card",
+      dangerouslySetInnerHTML: { __html: "Forged HTML" },
+    } as unknown as CardProps;
+
+    expect(() => {
+      render(
+        <Card
+          {...hostileProps}
+          footer="Owned footer"
+          size="sm"
+          title="Owned title"
+        >
+          Owned body
+        </Card>
+      );
+    }).not.toThrow();
+
+    const root = document.querySelector('[data-slot="card"]');
+    expect(root?.getAttribute("data-size")).toBe("sm");
+    expect(root?.querySelector('[data-slot="card-title"]')?.textContent).toBe(
+      "Owned title"
+    );
+    expect(root?.querySelector('[data-slot="card-content"]')?.textContent).toBe(
+      "Owned body"
+    );
+    expect(root?.querySelector('[data-slot="card-footer"]')?.textContent).toBe(
+      "Owned footer"
+    );
+    expect(screen.queryByText("Forged HTML")).toBeNull();
   });
 });

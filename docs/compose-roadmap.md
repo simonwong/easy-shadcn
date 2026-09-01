@@ -30,18 +30,19 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-09-01 | AlertDialog ownership | Applied the same type and runtime ownership contract to declarative AlertDialog action prop bags. |
 | 2026-09-02 | Action-control ownership | Closed Base UI element-replacement and conflicting semantic paths on AsyncButton and the Modal, AlertModal, AlertDialog, and Toast action prop bags. |
 | 2026-09-02 | Form-control ownership | Fixed InputGroup's void input and primitive slot, and fixed Switch's root element, role, generated thumb, state semantics, size, and slot markers at type and runtime seams. |
+| 2026-09-02 | Structural-root ownership | Protected Alert, Avatar, Card, Breadcrumb, and both Popover adapters from raw HTML, element replacement, and conflicting root/popup markers while preserving caller-owned content and trigger escape hatches. |
 
 ## Compose: current and planned
 
 | Capability family | Official shadcn entries | Canonical Compose owner | State | Compose value | Boundary |
 | --- | --- | --- | --- | --- | --- |
 | Disclosure | Accordion, Collapsible | `Accordion` | Keep | Low | A one-item Accordion covers the common Collapsible task; heterogeneous structure escapes to Primitive. |
-| Alert | Alert | `Alert` | Keep | Low | Presentational convenience only. |
+| Alert | Alert | `Alert` | Keep | Low | Flat content slots with fixed alert role, root marker, and generated child order. |
 | Modal feedback | Dialog, Alert Dialog | `Modal`, `AlertDialog` | Keep | High | Dialog maps to imperative Modal handling; Alert Dialog remains the confirm/cancel specialization. Modal, AlertModal, and AlertDialog action prop bags enforce Compose-owned button elements, semantics, labels, and action/close wiring. |
-| Identity media | Avatar | `Avatar` | Keep | Low | Preserve current wrapper; no broader media abstraction. |
-| Breadcrumb navigation | Breadcrumb | `Breadcrumb` | Keep | Low | Homogeneous navigation items only. |
+| Identity media | Avatar | `Avatar` | Keep | Low | Fixed root/image/fallback/badge structure; caller retains content and root ARIA/role. |
+| Breadcrumb navigation | Breadcrumb | `Breadcrumb` | Keep | Low | Homogeneous navigation items with a fixed generated list; caller retains nav labeling and role. |
 | Date selection | Calendar, Date Picker | `Calendar`, `DatePicker` | Keep | High | DatePicker composes Calendar with input/popover state; Calendar remains useful alone. |
-| Content container | Card | `Card` | Keep | Low | Flat common slots; unusual layouts use Primitive. |
+| Content container | Card | `Card` | Keep | Low | Flat common slots and derived root markers; unusual layouts use Primitive. |
 | Carousel | Carousel | `Carousel` | Keep | Medium | Retain interaction and item flattening. |
 | Boolean controls | Checkbox, Switch | `Checkbox`, `Switch` | Keep | Low | Single boolean values stay independent. Switch owns its root element, role, thumb, derived ARIA/data state, size, and slot markers. |
 | Select | Select, Combobox | `Select` | Keep and deepen | High | `Combobox` remains a thin searchable preset, never a second state owner. Native Select is excluded separately. |
@@ -52,7 +53,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Input composition | Input Group | `InputGroup` | Keep | Medium | Own adornment, grouped-control composition, void input structure, and primitive slot; plain Input stays Primitive-only. |
 | One-time password | Input OTP | `InputOTP` | Keep | Medium | Retain specialized interaction and form semantics. |
 | Pagination | Pagination | `Pagination` | Keep and deepen | High | Own client-state vs navigation-mode contract. |
-| Floating content | Popover, Hover Card | `Popover` | Keep | Medium | `interaction="click"` uses Popover; `interaction="hover"` uses Preview Card with delay controls. Shared slots and open vocabulary survive migration; Tooltip stays separate. |
+| Floating content | Popover, Hover Card | `Popover` | Keep | Medium | Click and hover adapters share a fixed popup/slot structure; the caller-owned trigger remains the escape hatch. Tooltip stays separate. |
 | Progress | Progress | `Progress` | Keep | Low | Preserve current wrapper; Spinner and Skeleton remain Primitive-only. |
 | Choice list | Radio Group, Toggle Group | `ChoiceGroup` | Keep and deepen | High | Single/multiple selection; radio/checkbox/toggle presentation. Existing `RadioGroup` and `CheckboxGroup` are soft-deprecated. |
 | Edge panel | Sheet | `Sheet` | Keep | Medium | Binary edge-positioned dialog. Drawer gestures and snap points are excluded. |

@@ -34,7 +34,7 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/alert.json
 | `descriptionClassName` | `ClassValue`                 | -           | Class override for the description part.                                    |
 | `actionClassName`      | `ClassValue`                 | -           | Class override for the action part.                                         |
 
-Safe root props (`id`, `style`, `aria-*`, `data-*`, and event handlers) are forwarded to the underlying Alert root. `children` and `dangerouslySetInnerHTML` are intentionally unavailable because the Compose layer owns the child structure; `title` is visible Alert content, not the native root `title` attribute.
+Safe root props (`id`, `style`, caller-owned `aria-*`, non-owned `data-*`, and event handlers) are forwarded to the underlying Alert root. The Compose layer fixes `role="alert"`, `data-slot="alert"`, and the child structure, so `role`, `data-slot`, `children`, and `dangerouslySetInnerHTML` are rejected by TypeScript and stripped at runtime. `title` is visible Alert content, not the native root `title` attribute.
 
 ## Slot structure
 
