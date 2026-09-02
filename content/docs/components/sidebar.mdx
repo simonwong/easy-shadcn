@@ -1,0 +1,145 @@
+---
+title: Sidebar
+---
+
+Sidebar is the responsive application-navigation shell for easy-shadcn. One finite item tree becomes a desktop offcanvas panel and a mobile modal Sheet beside a generated main region. Selection and submenu state survive the renderer switch.
+
+<ExamplePreview name="sidebar-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/sidebar
+```
+
+Or install via the full URL:
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/sidebar.json
+```
+
+The registry also installs the official shadcn Sidebar and its Button, Separator, Sheet, Skeleton, Tooltip, and mobile-breakpoint dependencies.
+
+## Basic use
+
+The first use has three concepts: `items`, `content`, and a `SidebarTrigger` placed where the main pane needs it.
+
+```tsx
+import { Sidebar, SidebarTrigger } from "@/components/easy/sidebar"
+
+<Sidebar
+  items={[
+    { key: "overview", label: "Overview", href: "/overview" },
+    { key: "projects", label: "Projects", href: "/projects" },
+  ]}
+  content={
+    <>
+      <header><SidebarTrigger /></header>
+      <Dashboard />
+    </>
+  }
+/>
+```
+
+Leaves without `href` render buttons. Leaves with `href` remain anchors. Sidebar never imports a router, derives the active route, prefetches, or treats an `href` click as completed navigation; pass `value` from the routing state when the route owns selection.
+
+## Navigation tree
+
+Every entry needs a non-empty key, unique across the whole tree. Groups and submenus use `items`; no entry accepts `children`.
+
+```tsx
+<Sidebar
+  defaultOpenKeys={["team"]}
+  defaultValue="overview"
+  items={[
+    {
+      type: "group",
+      key: "workspace",
+      label: "Workspace",
+      items: [
+        { key: "overview", label: "Overview" },
+        {
+          type: "submenu",
+          key: "team",
+          label: "Team",
+          items: [
+            { key: "members", label: "Members" },
+            { key: "roles", label: "Roles" },
+          ],
+        },
+      ],
+    },
+    { type: "separator", key: "workspace-divider" },
+    { key: "settings", label: "Settings" },
+  ]}
+  content={<Page />}
+/>
+```
+
+| Kind | Required fields | Optional fields | Behavior |
+| --- | --- | --- | --- |
+| Leaf | `key`, `label` | `href`, `target`, `rel`, `icon`, `extra`, `disabled`, class fields | Button without `href`; anchor with `href`; selectable. |
+| Submenu | `type: "submenu"`, `key`, `label`, `items` | `icon`, `extra`, `disabled`, class fields | Opens an inline list of leaf items. |
+| Group | `type: "group"`, `key`, `items` | `label`, class fields | Adds an optional non-interactive label around leaves, submenus, and separators. |
+| Separator | `type: "separator"`, `key` | `className` | Adds a semantic separator. |
+
+Disabled leaves do not select or notify. Disabled submenus do not open. An enabled leaf first commits uncontrolled selection and requests mobile closure, then calls `onValueChange` and `onSelect` in that order.
+
+## Controlled state
+
+Desktop collapse, selection, and submenu expansion use independent controlled triplets:
+
+```tsx
+<Sidebar
+  open={sidebarOpen}
+  onOpenChange={setSidebarOpen}
+  value={activeSection}
+  onValueChange={setActiveSection}
+  openKeys={openSections}
+  onOpenKeysChange={setOpenSections}
+  items={items}
+  content={<Page />}
+/>
+```
+
+Controlled values are authoritative: callbacks request the next value, but the component does not visually commit it until the prop changes. Mobile Sheet visibility remains internal so it cannot conflict with desktop collapse preference.
+
+## Responsive, keyboard, and persistence contract
+
+- Desktop collapse is fixed to the official `offcanvas` mode. `side` supports `left` and `right`; `variant` supports `sidebar`, `floating`, and `inset`.
+- Below the official 768 px breakpoint, the panel uses the official Sheet and Base UI Dialog focus/dismissal behavior. Selecting an enabled leaf closes it. Returning to desktop clears stale mobile-open state.
+- The installed Primitive preserves fixed Mod+B (`⌘B` or `Ctrl+B`) toggling. One Compose Sidebar per document is supported because the shortcut and cookie key are global.
+- Desktop changes write `sidebar_state` for seven days. The Primitive does not read the cookie. Read it outside this client component and pass `defaultOpen` or controlled `open` when restoration is required.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `items` | `readonly SidebarItem[]` | required | Finite navigation tree. Empty arrays are valid. |
+| `content` | `ReactNode` | required | Main-region content; place `SidebarTrigger` inside it. |
+| `header` / `footer` | `ReactNode` | - | Opaque panel content above or below navigation. |
+| `value` / `defaultValue` | `string` | - | Controlled or initial uncontrolled selected leaf key. |
+| `onValueChange` | `(value: string \| undefined) => void` | - | Receives the next selected key. |
+| `onSelect` | `(key, item) => void` | - | Runs after enabled leaf activation. |
+| `openKeys` / `defaultOpenKeys` | `readonly string[]` | - / `[]` | Controlled or initial uncontrolled submenu keys. Non-submenu keys are ignored and never emitted. |
+| `onOpenKeysChange` | `(keys: string[]) => void` | - | Receives the complete next submenu-key set. |
+| `open` / `defaultOpen` | `boolean` | - / `true` | Controlled or initial desktop expanded state. |
+| `onOpenChange` | `(open: boolean) => void` | - | Receives desktop collapse requests. |
+| `side` | `"left" \| "right"` | `"left"` | Panel side on desktop and mobile. |
+| `variant` | `"sidebar" \| "floating" \| "inset"` | `"sidebar"` | Official desktop layout variant. |
+| `dir` | `"ltr" \| "rtl"` | inherited | Direction for the shell and mobile panel. |
+| `navigationLabel` | `string` | `"Primary navigation"` | Exact accessible name of the navigation landmark. |
+| `className` | `ClassValue` | - | Provider shell class. |
+| `sidebarClassName` | `ClassValue` | - | Desktop panel-container class. |
+| `headerClassName` / `navigationClassName` / `footerClassName` | `ClassValue` | - | Panel slot-wrapper classes. |
+| `insetClassName` / `contentClassName` | `ClassValue` | - | Main element and inner main-content classes. |
+
+`SidebarTrigger` accepts only `label` and `className`. It owns its button, icon, toggle handler, structure, and responsive target.
+
+## Escape hatch
+
+Use the shadcn Sidebar Primitive for icon-only collapse, non-collapsible panels, custom provider/context access, several independent sidebars, custom mobile state, route matching, different breakpoints or shortcuts, persistence policy, row actions, loading skeletons, rail composition, and heterogeneous panel structure.
+
+Sidebar intentionally does not reuse Compose `Menu`: application-menu roles, roving focus, arrow-key dispatch, and popup modes would replace normal navigation landmark, link, and tab semantics.

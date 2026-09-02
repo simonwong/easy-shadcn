@@ -2,7 +2,7 @@
 
 This is the durable product coverage ledger for easy-shadcn. It maps the current [shadcn component catalog](https://ui.shadcn.com/docs/components) to user capability families so upstream names do not cause duplicate Compose modules. GitHub issues own work dependencies and delivery state; this document owns classification and priority. The evidence behind the current classification lives in the [Compose depth audit](research/compose-depth-audit.md).
 
-Snapshot: 2026-08-24, 64 official shadcn component entries.
+Snapshot: 2026-09-02, 64 official shadcn component entries.
 
 ## How to read this roadmap
 
@@ -13,9 +13,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 
 ## Priority queue
 
-| Priority | Capability | Next decision or module | Compose value |
-| --- | --- | --- | --- |
-| P1 | Sidebar boundary | Decide whether one bounded navigation shell can own desktop/mobile open state without hiding necessary header, footer, route, and persistence composition. | High |
+No unresearched high-value boundary is currently queued.
 
 ## Completed decisions
 
@@ -41,6 +39,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | 2026-09-02 | Calendar navigation state | Routed time-zone-aware custom month/year/decade mutations through DayPicker, separated visual indices from chronological offsets, and fixed disable, reverse-order, partial-decade, month-bound, actual-slot, stale-view, and reset-token behavior. |
 | 2026-09-02 | Field ownership | Protected the generated group role, root slot/orientation/disabled/invalid markers, raw-HTML boundary, and flat-control id/description/invalid wiring while preserving composition children, ordinary root props, primitive-slot exports, and opaque caller control behavior. |
 | 2026-09-02 | Command Palette | Shipped one Dialog-scoped searchable action owner with platform Mod+K, static groups, internal query, async single-flight, retryable errors, actual-close reset, and stale-settlement isolation. |
+| 2026-09-02 | Sidebar | Shipped one responsive application navigation shell with a finite item tree, desktop offcanvas preference, internal mobile Sheet state, main inset, and breakpoint cleanup. |
 
 ## Compose: current and planned
 
@@ -57,6 +56,7 @@ Snapshot: 2026-08-24, 64 official shadcn component entries.
 | Boolean controls | Checkbox, Switch | `Checkbox`, `Switch` | Keep | Low | Single boolean values stay independent. Switch owns its root element, role, thumb, derived ARIA/data state, size, and slot markers. |
 | Select | Select, Combobox | `Select` | Keep and deepen | High | `Combobox` remains a thin searchable preset, never a second state owner. Native Select is excluded separately. |
 | Menu family | Context Menu, Dropdown Menu | `Menu` | Keep and deepen | High | Menu owns item tree, root semantics, keyboard routing, selection, and open state. Existing `ContextMenu` and `DropdownMenu` stay as right-click/dropdown shells. |
+| Responsive navigation shell | Sidebar | `Sidebar` | Keep | High | Owns provider/panel/inset assembly, finite navigation projection, desktop selection/collapse, internal mobile Sheet dismissal, and breakpoint cleanup; icon-only or non-collapsible layouts stay Primitive. |
 | Searchable quick actions | Command | `CommandPalette` | Keep | High | Owns the Dialog/open/query transaction, platform hotkey, grouped static actions, async single-flight, retryable failure, and stale settlement; custom query/ranking/remote/composition stays Primitive. |
 | Data table | Table, Data Table | `Table` | Keep and deepen | High | One owner for generated table structure, loading state, row identity, selection, bulk eligibility, and the row-checkbox state seam. |
 | Empty state | Empty | `Empty` | Keep | Medium | Common empty-state structure; domain workflows stay outside it. |
@@ -101,7 +101,7 @@ These capabilities do not justify a Compose module now. If the Primitive is abse
 | Resizable | Not installed | Layout Primitive whose panel structure should stay composable. |
 | Scroll Area | Not installed | Layout/overflow Primitive; no stable flat data model. |
 | Separator | Installed | Presentational element. |
-| Skeleton | Not installed | Presentational loading placeholder. |
+| Skeleton | Installed | Presentational loading placeholder. |
 | Spinner | Not installed | Presentational loading indicator. |
 | Textarea | Installed | Base form control; compositions belong to Field or InputGroup. |
 | Toggle | Not installed | Single boolean control; repeated selection belongs to ChoiceGroup. |
@@ -128,7 +128,6 @@ These are neither approved Compose work nor durable exclusions. Keep them out of
 | --- | --- | --- |
 | Menubar | Defer | Menu can supply its item model later; no separate Menubar Compose shell is urgent. |
 | Navigation Menu | Defer | Can one flat model cover responsive navigation without hiding necessary composition? |
-| Sidebar | Defer | Does the existing shadcn state model already provide the useful abstraction, or is a Compose owner valuable? |
 
 ## Duplicate-prevention map
 
@@ -143,6 +142,7 @@ Use this before opening any component-factory task:
 | Dropdown Menu, Context Menu | Reuse canonical `Menu` item/state model while keeping trigger shells distinct. |
 | Menubar | Defer shell; later consume `Menu` model. |
 | Command palette | Use `CommandPalette`, not Menu; custom query, ranking, remote results, or nested pages use the Command Primitive. |
+| Sidebar | Use `Sidebar` for one responsive application navigation shell; custom route, shortcut, persistence, mobile, icon-collapse, or structural composition uses the Primitive. |
 | Radio list, checkbox list, toggle list | Deepen `ChoiceGroup`; do not create separate new group owners. |
 | Single Checkbox, Switch, Toggle | Keep independent boolean controls; do not route to ChoiceGroup. |
 | Hover Card | Use `Popover interaction="hover"`; do not create a second Compose owner or merge it with Tooltip. |
