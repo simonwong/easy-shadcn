@@ -182,6 +182,11 @@ const lines = [
         blurb: "value in, bar out — null for indeterminate. Label included.",
       },
       {
+        name: "Sidebar",
+        blurb:
+          "One nav tree, desktop offcanvas and mobile sheet — shell included.",
+      },
+      {
         name: "Tabs",
         blurb: "Items array in. Tabs out. Heterogeneous? Use the primitive.",
       },

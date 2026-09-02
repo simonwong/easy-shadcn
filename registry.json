@@ -130,6 +130,20 @@
       ]
     },
     {
+      "name": "sidebar",
+      "type": "registry:component",
+      "title": "Integrated Sidebar",
+      "description": "Responsive application navigation shell with a finite items tree, controlled or uncontrolled selection and submenus, desktop offcanvas collapse, mobile Sheet dismissal, and a generated main inset.",
+      "registryDependencies": ["sidebar"],
+      "files": [
+        {
+          "path": "registry/ui/sidebar.tsx",
+          "type": "registry:component",
+          "target": "components/easy/sidebar.tsx"
+        }
+      ]
+    },
+    {
       "name": "command-palette",
       "type": "registry:component",
       "title": "Integrated Command Palette",
