@@ -293,15 +293,21 @@ export interface TableSort {
 
 interface TablePaginationBase {
   "aria-label"?: string;
+  children?: never;
   className?: ClassValue;
+  dangerouslySetInnerHTML?: never;
+  "data-slot"?: never;
+  getPageHref?: never;
   hideOnSinglePage?: boolean;
   /** Rows per page. @default 10 */
   pageSize?: number;
+  role?: never;
 }
 
 export interface TablePaginationLocal extends TablePaginationBase {
   /** Initial local page; ignored when value is not undefined. @default 1 */
   defaultValue?: number;
+  /** Local mode derives total from dataSource and forbids an explicit total. */
   mode?: "local";
   onValueChange?: (value: number) => void;
   total?: never;
@@ -311,6 +317,7 @@ export interface TablePaginationLocal extends TablePaginationBase {
 
 export interface TablePaginationExternal extends TablePaginationBase {
   defaultValue?: never;
+  /** External mode requires total, value, and onValueChange, forbids defaultValue, and never slices supplied rows. */
   mode: "external";
   onValueChange: (value: number) => void;
   /** Total records across all pages. Supplied dataSource is never sliced. */
@@ -474,7 +481,7 @@ export interface TableProps<T>
   onSelectedRowKeysChange?: (keys: string[], rows: T[]) => void;
   /** User-requested sorting change; null restores source order. */
   onSortChange?: (sort: TableSort | null) => void;
-  /** Enable local pagination with ten rows per page. Disabled by default. */
+  /** True enables local ten-row pages. External mode requires total/value/onValueChange and never slices supplied rows. Disabled by default. */
   pagination?: TablePagination;
 
   /** Per-row className. Function form receives `(record, index)`. */

@@ -166,7 +166,7 @@ describe("Table pagination", () => {
       columns,
       rowKey: "id" as const,
       dataSource: data,
-      pagination,
+      pagination: pagination as unknown as TablePagination,
     };
     const { rerender } = render(<Table {...props} loading selectable />);
     expect(page(2).getAttribute("aria-disabled")).toBe("true");
@@ -184,7 +184,12 @@ describe("Table pagination", () => {
       <Table
         {...props}
         dataSource={[]}
-        pagination={{ ...pagination, hideOnSinglePage: true }}
+        pagination={
+          {
+            ...pagination,
+            hideOnSinglePage: true,
+          } as unknown as TablePagination
+        }
       />
     );
     expect(screen.queryByRole("navigation")).toBeNull();

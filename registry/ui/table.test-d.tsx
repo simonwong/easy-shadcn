@@ -77,6 +77,9 @@ acceptProps({ ...requiredProps, "aria-busy": false });
 const _dataAttributes = <Table {...requiredProps} data-consumer="kept" />;
 
 acceptProps({ ...requiredProps, pagination: true });
+const hostilePagination = { pageSize: 10, getPageHref: () => "/page" };
+// @ts-expect-error Owned fields remain forbidden through variable assignment.
+acceptProps({ ...requiredProps, pagination: hostilePagination });
 acceptProps({ ...requiredProps, pagination: { value: 2, defaultValue: 1 } });
 acceptProps({
   ...requiredProps,
