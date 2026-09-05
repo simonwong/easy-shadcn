@@ -2,7 +2,7 @@
 title: Table
 ---
 
-A flat-props Table covering the 80% case — `columns` + `dataSource` + `rowKey`, with built-in loading, empty, caption, function-form `rowClassName`, and optional row selection. Built on the shadcn `table` primitive, with Base UI Checkbox used internally for selection so the header can show a distinct indeterminate state.
+A flat-props Table starting with `columns` + `dataSource` + `rowKey`, with built-in loading, empty, caption, function-form `rowClassName`, optional row selection, and single-column sorting. Built on the shadcn `table` primitive, with Base UI Checkbox used internally for selection so the header can show a distinct indeterminate state.
 
 <ExamplePreview name="table-demo" />
 
@@ -161,6 +161,26 @@ For a header counter that reflects *only the visible* selection, derive it from 
 const visibleSelected = selected.filter((k) => visibleIds.has(k));
 ```
 
+### Sorting
+
+Set a column's `sorter` to a pure, non-throwing comparator to enable local sorting. Header buttons cycle ascending → descending → original order; choosing another column starts ascending. Equal comparisons retain source order in both directions. Comparators receive full records and handle your null, date, and locale rules. Sorting never mutates `dataSource`.
+
+<ExamplePreview name="table-sorting-demo" />
+
+Use `defaultSort={{ columnKey: "tasks", order: "ascend" }}` for an initial order. For controlled sorting, pass `sort` and `onSortChange`; `null` means no sorting, while `undefined` uses internal state. Controlled `sort` overrides `defaultSort`. The callback runs only for user requests. If the parent refuses a change, rows and header direction remain unchanged.
+
+Sorting preserves source indices in `rowKey`, `column.render`, `getCheckboxProps`, `rowClassName`, and `onRowClick`. Selection callbacks still return matching records in `dataSource` order; bulk-selection keys also retain source order. Missing, non-sortable, duplicate-key, or invalid-direction sort configurations have no effective sort and emit no callback. Removing a sorted column suspends its order; restoring it restores the stored intent.
+
+#### Externally ordered data
+
+Set `sorter: true` for server sorting. Table changes the header state and emits intent but never reorders the supplied rows. The example deliberately keeps the same rows so this boundary is visible.
+
+<ExamplePreview name="table-external-sorting-demo" />
+
+Use controlled `sort` to connect the request to your query or URL state. The caller owns fetching, stale requests, error handling, and page resets. With server pagination or filtering, use `sorter: true`: a local comparator sorts only the records currently supplied to Table.
+
+Sortable headers contain native buttons; Enter and Space activate them without submitting a surrounding form. Only the active header carries `aria-sort`. Arrows show direction independently of color, and loading disables the buttons. Sortable titles must contain no interactive elements. For an icon-only title, provide `sortLabel` with a meaningful button name.
+
 ### Row click
 
 Pass `onRowClick(record, index)` to make rows respond to interaction. The row keeps its native table-row semantics but becomes focusable (`tabIndex=0`) and reacts to mouse click, Enter, and Space. Clicks that originate inside the selection cell do **not** bubble to `onRowClick`, so checkboxes stay independent.
@@ -216,6 +236,9 @@ The Table ships with the WCAG defaults you'd expect, plus development-only warni
 | `selectable` | `boolean` | `false` | Enable the selection column. |
 | `selectedRowKeys` | `string[]` | — | Controlled selected keys. |
 | `defaultSelectedRowKeys` | `string[]` | `[]` | Uncontrolled initial keys. |
+| `sort` | `TableSort \| null` | — | Controlled single-column sort. `null` clears; `undefined` uses internal state. |
+| `defaultSort` | `TableSort \| null` | `null` | Initial uncontrolled sort; ignored when `sort` is defined. |
+| `onSortChange` | `(sort: TableSort \| null) => void` | — | User-requested order. `TableSort` is `{ columnKey: string; order: "ascend" \| "descend" }`. |
 | `onSelectedRowKeysChange` | `(keys, rows) => void` | — | Called with the next keys and the matching records. |
 | `getCheckboxProps` | `(record, index) => Partial<TableCheckboxProps>` | — | Per-row caller-owned Checkbox props (for example `disabled`, `readOnly`, `aria-label`, form props, refs, safe events, and ordinary `data-*`; see [Base UI Checkbox](https://base-ui.com/react/components/checkbox)). Table-owned element, state, derived ARIA/data, and indicator props are excluded. `disabled` and `readOnly` gate the row out of header bulk selection. |
 | `selectionColumnClassName` | `ClassValue` | — | className for the selection column's `th` and `td`. |
@@ -235,6 +258,8 @@ A discriminated union by `dataIndex`. When `dataIndex` is set to a `keyof T`, `r
 | ----- | ---- | ----------- |
 | `key` | `string` | Stable identifier and React key. |
 | `title` | `ReactNode` | Header content. |
+| `sorter` | `true \| ((a: T, b: T) => number)` | Comparator enables local sorting; `true` emits external sort intent without changing row order. Comparators must be pure and non-throwing. |
+| `sortLabel` | `string` | Accessible sort-button name for titles without meaningful text. Sortable titles must not contain interactive descendants. |
 | `dataIndex` | `keyof T \| undefined` | **Top-level `keyof T` only.** Nested paths like `"user.name"` are intentionally unsupported — use `render: (_, record) => record.user.name` for deep access. |
 | `render` | `(value, record, index) => ReactNode` | Cell formatter. `value` is `T[dataIndex]` when `dataIndex` is set, otherwise `undefined`. Required when `dataIndex` points to a non-renderable field such as `Date` or an object. |
 | `align` | `"left" \| "center" \| "right"` | Text alignment for `th` + `td`. |
@@ -267,9 +292,9 @@ Single-line truncation needs no extra props — combine a fixed table layout, a 
 
 ## When to use the primitive instead
 
-This component covers `columns` + `dataSource` + `rowKey` + selection + loading / empty / caption / row className. Anything else is intentionally out of scope:
+This component covers `columns` + `dataSource` + `rowKey`, selection, single-column sorting, and loading / empty / caption / row className. More complex data operations remain outside this delivery:
 
-- **Sorting, filtering, pagination** — derive these in your parent and feed `dataSource`. Combine with `@tanstack/react-table` if you want batteries included.
+- **Multi-column sorting, filtering, pagination** — derive these in your parent and feed `dataSource`. Single-column sorting is built in; use `sorter: true` for externally ordered data. Combine with `@tanstack/react-table` for broader data operations.
 - **Fixed columns / sticky headers, expandable rows, drag-to-reorder, column resize, virtualization** — composition territory.
 - **Error state** — the Table has `loading` and `emptyMessage` but no `errorMessage`. Rows aren't symmetric to a single async load, so the error UX is the parent's responsibility. Render your own error block above the Table (or swap the Table for an error block) when fetching fails.
 - **Per-row loading** (one row showing a saving spinner while others stay live) — render the spinner inside a cell via `render`. Table-wide `loading` is all-or-nothing.

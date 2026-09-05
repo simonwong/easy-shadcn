@@ -29,7 +29,7 @@ import { cn } from "@/lib/utils";
 // `T["name"]` instead of `T[keyof T] | undefined`.
 // ---------------------------------------------------------------------------
 
-interface TableColumnBase {
+interface TableColumnBase<T = unknown> {
   /** Text alignment for both `th` and `td` of this column. */
   align?: "left" | "center" | "right";
   /** Applied only to body cells of this column. */
@@ -40,6 +40,10 @@ interface TableColumnBase {
   headClassName?: ClassValue;
   /** Stable identifier; also used as React key for the column. */
   key: string;
+  /** Comparator sorts the supplied rows locally; true emits external sort intent only. Keep comparators pure and non-throwing. */
+  sorter?: true | ((a: T, b: T) => number);
+  /** Accessible sort-button name when title is not meaningful text. Sortable titles must contain no interactive elements. */
+  sortLabel?: string;
   /** Header content. */
   title: React.ReactNode;
   /** Column width — emitted as inline `style.width` on both `th` and `td`. */
@@ -53,14 +57,14 @@ type TableColumnRender<T, K extends keyof T> = (
 ) => React.ReactNode;
 
 /** Column with a `dataIndex` — `render` receives the narrowed field value. */
-export type TableColumnWithData<T, K extends keyof T> = TableColumnBase & {
+export type TableColumnWithData<T, K extends keyof T> = TableColumnBase<T> & {
   dataIndex: K;
 } & (T[K] extends React.ReactNode
     ? { render?: TableColumnRender<T, K> }
     : { render: TableColumnRender<T, K> });
 
 /** Column without `dataIndex` — `render` receives `undefined` for the value. */
-export type TableColumnWithoutData<T> = TableColumnBase & {
+export type TableColumnWithoutData<T> = TableColumnBase<T> & {
   dataIndex?: undefined;
   render?: (value: undefined, record: T, index: number) => React.ReactNode;
 };
@@ -281,6 +285,11 @@ interface TableOwnedRootProps {
   "data-slot"?: never;
 }
 
+export interface TableSort {
+  columnKey: string;
+  order: "ascend" | "descend";
+}
+
 export interface TableProps<T>
   extends Omit<
       React.ComponentProps<"table">,
@@ -304,6 +313,8 @@ export interface TableProps<T>
   dataSource?: T[] | null;
   /** Uncontrolled initial selected keys. */
   defaultSelectedRowKeys?: string[];
+  /** Uncontrolled initial sort; ignored when sort is not undefined. */
+  defaultSort?: TableSort | null;
   /** className on the empty-state cell. */
   emptyClassName?: ClassValue;
   /** Empty-state message rendered when `dataSource` is empty and not loading. @default "No data" */
@@ -349,6 +360,8 @@ export interface TableProps<T>
    * `dataSource` order so consumers don't need a second lookup.
    */
   onSelectedRowKeysChange?: (keys: string[], rows: T[]) => void;
+  /** User-requested sorting change; null restores source order. */
+  onSortChange?: (sort: TableSort | null) => void;
 
   /** Per-row className. Function form receives `(record, index)`. */
   rowClassName?: ClassValue | ((record: T, index: number) => ClassValue);
@@ -370,6 +383,8 @@ export interface TableProps<T>
    * @default "Selection"
    */
   selectionColumnLabel?: string;
+  /** Controlled single-column sort. null clears it; undefined uses internal state. */
+  sort?: TableSort | null;
 }
 
 /**
@@ -452,6 +467,100 @@ function shouldEmitDevWarnings(): boolean {
   );
 }
 
+function useTableSort<T>({
+  columns,
+  defaultSort,
+  sort,
+  onSortChange,
+}: Pick<TableProps<T>, "columns" | "defaultSort" | "sort" | "onSortChange">) {
+  const [internalSort, setInternalSort] = useState<TableSort | null>(
+    defaultSort ?? null
+  );
+  const requestedSort = sort === undefined ? internalSort : sort;
+  const matches = columns.filter(
+    (column) => column.key === requestedSort?.columnKey
+  );
+  const candidate = matches.length === 1 ? matches[0] : undefined;
+  const validDirection =
+    requestedSort?.order === "ascend" || requestedSort?.order === "descend";
+  const sortColumn =
+    validDirection &&
+    (candidate?.sorter === true || typeof candidate?.sorter === "function")
+      ? candidate
+      : undefined;
+  const currentSort = sortColumn ? requestedSort : null;
+  const requestSort = (columnKey: string) => {
+    const order =
+      currentSort?.columnKey === columnKey ? currentSort.order : null;
+    const next: TableSort | null =
+      order === "descend"
+        ? null
+        : { columnKey, order: order === "ascend" ? "descend" : "ascend" };
+    if (sort === undefined) {
+      setInternalSort(next);
+    }
+    onSortChange?.(next);
+  };
+  return { currentSort, requestSort, sortColumn };
+}
+
+function sortRows<T, M extends { record: T; index: number }>(
+  rows: M[],
+  sorter: TableColumnBase<T>["sorter"],
+  order: TableSort["order"] | undefined
+): M[] {
+  if (typeof sorter !== "function") {
+    return rows;
+  }
+  return [...rows].sort((a, b) => {
+    const compared = sorter(a.record, b.record);
+    return (order === "descend" ? -compared : compared) || a.index - b.index;
+  });
+}
+
+function ColumnHead<T>({
+  column,
+  sort,
+  loading,
+  onSort,
+}: {
+  column: TableColumn<T>;
+  sort: TableSort | null;
+  loading?: boolean;
+  onSort: (key: string) => void;
+}) {
+  const order = sort?.columnKey === column.key ? sort.order : undefined;
+  const direction = order === "ascend" ? "ascending" : "descending";
+  const arrow = order === "ascend" ? "↑" : "↓";
+  return (
+    <TableHead
+      aria-sort={order ? direction : undefined}
+      className={cn(
+        alignClass(column.align),
+        column.className,
+        column.headClassName
+      )}
+      scope="col"
+      style={widthStyle(column.width)}
+    >
+      {column.sorter === true || typeof column.sorter === "function" ? (
+        <button
+          aria-label={column.sortLabel}
+          className="inline-flex cursor-pointer items-center gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={loading}
+          onClick={() => onSort(column.key)}
+          type="button"
+        >
+          {column.title}
+          <span aria-hidden="true">{order ? arrow : "↕"}</span>
+        </button>
+      ) : (
+        column.title
+      )}
+    </TableHead>
+  );
+}
+
 export function Table<T>({
   "aria-busy": _ignoredAriaBusy,
   children: _ignoredChildren,
@@ -479,11 +588,20 @@ export function Table<T>({
   captionClassName,
   emptyClassName,
   loadingClassName,
+  defaultSort,
+  sort,
+  onSortChange,
   ...tableProps
 }: TableProps<T>): ReactElement {
   // Runtime safety: SWR / React Query often hands `data` back as `undefined`
   // before the first response. Treat that as empty rather than throwing.
   const data: T[] = dataSource ?? [];
+  const { currentSort, sortColumn, requestSort } = useTableSort({
+    columns,
+    defaultSort,
+    sort,
+    onSortChange,
+  });
 
   const [internalSelected, setInternalSelected] = useState<string[]>(
     defaultSelectedRowKeys ?? []
@@ -779,6 +897,12 @@ export function Table<T>({
     emit(currentSelected.filter((k) => k !== key));
   };
 
+  const displayedRows = sortRows(
+    rowMeta,
+    sortColumn?.sorter,
+    currentSort?.order
+  );
+
   const colSpan = Math.max(1, columns.length + (selectionEnabled ? 1 : 0));
 
   const handleRowClick = (
@@ -847,18 +971,13 @@ export function Table<T>({
             </TableHead>
           )}
           {columns.map((col) => (
-            <TableHead
-              className={cn(
-                alignClass(col.align),
-                col.className,
-                col.headClassName
-              )}
+            <ColumnHead
+              column={col}
               key={col.key}
-              scope="col"
-              style={widthStyle(col.width)}
-            >
-              {col.title}
-            </TableHead>
+              loading={loading}
+              onSort={requestSort}
+              sort={currentSort}
+            />
           ))}
         </TableRow>
       </TableHeader>
@@ -894,89 +1013,91 @@ export function Table<T>({
           </TableRow>
         )}
         {!loading &&
-          rowMeta.map(({ checkboxProps, index, key, record, selected }) => {
-            const rowCls =
-              typeof rowClassName === "function"
-                ? rowClassName(record, index)
-                : rowClassName;
-            const interactive = Boolean(onRowClick);
-            return (
-              <TableRow
-                className={cn(
-                  // `outline-offset:-2px` keeps the focus ring inside the row
-                  // so it isn't clipped by a parent `rounded-md border`
-                  // wrapper (the recommended demo pattern).
-                  interactive &&
-                    "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:[outline-offset:-2px]",
-                  rowCls
-                )}
-                data-state={selected ? "selected" : undefined}
-                key={key}
-                onClick={
-                  interactive
-                    ? (e) => handleRowClick(e, record, index)
-                    : undefined
-                }
-                onKeyDown={
-                  interactive
-                    ? (e) => handleRowKeyDown(e, record, index)
-                    : undefined
-                }
-                // Preserve the implicit row semantics of <tr>; overriding to
-                // `role="button"` would strip the table structure. Keyboard
-                // activation is provided via tabIndex + onKeyDown(Enter/Space).
-                tabIndex={interactive ? 0 : undefined}
-              >
-                {selectionEnabled && (
-                  <TableCell
-                    className={cn(selectionColumnClassName)}
-                    data-slot="easy-table-selection-cell"
-                    // Clicks (and key presses) inside the selection cell must
-                    // not bubble up to the row's onRowClick handler.
-                    onClick={(e: MouseEvent<HTMLTableCellElement>) =>
-                      e.stopPropagation()
-                    }
-                    onKeyDown={(e: KeyboardEvent<HTMLTableCellElement>) =>
-                      e.stopPropagation()
-                    }
-                  >
-                    <SelectionCheckbox
-                      aria-label={`Select row ${key}`}
-                      {...checkboxProps}
-                      checked={selected}
-                      onCheckedChange={(next) => handleToggleRow(key, next)}
-                    />
-                  </TableCell>
-                )}
-                {columns.map((col) => {
-                  const value =
-                    col.dataIndex === undefined
-                      ? undefined
-                      : record[col.dataIndex];
-                  const content = col.render
-                    ? // The discriminated union narrows correctly externally,
-                      // but inside the generic body the two render signatures
-                      // can't be reconciled without an unsafe cast.
-                      // biome-ignore lint/suspicious/noExplicitAny: see comment above
-                      (col.render as any)(value, record, index)
-                    : (value as React.ReactNode);
-                  return (
+          displayedRows.map(
+            ({ checkboxProps, index, key, record, selected }) => {
+              const rowCls =
+                typeof rowClassName === "function"
+                  ? rowClassName(record, index)
+                  : rowClassName;
+              const interactive = Boolean(onRowClick);
+              return (
+                <TableRow
+                  className={cn(
+                    // `outline-offset:-2px` keeps the focus ring inside the row
+                    // so it isn't clipped by a parent `rounded-md border`
+                    // wrapper (the recommended demo pattern).
+                    interactive &&
+                      "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:[outline-offset:-2px]",
+                    rowCls
+                  )}
+                  data-state={selected ? "selected" : undefined}
+                  key={key}
+                  onClick={
+                    interactive
+                      ? (e) => handleRowClick(e, record, index)
+                      : undefined
+                  }
+                  onKeyDown={
+                    interactive
+                      ? (e) => handleRowKeyDown(e, record, index)
+                      : undefined
+                  }
+                  // Preserve the implicit row semantics of <tr>; overriding to
+                  // `role="button"` would strip the table structure. Keyboard
+                  // activation is provided via tabIndex + onKeyDown(Enter/Space).
+                  tabIndex={interactive ? 0 : undefined}
+                >
+                  {selectionEnabled && (
                     <TableCell
-                      className={cn(
-                        alignClass(col.align),
-                        col.className,
-                        col.cellClassName
-                      )}
-                      key={col.key}
-                      style={widthStyle(col.width)}
+                      className={cn(selectionColumnClassName)}
+                      data-slot="easy-table-selection-cell"
+                      // Clicks (and key presses) inside the selection cell must
+                      // not bubble up to the row's onRowClick handler.
+                      onClick={(e: MouseEvent<HTMLTableCellElement>) =>
+                        e.stopPropagation()
+                      }
+                      onKeyDown={(e: KeyboardEvent<HTMLTableCellElement>) =>
+                        e.stopPropagation()
+                      }
                     >
-                      {content}
+                      <SelectionCheckbox
+                        aria-label={`Select row ${key}`}
+                        {...checkboxProps}
+                        checked={selected}
+                        onCheckedChange={(next) => handleToggleRow(key, next)}
+                      />
                     </TableCell>
-                  );
-                })}
-              </TableRow>
-            );
-          })}
+                  )}
+                  {columns.map((col) => {
+                    const value =
+                      col.dataIndex === undefined
+                        ? undefined
+                        : record[col.dataIndex];
+                    const content = col.render
+                      ? // The discriminated union narrows correctly externally,
+                        // but inside the generic body the two render signatures
+                        // can't be reconciled without an unsafe cast.
+                        // biome-ignore lint/suspicious/noExplicitAny: see comment above
+                        (col.render as any)(value, record, index)
+                      : (value as React.ReactNode);
+                    return (
+                      <TableCell
+                        className={cn(
+                          alignClass(col.align),
+                          col.className,
+                          col.cellClassName
+                        )}
+                        key={col.key}
+                        style={widthStyle(col.width)}
+                      >
+                        {content}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            }
+          )}
       </TableBody>
     </TableRoot>
   );
