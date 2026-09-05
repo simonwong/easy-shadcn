@@ -15,13 +15,14 @@ Snapshot: 2026-09-02, 64 official shadcn component entries.
 
 No unresearched high-value boundary is currently queued.
 
-Existing high-value owners can deepen through independently specified slices. Table single-column sorting is delivered; integrated pagination is the next candidate to research, with page reset and selection membership treated as explicit decisions.
+Existing high-value owners can deepen through independently specified slices. Table single-column sorting and integrated local/external pagination are delivered. Filtering is the next research candidate; filter state, page reset, and selection membership need an independent specification.
 
 ## Completed decisions
 
 | Date | Capability | Result |
 | --- | --- | --- |
 | 2026-09-05 | Table sorting | Shipped local/external single-column sort intent, accessible header controls, stable display ordering, and unchanged source identity/selection contracts. |
+| 2026-09-06 | Table pagination | Shipped local/external page controls, sorted local slices, current-page bulk selection, and silent page clamping without changing source identity. |
 | 2026-08-24 | Menu family | Shipped canonical `Menu` item tree, selection/open state, vertical/horizontal/inline modes, and keyboard navigation. Dropdown Menu and Context Menu remain separate trigger shells. |
 | 2026-08-24 | Choice list | Shipped `ChoiceGroup` for the four valid single/multiple × radio/checkbox/toggle combinations. Soft-deprecated `RadioGroup` and `CheckboxGroup`; no separate Toggle Group Compose registration. |
 | 2026-08-31 | Toast | Shipped one Base UI-backed global queue with a stable callable facade for status, id upserts, update, close, action, and Promise lifecycles. |

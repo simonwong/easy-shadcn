@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { Pagination } from "./pagination";
 
 // ---------------------------------------------------------------------------
 // Column types — discriminated union so `render`'s `value` narrows by
@@ -290,6 +291,124 @@ export interface TableSort {
   order: "ascend" | "descend";
 }
 
+interface TablePaginationBase {
+  "aria-label"?: string;
+  children?: never;
+  className?: ClassValue;
+  dangerouslySetInnerHTML?: never;
+  "data-slot"?: never;
+  getPageHref?: never;
+  hideOnSinglePage?: boolean;
+  /** Rows per page. @default 10 */
+  pageSize?: number;
+  role?: never;
+}
+
+export interface TablePaginationLocal extends TablePaginationBase {
+  /** Initial local page; ignored when value is not undefined. @default 1 */
+  defaultValue?: number;
+  /** Local mode derives total from dataSource and forbids an explicit total. */
+  mode?: "local";
+  onValueChange?: (value: number) => void;
+  total?: never;
+  /** Controlled page. Overrides defaultValue; changes require the parent to update value. */
+  value?: number;
+}
+
+export interface TablePaginationExternal extends TablePaginationBase {
+  defaultValue?: never;
+  /** External mode requires total, value, and onValueChange, forbids defaultValue, and never slices supplied rows. */
+  mode: "external";
+  onValueChange: (value: number) => void;
+  /** Total records across all pages. Supplied dataSource is never sliced. */
+  total: number;
+  value: number;
+}
+
+export type TablePagination =
+  | boolean
+  | TablePaginationLocal
+  | TablePaginationExternal;
+
+const normalizePaginationInteger = (
+  value: number,
+  fallback: number,
+  minimum: number
+) =>
+  Number.isFinite(value)
+    ? Math.min(Number.MAX_SAFE_INTEGER, Math.max(minimum, Math.trunc(value)))
+    : fallback;
+
+function useTablePagination(pagination: TablePagination, sourceTotal: number) {
+  const config = typeof pagination === "object" ? pagination : undefined;
+  const enabled = Boolean(pagination);
+  const local = config?.mode !== "external";
+  const total = normalizePaginationInteger(
+    local ? sourceTotal : config.total,
+    0,
+    0
+  );
+  const pageSize = normalizePaginationInteger(config?.pageSize ?? 10, 10, 1);
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const [internalPage, setInternalPage] = useState(() =>
+    normalizePaginationInteger(local ? (config?.defaultValue ?? 1) : 1, 1, 1)
+  );
+  const controlled = config?.value !== undefined;
+  const value = Math.min(
+    normalizePaginationInteger(config?.value ?? internalPage, 1, 1),
+    pageCount
+  );
+  if (enabled && local && !controlled && internalPage !== value) {
+    setInternalPage(value);
+  }
+  const onValueChange = (next: number) => {
+    if (next === value) {
+      return;
+    }
+    if (local && !controlled) {
+      setInternalPage(next);
+    }
+    config?.onValueChange?.(next);
+  };
+  return { config, enabled, local, onValueChange, pageSize, total, value };
+}
+
+type TablePagingState = ReturnType<typeof useTablePagination>;
+
+function pageRows<T>(rows: T[], paging: TablePagingState): T[] {
+  if (!(paging.enabled && paging.local)) {
+    return rows;
+  }
+  return rows.slice(
+    (paging.value - 1) * paging.pageSize,
+    paging.value * paging.pageSize
+  );
+}
+
+function TablePager({
+  paging,
+  loading,
+}: {
+  paging: TablePagingState;
+  loading?: boolean;
+}) {
+  if (!paging.enabled) {
+    return null;
+  }
+  return (
+    <Pagination
+      aria-label={paging.config?.["aria-label"] ?? "Table pagination"}
+      className={paging.config?.className}
+      disabled={loading}
+      hideOnSinglePage={paging.config?.hideOnSinglePage}
+      onValueChange={paging.onValueChange}
+      pageSize={paging.pageSize}
+      total={paging.total}
+      value={paging.value}
+    />
+  );
+}
+
 export interface TableProps<T>
   extends Omit<
       React.ComponentProps<"table">,
@@ -362,6 +481,8 @@ export interface TableProps<T>
   onSelectedRowKeysChange?: (keys: string[], rows: T[]) => void;
   /** User-requested sorting change; null restores source order. */
   onSortChange?: (sort: TableSort | null) => void;
+  /** True enables local ten-row pages. External mode requires total/value/onValueChange and never slices supplied rows. Disabled by default. */
+  pagination?: TablePagination;
 
   /** Per-row className. Function form receives `(record, index)`. */
   rowClassName?: ClassValue | ((record: T, index: number) => ClassValue);
@@ -591,11 +712,13 @@ export function Table<T>({
   defaultSort,
   sort,
   onSortChange,
+  pagination = false,
   ...tableProps
 }: TableProps<T>): ReactElement {
   // Runtime safety: SWR / React Query often hands `data` back as `undefined`
   // before the first response. Treat that as empty rather than throwing.
   const data: T[] = dataSource ?? [];
+  const paging = useTablePagination(pagination, data.length);
   const { currentSort, sortColumn, requestSort } = useTableSort({
     columns,
     defaultSort,
@@ -643,9 +766,10 @@ export function Table<T>({
     };
   });
 
-  // Map for O(1) "is this key still in rowMeta?" lookups in handleToggleAll.
-  // Walks rowMeta once; replaces the previous `Array.prototype.find` loop
-  // which was O(N²) at scale.
+  const sortedRows = sortRows(rowMeta, sortColumn?.sorter, currentSort?.order);
+  const displayedRows = pageRows(sortedRows, paging);
+  const visibleKeys = new Set(displayedRows.map((meta) => meta.key));
+
   const metaByKey = new Map<string, (typeof rowMeta)[number]>();
   for (const meta of rowMeta) {
     metaByKey.set(meta.key, meta);
@@ -654,7 +778,11 @@ export function Table<T>({
   const selectableRows: typeof rowMeta = [];
   let selectedSelectableCount = 0;
   for (const meta of rowMeta) {
-    if (meta.checkboxProps.disabled || meta.checkboxProps.readOnly) {
+    if (
+      !visibleKeys.has(meta.key) ||
+      meta.checkboxProps.disabled ||
+      meta.checkboxProps.readOnly
+    ) {
       continue;
     }
     selectableRows.push(meta);
@@ -859,16 +987,8 @@ export function Table<T>({
   const handleToggleAll = (next: boolean) => {
     // Preserve selected rows outside the header's selectable subset, including
     // disabled, readonly, and since-removed rows.
-    const preserved = currentSelected.filter((k) => {
-      const meta = metaByKey.get(k);
-      // Row no longer in dataSource: keep it (caller owns lifecycle).
-      if (!meta) {
-        return true;
-      }
-      return Boolean(
-        meta.checkboxProps.disabled || meta.checkboxProps.readOnly
-      );
-    });
+    const eligibleKeys = new Set(selectableRows.map((meta) => meta.key));
+    const preserved = currentSelected.filter((key) => !eligibleKeys.has(key));
     if (next) {
       const additions = selectableRows.map((r) => r.key);
       // Merge while preserving order: dataSource order first, then preserved tail.
@@ -896,12 +1016,6 @@ export function Table<T>({
     }
     emit(currentSelected.filter((k) => k !== key));
   };
-
-  const displayedRows = sortRows(
-    rowMeta,
-    sortColumn?.sorter,
-    currentSort?.order
-  );
 
   const colSpan = Math.max(1, columns.length + (selectionEnabled ? 1 : 0));
 
@@ -938,168 +1052,173 @@ export function Table<T>({
   };
 
   return (
-    <TableRoot
-      {...tableProps}
-      aria-busy={loading || undefined}
-      className={cn(className)}
-      data-slot="easy-table"
-    >
-      {caption && (
-        <TableCaption className={cn(captionClassName)}>{caption}</TableCaption>
-      )}
-      <TableHeader className={cn(headerClassName)}>
-        <TableRow>
-          {selectionEnabled && (
-            <TableHead
-              className={cn("w-[1%]", selectionColumnClassName)}
-              data-slot="easy-table-selection-head"
-              scope="col"
-            >
-              {/* Visually-hidden column name so sighted users still get the
+    <>
+      <TableRoot
+        {...tableProps}
+        aria-busy={loading || undefined}
+        className={cn(className)}
+        data-slot="easy-table"
+      >
+        {caption && (
+          <TableCaption className={cn(captionClassName)}>
+            {caption}
+          </TableCaption>
+        )}
+        <TableHeader className={cn(headerClassName)}>
+          <TableRow>
+            {selectionEnabled && (
+              <TableHead
+                className={cn("w-[1%]", selectionColumnClassName)}
+                data-slot="easy-table-selection-head"
+                scope="col"
+              >
+                {/* Visually-hidden column name so sighted users still get the
                   "Select all" affordance and AT users hear a real column
                   header before the checkbox. */}
-              <span className="sr-only">{selectionColumnLabel}</span>
-              <SelectionCheckbox
-                aria-label="Select all rows"
-                checked={allSelected}
-                // While loading the body rows are hidden — selecting unseen
-                // rows from the header would be a blind bulk action.
-                disabled={loading || selectableCount === 0}
-                indeterminate={someSelected}
-                onCheckedChange={handleToggleAll}
+                <span className="sr-only">{selectionColumnLabel}</span>
+                <SelectionCheckbox
+                  aria-label="Select all rows"
+                  checked={allSelected}
+                  // While loading the body rows are hidden — selecting unseen
+                  // rows from the header would be a blind bulk action.
+                  disabled={loading || selectableCount === 0}
+                  indeterminate={someSelected}
+                  onCheckedChange={handleToggleAll}
+                />
+              </TableHead>
+            )}
+            {columns.map((col) => (
+              <ColumnHead
+                column={col}
+                key={col.key}
+                loading={loading}
+                onSort={requestSort}
+                sort={currentSort}
               />
-            </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody className={cn(bodyClassName)}>
+          {loading && (
+            <TableRow>
+              <TableCell
+                className={cn(
+                  "h-24 text-center text-muted-foreground",
+                  loadingClassName
+                )}
+                colSpan={colSpan}
+              >
+                <div aria-live="polite" role="status">
+                  {loadingMessage}
+                </div>
+              </TableCell>
+            </TableRow>
           )}
-          {columns.map((col) => (
-            <ColumnHead
-              column={col}
-              key={col.key}
-              loading={loading}
-              onSort={requestSort}
-              sort={currentSort}
-            />
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody className={cn(bodyClassName)}>
-        {loading && (
-          <TableRow>
-            <TableCell
-              className={cn(
-                "h-24 text-center text-muted-foreground",
-                loadingClassName
-              )}
-              colSpan={colSpan}
-            >
-              <div aria-live="polite" role="status">
-                {loadingMessage}
-              </div>
-            </TableCell>
-          </TableRow>
-        )}
-        {!loading && data.length === 0 && (
-          <TableRow>
-            <TableCell
-              className={cn(
-                "h-24 text-center text-muted-foreground",
-                emptyClassName
-              )}
-              colSpan={colSpan}
-            >
-              <div aria-live="polite" role="status">
-                {emptyMessage}
-              </div>
-            </TableCell>
-          </TableRow>
-        )}
-        {!loading &&
-          displayedRows.map(
-            ({ checkboxProps, index, key, record, selected }) => {
-              const rowCls =
-                typeof rowClassName === "function"
-                  ? rowClassName(record, index)
-                  : rowClassName;
-              const interactive = Boolean(onRowClick);
-              return (
-                <TableRow
-                  className={cn(
-                    // `outline-offset:-2px` keeps the focus ring inside the row
-                    // so it isn't clipped by a parent `rounded-md border`
-                    // wrapper (the recommended demo pattern).
-                    interactive &&
-                      "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:[outline-offset:-2px]",
-                    rowCls
-                  )}
-                  data-state={selected ? "selected" : undefined}
-                  key={key}
-                  onClick={
-                    interactive
-                      ? (e) => handleRowClick(e, record, index)
-                      : undefined
-                  }
-                  onKeyDown={
-                    interactive
-                      ? (e) => handleRowKeyDown(e, record, index)
-                      : undefined
-                  }
-                  // Preserve the implicit row semantics of <tr>; overriding to
-                  // `role="button"` would strip the table structure. Keyboard
-                  // activation is provided via tabIndex + onKeyDown(Enter/Space).
-                  tabIndex={interactive ? 0 : undefined}
-                >
-                  {selectionEnabled && (
-                    <TableCell
-                      className={cn(selectionColumnClassName)}
-                      data-slot="easy-table-selection-cell"
-                      // Clicks (and key presses) inside the selection cell must
-                      // not bubble up to the row's onRowClick handler.
-                      onClick={(e: MouseEvent<HTMLTableCellElement>) =>
-                        e.stopPropagation()
-                      }
-                      onKeyDown={(e: KeyboardEvent<HTMLTableCellElement>) =>
-                        e.stopPropagation()
-                      }
-                    >
-                      <SelectionCheckbox
-                        aria-label={`Select row ${key}`}
-                        {...checkboxProps}
-                        checked={selected}
-                        onCheckedChange={(next) => handleToggleRow(key, next)}
-                      />
-                    </TableCell>
-                  )}
-                  {columns.map((col) => {
-                    const value =
-                      col.dataIndex === undefined
-                        ? undefined
-                        : record[col.dataIndex];
-                    const content = col.render
-                      ? // The discriminated union narrows correctly externally,
-                        // but inside the generic body the two render signatures
-                        // can't be reconciled without an unsafe cast.
-                        // biome-ignore lint/suspicious/noExplicitAny: see comment above
-                        (col.render as any)(value, record, index)
-                      : (value as React.ReactNode);
-                    return (
+          {!loading && data.length === 0 && (
+            <TableRow>
+              <TableCell
+                className={cn(
+                  "h-24 text-center text-muted-foreground",
+                  emptyClassName
+                )}
+                colSpan={colSpan}
+              >
+                <div aria-live="polite" role="status">
+                  {emptyMessage}
+                </div>
+              </TableCell>
+            </TableRow>
+          )}
+          {!loading &&
+            displayedRows.map(
+              ({ checkboxProps, index, key, record, selected }) => {
+                const rowCls =
+                  typeof rowClassName === "function"
+                    ? rowClassName(record, index)
+                    : rowClassName;
+                const interactive = Boolean(onRowClick);
+                return (
+                  <TableRow
+                    className={cn(
+                      // `outline-offset:-2px` keeps the focus ring inside the row
+                      // so it isn't clipped by a parent `rounded-md border`
+                      // wrapper (the recommended demo pattern).
+                      interactive &&
+                        "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:[outline-offset:-2px]",
+                      rowCls
+                    )}
+                    data-state={selected ? "selected" : undefined}
+                    key={key}
+                    onClick={
+                      interactive
+                        ? (e) => handleRowClick(e, record, index)
+                        : undefined
+                    }
+                    onKeyDown={
+                      interactive
+                        ? (e) => handleRowKeyDown(e, record, index)
+                        : undefined
+                    }
+                    // Preserve the implicit row semantics of <tr>; overriding to
+                    // `role="button"` would strip the table structure. Keyboard
+                    // activation is provided via tabIndex + onKeyDown(Enter/Space).
+                    tabIndex={interactive ? 0 : undefined}
+                  >
+                    {selectionEnabled && (
                       <TableCell
-                        className={cn(
-                          alignClass(col.align),
-                          col.className,
-                          col.cellClassName
-                        )}
-                        key={col.key}
-                        style={widthStyle(col.width)}
+                        className={cn(selectionColumnClassName)}
+                        data-slot="easy-table-selection-cell"
+                        // Clicks (and key presses) inside the selection cell must
+                        // not bubble up to the row's onRowClick handler.
+                        onClick={(e: MouseEvent<HTMLTableCellElement>) =>
+                          e.stopPropagation()
+                        }
+                        onKeyDown={(e: KeyboardEvent<HTMLTableCellElement>) =>
+                          e.stopPropagation()
+                        }
                       >
-                        {content}
+                        <SelectionCheckbox
+                          aria-label={`Select row ${key}`}
+                          {...checkboxProps}
+                          checked={selected}
+                          onCheckedChange={(next) => handleToggleRow(key, next)}
+                        />
                       </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            }
-          )}
-      </TableBody>
-    </TableRoot>
+                    )}
+                    {columns.map((col) => {
+                      const value =
+                        col.dataIndex === undefined
+                          ? undefined
+                          : record[col.dataIndex];
+                      const content = col.render
+                        ? // The discriminated union narrows correctly externally,
+                          // but inside the generic body the two render signatures
+                          // can't be reconciled without an unsafe cast.
+                          // biome-ignore lint/suspicious/noExplicitAny: see comment above
+                          (col.render as any)(value, record, index)
+                        : (value as React.ReactNode);
+                      return (
+                        <TableCell
+                          className={cn(
+                            alignClass(col.align),
+                            col.className,
+                            col.cellClassName
+                          )}
+                          key={col.key}
+                          style={widthStyle(col.width)}
+                        >
+                          {content}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              }
+            )}
+        </TableBody>
+      </TableRoot>
+      <TablePager loading={loading} paging={paging} />
+    </>
   );
 }
 

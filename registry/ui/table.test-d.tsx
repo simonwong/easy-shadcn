@@ -76,6 +76,49 @@ acceptProps({ ...requiredProps, "aria-busy": false });
 
 const _dataAttributes = <Table {...requiredProps} data-consumer="kept" />;
 
+acceptProps({ ...requiredProps, pagination: true });
+const hostilePagination = { pageSize: 10, getPageHref: () => "/page" };
+// @ts-expect-error Owned fields remain forbidden through variable assignment.
+acceptProps({ ...requiredProps, pagination: hostilePagination });
+acceptProps({ ...requiredProps, pagination: { value: 2, defaultValue: 1 } });
+acceptProps({
+  ...requiredProps,
+  pagination: {
+    mode: "external",
+    total: 100,
+    value: 2,
+    onValueChange: () => undefined,
+  },
+});
+// @ts-expect-error External pagination requires a controlled value and callback.
+acceptProps({ ...requiredProps, pagination: { mode: "external", total: 100 } });
+acceptProps({
+  ...requiredProps,
+  pagination: {
+    mode: "external",
+    total: 100,
+    value: 1,
+    onValueChange: () => undefined,
+    // @ts-expect-error External pagination cannot use an initial local value.
+    defaultValue: 2,
+  },
+});
+// @ts-expect-error Local totals derive from supplied data.
+acceptProps({ ...requiredProps, pagination: { total: 100 } });
+// @ts-expect-error Table owns pagination children.
+acceptProps({ ...requiredProps, pagination: { children: "forged" } });
+acceptProps({
+  ...requiredProps,
+  // @ts-expect-error Table owns pagination raw HTML.
+  pagination: { dangerouslySetInnerHTML: { __html: "forged" } },
+});
+// @ts-expect-error Table pagination is client state, not URL navigation.
+acceptProps({ ...requiredProps, pagination: { getPageHref: () => "/page" } });
+// @ts-expect-error Table owns the navigation landmark role.
+acceptProps({ ...requiredProps, pagination: { role: "alert" } });
+// @ts-expect-error Table owns the pagination marker.
+acceptProps({ ...requiredProps, pagination: { "data-slot": "forged" } });
+
 // @ts-expect-error The root slot marker is fixed by Table.
 const _forgedSlot = <Table {...requiredProps} data-slot="consumer-table" />;
 

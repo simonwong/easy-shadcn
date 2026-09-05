@@ -14,13 +14,13 @@ With the [`@easy-shadcn` namespace](/docs/installation) configured:
 pnpm dlx shadcn@latest add @easy-shadcn/table
 ```
 
-Or install via the full URL (zero configuration):
+Or install via the full URL with the same namespace configured for its Compose dependency:
 
 ```shell
 pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/table.json
 ```
 
-The underlying shadcn `table` primitive plus the Base UI Checkbox and icon packages are installed automatically alongside `table`.
+The underlying shadcn primitives, Compose Pagination, Base UI Checkbox, and icon packages are installed automatically alongside `table`.
 
 After `shadcn add`, import from `@/components/easy/table`. The examples below import from `@/registry/ui/table` for repo-internal reasons — substitute the install path in your app.
 
@@ -161,6 +161,26 @@ For a header counter that reflects *only the visible* selection, derive it from 
 const visibleSelected = selected.filter((k) => visibleIds.has(k));
 ```
 
+### Pagination
+
+Pass `pagination` to show ten rows per page, starting at page one. Omit it or pass `false` to render all rows without navigation. Configure `pageSize`, `defaultValue`, or controlled `value` / `onValueChange` only when needed.
+
+<ExamplePreview name="table-pagination-demo" />
+
+Local pagination derives its total from `dataSource.length`: resolve source identity, sort, then slice. Every index callback still receives the original source-array index. Header selection affects only eligible rows on the visible page, retaining off-page, disabled, read-only, and unavailable selected keys. Selection callbacks return matching records from the entire supplied `dataSource` in source order.
+
+Sorting preserves the page. To reset it, control both sort and page and update them together in `onSortChange`. Values are one-based. Numeric inputs are truncated and capped at safe-integer bounds; non-finite page sizes fall back to ten, pages to one, and external totals to zero. Size is at least one, total at least zero, and the effective page is clamped to the available range (at least page one). Shrinking data or changing size silently persists that clamp for uncontrolled pages, so later growth cannot restore a discarded page. Controlled values only render-clamp and remain caller-owned. Prop changes never emit callbacks.
+
+Controlled `value` overrides `defaultValue`; without a callback it is read-only. `defaultValue` is mount-only. Turning pagination off preserves the local preference; returning to local mode clamps it against current data. External mode never overwrites that preference. Loading disables page controls. Navigation is a sibling outside the table's scroll container; native table props and refs retain their target.
+
+### External pagination
+
+Use `mode: "external"` with required `total`, `value`, and `onValueChange` when the caller supplies one page. Table never slices those records again, even if their count disagrees with `total`. The caller owns fetching, cancellation, stale responses, and fetching a valid page after totals shrink.
+
+<ExamplePreview name="table-external-pagination-demo" />
+
+For server sorting, use `sorter: true`; an explicit local comparator still sorts only the supplied page. Selected keys can persist across requests, but callback records cannot include rows absent from the supplied page. `total` is forbidden in local mode; `defaultValue` is forbidden in external mode. Pagination configuration only accepts the documented fields, not arbitrary props or navigation hrefs.
+
 ### Sorting
 
 Set a column's `sorter` to a pure, non-throwing comparator to enable local sorting. Header buttons cycle ascending → descending → original order; choosing another column starts ascending. Equal comparisons retain source order in both directions. Comparators receive full records and handle your null, date, and locale rules. Sorting never mutates `dataSource`.
@@ -227,6 +247,7 @@ The Table ships with the WCAG defaults you'd expect, plus development-only warni
 | `columns` | `TableColumn<T>[]` | — | Column definitions. Use `defineColumns<T>()` for narrowed `render(value, …)` types. |
 | `dataSource` | `T[] \| null \| undefined` | — | Data rows. `null` / `undefined` are treated as empty, which matches SWR / React Query pre-response states. |
 | `rowKey` | string / number field of `T` \| `(record, index) => string \| number` | — | Required. Derives a stable string key per row. No `index` fallback — reordering / pagination would silently desync React keys. |
+| `pagination` | `boolean \| TablePaginationLocal \| TablePaginationExternal` | `false` | Local or external page membership and controls. See configuration below. |
 | `loading` | `boolean` | `false` | Replaces the body with `loadingMessage`. |
 | `loadingMessage` | `ReactNode` | `"Loading…"` | Shown while `loading` is true. |
 | `emptyMessage` | `ReactNode` | `"No data"` | Shown when `dataSource` is empty and not loading. |
@@ -249,6 +270,22 @@ The Table ships with the WCAG defaults you'd expect, plus development-only warni
 | `emptyClassName` | `ClassValue` | — | className on the empty-state cell. |
 | `loadingClassName` | `ClassValue` | — | className on the loading-state cell. |
 | `className` | `ClassValue` | — | className on the `<table>` element. Other caller-owned native table props and refs are forwarded; generated children, raw HTML, `aria-busy`, and the root slot marker are fixed by Table. |
+
+### `TablePagination`
+
+Exported as `boolean | TablePaginationLocal | TablePaginationExternal`.
+
+| Field | Default | Contract |
+| --- | --- | --- |
+| `mode` | `"local"` | `"external"` requires controlled page, callback, and total. |
+| `pageSize` | `10` | Rows per local page, or the server's requested page size. |
+| `value` | — | Controlled one-based page; local mode permits read-only use. |
+| `defaultValue` | `1` | Local initial page only; ignored when `value` is defined. |
+| `onValueChange` | — | `(value: number) => void`; changed user page requests only. Required externally. |
+| `total` | — | Required externally; forbidden locally, where it derives from supplied rows. |
+| `hideOnSinglePage` | `false` | Hide navigation when there is at most one page; does not hide the table. |
+| `aria-label` | `"Table pagination"` | Navigation landmark name. Use distinct labels for multiple tables. |
+| `className` | — | `ClassValue` applied to the navigation root, outside the table. |
 
 ### `TableColumn<T>`
 
@@ -292,9 +329,10 @@ Single-line truncation needs no extra props — combine a fixed table layout, a 
 
 ## When to use the primitive instead
 
-This component covers `columns` + `dataSource` + `rowKey`, selection, single-column sorting, and loading / empty / caption / row className. More complex data operations remain outside this delivery:
+This component covers `columns` + `dataSource` + `rowKey`, selection, single-column sorting, local/external pagination, and loading / empty / caption / row className. More complex data operations remain outside this delivery:
 
-- **Multi-column sorting, filtering, pagination** — derive these in your parent and feed `dataSource`. Single-column sorting is built in; use `sorter: true` for externally ordered data. Combine with `@tanstack/react-table` for broader data operations.
+- **Multi-column sorting and filtering** — derive these in your parent and feed `dataSource`. Use `sorter: true` for externally ordered data and `pagination.mode: "external"` for supplied pages. Combine with `@tanstack/react-table` for broader data operations.
+- **Page-size selectors, quick jumpers, and URL navigation** — compose caller-owned controls and state; Table's integrated pager exposes only page changes.
 - **Fixed columns / sticky headers, expandable rows, drag-to-reorder, column resize, virtualization** — composition territory.
 - **Error state** — the Table has `loading` and `emptyMessage` but no `errorMessage`. Rows aren't symmetric to a single async load, so the error UX is the parent's responsibility. Render your own error block above the Table (or swap the Table for an error block) when fetching fails.
 - **Per-row loading** (one row showing a saving spinner while others stay live) — render the spinner inside a cell via `render`. Table-wide `loading` is all-or-nothing.
