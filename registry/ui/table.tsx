@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { Pagination } from "@/registry/ui/pagination";
+import { Pagination } from "./pagination";
 
 // ---------------------------------------------------------------------------
 // Column types — discriminated union so `render`'s `value` narrows by
