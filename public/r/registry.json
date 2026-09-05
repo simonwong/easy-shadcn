@@ -571,12 +571,13 @@
       "name": "table",
       "type": "registry:component",
       "title": "Integrated Table",
-      "description": "Flat-props Table with columns + dataSource + rowKey, plus loading, empty, caption, function-form rowClassName, and built-in row selection (controlled / uncontrolled, with per-row gating and indeterminate select-all).",
+      "description": "Flat-props Table with columns + dataSource + rowKey, loading, empty, caption, row styling, built-in selection, and single-column local or external sorting.",
       "registryDependencies": ["table"],
       "dependencies": [
         "@base-ui/react",
         "@hugeicons/core-free-icons",
-        "@hugeicons/react"
+        "@hugeicons/react",
+        "clsx"
       ],
       "files": [
         {

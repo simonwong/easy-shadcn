@@ -1,5 +1,11 @@
 import { createRef } from "react";
-import { Table, type TableCheckboxProps, type TableProps } from "./table";
+import {
+  defineColumns,
+  Table,
+  type TableCheckboxProps,
+  type TableProps,
+  type TableSort,
+} from "./table";
 
 interface Row {
   id: string;
@@ -7,6 +13,36 @@ interface Row {
 }
 
 declare const acceptProps: (props: TableProps<Row>) => undefined;
+declare const acceptSort: (sort: TableSort | null) => undefined;
+
+const sortingColumns = defineColumns<Row>()([
+  {
+    dataIndex: "name",
+    key: "name",
+    title: "Name",
+    sorter: (a, b) => a.name.localeCompare(b.name),
+    render: (value) => value.toUpperCase(),
+  },
+  { key: "remote", title: "Remote", sorter: true, sortLabel: "Remote order" },
+]);
+
+const _sorting = (
+  <Table
+    columns={sortingColumns}
+    defaultSort={{ columnKey: "name", order: "ascend" }}
+    onSortChange={acceptSort}
+    rowKey="id"
+    sort={null}
+  />
+);
+// @ts-expect-error Sorting is single-column, not an array.
+acceptSort([{ columnKey: "name", order: "ascend" }]);
+// @ts-expect-error Direction must be the declared vocabulary.
+acceptSort({ columnKey: "name", order: "ascending" });
+defineColumns<Row>()([
+  // @ts-expect-error Comparator returns a number, not a formatted value.
+  { key: "name", title: "Name", sorter: (a, b) => a.name + b.name },
+]);
 declare const acceptCheckboxProps: (
   props: Partial<TableCheckboxProps>
 ) => undefined;

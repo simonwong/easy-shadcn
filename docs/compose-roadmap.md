@@ -15,10 +15,13 @@ Snapshot: 2026-09-02, 64 official shadcn component entries.
 
 No unresearched high-value boundary is currently queued.
 
+Existing high-value owners can deepen through independently specified slices. Table single-column sorting is delivered; integrated pagination is the next candidate to research, with page reset and selection membership treated as explicit decisions.
+
 ## Completed decisions
 
 | Date | Capability | Result |
 | --- | --- | --- |
+| 2026-09-05 | Table sorting | Shipped local/external single-column sort intent, accessible header controls, stable display ordering, and unchanged source identity/selection contracts. |
 | 2026-08-24 | Menu family | Shipped canonical `Menu` item tree, selection/open state, vertical/horizontal/inline modes, and keyboard navigation. Dropdown Menu and Context Menu remain separate trigger shells. |
 | 2026-08-24 | Choice list | Shipped `ChoiceGroup` for the four valid single/multiple × radio/checkbox/toggle combinations. Soft-deprecated `RadioGroup` and `CheckboxGroup`; no separate Toggle Group Compose registration. |
 | 2026-08-31 | Toast | Shipped one Base UI-backed global queue with a stable callable facade for status, id upserts, update, close, action, and Promise lifecycles. |
@@ -58,7 +61,7 @@ No unresearched high-value boundary is currently queued.
 | Menu family | Context Menu, Dropdown Menu | `Menu` | Keep and deepen | High | Menu owns item tree, root semantics, keyboard routing, selection, and open state. Existing `ContextMenu` and `DropdownMenu` stay as right-click/dropdown shells. |
 | Responsive navigation shell | Sidebar | `Sidebar` | Keep | High | Owns provider/panel/inset assembly, finite navigation projection, desktop selection/collapse, internal mobile Sheet dismissal, and breakpoint cleanup; icon-only or non-collapsible layouts stay Primitive. |
 | Searchable quick actions | Command | `CommandPalette` | Keep | High | Owns the Dialog/open/query transaction, platform hotkey, grouped static actions, async single-flight, retryable failure, and stale settlement; custom query/ranking/remote/composition stays Primitive. |
-| Data table | Table, Data Table | `Table` | Keep and deepen | High | One owner for generated table structure, loading state, row identity, selection, bulk eligibility, and the row-checkbox state seam. |
+| Data table | Table, Data Table | `Table` | Keep and deepen | High | One owner for generated table structure, loading state, row identity, selection, bulk eligibility, and single-column local/external sorting with source-index preservation. |
 | Empty state | Empty | `Empty` | Keep | Medium | Common empty-state structure; domain workflows stay outside it. |
 | Form layout | Field | `Field` | Keep | Medium | Own common label/control/description/error composition, root state markers, and flat-control id/ARIA wiring. |
 | Input composition | Input Group | `InputGroup` | Keep | Medium | Own adornment, grouped-control composition, void input structure, and primitive slot; plain Input stays Primitive-only. |
