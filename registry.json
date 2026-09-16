@@ -102,6 +102,21 @@
       ]
     },
     {
+      "name": "menubar",
+      "type": "registry:component",
+      "title": "Integrated Menubar",
+      "description": "Application command bar with an items tree, actions, groups, submenus, controlled checkbox and radio settings, and primitive-owned focus, keyboard navigation, and dismissal.",
+      "dependencies": ["clsx"],
+      "registryDependencies": ["menubar"],
+      "files": [
+        {
+          "path": "registry/ui/menubar.tsx",
+          "type": "registry:component",
+          "target": "components/easy/menubar.tsx"
+        }
+      ]
+    },
+    {
       "name": "context-menu",
       "type": "registry:component",
       "title": "Integrated Context Menu",

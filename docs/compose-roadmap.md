@@ -15,12 +15,15 @@ Snapshot: 2026-09-02, 64 official shadcn component entries.
 
 No unresearched high-value boundary is currently queued.
 
-Existing high-value owners can deepen through independently specified slices. Table single-column sorting and integrated local/external pagination are delivered. Filtering is the next research candidate; filter state, page reset, and selection membership need an independent specification.
+Existing high-value owners can deepen through independently specified slices. Table single-column sorting and integrated local/external pagination are delivered. Table filtering is paused; filter state, page reset, and selection membership require an independent specification before it returns to the queue.
+
+Menubar covers the application command-bar task. Navigation Menu stays deferred pending a consumer-defined site header; see the [candidate review](research/next-component-candidates.md) for the distinct scope.
 
 ## Completed decisions
 
 | Date | Capability | Result |
 | --- | --- | --- |
+| 2026-09-16 | Menubar | Added one primitive-backed application command tree with actions, groups, submenus, controlled checkbox/radio settings, and delegated keyboard/focus behavior. |
 | 2026-09-05 | Table sorting | Shipped local/external single-column sort intent, accessible header controls, stable display ordering, and unchanged source identity/selection contracts. |
 | 2026-09-06 | Table pagination | Shipped local/external page controls, sorted local slices, current-page bulk selection, and silent page clamping without changing source identity. |
 | 2026-08-24 | Menu family | Shipped canonical `Menu` item tree, selection/open state, vertical/horizontal/inline modes, and keyboard navigation. Dropdown Menu and Context Menu remain separate trigger shells. |
@@ -60,6 +63,7 @@ Existing high-value owners can deepen through independently specified slices. Ta
 | Boolean controls | Checkbox, Switch | `Checkbox`, `Switch` | Keep | Low | Single boolean values stay independent. Switch owns its root element, role, thumb, derived ARIA/data state, size, and slot markers. |
 | Select | Select, Combobox | `Select` | Keep and deepen | High | `Combobox` remains a thin searchable preset, never a second state owner. Native Select is excluded separately. |
 | Menu family | Context Menu, Dropdown Menu | `Menu` | Keep and deepen | High | Menu owns item tree, root semantics, keyboard routing, selection, and open state. Existing `ContextMenu` and `DropdownMenu` stay as right-click/dropdown shells. |
+| Application command bar | Menubar | `Menubar` | Keep | Medium | Finite command tree over Base UI Menubar/Menu; caller-owned settings survive popup dismissal, while the primitive owns menu switching, focus, and keyboard behavior. |
 | Responsive navigation shell | Sidebar | `Sidebar` | Keep | High | Owns provider/panel/inset assembly, finite navigation projection, desktop selection/collapse, internal mobile Sheet dismissal, and breakpoint cleanup; icon-only or non-collapsible layouts stay Primitive. |
 | Searchable quick actions | Command | `CommandPalette` | Keep | High | Owns the Dialog/open/query transaction, platform hotkey, grouped static actions, async single-flight, retryable failure, and stale settlement; custom query/ranking/remote/composition stays Primitive. |
 | Data table | Table, Data Table | `Table` | Keep and deepen | High | One owner for generated table structure, loading state, row identity, selection, bulk eligibility, and single-column local/external sorting with source-index preservation. |
@@ -85,7 +89,7 @@ These have no one-to-one official catalog entry:
 | --- | --- | --- |
 | `AsyncButton` | Button | Owns a native button, async pending/completion semantics, spinner structure, and repeated-submit protection. Base Button remains Primitive-only. |
 | `CheckboxGroup` | Checkbox | Legacy list-selection owner. Keep install compatibility during soft deprecation; `ChoiceGroup` becomes canonical. |
-| `Menu` | Context Menu, Dropdown Menu, later Menubar | Canonical menu item/state model. Trigger and shell behaviours remain separate adapters. |
+| `Menu` | Context Menu, Dropdown Menu | Persistent navigation item/state model. Popup action shells, including Menubar, retain separate behavior. |
 
 ## Primitive-only
 
@@ -130,7 +134,6 @@ These are neither approved Compose work nor durable exclusions. Keep them out of
 
 | Official shadcn entry | Current stance | Question to answer |
 | --- | --- | --- |
-| Menubar | Defer | Menu can supply its item model later; no separate Menubar Compose shell is urgent. |
 | Navigation Menu | Defer | Can one flat model cover responsive navigation without hiding necessary composition? |
 
 ## Duplicate-prevention map
@@ -144,7 +147,7 @@ Use this before opening any component-factory task:
 | Calendar popup, Date Picker | Deepen `DatePicker`; reuse `Calendar`. |
 | Dialog | Use `Modal`; use `AlertDialog` only for confirm/cancel semantics. |
 | Dropdown Menu, Context Menu | Reuse canonical `Menu` item/state model while keeping trigger shells distinct. |
-| Menubar | Defer shell; later consume `Menu` model. |
+| Menubar | Use `Menubar` for an application command bar; keep navigation selection in `Menu` and shortcut registration in the application. |
 | Command palette | Use `CommandPalette`, not Menu; custom query, ranking, remote results, or nested pages use the Command Primitive. |
 | Sidebar | Use `Sidebar` for one responsive application navigation shell; custom route, shortcut, persistence, mobile, icon-collapse, or structural composition uses the Primitive. |
 | Radio list, checkbox list, toggle list | Deepen `ChoiceGroup`; do not create separate new group owners. |
