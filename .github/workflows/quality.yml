@@ -1,0 +1,63 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main, next]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build workspace packages
+        run: pnpm package:build
+      - name: Test Compose components
+        run: pnpm test --maxWorkers=2 --minWorkers=1
+      - name: Test command-modal coverage
+        run: pnpm -F @easy-shadcn/command-modal test:coverage --maxWorkers=2 --minWorkers=1
+      - name: Test command-modal types
+        run: pnpm -F @easy-shadcn/command-modal test:types
+
+  build:
+    name: Types and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build workspace packages
+        run: pnpm package:build
+      - name: Generate examples and route types
+        run: |
+          pnpm generate-example
+          pnpm exec next typegen
+      - name: Check project and Compose type fixtures
+        run: pnpm exec tsc --noEmit --incremental false
+      - name: Build registry and documentation site
+        run: pnpm build
