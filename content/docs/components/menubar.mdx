@@ -1,0 +1,115 @@
+---
+title: Menubar
+---
+
+An application command bar from one `items` tree. Menubar assembles the triggers, action menus, groups, submenus, and settings; Base UI owns keyboard navigation, focus, menu switching, and dismissal.
+
+<ExamplePreview name="menubar-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/menubar
+```
+
+Or use the full URL:
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/menubar.json
+```
+
+The shadcn `menubar` primitive and its dependencies are installed automatically.
+
+## Basic use
+
+```tsx
+import { Menubar } from "@/components/easy/menubar"
+
+<Menubar
+  items={[
+    {
+      key: "file",
+      trigger: "File",
+      items: [
+        { key: "new", content: "New document", onClick: createDocument },
+        { key: "save", content: "Save", onClick: saveDocument },
+      ],
+    },
+  ]}
+/>
+```
+
+Every menu and tree entry needs a stable, sibling-unique `key`. This follows the existing Menu tree vocabulary. Keys identify entries; they do not select a navigation destination. Top-level labels use `trigger`; entries use `content`. Both must provide meaningful, non-interactive accessible names.
+
+## Settings and submenus
+
+<ExamplePreview name="menubar-settings-demo" />
+
+Checkbox items require `checked`; radio groups require a string `value`. Store settings in the parent and accept changes through `onCheckedChange` / `onValueChange`. Without a callback, a setting stays read-only. Radio options use unique string `value` fields; an empty group value means no option is selected.
+
+```tsx
+const [ruler, setRuler] = useState(true)
+const [zoom, setZoom] = useState("100")
+
+const viewMenu = {
+  key: "view",
+  trigger: "View",
+  items: [
+    {
+      key: "ruler", type: "checkbox", content: "Show ruler",
+      checked: ruler, onCheckedChange: setRuler,
+    },
+    {
+      key: "zoom", type: "radio-group", content: "Zoom",
+      value: zoom, onValueChange: setZoom,
+      items: [{ value: "100", content: "100%" }, { value: "125", content: "125%" }],
+    },
+  ],
+} satisfies MenubarMenuItem
+```
+
+Settings stay open while changing. Actions close the menu normally. State belongs outside the popup because its descendants can unmount on close; there are no `defaultChecked` or `defaultValue` fields. Checkbox and radio callbacks preserve the exact Base UI details object, including `cancel()`. Action `onClick` receives the primitive event, including `preventBaseUIHandler()` for cancelling its default behavior.
+
+## Props
+
+| Prop | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `items` | `MenubarMenuItem[]` | required | Top-level menus; empty arrays are valid. |
+| `aria-label` | `string` | `"Application menu"` | Accessible bar name. Distinguish multiple bars on one page. |
+| `disabled` | `boolean` | `false` | Disables the complete bar through Base UI. |
+| `className` | `ClassValue` | — | Bar styling. |
+| `triggerClassName` | `ClassValue` | — | All top-level triggers. |
+| `contentClassName` | `ClassValue` | — | All top-level and nested popups. |
+| `itemClassName` | `ClassValue` | — | All actions, settings, and submenu triggers. |
+| `ref` | `Ref<HTMLDivElement>` | — | The primitive bar element. |
+
+### MenubarMenuItem
+
+Each menu has `key`, `trigger`, and `items`. Optional `disabled` prevents opening. `triggerClassName` and `contentClassName` override the corresponding global classes for that menu.
+
+### MenubarItem variants
+
+| `type` | Required fields beyond `key` | Optional fields |
+| --- | --- | --- |
+| omitted or `"item"` | `content` | `onClick`, `variant: "default" \| "destructive"`, presentation fields below |
+| `"checkbox"` | `content`, `checked: boolean` | `onCheckedChange`, presentation fields below |
+| `"radio-group"` | `content`, `value: string`, `items: MenubarRadioOption[]` | `onValueChange`, `disabled`, `labelClassName` |
+| `"submenu"` | `content`, `items: MenubarItem[]` | `disabled`, `icon`, `inset`, `itemClassName`, `contentClassName` |
+| `"group"` | `content`, `items: MenubarItem[]` | `labelClassName` |
+| `"separator"` | none | none |
+
+Actions, checkbox items, and radio options accept `disabled`, `icon`, `inset`, `shortcut`, and `itemClassName`. Radio options require `value` and `content`. Radio-group `disabled` applies to every option; option `disabled` applies to that option alone. Per-item classes are merged after global classes.
+
+Icons and shortcut hints are decorative and excluded from accessible names. A `shortcut` displays text only; the consuming application owns shortcut registration. Custom markup inside `content` must not contain buttons, links, or other interactive descendants.
+
+## Keyboard behavior
+
+Base UI coordinates the complete bar: horizontal movement between top-level menus, opening with Enter / Space / ArrowDown, movement within menus, typeahead, submenu traversal, and Escape dismissal with focus restoration. Tab moves out of the command bar. Disabled entries retain the primitive's focus and activation policy. Menubar does not add a second keyboard handler or treat actions as route selection.
+
+## When to use the Primitive instead
+
+Use `components/ui/menubar` for arbitrary compound markup, links or custom triggers, controlled opening, vertical orientation, custom looping/modal policies, custom portals or positioners, alternate closing behavior, or imperative handles. Use [Menu](/docs/components/menu) for persistent application navigation, and [Command Palette](/docs/components/command-palette) for searchable actions.
+
+Menubar does not manage asynchronous pending/error state, register global shortcuts, cache setting values, or expose `children`, `render`, slots, or prop bags that replace its generated structure.
