@@ -1,0 +1,101 @@
+---
+title: Navigation Menu
+---
+
+Website links and one level of dropdown links from a single `items` array. Base UI owns opening, dismissal, focus, keyboard navigation, and popup positioning.
+
+<ExamplePreview name="navigation-menu-demo" />
+
+## Installation
+
+With the [`@easy-shadcn` namespace](/docs/installation) configured:
+
+```shell
+pnpm dlx shadcn@latest add @easy-shadcn/navigation-menu
+```
+
+Or use the full URL:
+
+```shell
+pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/navigation-menu.json
+```
+
+The shadcn Navigation Menu primitive and its dependencies install automatically.
+
+## Basic use
+
+```tsx
+import { NavigationMenu } from "@/components/easy/navigation-menu"
+
+<NavigationMenu
+  items={[
+    {
+      value: "products",
+      trigger: "Products",
+      items: [
+        { value: "overview", content: "Overview", href: "/products" },
+        { value: "automation", content: "Automation", href: "/products/automation" },
+      ],
+    },
+    { value: "pricing", content: "Pricing", href: "/pricing" },
+  ]}
+/>
+```
+
+Each entry needs a stable string `value`, unique within its list. A top-level entry is either a link (`content`, `href`) or a dropdown (`trigger`, `items`). Dropdown children are links. To offer both a section overview and a dropdown, put an Overview link inside the panel. A trigger does not also navigate.
+
+## Link details
+
+<ExamplePreview name="navigation-menu-details-demo" />
+
+Links accept optional `description`, `active`, `target`, `rel`, `linkClassName`, and `descriptionClassName`. Content, descriptions, and trigger labels must be meaningful, non-interactive content; do not nest buttons or links inside them.
+
+Set `active` from your application's route state. The primitive adds `aria-current="page"`. No pathname matching is performed. The example marks Navigation Menu active explicitly.
+
+Every destination is a native anchor. Modifier-click, opening in a new tab, and ordinary browser navigation remain available. Link activation closes the popup, including same-page links; this deliberately enables the primitive's `closeOnClick` option. Controlled state or cancellation can refuse dismissal. No client-side router adapter is installed. Use the primitive's link composition when you need Next.js Link or another router-specific component.
+
+## Expanded panel
+
+`value` identifies the expanded dropdown; it does **not** identify the current page. Omit it for internal state, optionally setting `defaultValue`. Set `value={null}` to close all panels.
+
+```tsx
+const [expanded, setExpanded] = useState<string | null>(null)
+
+<NavigationMenu
+  items={items}
+  value={expanded}
+  onValueChange={setExpanded}
+/>
+```
+
+`onValueChange(value, details)` receives the original Base UI event details, including `reason` and `cancel()`. A controlled parent must accept the new value to change the visible panel. Use only dropdown identities as non-null expanded values. `defaultValue` is ignored when `value` is controlled.
+
+## Props
+
+| Prop | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `items` | `NavigationMenuItem[]` | required | Direct links or single-level dropdowns. Empty arrays are valid. |
+| `aria-label` | `string` | `"Main navigation"` | Name the navigation; distinguish multiple instances. |
+| `value` | `string \| null` | uncontrolled | Expanded dropdown identity. |
+| `defaultValue` | `string \| null` | `null` | Initial expanded dropdown. |
+| `onValueChange` | `(value, details) => void` | — | Primitive popup-state change callback. |
+| `className` | `ClassValue` | — | Root navigation styling. |
+| `listClassName` | `ClassValue` | — | Top-level list styling. |
+| `triggerClassName` | `ClassValue` | — | All dropdown triggers. |
+| `contentClassName` | `ClassValue` | — | All dropdown content panels. |
+| `linkClassName` | `ClassValue` | — | All direct and dropdown links. |
+| `ref` | `Ref<HTMLElement>` | — | Root navigation element. |
+
+Dropdowns additionally accept `triggerClassName` and `contentClassName`. Per-entry classes merge after global classes. Content slots do not expose prop bags. Arbitrary attributes, element replacement, custom roles, and raw HTML overrides are not forwarded.
+
+## Keyboard and narrow screens
+
+Tab follows ordinary links and buttons. Arrow keys supplement that order; ArrowDown opens a horizontal trigger, and Escape closes its panel and restores focus. Pointer hover and click use primitive interaction, with touch activation supported independently of hover. The component uses navigation/list semantics, not application `menu` or `menubar` roles.
+
+Top-level entries can wrap when space is tight. Long text wraps, and dropdown content has a viewport-bounded width and a scrollable height. Layout still depends on the surrounding container and class overrides. This is a visible navigation list on narrow screens; it does not introduce a hamburger button, drawer, or alternate mobile header.
+
+## When to use the Primitive instead
+
+Use `components/ui/navigation-menu` for custom router links, arbitrary promotional panels, columns, nested dropdowns, interactive custom content, custom positioners, vertical navigation, or different link-closing and hover-delay policies. Build logos, account controls, search, sticky layout, and collapsed mobile headers in the consuming page.
+
+Use [Menubar](/docs/components/menubar) for application commands and settings. Use [Sidebar](/docs/components/sidebar) for a complete application navigation shell.
