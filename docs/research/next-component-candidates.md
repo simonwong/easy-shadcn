@@ -4,7 +4,7 @@ Snapshot: 2026-09-16. Table filtering is paused. This note evaluates alternative
 
 ## Recommendation
 
-Menubar's implementation decision is recorded in [ADR-0020](../adr/0020-menubar-command-settings.md). The comparison below records the candidate assessment; Navigation Menu remains deferred.
+Menubar's implementation decision is recorded in [ADR-0020](../adr/0020-menubar-command-settings.md). The comparison below records the original candidate assessment. Navigation Menu now has a [thin-wrapper boundary](navigation-menu-boundary.md) and an [implementation contract](../../content/docs/components/navigation-menu.mdx).
 
 There is no compelling small new Compose wrapper in the reviewed candidates. Keep quality automation as the immediate delivery. If another component is wanted, investigate **Menubar** first against a concrete editor-style command bar. Keep **Navigation Menu** deferred until a real site header establishes its layout and mobile requirements.
 

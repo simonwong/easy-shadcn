@@ -117,6 +117,21 @@
       ]
     },
     {
+      "name": "navigation-menu",
+      "type": "registry:component",
+      "title": "Integrated Navigation Menu",
+      "description": "Website navigation from direct links and one level of dropdown links, with caller-owned current-page state and primitive-owned popup interaction.",
+      "dependencies": ["clsx"],
+      "registryDependencies": ["navigation-menu"],
+      "files": [
+        {
+          "path": "registry/ui/navigation-menu.tsx",
+          "type": "registry:component",
+          "target": "components/easy/navigation-menu.tsx"
+        }
+      ]
+    },
+    {
       "name": "context-menu",
       "type": "registry:component",
       "title": "Integrated Context Menu",
