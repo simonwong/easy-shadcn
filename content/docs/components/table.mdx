@@ -167,7 +167,7 @@ Pass `pagination` to show ten rows per page, starting at page one. Omit it or pa
 
 <ExamplePreview name="table-pagination-demo" />
 
-Local pagination derives its total from `dataSource.length`: resolve source identity, sort, then slice. Every index callback still receives the original source-array index. Header selection affects only eligible rows on the visible page, retaining off-page, disabled, read-only, and unavailable selected keys. Selection callbacks return matching records from the entire supplied `dataSource` in source order.
+Local pagination derives its total from the filtered supplied rows: resolve source identity, filter, sort, then slice. Every index callback still receives the original source-array index. Header selection affects only eligible rows on the visible page, retaining off-page, disabled, read-only, and unavailable selected keys. Selection callbacks return matching records from the entire supplied `dataSource` in source order.
 
 Sorting preserves the page. To reset it, control both sort and page and update them together in `onSortChange`. Values are one-based. Numeric inputs are truncated and capped at safe-integer bounds; non-finite page sizes fall back to ten, pages to one, and external totals to zero. Size is at least one, total at least zero, and the effective page is clamped to the available range (at least page one). Shrinking data or changing size silently persists that clamp for uncontrolled pages, so later growth cannot restore a discarded page. Controlled values only render-clamp and remain caller-owned. Prop changes never emit callbacks.
 
@@ -180,6 +180,57 @@ Use `mode: "external"` with required `total`, `value`, and `onValueChange` when 
 <ExamplePreview name="table-external-pagination-demo" />
 
 For server sorting, use `sorter: true`; an explicit local comparator still sorts only the supplied page. Selected keys can persist across requests, but callback records cannot include rows absent from the supplied page. `total` is forbidden in local mode; `defaultValue` is forbidden in external mode. Pagination configuration only accepts the documented fields, not arbitrary props or navigation hrefs.
+
+### Column filtering
+
+Add `filter` to a column to show a filter button beside its title. The smallest local configuration supplies `items` and a pure, non-throwing `onFilter(value, record)` predicate. Filter option values are strings; titles and option labels must contain meaningful, non-interactive content.
+
+<ExamplePreview name="table-filtering-demo" />
+
+```tsx
+{
+  key: "role",
+  dataIndex: "role",
+  title: "Role",
+  filter: {
+    items: [
+      { value: "admin", label: "Admin" },
+      { value: "member", label: "Member" },
+    ],
+    onFilter: (value, record) => record.role === value,
+  },
+}
+```
+
+Checkbox changes are drafts until **Apply**. Escape or clicking outside discards them. **Reset** immediately clears that column, preserving other columns. Use `multiple: false` for a radio choice. Selected options within one column combine with OR; active columns combine with AND. The button shows the accepted option count, not the draft count. Loading disables the trigger, choices, Apply, and Reset, including an already-open panel.
+
+Use `defaultFilters={{ role: ["admin"] }}` for initial internal state. For controlled filtering, pass `filters` and `onFiltersChange`; `{}` clears all, while `undefined` uses internal state. Controlled values override defaults. If the parent refuses a request, rows, counts, and the values on reopening stay unchanged. A change to accepted values or option identities, disabled state, mode, or multiplicity discards an open stale draft.
+
+Local processing resolves original row keys and indices, filters, sorts, then slices pages. The local total is the filtered row count. Empty results use `emptyMessage`. Every existing index callback keeps the source-array index. Selected keys survive hiding rows; select-all changes only eligible rows on the visible page. Selection callback records still come from the complete supplied `dataSource` in source order.
+
+An effective filter change returns **enabled, uncontrolled local pagination** to page one. It preserves sorting and selection. Controlled pages remain caller-owned, subject to the existing render clamp. Accept the suggested page and filters together:
+
+```tsx
+onFiltersChange={(filters, details) => {
+  setQuery((query) => ({
+    ...query,
+    filters,
+    page: details.pagination?.value ?? query.page,
+  }))
+}}
+```
+
+Only changed user commits emit `onFiltersChange(next, details)`. `details.columnKey` identifies the edited column; `details.pagination` is `{ value: 1 }` when pagination is enabled and `null` otherwise. No second pagination callback fires. Mounts, prop/data/config changes, cancelled drafts, and unchanged commits emit nothing. Changing data keeps the existing silent page-clamp behavior.
+
+Unknown columns or option values and duplicate column/option identities have no effective filter. Values are deduplicated and ordered by options; single mode uses the first valid option in that order. Stored intent is retained when a column or option disappears and restored if it returns. Callbacks retain inactive intent for other columns. `disabled` prevents user choice of an option; an already supplied disabled value can remain active until Reset clears it.
+
+### External filtering
+
+Set `filter.mode: "external"` and omit `onFilter`. Table updates the filter interface and emits intent without removing supplied rows. Control `filters` to connect them to a query or URL. The application owns fetching, cancellation, stale responses, errors, and filtered totals.
+
+<ExamplePreview name="table-external-filtering-demo" />
+
+Use external filters with external pagination for server queries. An explicitly local predicate combined with external pagination filters only the supplied page and does not revise the caller's `total`. Filter controls and sort controls are independent siblings; using one does not activate the other or submit a surrounding form.
 
 ### Sorting
 
@@ -256,6 +307,9 @@ The Table ships with the WCAG defaults you'd expect, plus development-only warni
 | `onRowClick` | `(record, index) => void` | — | Makes rows focusable (`tabIndex=0`) and responsive to click / Enter / Space. Native `role="row"` is preserved (no override). Selection-cell events do not bubble. |
 | `selectable` | `boolean` | `false` | Enable the selection column. |
 | `selectedRowKeys` | `string[]` | — | Controlled selected keys. |
+| `filters` | `TableFilters` | — | Controlled values by column key: `Record<string, string[]>`. `{}` clears all. |
+| `defaultFilters` | `TableFilters` | `{}` | Mount-only internal defaults; ignored when controlled. |
+| `onFiltersChange` | `(filters, details) => void` | — | Changed user intent; details contains `columnKey` and suggested pagination `{ value: 1 }` or `null`. |
 | `defaultSelectedRowKeys` | `string[]` | `[]` | Uncontrolled initial keys. |
 | `sort` | `TableSort \| null` | — | Controlled single-column sort. `null` clears; `undefined` uses internal state. |
 | `defaultSort` | `TableSort \| null` | `null` | Initial uncontrolled sort; ignored when `sort` is defined. |
@@ -295,6 +349,7 @@ A discriminated union by `dataIndex`. When `dataIndex` is set to a `keyof T`, `r
 | ----- | ---- | ----------- |
 | `key` | `string` | Stable identifier and React key. |
 | `title` | `ReactNode` | Header content. |
+| `filter` | `TableColumnFilter<T>` | Finite option filtering; local mode requires `onFilter`, external mode forbids it. See below. |
 | `sorter` | `true \| ((a: T, b: T) => number)` | Comparator enables local sorting; `true` emits external sort intent without changing row order. Comparators must be pure and non-throwing. |
 | `sortLabel` | `string` | Accessible sort-button name for titles without meaningful text. Sortable titles must not contain interactive descendants. |
 | `dataIndex` | `keyof T \| undefined` | **Top-level `keyof T` only.** Nested paths like `"user.name"` are intentionally unsupported — use `render: (_, record) => record.user.name` for deep access. |
@@ -304,6 +359,18 @@ A discriminated union by `dataIndex`. When `dataIndex` is set to a `keyof T`, `r
 | `className` | `ClassValue` | Applied to both `th` and `td`. |
 | `headClassName` | `ClassValue` | Applied only to the header cell. |
 | `cellClassName` | `ClassValue` | Applied only to body cells. |
+
+### `TableColumnFilter<T>`
+
+| Field | Default | Contract |
+| --- | --- | --- |
+| `items` | required | `{ value: string; label: ReactNode; disabled?: boolean }[]`; unique option identities. |
+| `mode` | `"local"` | `"local"` runs the predicate; `"external"` emits intent only. |
+| `onFilter` | required locally | `(value: string, record: T) => boolean`; pure and non-throwing, forbidden externally. |
+| `multiple` | `true` | Multiple checkboxes or a single radio choice. State always uses arrays. |
+| `label` | `"Filter {title}"` | Accessible trigger and popup name. Supply meaningful text for non-text titles; fallback uses the column key. |
+
+The fixed panel does not forward raw HTML, render hooks, custom descendants, or prop bags. The Popover primitive owns focus, positioning, Escape, and outside dismissal. Existing `headClassName` styles the header; custom filter panel structure stays outside this interface.
 
 ## Recipe: truncating long cells
 
@@ -329,9 +396,9 @@ Single-line truncation needs no extra props — combine a fixed table layout, a 
 
 ## When to use the primitive instead
 
-This component covers `columns` + `dataSource` + `rowKey`, selection, single-column sorting, local/external pagination, and loading / empty / caption / row className. More complex data operations remain outside this delivery:
+This component covers `columns` + `dataSource` + `rowKey`, selection, column option filtering, single-column sorting, local/external pagination, and loading / empty / caption / row className. More complex data operations remain outside this delivery:
 
-- **Multi-column sorting and filtering** — derive these in your parent and feed `dataSource`. Use `sorter: true` for externally ordered data and `pagination.mode: "external"` for supplied pages. Combine with `@tanstack/react-table` for broader data operations.
+- **Multi-column sorting, free-text filters, filter trees, and custom filter panels** — derive these in your parent and feed `dataSource`. Use `sorter: true` for externally ordered data and `pagination.mode: "external"` for supplied pages. Combine with `@tanstack/react-table` for broader data operations.
 - **Page-size selectors, quick jumpers, and URL navigation** — compose caller-owned controls and state; Table's integrated pager exposes only page changes.
 - **Fixed columns / sticky headers, expandable rows, drag-to-reorder, column resize, virtualization** — composition territory.
 - **Error state** — the Table has `loading` and `emptyMessage` but no `errorMessage`. Rows aren't symmetric to a single async load, so the error UX is the parent's responsibility. Render your own error block above the Table (or swap the Table for an error block) when fetching fails.

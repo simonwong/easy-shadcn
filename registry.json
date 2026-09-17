@@ -601,8 +601,15 @@
       "name": "table",
       "type": "registry:component",
       "title": "Integrated Table",
-      "description": "Flat-props Table with columns + dataSource + rowKey, loading, empty, caption, row styling, selection, single-column sorting, and local or external pagination.",
-      "registryDependencies": ["table", "@easy-shadcn/pagination"],
+      "description": "Flat-props Table with columns + dataSource + rowKey, loading, empty, caption, row styling, selection, column option filtering, single-column sorting, and local or external pagination.",
+      "registryDependencies": [
+        "table",
+        "button",
+        "checkbox",
+        "popover",
+        "radio-group",
+        "@easy-shadcn/pagination"
+      ],
       "dependencies": [
         "@base-ui/react",
         "@hugeicons/core-free-icons",
@@ -614,6 +621,11 @@
           "path": "registry/ui/table.tsx",
           "type": "registry:component",
           "target": "components/easy/table.tsx"
+        },
+        {
+          "path": "registry/ui/table-filter.tsx",
+          "type": "registry:component",
+          "target": "components/easy/table-filter.tsx"
         }
       ]
     }

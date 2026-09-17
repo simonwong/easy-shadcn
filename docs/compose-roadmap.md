@@ -15,7 +15,7 @@ Snapshot: 2026-09-02, 64 official shadcn component entries.
 
 No unresearched high-value boundary is currently queued.
 
-Existing high-value owners can deepen through independently specified slices. Table single-column sorting and integrated local/external pagination are delivered. Table filtering is paused; filter state, page reset, and selection membership require an independent specification before it returns to the queue.
+Existing high-value owners can deepen through independently specified slices. Table single-column sorting and integrated local/external pagination are delivered. Table column filtering adds local/external option filters with explicit draft commits, page-reset intent, and preserved selection membership; see its [contract](specs/table-filtering.md).
 
 Menubar covers the application command-bar task. Navigation Menu covers direct website links and one level of dropdown links; collapsed mobile headers remain consumer compositions. See the [interface recommendation](research/navigation-menu-boundary.md) and [primary-source findings](research/navigation-menu-primary-sources.md).
 
@@ -23,6 +23,7 @@ Menubar covers the application command-bar task. Navigation Menu covers direct w
 
 | Date | Capability | Result |
 | --- | --- | --- |
+| 2026-09-17 | Table filtering | Added local/external column option filtering, controlled state, draft Apply/Reset, filter-before-sort/page projection, and preserved hidden selection. |
 | 2026-09-17 | Navigation Menu | Added a thin website navigation wrapper with native links, one-level dropdowns, caller-owned current-page marking, and delegated popup interaction. Narrow screens retain the visible navigation list. |
 | 2026-09-16 | Menubar | Added one primitive-backed application command tree with actions, groups, submenus, controlled checkbox/radio settings, and delegated keyboard/focus behavior. |
 | 2026-09-05 | Table sorting | Shipped local/external single-column sort intent, accessible header controls, stable display ordering, and unchanged source identity/selection contracts. |
@@ -68,7 +69,7 @@ Menubar covers the application command-bar task. Navigation Menu covers direct w
 | Website navigation | Navigation Menu | `NavigationMenu` | Keep | Low | Native links and one level of dropdown links; route-active state stays separate from popup state. Router adapters, mega-menus, and collapsed mobile headers use Primitive composition. |
 | Responsive navigation shell | Sidebar | `Sidebar` | Keep | High | Owns provider/panel/inset assembly, finite navigation projection, desktop selection/collapse, internal mobile Sheet dismissal, and breakpoint cleanup; icon-only or non-collapsible layouts stay Primitive. |
 | Searchable quick actions | Command | `CommandPalette` | Keep | High | Owns the Dialog/open/query transaction, platform hotkey, grouped static actions, async single-flight, retryable failure, and stale settlement; custom query/ranking/remote/composition stays Primitive. |
-| Data table | Table, Data Table | `Table` | Keep and deepen | High | One owner for generated table structure, loading state, row identity, selection, bulk eligibility, and single-column local/external sorting with source-index preservation. |
+| Data table | Table, Data Table | `Table` | Keep and deepen | High | One owner for generated table structure, loading state, row identity, selection, bulk eligibility, column option filtering, and single-column local/external sorting with source-index preservation. |
 | Empty state | Empty | `Empty` | Keep | Medium | Common empty-state structure; domain workflows stay outside it. |
 | Form layout | Field | `Field` | Keep | Medium | Own common label/control/description/error composition, root state markers, and flat-control id/ARIA wiring. |
 | Input composition | Input Group | `InputGroup` | Keep | Medium | Own adornment, grouped-control composition, void input structure, and primitive slot; plain Input stays Primitive-only. |
