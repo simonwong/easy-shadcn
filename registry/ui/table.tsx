@@ -1,7 +1,13 @@
 "use client";
 
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
-import { MinusSignIcon, Tick02Icon } from "@hugeicons/core-free-icons";
+import {
+  ArrowDown02Icon,
+  ArrowUp02Icon,
+  ArrowUpDownIcon,
+  MinusSignIcon,
+  Tick02Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { ClassValue } from "clsx";
 import type React from "react";
@@ -23,6 +29,20 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Pagination } from "./pagination";
+import {
+  type TableColumnFilter,
+  TableFilterButton,
+  type TableFilterChangeDetails,
+  type TableFilters,
+  useTableFilters,
+} from "./table-filter";
+
+export type {
+  TableColumnFilter,
+  TableFilterChangeDetails,
+  TableFilterItem,
+  TableFilters,
+} from "./table-filter";
 
 // ---------------------------------------------------------------------------
 // Column types — discriminated union so `render`'s `value` narrows by
@@ -37,6 +57,8 @@ interface TableColumnBase<T = unknown> {
   cellClassName?: ClassValue;
   /** Applied to both the header cell and every body cell of this column. */
   className?: ClassValue;
+  /** Optional finite column filter. Local mode requires onFilter; external mode emits intent only. */
+  filter?: TableColumnFilter<T>;
   /** Applied only to the header cell of this column. */
   headClassName?: ClassValue;
   /** Stable identifier; also used as React key for the column. */
@@ -307,7 +329,7 @@ interface TablePaginationBase {
 export interface TablePaginationLocal extends TablePaginationBase {
   /** Initial local page; ignored when value is not undefined. @default 1 */
   defaultValue?: number;
-  /** Local mode derives total from dataSource and forbids an explicit total. */
+  /** Local mode derives total from filtered dataSource and forbids an explicit total. */
   mode?: "local";
   onValueChange?: (value: number) => void;
   total?: never;
@@ -339,7 +361,11 @@ const normalizePaginationInteger = (
     ? Math.min(Number.MAX_SAFE_INTEGER, Math.max(minimum, Math.trunc(value)))
     : fallback;
 
-function useTablePagination(pagination: TablePagination, sourceTotal: number) {
+function useTablePagination(
+  pagination: TablePagination,
+  sourceTotal: number,
+  filterKey: string
+) {
   const config = typeof pagination === "object" ? pagination : undefined;
   const enabled = Boolean(pagination);
   const local = config?.mode !== "external";
@@ -354,8 +380,18 @@ function useTablePagination(pagination: TablePagination, sourceTotal: number) {
     normalizePaginationInteger(local ? (config?.defaultValue ?? 1) : 1, 1, 1)
   );
   const controlled = config?.value !== undefined;
+  const [previousFilterKey, setPreviousFilterKey] = useState(filterKey);
+  const reset =
+    enabled && local && !controlled && previousFilterKey !== filterKey;
+  if (previousFilterKey !== filterKey) {
+    setPreviousFilterKey(filterKey);
+  }
   const value = Math.min(
-    normalizePaginationInteger(config?.value ?? internalPage, 1, 1),
+    normalizePaginationInteger(
+      config?.value ?? (reset ? 1 : internalPage),
+      1,
+      1
+    ),
     pageCount
   );
   if (enabled && local && !controlled && internalPage !== value) {
@@ -430,14 +466,18 @@ export interface TableProps<T>
    * so SWR / React Query's pre-response state can be passed directly.
    */
   dataSource?: T[] | null;
+  /** Initial filter intent; ignored when filters is defined. */
+  defaultFilters?: TableFilters;
   /** Uncontrolled initial selected keys. */
   defaultSelectedRowKeys?: string[];
   /** Uncontrolled initial sort; ignored when sort is not undefined. */
   defaultSort?: TableSort | null;
   /** className on the empty-state cell. */
   emptyClassName?: ClassValue;
-  /** Empty-state message rendered when `dataSource` is empty and not loading. @default "No data" */
+  /** Empty-state message rendered when no matching rows are visible and not loading. @default "No data" */
   emptyMessage?: React.ReactNode;
+  /** Controlled filter values by column key. An empty object clears all; undefined uses internal state. */
+  filters?: TableFilters;
   /**
    * Per-row props forwarded to the selection-column Checkbox.
    *
@@ -466,6 +506,11 @@ export interface TableProps<T>
   loadingClassName?: ClassValue;
   /** Loading message. @default "Loading…" */
   loadingMessage?: React.ReactNode;
+  /** User filter intent with suggested page one. Accept filters and controlled page together; no separate pagination callback fires. */
+  onFiltersChange?: (
+    filters: TableFilters,
+    details: TableFilterChangeDetails
+  ) => void;
 
   /**
    * Click handler for each `<tr>`. When provided, rows become focusable
@@ -644,15 +689,19 @@ function ColumnHead<T>({
   sort,
   loading,
   onSort,
+  filter,
+  onFilter,
 }: {
   column: TableColumn<T>;
   sort: TableSort | null;
   loading?: boolean;
   onSort: (key: string) => void;
+  filter?: { config: TableColumnFilter<T>; values: string[] };
+  onFilter: (key: string, values: string[]) => void;
 }) {
   const order = sort?.columnKey === column.key ? sort.order : undefined;
   const direction = order === "ascend" ? "ascending" : "descending";
-  const arrow = order === "ascend" ? "↑" : "↓";
+  const sortIcon = order === "ascend" ? ArrowUp02Icon : ArrowDown02Icon;
   return (
     <TableHead
       aria-sort={order ? direction : undefined}
@@ -673,11 +722,28 @@ function ColumnHead<T>({
           type="button"
         >
           {column.title}
-          <span aria-hidden="true">{order ? arrow : "↕"}</span>
+          <HugeiconsIcon
+            aria-hidden
+            className="size-4 shrink-0"
+            icon={order ? sortIcon : ArrowUpDownIcon}
+            strokeWidth={2}
+          />
         </button>
       ) : (
         column.title
       )}
+      {filter ? (
+        <TableFilterButton
+          config={filter.config}
+          label={
+            filter.config.label ??
+            `Filter ${typeof column.title === "string" || typeof column.title === "number" ? column.title : column.key}`
+          }
+          loading={loading}
+          onApply={(values) => onFilter(column.key, values)}
+          values={filter.values}
+        />
+      ) : null}
     </TableHead>
   );
 }
@@ -712,13 +778,22 @@ export function Table<T>({
   defaultSort,
   sort,
   onSortChange,
+  filters,
+  defaultFilters,
+  onFiltersChange,
   pagination = false,
   ...tableProps
 }: TableProps<T>): ReactElement {
   // Runtime safety: SWR / React Query often hands `data` back as `undefined`
   // before the first response. Treat that as empty rather than throwing.
   const data: T[] = dataSource ?? [];
-  const paging = useTablePagination(pagination, data.length);
+  const filtering = useTableFilters({
+    columns,
+    filters,
+    defaultFilters,
+    onFiltersChange,
+    paginated: Boolean(pagination),
+  });
   const { currentSort, sortColumn, requestSort } = useTableSort({
     columns,
     defaultSort,
@@ -766,7 +841,17 @@ export function Table<T>({
     };
   });
 
-  const sortedRows = sortRows(rowMeta, sortColumn?.sorter, currentSort?.order);
+  const filteredRows = filtering.filterRows(rowMeta);
+  const paging = useTablePagination(
+    pagination,
+    filteredRows.length,
+    filtering.fingerprint
+  );
+  const sortedRows = sortRows(
+    filteredRows,
+    sortColumn?.sorter,
+    currentSort?.order
+  );
   const displayedRows = pageRows(sortedRows, paging);
   const visibleKeys = new Set(displayedRows.map((meta) => meta.key));
 
@@ -1090,8 +1175,10 @@ export function Table<T>({
             {columns.map((col) => (
               <ColumnHead
                 column={col}
+                filter={filtering.resolved.get(col.key)}
                 key={col.key}
                 loading={loading}
+                onFilter={filtering.requestFilter}
                 onSort={requestSort}
                 sort={currentSort}
               />
@@ -1114,7 +1201,7 @@ export function Table<T>({
               </TableCell>
             </TableRow>
           )}
-          {!loading && data.length === 0 && (
+          {!loading && displayedRows.length === 0 && (
             <TableRow>
               <TableCell
                 className={cn(
