@@ -2,12 +2,7 @@ import { type RenderOptions, render } from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
 import { vi } from "vitest";
 import { create } from "../src/actions";
-import {
-  ALREADY_MOUNTED,
-  hideModalCallbacks,
-  MODAL_REGISTRY,
-  modalCallbacks,
-} from "../src/constants";
+import { ALREADY_MOUNTED, MODAL_REGISTRY } from "../src/constants";
 import {
   __resetDispatchStack,
   __resetMultipleProvidersWarning,
@@ -45,12 +40,6 @@ export const resetRegistry = () => {
   }
   for (const key of Object.keys(ALREADY_MOUNTED)) {
     delete ALREADY_MOUNTED[key];
-  }
-  for (const key of Object.keys(modalCallbacks)) {
-    delete modalCallbacks[key];
-  }
-  for (const key of Object.keys(hideModalCallbacks)) {
-    delete hideModalCallbacks[key];
   }
   __resetMultipleProvidersWarning();
   __resetDispatchStack();

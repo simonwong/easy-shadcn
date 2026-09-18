@@ -29,13 +29,14 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
+// biome-ignore lint/style/noExportedImports: shadcn rewrites export-from hook paths incorrectly.
 import type { SelectItem } from "@/registry/hooks/use-select-items";
 import { useSelectItems } from "@/registry/hooks/use-select-items";
+// biome-ignore lint/style/noExportedImports: shadcn rewrites export-from hook paths incorrectly.
 import type { SelectItemsLoader } from "@/registry/hooks/use-select-loader";
 import { useSelectLoader } from "@/registry/hooks/use-select-loader";
 
-export type { SelectItem } from "@/registry/hooks/use-select-items";
-export type { SelectItemsLoader } from "@/registry/hooks/use-select-loader";
+export type { SelectItem, SelectItemsLoader };
 
 interface SelectBaseProps {
   /** Forwarded to the focusable control for screen-reader descriptions. */

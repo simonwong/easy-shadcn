@@ -48,7 +48,7 @@ args still checked:
 ```tsx
 const EditUser = CommandModal.create<{ userId: string }, User>(/* … */);
 
-const user = await CommandModal.show(EditUser, { userId }); // user: User
+const user = await CommandModal.show(EditUser, { userId }); // user: User | undefined
 ```
 
 ## Other UI libraries (antd, …)

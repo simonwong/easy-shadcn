@@ -1,4 +1,9 @@
-import type { CommandModalCallbacks, CreateModalComponent } from "./type";
+import type { Dispatch } from "react";
+import type {
+  CommandModalAction,
+  CommandModalCallbacks,
+  CreateModalComponent,
+} from "./type";
 
 export const MODAL_REGISTRY: {
   [id: string]: {
@@ -25,8 +30,36 @@ let modalIdCounter = 0;
  */
 export const getUid = () => `_command_modal_${modalIdCounter++}`;
 
-export const modalCallbacks: CommandModalCallbacks = {};
-export const hideModalCallbacks: CommandModalCallbacks = {};
+type CallbackScope = {
+  registrations: typeof MODAL_REGISTRY;
+  modalCallbacks: CommandModalCallbacks;
+  hideModalCallbacks: CommandModalCallbacks;
+};
+const callbackScopes = new WeakMap<
+  Dispatch<CommandModalAction>,
+  CallbackScope
+>();
+
+export function getCallbackScope(
+  dispatch: Dispatch<CommandModalAction>
+): CallbackScope {
+  let scope = callbackScopes.get(dispatch);
+  if (!scope) {
+    scope = { registrations: {}, modalCallbacks: {}, hideModalCallbacks: {} };
+    callbackScopes.set(dispatch, scope);
+  }
+  return scope;
+}
+
+export function settleCallbackScope(dispatch: Dispatch<CommandModalAction>) {
+  const scope = getCallbackScope(dispatch);
+  for (const store of [scope.modalCallbacks, scope.hideModalCallbacks]) {
+    for (const id of Object.keys(store)) {
+      store[id].resolve(undefined);
+      delete store[id];
+    }
+  }
+}
 
 /**
  * Stable mapping from component reference → auto-generated id. Replaces

@@ -65,9 +65,7 @@ const alert = (
  * Promise-style confirm. Resolves `true` when confirmed, `false` when
  * cancelled or dismissed (Escape) — it never rejects.
  */
-const confirm = (
-  props: Omit<AlertHelperProps, "footer">
-): Promise<boolean> => {
+const confirm = (props: Omit<AlertHelperProps, "footer">): Promise<boolean> => {
   const AlertCommandModal = CommandModal.create(() => {
     const { id, modalProps, resolve } = CommandModal.useModal();
 

@@ -147,7 +147,7 @@ export type CreateModalComponent<T = object, R = unknown> = React.FC<
   /**
    * Phantom marker carrying the modal's resolve (result) type. Exists only at
    * the type level — never present at runtime. {@link ResolveType} reads it so
-   * `show(Comp)` returns `Promise<R>` without an explicit type argument.
+   * `show(Comp)` returns `Promise<R | undefined>` without an explicit type argument.
    */
   readonly __resolveType?: R;
 };
@@ -192,7 +192,9 @@ export type UseModalReturn<TModalProps> = {
     modal: C,
     args?: Partial<ModalInnerProps<C>>
   ): Omit<CommandModalHandler, "show"> & {
-    show: (args?: Partial<ModalInnerProps<C>>) => Promise<ResolveType<C>>;
+    show: (
+      args?: Partial<ModalInnerProps<C>>
+    ) => Promise<ResolveType<C> | undefined>;
     modalProps: TModalProps;
   };
 };

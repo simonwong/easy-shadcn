@@ -1,3 +1,5 @@
+const MODAL_TEST_ID = /^modal-/;
+
 import {
   act,
   fireEvent,
@@ -90,7 +92,7 @@ describe("ModalDef", () => {
     it("should render null (no visible content)", () => {
       const TestComponent: React.FC = () => <div data-testid="test">Test</div>;
 
-      const { container } = render(
+      render(
         <Provider>
           <ModalDef component={TestComponent} id="def-render" />
         </Provider>
@@ -132,7 +134,7 @@ describe("ModalHolder", () => {
   describe("with string modal ID", () => {
     it("should render registered modal component", () => {
       const TestModal = create(() => {
-        const modal = useModal();
+        useModal();
         return <div data-testid="holder-modal">Holder Modal</div>;
       });
 
@@ -177,10 +179,18 @@ describe("ModalHolder", () => {
         const [handler, Holder] = useModalHolder("handler-test");
         return (
           <>
-            <button data-testid="show-btn" onClick={() => handler.show()}>
+            <button
+              data-testid="show-btn"
+              onClick={() => handler.show()}
+              type="button"
+            >
               Show
             </button>
-            <button data-testid="hide-btn" onClick={() => handler.hide()}>
+            <button
+              data-testid="hide-btn"
+              onClick={() => handler.hide()}
+              type="button"
+            >
               Hide
             </button>
             <Holder />
@@ -224,7 +234,11 @@ describe("ModalHolder", () => {
         const [handler, Holder] = useModalHolder(TestModal);
         return (
           <>
-            <button data-testid="show-btn" onClick={() => handler.show()}>
+            <button
+              data-testid="show-btn"
+              onClick={() => handler.show()}
+              type="button"
+            >
               Show
             </button>
             <Holder />
@@ -265,6 +279,7 @@ describe("ModalHolder", () => {
             <button
               data-testid="show-btn"
               onClick={() => handler.show({ customProp: "Custom Value" })}
+              type="button"
             >
               Show
             </button>
@@ -302,10 +317,18 @@ describe("ModalHolder", () => {
         const [handler2, Holder2] = useModalHolder("unique-id-test");
         return (
           <>
-            <button data-testid="show1" onClick={() => handler1.show()}>
+            <button
+              data-testid="show1"
+              onClick={() => handler1.show()}
+              type="button"
+            >
               Show 1
             </button>
-            <button data-testid="show2" onClick={() => handler2.show()}>
+            <button
+              data-testid="show2"
+              onClick={() => handler2.show()}
+              type="button"
+            >
               Show 2
             </button>
             <Holder1 />
@@ -326,7 +349,7 @@ describe("ModalHolder", () => {
 
       await waitFor(() => {
         // Both holders should render with different internal IDs
-        const modals = screen.getAllByTestId(/^modal-/);
+        const modals = screen.getAllByTestId(MODAL_TEST_ID);
         expect(modals.length).toBe(2);
 
         const id1 = modals[0].getAttribute("data-testid");

@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { useDialogAction } from "@/registry/hooks/use-dialog-action";
 import { AsyncButton } from "../async-button";
 
 type ModalActionProps = Omit<
@@ -123,7 +124,7 @@ export const Modal: React.FC<ModalProps> = ({
     onOpenChange?.(next);
   };
 
-  const close = () => handleOpenChange(false);
+  const runAction = useDialogAction(currentOpen, () => handleOpenChange(false));
 
   // The flat confirm/cancel footer only appears when asked for; a rejected
   // async handler skips close() (AsyncButton catches it), keeping the modal
@@ -143,21 +144,12 @@ export const Modal: React.FC<ModalProps> = ({
       <>
         <AsyncButton
           {...safeCancelProps}
-          onClick={async () => {
-            await onCancel?.();
-            close();
-          }}
+          onClick={() => runAction(onCancel)}
           variant={safeCancelProps.variant ?? "outline"}
         >
           {cancelText ?? "Cancel"}
         </AsyncButton>
-        <AsyncButton
-          {...safeConfirmProps}
-          onClick={async () => {
-            await onConfirm?.();
-            close();
-          }}
-        >
+        <AsyncButton {...safeConfirmProps} onClick={() => runAction(onConfirm)}>
           {confirmText ?? "OK"}
         </AsyncButton>
       </>

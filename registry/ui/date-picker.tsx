@@ -1,5 +1,7 @@
 "use client";
 
+import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
+
 import { Calendar03Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { ClassValue } from "clsx";
@@ -493,22 +495,33 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
             <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} />
             <span className="sr-only">Open calendar</span>
           </PopoverTrigger>
-          <PopoverContent
-            align="start"
-            anchor={wrapperRef}
-            className={cn("w-auto p-0", contentClassName)}
-            data-date-picker-content={contentId}
-            id={contentId}
-            initialFocus={false}
-            onBlurCapture={handlePickerBlur}
-          >
-            <div
-              onMouseDownCapture={handleContentPointerDownCapture}
-              onPointerDownCapture={handleContentPointerDownCapture}
+          <PopoverPrimitive.Portal>
+            <PopoverPrimitive.Positioner
+              align="start"
+              anchor={wrapperRef}
+              className="isolate z-50"
+              sideOffset={4}
             >
-              {calendarNode}
-            </div>
-          </PopoverContent>
+              <PopoverPrimitive.Popup
+                className={cn(
+                  "z-50 w-auto rounded-lg bg-popover p-0 text-popover-foreground text-sm shadow-md outline-hidden ring-1 ring-foreground/10",
+                  contentClassName
+                )}
+                data-date-picker-content={contentId}
+                data-slot="popover-content"
+                id={contentId}
+                initialFocus={false}
+                onBlurCapture={handlePickerBlur}
+              >
+                <div
+                  onMouseDownCapture={handleContentPointerDownCapture}
+                  onPointerDownCapture={handleContentPointerDownCapture}
+                >
+                  {calendarNode}
+                </div>
+              </PopoverPrimitive.Popup>
+            </PopoverPrimitive.Positioner>
+          </PopoverPrimitive.Portal>
         </Popover>
       </div>
     );

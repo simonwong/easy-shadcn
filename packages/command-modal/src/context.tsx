@@ -10,7 +10,12 @@ import {
   useReducer,
   useRef,
 } from "react";
-import { ALREADY_MOUNTED, MODAL_REGISTRY } from "./constants";
+import {
+  ALREADY_MOUNTED,
+  getCallbackScope,
+  MODAL_REGISTRY,
+  settleCallbackScope,
+} from "./constants";
 import {
   ActionType,
   type CommandModalAction,
@@ -91,6 +96,8 @@ export const reducer = (
  */
 const dispatchStack: Dispatch<CommandModalAction>[] = [];
 
+export const getProviderDispatches = () => [...dispatchStack];
+
 // Exposed for tests only. Not part of the public API.
 export const __getDispatchStackSize = (): number => dispatchStack.length;
 
@@ -109,7 +116,7 @@ export const __resetMultipleProvidersWarning = (): void => {
   hasWarnedMultipleProviders = false;
 };
 
-const getFallbackDispatch = (): Dispatch<CommandModalAction> => {
+export const getFallbackDispatch = (): Dispatch<CommandModalAction> => {
   const top = dispatchStack.at(-1);
   if (!top) {
     throw new Error(
@@ -235,6 +242,11 @@ export const useCommandModalDispatch =
 // When modal.show() is called, it means there've been modal info
 const CommandModalPlaceholder: React.FC = () => {
   const modals = useContext(CommandModalContext);
+  const dispatch = useContext(CommandModalDispatchContext);
+  const registrations = dispatch
+    ? getCallbackScope(dispatch).registrations
+    : {};
+  const registry = { ...MODAL_REGISTRY, ...registrations };
 
   // Derive synchronously from live module state on every render. No useMemo:
   // the result depends on MODAL_REGISTRY / ALREADY_MOUNTED, which mutate
@@ -246,15 +258,15 @@ const CommandModalPlaceholder: React.FC = () => {
   const unresolvedIds: string[] = [];
   const toRender = visibleModalIds
     .filter((id) => {
-      if (!(MODAL_REGISTRY[id] || ALREADY_MOUNTED[id])) {
+      if (!(registry[id] || ALREADY_MOUNTED[id])) {
         unresolvedIds.push(id);
         return false; // Skip this modal but continue processing others
       }
-      return MODAL_REGISTRY[id]; // Only render registered modals (JSX-declared modals render themselves)
+      return registry[id]; // Only render registered modals (JSX-declared modals render themselves)
     })
     .map((id) => ({
       id,
-      ...MODAL_REGISTRY[id],
+      ...registry[id],
     }));
 
   // Emit the "no modal found" diagnostic from a commit-phase effect, never from
@@ -360,6 +372,11 @@ export const Provider: React.FC<CommandModalProviderProps> = ({
     return () => {
       unregisterProviderDispatch(dispatch);
       pushedRef.current = false;
+      queueMicrotask(() => {
+        if (!dispatchStack.includes(dispatch)) {
+          settleCallbackScope(dispatch);
+        }
+      });
     };
   }, [dispatch]);
 

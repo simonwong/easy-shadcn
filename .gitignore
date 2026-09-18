@@ -33,3 +33,6 @@ tsconfig.tsbuildinfo
 .claude/scheduled_tasks.lock
 
 .impeccable/
+
+playwright-report/
+test-results/

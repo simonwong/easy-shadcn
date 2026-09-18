@@ -30,12 +30,18 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Audit dependency advisories
+        run: pnpm audit --audit-level high
       - name: Build workspace packages
         run: pnpm package:build
+      - name: Check source quality
+        run: pnpm quality:check
+      - name: Test packed package consumers
+        run: pnpm package:smoke
       - name: Test Compose components
-        run: pnpm test --maxWorkers=2 --minWorkers=1
+        run: pnpm test:coverage --maxWorkers=2
       - name: Test command-modal coverage
-        run: pnpm -F @easy-shadcn/command-modal test:coverage --maxWorkers=2 --minWorkers=1
+        run: pnpm -F @easy-shadcn/command-modal test:coverage --maxWorkers=2
       - name: Test command-modal types
         run: pnpm -F @easy-shadcn/command-modal test:types
 
@@ -61,3 +67,9 @@ jobs:
         run: pnpm exec tsc --noEmit --incremental false
       - name: Build registry and documentation site
         run: pnpm build
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Browser interaction and accessibility checks
+        run: pnpm test:browser
+      - name: Test fresh registry consumer
+        run: pnpm registry:smoke

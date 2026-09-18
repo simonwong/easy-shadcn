@@ -82,7 +82,7 @@ describe("config", () => {
     it("should pass handler to custom adapter correctly", async () => {
       const adapterSpy = vi.fn((handler: CommandModalHandler) => ({
         open: handler.visible,
-        onOpenChange: () => {},
+        onOpenChange: vi.fn(),
       }));
 
       const config: CommandModalConfig = {

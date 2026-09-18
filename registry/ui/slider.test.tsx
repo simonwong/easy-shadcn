@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-// @ts-expect-error The runtime server entry exists; this repo does not hoist its peer-only types package.
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { Slider } from "./slider";
@@ -457,4 +456,46 @@ describe("Slider", () => {
       ).toEqual(["Minimum", "Target", "Maximum"]);
     });
   });
+});
+
+it("displays the primitive value after bounds change", async () => {
+  const view = render(<Slider defaultValue={80} label="Volume" max={100} />);
+  view.rerender(<Slider defaultValue={80} label="Volume" max={50} />);
+  const slider = await screen.findByRole("slider", { hidden: true });
+  expect(slider.getAttribute("aria-valuenow")).toBe("50");
+  expect(
+    document.querySelector('[data-slot="slider-value"]')?.textContent
+  ).toBe("50");
+});
+
+it("keeps uncontrolled thumb count when defaultValue changes", async () => {
+  const warning = vi
+    .spyOn(console, "error")
+    .mockImplementation(() => undefined);
+  const { rerender } = render(
+    <Slider
+      defaultValue={[20, 80]}
+      label="Range"
+      multiple
+      showValue
+      thumbLabels={["Min", "Max"]}
+    />
+  );
+  rerender(
+    <Slider
+      defaultValue={[20, 50, 80]}
+      label="Range"
+      multiple
+      showValue
+      thumbLabels={["Min", "Middle", "Max"]}
+    />
+  );
+  expect(await screen.findAllByRole("slider", { hidden: true })).toHaveLength(
+    2
+  );
+  expect(screen.getByText("20 – 80")).toBeTruthy();
+  expect(warning).toHaveBeenCalledWith(
+    expect.stringContaining("changing the default value")
+  );
+  warning.mockRestore();
 });

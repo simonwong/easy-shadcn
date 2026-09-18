@@ -136,12 +136,14 @@ describe("Provider", () => {
     });
 
     it("should log warning for unregistered modal ID", async () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => undefined);
 
       // Manually trigger the state to have an unknown modal ID
       // This simulates calling show with an ID that's not registered
       const UnknownModalTrigger = () => {
-        const context = useContext(CommandModalContext);
+        useContext(CommandModalContext);
         return null;
       };
 
@@ -166,7 +168,9 @@ describe("Provider", () => {
     });
 
     it("should not warn for already mounted modals (JSX declared)", async () => {
-      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => undefined);
 
       const TestModal = create(() => {
         const modal = useModal();

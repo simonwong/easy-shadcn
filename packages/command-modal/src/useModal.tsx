@@ -10,17 +10,13 @@ import {
   removeWithDispatch,
   showWithDispatch,
 } from "./actions";
-import {
-  getModalId,
-  hideModalCallbacks,
-  MODAL_REGISTRY,
-  modalCallbacks,
-} from "./constants";
+import { getCallbackScope, getModalId, MODAL_REGISTRY } from "./constants";
 import {
   CommandModalConfigContext,
   CommandModalContext,
   CommandModalDispatchContext,
   CommandModalIdContext,
+  getFallbackDispatch,
 } from "./context";
 import { ModalHolder, type ModalHolderActions } from "./holders";
 import type {
@@ -93,24 +89,33 @@ function useModalImpl(
   );
   const resolveCallback = useCallback(
     (resolveArgs?: unknown) => {
+      const { modalCallbacks } = getCallbackScope(
+        scopedDispatch ?? getFallbackDispatch()
+      );
       modalCallbacks[modalId]?.resolve(resolveArgs);
       delete modalCallbacks[modalId];
     },
-    [modalId]
+    [modalId, scopedDispatch]
   );
   const rejectCallback = useCallback(
     (rejectArgs?: unknown) => {
+      const { modalCallbacks } = getCallbackScope(
+        scopedDispatch ?? getFallbackDispatch()
+      );
       modalCallbacks[modalId]?.reject(rejectArgs);
       delete modalCallbacks[modalId];
     },
-    [modalId]
+    [modalId, scopedDispatch]
   );
   const resolveHide = useCallback(
     (resolveHideArgs?: unknown) => {
+      const { hideModalCallbacks } = getCallbackScope(
+        scopedDispatch ?? getFallbackDispatch()
+      );
       hideModalCallbacks[modalId]?.resolve(resolveHideArgs);
       delete hideModalCallbacks[modalId];
     },
-    [modalId]
+    [modalId, scopedDispatch]
   );
 
   return useMemo(() => {

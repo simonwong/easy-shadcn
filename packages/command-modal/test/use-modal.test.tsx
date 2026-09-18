@@ -68,7 +68,11 @@ describe("useModal", () => {
       const ControlComponent = () => {
         const modal = useModal("controlled-modal");
         return (
-          <button data-testid="show-btn" onClick={() => modal.show()}>
+          <button
+            data-testid="show-btn"
+            onClick={() => modal.show()}
+            type="button"
+          >
             Show
           </button>
         );
@@ -97,7 +101,9 @@ describe("useModal", () => {
           return null;
         }
         return (
-          <div data-testid="modal">{message || (modal.args?.message as string)}</div>
+          <div data-testid="modal">
+            {message || (modal.args?.message as string)}
+          </div>
         );
       });
 
@@ -107,6 +113,7 @@ describe("useModal", () => {
           <button
             data-testid="show-btn"
             onClick={() => modal.show({ message: "Hello from args" })}
+            type="button"
           >
             Show
           </button>
@@ -143,7 +150,11 @@ describe("useModal", () => {
       const ControlComponent = () => {
         const modal = useModal(TestModal);
         return (
-          <button data-testid="show-btn" onClick={() => modal.show()}>
+          <button
+            data-testid="show-btn"
+            onClick={() => modal.show()}
+            type="button"
+          >
             Show
           </button>
         );
@@ -172,6 +183,7 @@ describe("useModal", () => {
             <button
               data-testid="resolve-btn"
               onClick={() => modal.resolve("resolved-value")}
+              type="button"
             >
               Resolve
             </button>
@@ -189,6 +201,7 @@ describe("useModal", () => {
             onClick={async () => {
               resolvedValue = await modal.show();
             }}
+            type="button"
           >
             Show
           </button>
@@ -228,10 +241,18 @@ describe("useModal", () => {
         const modal = useModal("hide-modal");
         return (
           <>
-            <button data-testid="show-btn" onClick={() => modal.show()}>
+            <button
+              data-testid="show-btn"
+              onClick={() => modal.show()}
+              type="button"
+            >
               Show
             </button>
-            <button data-testid="hide-btn" onClick={() => modal.hide()}>
+            <button
+              data-testid="hide-btn"
+              onClick={() => modal.hide()}
+              type="button"
+            >
               Hide
             </button>
           </>
@@ -268,6 +289,7 @@ describe("useModal", () => {
           <button
             data-testid="resolve-btn"
             onClick={() => modal.resolve("test-value")}
+            type="button"
           >
             Resolve
           </button>
@@ -285,6 +307,7 @@ describe("useModal", () => {
                 resolvedValue = v;
               });
             }}
+            type="button"
           >
             Show
           </button>
@@ -320,6 +343,7 @@ describe("useModal", () => {
           <button
             data-testid="reject-btn"
             onClick={() => modal.reject("error-value")}
+            type="button"
           >
             Reject
           </button>
@@ -336,6 +360,7 @@ describe("useModal", () => {
                 rejectedValue = v;
               });
             }}
+            type="button"
           >
             Show
           </button>
@@ -364,7 +389,7 @@ describe("useModal", () => {
 
     it("should have remove method", async () => {
       const TestModal = create(() => {
-        const modal = useModal();
+        useModal();
         return <div data-testid="modal">Content</div>;
       });
 
@@ -372,10 +397,18 @@ describe("useModal", () => {
         const modal = useModal("remove-modal");
         return (
           <>
-            <button data-testid="show-btn" onClick={() => modal.show()}>
+            <button
+              data-testid="show-btn"
+              onClick={() => modal.show()}
+              type="button"
+            >
               Show
             </button>
-            <button data-testid="remove-btn" onClick={() => modal.remove()}>
+            <button
+              data-testid="remove-btn"
+              onClick={() => modal.remove()}
+              type="button"
+            >
               Remove
             </button>
           </>
@@ -449,7 +482,11 @@ describe("useModalHolder", () => {
       const [handler, Holder] = useModalHolder("holder-test");
       return (
         <>
-          <button data-testid="show-btn" onClick={() => handler.show()}>
+          <button
+            data-testid="show-btn"
+            onClick={() => handler.show()}
+            type="button"
+          >
             Show
           </button>
           <Holder />

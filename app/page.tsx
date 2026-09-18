@@ -58,7 +58,7 @@ const DIRECTION_CONTRACT = `
 DIRECTION CONTRACT — easy-shadcn landing (seed 9183be20)
 THESIS: easy-shadcn is wayfinding for shadcn/ui — one glance locates every component and the command that installs it. Refuses the category default: dark gradient hero, bento grid, fake terminal glow.
 OWN-WORLD: warm off-white #FAF9F7 ground, ink #111 type, logo coral #EB5436 as the single accent (from the brand mark), warm gray #5C5C54 secondary. Barlow Semi Condensed destination type, Barlow body, Geist Mono for code and commands. One accent word per headline, quiet hairlines, drawn SVG arrows.
-STORY: three seconds in, the visitor knows nested children become flat props; the route map shows all 30 stops; one install command is at hand; the express line covers the npm package.
+STORY: three seconds in, the visitor knows nested children become flat props; the route map shows all listed stops; one install command is at hand; the express line covers the npm package.
 FIRST VIEWPORT: quiet masthead with the coral-slash logo; condensed destination headline "THE EASY WAY TO SHADCN" with EASY in logo coral; short platform-information sub; one solid ink primary action; one clean install card.
 FORM: grounded candidate "transit wayfinding", assigned by the roll (position 6 of 7), raised by donations: cape (one-pull collapse motion), ekiben (catalogue as numbered map), hoarding (one decisive word), hypercard (solid-inversion states), cutting bench (rank by allocation). Quieter pass: user-pinned logo coral replaced the roll's yellow field; ticker, ticket perforation, rail dots, and dark plates were distilled out.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
@@ -173,9 +173,17 @@ const lines = [
         blurb: "Flat slots for title, description, action and footer.",
       },
       {
+        name: "Carousel",
+        blurb: "Items, navigation and pagination with accessible controls.",
+      },
+      {
         name: "Empty",
         blurb:
           "Media, title, description and content. No compound scaffolding.",
+      },
+      {
+        name: "Navigation Menu",
+        blurb: "Navigation items, dropdown panels and links in one tree.",
       },
       {
         name: "Progress",
@@ -268,6 +276,10 @@ const lines = [
           "Confirm the dangerous thing. Async onConfirm, destructive variant.",
       },
       {
+        name: "Command Palette",
+        blurb: "Searchable commands with shortcuts and grouped results.",
+      },
+      {
         name: "Dropdown Menu",
         blurb: "Menu items as data — icons, shortcuts, destructive rows.",
       },
@@ -281,12 +293,20 @@ const lines = [
           "Persistent nav from one tree. Selection, submenus, groups, keys.",
       },
       {
+        name: "Menubar",
+        blurb: "Menu groups, nested actions and keyboard navigation.",
+      },
+      {
         name: "Modal",
         blurb: "Imperative alert & confirm, ready for command palettes.",
       },
       {
         name: "Popover",
         blurb: "Trigger and content, anchored. Placement without plumbing.",
+      },
+      {
+        name: "Toast",
+        blurb: "Success, error and async notifications from one helper.",
       },
       {
         name: "Sheet",
@@ -315,16 +335,21 @@ const lines = [
   },
 ];
 
+const componentCount = lines.reduce(
+  (total, line) => total + line.stops.length,
+  0
+);
+
 const principles = [
   {
     no: "I",
     title: "Flat props, not nested children.",
-    body: "One prop per slot. No more <CardHeader><CardTitle> ladders. Eighty percent of layouts ship with one tag.",
+    body: "One prop per slot. No more <CardHeader><CardTitle> ladders. Common layouts ship with one tag.",
   },
   {
     no: "II",
     title: "Composition stays primitive.",
-    body: "Compose layer never grows render props or slot objects. Need the other twenty? Drop down to components/ui/* — the door is unlocked.",
+    body: "Compose layer never grows render props or slot objects. Thin wrappers stay small; stateful controls cover the hard cases. Custom structures use components/ui/*.",
   },
   {
     no: "III",
@@ -456,9 +481,9 @@ function Hero() {
               >
                 shadcn/ui
               </a>{" "}
-              that swap nested children for flat props. Eighty percent of your
-              UI ships with one tag. The other twenty — drop down to the
-              primitive. No lock-in. No black box.
+              that swap nested children for flat props. Small APIs for common
+              layouts. Deeper state handling for complex controls. Full
+              composition through the primitives. No lock-in. No black box.
             </p>
 
             <div
@@ -509,8 +534,12 @@ function Hero() {
 
 function ServiceFacts() {
   const stats = [
-    { value: "30", label: "components", note: "and growing" },
-    { value: "80/20", label: "by design", note: "no slot abuse" },
+    {
+      value: String(componentCount),
+      label: "components",
+      note: "on this route",
+    },
+    { value: "02", label: "layers", note: "flat props, full control" },
     { value: "01", label: "line install", note: "shadcn CLI" },
     { value: "100%", label: "yours", note: "MIT, copy & own" },
   ];
@@ -609,7 +638,7 @@ function RouteMap() {
         <div className="grid grid-cols-12 gap-y-8 md:gap-8">
           <div className="col-span-12 md:col-span-7">
             <h2 className="font-bold font-display text-[clamp(2.6rem,6vw,5rem)] uppercase leading-[0.9] tracking-[-0.01em]">
-              Twenty-eight stops.
+              {componentCount} stops.
               <br />
               Four <span className="text-[var(--signal)]">lines.</span>
             </h2>
@@ -709,9 +738,13 @@ function ExpressLine() {
                   @easy-shadcn/command-modal
                 </span>
               </span>
-              <span className="text-white/40">tsx</span>
+              <span className="text-white/65">tsx</span>
             </div>
-            <pre className="overflow-x-auto px-4 py-5 font-mono text-[12.5px] leading-[1.75]">
+            <pre
+              className="overflow-x-auto px-4 py-5 font-mono text-[12.5px] leading-[1.75]"
+              // biome-ignore lint/a11y/noNoninteractiveTabindex: Horizontal code scrolling requires keyboard focus.
+              tabIndex={0}
+            >
               <code>
                 <span className="text-[#8ecafc]">const</span> modal ={" "}
                 <span className="text-[#ff6f4f]">useModal</span>
@@ -777,9 +810,9 @@ function Manifesto() {
     <section>
       <div className="mx-auto max-w-[1400px] px-6 py-20 sm:px-10 md:py-28">
         <h2 className="font-bold font-display text-[clamp(2.4rem,5.5vw,4.4rem)] uppercase leading-[0.92] tracking-[-0.01em]">
-          The eighty<span className="text-[var(--signal)]">/</span>twenty
+          Simple starts.
           <br />
-          principle, in writing.
+          Room to grow.
         </h2>
 
         <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">

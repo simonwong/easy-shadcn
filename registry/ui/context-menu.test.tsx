@@ -8,9 +8,7 @@ import {
   within,
 } from "@testing-library/react";
 import { createRef } from "react";
-// @ts-expect-error The runtime client entry exists; this repo does not hoist its peer-only types package.
 import { hydrateRoot } from "react-dom/client";
-// @ts-expect-error The runtime server entry exists; this repo does not hoist its peer-only types package.
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { ContextMenu } from "./context-menu";

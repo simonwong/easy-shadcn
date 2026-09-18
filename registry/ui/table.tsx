@@ -1139,6 +1139,7 @@ export function Table<T>({
   return (
     <>
       <TableRoot
+        tabIndex={0}
         {...tableProps}
         aria-busy={loading || undefined}
         className={cn(className)}

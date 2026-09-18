@@ -8,8 +8,12 @@ import {
 import { useContext } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { create, hide, show } from "../src/actions";
-import { hideModalCallbacks } from "../src/constants";
-import { CommandModalContext, Provider } from "../src/context";
+import { getCallbackScope } from "../src/constants";
+import {
+  CommandModalContext,
+  getFallbackDispatch,
+  Provider,
+} from "../src/context";
 import type { ShadCNModalProps } from "../src/type";
 import { createModalProps, useModal } from "../src/useModal";
 import { makeHandler } from "./test-utils";
@@ -187,12 +191,18 @@ describe("modalProps", () => {
 
       // Manually trigger afterClose (simulating animation complete)
       await waitFor(() => {
-        expect(hideModalCallbacks["lifecycle-test"]).toBeDefined();
+        expect(
+          getCallbackScope(getFallbackDispatch()).hideModalCallbacks[
+            "lifecycle-test"
+          ]
+        ).toBeDefined();
       });
 
       // Resolve the hide callback
       act(() => {
-        hideModalCallbacks["lifecycle-test"]?.resolve();
+        getCallbackScope(getFallbackDispatch()).hideModalCallbacks[
+          "lifecycle-test"
+        ]?.resolve();
       });
 
       await waitFor(() => {

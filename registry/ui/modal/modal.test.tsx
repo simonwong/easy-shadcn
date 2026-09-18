@@ -293,8 +293,11 @@ describe("AlertModal helpers", () => {
       result = AlertModalHelper.confirm({ title: "Proceed?" });
     });
 
-    fireEvent.click(await screen.findByRole("button", { name: "OK" }));
-
+    const confirm = await screen.findByRole("button", { name: "OK" });
+    await act(async () => {
+      fireEvent.click(confirm);
+      await result!;
+    });
     await expect(result!).resolves.toBe(true);
     await waitFor(() => {
       expect(unregister).toHaveBeenCalledTimes(1);
@@ -309,8 +312,11 @@ describe("AlertModal helpers", () => {
       result = AlertModalHelper.confirm({ title: "Proceed?" });
     });
 
-    fireEvent.click(await screen.findByRole("button", { name: "Cancel" }));
-
+    const cancel = await screen.findByRole("button", { name: "Cancel" });
+    await act(async () => {
+      fireEvent.click(cancel);
+      await result!;
+    });
     await expect(result!).resolves.toBe(false);
   });
 
@@ -325,7 +331,10 @@ describe("AlertModal helpers", () => {
     await screen.findByRole("button", { name: "OK" });
     expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: "OK" }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "OK" }));
+      await result!;
+    });
     await expect(result!).resolves.toBeUndefined();
   });
 
@@ -338,8 +347,11 @@ describe("AlertModal helpers", () => {
       result = AlertModalHelper.alert({ onOpenChangeComplete, title: "Saved" });
     });
 
-    fireEvent.click(await screen.findByRole("button", { name: "OK" }));
-    await result!;
+    const confirm = await screen.findByRole("button", { name: "OK" });
+    await act(async () => {
+      fireEvent.click(confirm);
+      await result!;
+    });
 
     // Base UI's hook fires on open AND close; the caller's callback must be
     // chained (not overwritten by the helper's unregister handler) and receive

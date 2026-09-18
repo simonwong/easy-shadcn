@@ -2,12 +2,12 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it } from "vitest";
 import { create } from "../src/actions";
+import { ALREADY_MOUNTED, getCallbackScope } from "../src/constants";
 import {
-  ALREADY_MOUNTED,
-  hideModalCallbacks,
-  modalCallbacks,
-} from "../src/constants";
-import { __getDispatchStackSize, Provider } from "../src/context";
+  __getDispatchStackSize,
+  getFallbackDispatch,
+  Provider,
+} from "../src/context";
 import type { ModalHolderActions } from "../src/holders";
 import { useModal, useModalHolder } from "../src/useModal";
 
@@ -43,8 +43,8 @@ describe("ModalHolder cleanup on unmount", () => {
       );
     };
 
-    const callbacksBaseline = Object.keys(modalCallbacks).length;
-    const hideBaseline = Object.keys(hideModalCallbacks).length;
+    const callbacksBaseline = 0;
+    const hideBaseline = 0;
     const mountedBaseline = Object.keys(ALREADY_MOUNTED).length;
 
     const { unmount } = render(
@@ -53,6 +53,9 @@ describe("ModalHolder cleanup on unmount", () => {
       </Provider>
     );
 
+    const { modalCallbacks, hideModalCallbacks } = getCallbackScope(
+      getFallbackDispatch()
+    );
     act(() => {
       fireEvent.click(screen.getByTestId("leak-show"));
     });
@@ -148,7 +151,7 @@ describe("ModalHolder cleanup on unmount", () => {
       );
     };
 
-    const baselineCallbacks = Object.keys(modalCallbacks).length;
+    const baselineCallbacks = 0;
     const baselineAlready = Object.keys(ALREADY_MOUNTED).length;
 
     const { rerender, unmount } = render(
@@ -159,6 +162,9 @@ describe("ModalHolder cleanup on unmount", () => {
       </Provider>
     );
 
+    const { modalCallbacks, hideModalCallbacks } = getCallbackScope(
+      getFallbackDispatch()
+    );
     for (let i = 0; i < 10; i++) {
       act(() => {
         fireEvent.click(screen.getByTestId("row-show"));
@@ -222,6 +228,7 @@ describe("ModalHolder cleanup on unmount", () => {
       fireEvent.click(screen.getByTestId("unmount-holder"));
     });
 
+    const { modalCallbacks } = getCallbackScope(getFallbackDispatch());
     const callbacksAfterUnmount = Object.keys(modalCallbacks).length;
 
     // Post-unmount show()/hide() must be inert: resolve immediately, add no entry.
