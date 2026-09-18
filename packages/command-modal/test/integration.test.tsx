@@ -7,8 +7,8 @@ import {
 } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { create, hide, remove, show } from "../src/actions";
-import { hideModalCallbacks } from "../src/constants";
-import { Provider } from "../src/context";
+import { getCallbackScope } from "../src/constants";
+import { getFallbackDispatch, Provider } from "../src/context";
 import * as CommandModal from "../src/index";
 import { useModal } from "../src/useModal";
 
@@ -23,7 +23,11 @@ describe("Integration Tests", () => {
         return (
           <div data-testid="modal">
             <span data-testid="visible">{modal.visible.toString()}</span>
-            <button data-testid="hide-btn" onClick={() => modal.hide()}>
+            <button
+              data-testid="hide-btn"
+              onClick={() => modal.hide()}
+              type="button"
+            >
               Hide
             </button>
           </div>
@@ -115,6 +119,7 @@ describe("Integration Tests", () => {
                 modal.resolve({ confirmed: true, data: "test-data" });
                 modal.hide();
               }}
+              type="button"
             >
               Confirm
             </button>
@@ -158,6 +163,7 @@ describe("Integration Tests", () => {
                 modal.reject({ cancelled: true, reason: "user-cancelled" });
                 modal.hide();
               }}
+              type="button"
             >
               Cancel
             </button>
@@ -208,6 +214,7 @@ describe("Integration Tests", () => {
                   hideResolved = true;
                 });
               }}
+              type="button"
             >
               Close
             </button>
@@ -233,11 +240,17 @@ describe("Integration Tests", () => {
 
       // Manually resolve the hide callback (simulating afterClose)
       await waitFor(() => {
-        expect(hideModalCallbacks["hide-resolve-modal"]).toBeDefined();
+        expect(
+          getCallbackScope(getFallbackDispatch()).hideModalCallbacks[
+            "hide-resolve-modal"
+          ]
+        ).toBeDefined();
       });
 
       act(() => {
-        hideModalCallbacks["hide-resolve-modal"]?.resolve();
+        getCallbackScope(getFallbackDispatch()).hideModalCallbacks[
+          "hide-resolve-modal"
+        ]?.resolve();
       });
 
       await waitFor(() => {
@@ -336,6 +349,7 @@ describe("Integration Tests", () => {
             <button
               data-testid="open-inner-btn"
               onClick={() => innerModal.show()}
+              type="button"
             >
               Open Inner
             </button>
@@ -516,7 +530,9 @@ describe("Integration Tests", () => {
           }
           return (
             <div data-testid="args-modal">
-              <span data-testid="title">{title || (modal.args?.title as string)}</span>
+              <span data-testid="title">
+                {title || (modal.args?.title as string)}
+              </span>
               <span data-testid="count">{count ?? modal.args?.count}</span>
             </div>
           );

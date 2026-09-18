@@ -1,7 +1,6 @@
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { createRef } from "react";
-// @ts-expect-error The runtime server entry exists; this repo does not hoist its peer-only types package.
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { InputOTP } from "./input-otp";

@@ -6,7 +6,7 @@ type User = { id: string; name: string };
 describe("resolve type carried on create<Props, Result> (issue #69)", () => {
   it("show(create<Props, Result>(Comp)) resolves with Result", () => {
     const EditUser = create<{ userId: string }, User>(() => null);
-    expectTypeOf(show(EditUser)).toEqualTypeOf<Promise<User>>();
+    expectTypeOf(show(EditUser)).toEqualTypeOf<Promise<User | undefined>>();
   });
 
   it("checks show args against Props (the __resolveType brand must not erase prop inference)", () => {
@@ -29,11 +29,15 @@ describe("resolve type carried on create<Props, Result> (issue #69)", () => {
 
   it("resolves with a primitive Result (confirm-dialog shape)", () => {
     const ConfirmModal = create<Record<never, never>, boolean>(() => null);
-    expectTypeOf(show(ConfirmModal)).toEqualTypeOf<Promise<boolean>>();
+    expectTypeOf(show(ConfirmModal)).toEqualTypeOf<
+      Promise<boolean | undefined>
+    >();
   });
 
   it("string-id path keeps the explicit Result type argument", () => {
-    expectTypeOf(show<User>("user-modal")).toEqualTypeOf<Promise<User>>();
+    expectTypeOf(show<User>("user-modal")).toEqualTypeOf<
+      Promise<User | undefined>
+    >();
     expectTypeOf(show("user-modal")).toEqualTypeOf<Promise<unknown>>();
   });
 });

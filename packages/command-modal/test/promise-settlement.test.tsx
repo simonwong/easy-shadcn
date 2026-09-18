@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { create, hide, remove, show, unregister } from "../src/actions";
-import { hideModalCallbacks } from "../src/constants";
-import { Provider } from "../src/context";
+import { getCallbackScope } from "../src/constants";
+import { getFallbackDispatch, Provider } from "../src/context";
 import { ModalDef } from "../src/holders";
 import { useModal } from "../src/useModal";
 
@@ -10,9 +10,9 @@ import { useModal } from "../src/useModal";
  * Regression tests for I7 / I8.
  *
  * Before the fix:
- *   - hide(id) deletes modalCallbacks[id] without settling the promise
+ *   - hide(id) deletes getCallbackScope(getFallbackDispatch()).modalCallbacks[id] without settling the promise
  *     returned by a prior show(id). Any `await show(...)` hangs forever.
- *   - remove(id) deletes hideModalCallbacks[id] without settling the promise
+ *   - remove(id) deletes getCallbackScope(getFallbackDispatch()).hideModalCallbacks[id] without settling the promise
  *     returned by a prior hide(id). Any `await hide(...)` hangs forever.
  *
  * After the fix:
@@ -73,7 +73,7 @@ describe("I7 — hide() settles the pending show() promise", () => {
   it("does not overwrite the value when the caller resolves via useModal().resolve() before hide()", async () => {
     // Real user flow: the modal component calls modal.resolve("custom") in
     // response to a user action, then hide() runs in afterClose. useModal's
-    // resolveCallback deletes modalCallbacks[id] right after resolving, so by
+    // resolveCallback deletes getCallbackScope(getFallbackDispatch()).modalCallbacks[id] right after resolving, so by
     // the time hide() reaches its settleAndDelete the entry is already gone;
     // the outer promise must keep "custom" as its value.
     const ExplicitModal = create(() => {
@@ -278,7 +278,9 @@ describe("cross-cycle hide() promise isolation", () => {
 
     // Only the current cycle's resolveHide value reaches hide #2.
     act(() => {
-      hideModalCallbacks["cross-cycle"]?.resolve("second-close");
+      getCallbackScope(getFallbackDispatch()).hideModalCallbacks[
+        "cross-cycle"
+      ]?.resolve("second-close");
     });
     const secondOutcome = await observeSettlement(hide2);
     expect(secondOutcome.value).toBe("second-close");

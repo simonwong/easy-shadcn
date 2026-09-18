@@ -10,12 +10,11 @@ import {
 } from "../src/actions";
 import {
   ALREADY_MOUNTED,
+  getCallbackScope,
   getModalId,
-  hideModalCallbacks,
   MODAL_REGISTRY,
-  modalCallbacks,
 } from "../src/constants";
-import { Provider } from "../src/context";
+import { getFallbackDispatch, Provider } from "../src/context";
 import type { CreateModalComponent } from "../src/type";
 import { useModal } from "../src/useModal";
 
@@ -163,10 +162,21 @@ describe("actions", () => {
         show("test-modal");
       });
 
-      expect(modalCallbacks["test-modal"]).toBeDefined();
-      expect(modalCallbacks["test-modal"].resolve).toBeInstanceOf(Function);
-      expect(modalCallbacks["test-modal"].reject).toBeInstanceOf(Function);
-      expect(modalCallbacks["test-modal"].promise).toBeInstanceOf(Promise);
+      expect(
+        getCallbackScope(getFallbackDispatch()).modalCallbacks["test-modal"]
+      ).toBeDefined();
+      expect(
+        getCallbackScope(getFallbackDispatch()).modalCallbacks["test-modal"]
+          .resolve
+      ).toBeInstanceOf(Function);
+      expect(
+        getCallbackScope(getFallbackDispatch()).modalCallbacks["test-modal"]
+          .reject
+      ).toBeInstanceOf(Function);
+      expect(
+        getCallbackScope(getFallbackDispatch()).modalCallbacks["test-modal"]
+          .promise
+      ).toBeInstanceOf(Promise);
     });
 
     it("should reuse existing callbacks when showing again", () => {
@@ -182,12 +192,14 @@ describe("actions", () => {
       act(() => {
         show("test-modal");
       });
-      const firstCallbacks = modalCallbacks["test-modal"];
+      const firstCallbacks = getCallbackScope(getFallbackDispatch())
+        .modalCallbacks["test-modal"];
 
       act(() => {
         show("test-modal");
       });
-      const secondCallbacks = modalCallbacks["test-modal"];
+      const secondCallbacks = getCallbackScope(getFallbackDispatch())
+        .modalCallbacks["test-modal"];
 
       expect(firstCallbacks).toBe(secondCallbacks);
     });
@@ -228,8 +240,13 @@ describe("actions", () => {
         hide("test-modal");
       });
 
-      expect(hideModalCallbacks["test-modal"]).toBeDefined();
-      expect(hideModalCallbacks["test-modal"].resolve).toBeInstanceOf(Function);
+      expect(
+        getCallbackScope(getFallbackDispatch()).hideModalCallbacks["test-modal"]
+      ).toBeDefined();
+      expect(
+        getCallbackScope(getFallbackDispatch()).hideModalCallbacks["test-modal"]
+          .resolve
+      ).toBeInstanceOf(Function);
     });
 
     it("should delete show callbacks when hiding", () => {
@@ -245,12 +262,16 @@ describe("actions", () => {
       act(() => {
         show("test-modal");
       });
-      expect(modalCallbacks["test-modal"]).toBeDefined();
+      expect(
+        getCallbackScope(getFallbackDispatch()).modalCallbacks["test-modal"]
+      ).toBeDefined();
 
       act(() => {
         hide("test-modal");
       });
-      expect(modalCallbacks["test-modal"]).toBeUndefined();
+      expect(
+        getCallbackScope(getFallbackDispatch()).modalCallbacks["test-modal"]
+      ).toBeUndefined();
     });
 
     it("should hide modal by component", () => {
@@ -298,14 +319,20 @@ describe("actions", () => {
         hide("test-modal");
       });
 
-      expect(hideModalCallbacks["test-modal"]).toBeDefined();
+      expect(
+        getCallbackScope(getFallbackDispatch()).hideModalCallbacks["test-modal"]
+      ).toBeDefined();
 
       act(() => {
         remove("test-modal");
       });
 
-      expect(modalCallbacks["test-modal"]).toBeUndefined();
-      expect(hideModalCallbacks["test-modal"]).toBeUndefined();
+      expect(
+        getCallbackScope(getFallbackDispatch()).modalCallbacks["test-modal"]
+      ).toBeUndefined();
+      expect(
+        getCallbackScope(getFallbackDispatch()).hideModalCallbacks["test-modal"]
+      ).toBeUndefined();
     });
   });
 

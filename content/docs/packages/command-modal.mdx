@@ -168,8 +168,10 @@ settles outstanding promises on teardown paths:
   changing visibility. Your `resolve()` / `reject()` calls still win if they
   happened first (promises can only settle once).
 - `remove(modal)` settles any pending `hide()` promise with `undefined`.
-- When a `ModalDef` unmounts or `unregister()` fires with pending promises,
-  both are settled with `undefined`.
+- Unmounting a `ModalDef` or its `Provider` settles that Provider’s pending
+  promises with `undefined`, without affecting sibling Providers.
+- `unregister(id)` removes the global registration and settles pending
+  promises for that id in every mounted Provider.
 
 In practice this means: if you `await modal.show()` and the user dismisses
 the modal by clicking the backdrop (which calls `hide()` via the adapter),
@@ -184,7 +186,8 @@ The library exposes two routing modes for `show` / `hide` / `remove`:
 `useModal()` reads a scoped dispatch from the closest enclosing `Provider`
 via React context. This is **deterministic under all conditions** — multiple
 Providers, StrictMode double-invoke, and concurrent rendering — because the
-hook routes through context, not a module-level stack.
+hook routes through context, not a module-level stack. Pending show and hide
+results are isolated by Provider, even when modal ids match.
 
 ```tsx
 function MyButton() {
@@ -252,9 +255,9 @@ type argument:
 
 ```tsx
 // Component form — args (Props) and result (Result) inferred from the component:
-function show<C>(modal: C, args?: Partial<Props>): Promise<Result>
+function show<C>(modal: C, args?: Partial<Props>): Promise<Result | undefined>
 // String-id form — the id carries no type, so pass the result explicitly:
-function show<T = unknown>(modal: string, args?: Record<string, unknown>): Promise<T>
+function show<T = unknown>(modal: string, args?: Record<string, unknown>): Promise<T | undefined>
 ```
 
 **Parameters:**
@@ -606,9 +609,9 @@ const FormModal = CommandModal.create<{ defaultName?: string }, FormResult>(
   }
 );
 
-// show() infers Promise<FormResult> AND validates the args.
+// show() infers Promise<FormResult | undefined> AND validates the args.
 const result = await CommandModal.show(FormModal, { defaultName: 'Ada' });
-// result: FormResult
+// result: FormResult | undefined
 ```
 
 The result type is declared at the definition site (not the `show()` call site)

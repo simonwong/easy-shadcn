@@ -14,7 +14,7 @@ import {
   showWithDispatch,
   unregisterWithDispatch,
 } from "./actions";
-import { MODAL_REGISTRY } from "./constants";
+import { getCallbackScope, MODAL_REGISTRY } from "./constants";
 import { CommandModalDispatchContext } from "./context";
 import type { CreateModalComponent } from "./type";
 
@@ -37,6 +37,9 @@ export const ModalDef = ({
   const scopedDispatch = useContext(CommandModalDispatchContext);
   useEffect(() => {
     register(id, component);
+    if (scopedDispatch) {
+      getCallbackScope(scopedDispatch).registrations[id] = MODAL_REGISTRY[id];
+    }
     return () => {
       unregisterWithDispatch(id, scopedDispatch);
     };

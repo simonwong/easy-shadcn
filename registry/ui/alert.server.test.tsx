@@ -1,5 +1,4 @@
 import { readFileSync } from "node:fs";
-// @ts-expect-error The runtime server entry exists; this repo does not hoist its peer-only @types package.
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Alert } from "./alert";

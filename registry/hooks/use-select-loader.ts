@@ -94,6 +94,11 @@ export function useSelectLoader({
         }
         setError(e);
         setLoading(false);
+      })
+      .finally(() => {
+        if (abortRef.current === controller) {
+          abortRef.current = null;
+        }
       });
   }, []);
 
@@ -108,7 +113,10 @@ export function useSelectLoader({
     if (!enabled || serverSideFilter) {
       return;
     }
-    if (hasLoadedRef.current) {
+    if (
+      hasLoadedRef.current ||
+      (abortRef.current && !abortRef.current.signal.aborted)
+    ) {
       return;
     }
     if (loadOn === "open" && !open) {
@@ -167,24 +175,22 @@ export function useSelectLoader({
       return;
     }
     const arr = toArray(value);
-    if (arr.length === 0) {
-      return;
-    }
     const itemIndex = new Map<string, SelectItem>();
     for (const item of items) {
       itemIndex.set(item.value, item);
     }
     setSelectedCache((prev) => {
-      let changed = false;
-      const next = new Map(prev);
+      const next = new Map<string, SelectItem>();
       for (const v of arr) {
-        const found = itemIndex.get(v);
-        if (found && next.get(v) !== found) {
+        const found = itemIndex.get(v) ?? prev.get(v);
+        if (found) {
           next.set(v, found);
-          changed = true;
         }
       }
-      return changed ? next : prev;
+      const unchanged =
+        next.size === prev.size &&
+        [...next].every(([key, item]) => prev.get(key) === item);
+      return unchanged ? prev : next;
     });
   }, [items, value, enabled]);
 

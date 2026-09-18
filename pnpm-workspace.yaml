@@ -1,3 +1,6 @@
 # pnpm-workspace.yaml
 packages:
   - 'packages/*'
+overrides:
+  # Newer nwsapi native selector fallbacks recurse through jsdom Element.matches.
+  "jsdom>nwsapi": "2.2.23"

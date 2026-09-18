@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-dialog-action",
+  "title": "useDialogAction",
+  "description": "Runs async dialog actions within the current open session.",
+  "files": [
+    {
+      "path": "registry/hooks/use-dialog-action.ts",
+      "content": "\"use client\";\n\nimport { useEffect, useRef } from \"react\";\n\nexport function useDialogAction(open: boolean, close: () => void) {\n  const session = useRef<symbol | null>(null);\n  const closeRef = useRef(close);\n  useEffect(() => {\n    closeRef.current = close;\n  }, [close]);\n  useEffect(() => {\n    session.current = open ? Symbol(\"dialog session\") : null;\n    return () => {\n      session.current = null;\n    };\n  }, [open]);\n\n  return async (action: (() => void | Promise<void>) | undefined) => {\n    const token = session.current;\n    await action?.();\n    if (token && token === session.current) {\n      closeRef.current();\n    }\n  };\n}\n",
+      "type": "registry:hook",
+      "target": "hooks/use-dialog-action.ts"
+    }
+  ],
+  "type": "registry:hook"
+}

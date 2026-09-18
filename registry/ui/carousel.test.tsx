@@ -2,7 +2,6 @@ import "@testing-library/jest-dom/vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import type useEmblaCarousel from "embla-carousel-react";
 import { createRef } from "react";
-// @ts-expect-error The runtime server entry exists; this repo does not hoist its peer-only types package.
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CarouselApi } from "@/components/ui/carousel";

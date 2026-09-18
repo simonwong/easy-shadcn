@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { useDialogAction } from "@/registry/hooks/use-dialog-action";
 import { AsyncButton } from "../async-button";
 
 type AlertModalActionProps = Omit<
@@ -120,7 +121,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
     onOpenChange?.(next);
   };
 
-  const close = () => handleOpenChange(false);
+  const runAction = useDialogAction(currentOpen, () => handleOpenChange(false));
   const safeCancelProps = getSafeActionProps(cancelProps);
   const safeConfirmProps = getSafeActionProps(confirmProps);
 
@@ -155,10 +156,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
               {showCancel && (
                 <AsyncButton
                   {...safeCancelProps}
-                  onClick={async () => {
-                    await onCancel?.();
-                    close();
-                  }}
+                  onClick={() => runAction(onCancel)}
                   variant={safeCancelProps.variant ?? "outline"}
                 >
                   {cancelText ?? "Cancel"}
@@ -166,10 +164,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
               )}
               <AsyncButton
                 {...safeConfirmProps}
-                onClick={async () => {
-                  await onConfirm?.();
-                  close();
-                }}
+                onClick={() => runAction(onConfirm)}
               >
                 {confirmText ?? "OK"}
               </AsyncButton>

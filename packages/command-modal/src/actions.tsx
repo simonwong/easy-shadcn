@@ -2,10 +2,9 @@ import type React from "react";
 import { type Dispatch, useContext, useEffect, useRef } from "react";
 import {
   ALREADY_MOUNTED,
+  getCallbackScope,
   getModalId,
-  hideModalCallbacks,
   MODAL_REGISTRY,
-  modalCallbacks,
 } from "./constants";
 import {
   __getDispatchStackSize,
@@ -13,6 +12,8 @@ import {
   CommandModalDispatchContext,
   CommandModalIdContext,
   createReducerActions,
+  getFallbackDispatch,
+  getProviderDispatches,
   reducerActions,
 } from "./context";
 import type {
@@ -93,10 +94,17 @@ export function showWithDispatch(
   dispatch: Dispatch<CommandModalAction> | null
 ): Promise<unknown> {
   const modalId = getModalId(modal);
+  const targetDispatch = dispatch ?? getFallbackDispatch();
+  const { modalCallbacks, hideModalCallbacks } =
+    getCallbackScope(targetDispatch);
   if (typeof modal !== "string" && !MODAL_REGISTRY[modalId]) {
     register(modalId, modal);
   }
-  resolveActions(dispatch).showModal(modalId, args);
+  if (MODAL_REGISTRY[modalId]) {
+    getCallbackScope(targetDispatch).registrations[modalId] =
+      MODAL_REGISTRY[modalId];
+  }
+  resolveActions(targetDispatch).showModal(modalId, args);
   // Re-showing dismisses any hide() still awaiting its close: settle that stale
   // hide promise with `undefined` and drop it. Otherwise createModalPromise's
   // `if (!callbacksStore[modalId])` guard would let the next hide() reuse the
@@ -112,7 +120,10 @@ export function hideWithDispatch(
   dispatch: Dispatch<CommandModalAction> | null
 ): Promise<unknown> {
   const modalId = getModalId(modal);
-  resolveActions(dispatch).hideModal(modalId);
+  const targetDispatch = dispatch ?? getFallbackDispatch();
+  const { modalCallbacks, hideModalCallbacks } =
+    getCallbackScope(targetDispatch);
+  resolveActions(targetDispatch).hideModal(modalId);
   settleAndDelete(modalCallbacks, modalId);
   // Settle any prior hide() still pending from an earlier, not-yet-completed
   // close cycle before minting this hide's promise. Without this, a second
@@ -128,6 +139,12 @@ export function removeWithDispatch(
   dispatch: Dispatch<CommandModalAction> | null
 ): void {
   const modalId = getModalId(modal);
+  if (!dispatch && __getDispatchStackSize() === 0) {
+    return;
+  }
+  const targetDispatch = dispatch ?? getFallbackDispatch();
+  const { modalCallbacks, hideModalCallbacks } =
+    getCallbackScope(targetDispatch);
   // Use an explicit stack-size guard (mirroring unregisterWithDispatch) so
   // that a teardown path without an active Provider — e.g. calling top-level
   // remove() after the last Provider has unmounted — is a no-op on the
@@ -151,11 +168,11 @@ export function removeWithDispatch(
 export function show<C extends CreateModalComponent<any, any>>(
   modal: C,
   args?: Partial<ModalInnerProps<C>>
-): Promise<ResolveType<C>>;
+): Promise<ResolveType<C> | undefined>;
 export function show<T = unknown>(
   modal: string,
   args?: Record<string, unknown>
-): Promise<T>;
+): Promise<T | undefined>;
 
 /**
  * Show a modal and return a promise tied to its lifecycle.
@@ -187,7 +204,9 @@ export function show(
   return showWithDispatch(modal, args, null);
 }
 
-export function hide<T, C>(modal: string | CreateModalComponent<C>): Promise<T>;
+export function hide<T, C>(
+  modal: string | CreateModalComponent<C>
+): Promise<T | undefined>;
 
 /**
  * Hide a modal and return a promise tied to the hide lifecycle.
@@ -329,34 +348,21 @@ export const register = <T extends CreateModalComponent<any>>(
   }
 };
 
-/**
- * Internal unregister variant that removes modal state via an explicit
- * dispatch — used by `ModalDef` to ensure the correct Provider's state is
- * cleaned up (not the top of the global stack) even during unmount.
- */
+/** Remove a declaration from its owning Provider without invalidating siblings. */
 export const unregisterWithDispatch = (
   id: string,
   dispatch: Dispatch<CommandModalAction> | null
 ): void => {
-  delete MODAL_REGISTRY[id];
-  // Settle any outstanding show/hide promises before deletion so callers
-  // awaiting `modal.show()` / `modal.hide()` do not hang when a ModalDef
-  // unmounts or a top-level `unregister()` runs while the promise is pending.
-  settleAndDelete(modalCallbacks, id);
-  settleAndDelete(hideModalCallbacks, id);
-  // Note: ALREADY_MOUNTED is owned by the HOC's own mount/unmount effect.
-  // See the matching note in removeWithDispatch.
+  const hasSibling = getProviderDispatches().some(
+    (other) => other !== dispatch && getCallbackScope(other).registrations[id]
+  );
+  if (!hasSibling) {
+    delete MODAL_REGISTRY[id];
+  }
   if (dispatch) {
-    createReducerActions(dispatch).removeModal(id);
-    return;
+    delete getCallbackScope(dispatch).registrations[id];
   }
-  // No scoped dispatch captured — fall back to the stack top if a Provider is
-  // still mounted, otherwise skip (there is no reducer to update). Use an
-  // explicit stack-size guard rather than try/catch so real reducer errors
-  // still surface.
-  if (__getDispatchStackSize() > 0) {
-    reducerActions.removeModal(id);
-  }
+  removeWithDispatch(id, dispatch);
 };
 
 /**
@@ -372,5 +378,9 @@ export const unregisterWithDispatch = (
  * @param id - The id of the modal.
  */
 export const unregister = (id: string): void => {
-  unregisterWithDispatch(id, null);
+  delete MODAL_REGISTRY[id];
+  for (const dispatch of getProviderDispatches()) {
+    delete getCallbackScope(dispatch).registrations[id];
+    removeWithDispatch(id, dispatch);
+  }
 };

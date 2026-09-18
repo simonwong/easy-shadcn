@@ -22,8 +22,8 @@ export default defineConfig([
     outDir: "lib",
     fixedExtension: true,
     outExtensions: () => ({
-      js: ".js",
-      dts: ".d.ts",
+      js: ".cjs",
+      dts: ".d.cts",
     }),
   },
   {

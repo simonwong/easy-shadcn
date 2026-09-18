@@ -656,7 +656,7 @@ describe("Table", () => {
     });
 
     const countCallsMatching = (re: RegExp) =>
-      warnSpy.mock.calls.filter((c) => re.test(String(c[0]))).length;
+      warnSpy.mock.calls.filter((c: unknown[]) => re.test(String(c[0]))).length;
 
     it("warns once when keys collide (same fingerprint = no spam)", () => {
       const dupes: User[] = [
@@ -1743,7 +1743,7 @@ describe("Table", () => {
     });
 
     const callsMatching = (re: RegExp) =>
-      warnSpy.mock.calls.filter((c) => re.test(String(c[0]))).length;
+      warnSpy.mock.calls.filter((c: unknown[]) => re.test(String(c[0]))).length;
 
     it("warns once when the table has no caption / aria-label / aria-labelledby", () => {
       const { rerender } = render(
@@ -1813,7 +1813,7 @@ describe("Table", () => {
     });
 
     const callsMatching = (re: RegExp) =>
-      warnSpy.mock.calls.filter((c) => re.test(String(c[0]))).length;
+      warnSpy.mock.calls.filter((c: unknown[]) => re.test(String(c[0]))).length;
 
     it("warns when rowKey resolves to null / undefined on any row", () => {
       type Rec = { id: string | null | undefined; name: string };
@@ -1880,7 +1880,7 @@ describe("Table", () => {
     });
 
     const callsMatching = (re: RegExp) =>
-      warnSpy.mock.calls.filter((c) => re.test(String(c[0]))).length;
+      warnSpy.mock.calls.filter((c: unknown[]) => re.test(String(c[0]))).length;
 
     it("warns when two columns share the same key", () => {
       const dupCols: TableColumn<User>[] = [
@@ -1923,7 +1923,7 @@ describe("Table", () => {
     });
 
     const callsMatching = (re: RegExp) =>
-      warnSpy.mock.calls.filter((c) => re.test(String(c[0]))).length;
+      warnSpy.mock.calls.filter((c: unknown[]) => re.test(String(c[0]))).length;
 
     it("warns when an uncontrolled Table flips to controlled mid-life", () => {
       const { rerender } = render(

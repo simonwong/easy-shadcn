@@ -220,32 +220,30 @@ const SliderAdapter = ({
 }: SliderAdapterProps) => {
   const autoId = useId();
   const labelId = `${autoId}-label`;
-  const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
-  const displayValue = value ?? uncontrolledValue;
-  const displayedText = Array.isArray(displayValue)
-    ? displayValue.join(" – ")
-    : displayValue;
-  const thumbCount = Array.isArray(displayValue) ? displayValue.length : 1;
+  const [defaultThumbCount] = useState(() =>
+    Array.isArray(defaultValue) ? defaultValue.length : 1
+  );
+  const controlledThumbCount = Array.isArray(value) ? value.length : 1;
+  const thumbCount =
+    value === undefined ? defaultThumbCount : controlledThumbCount;
   const { thumbAlignment, ...remainingRootProps } = rootProps;
-  const handleValueChange = (
-    nextValue: SliderValue,
-    eventDetails: SliderPrimitive.Root.ChangeEventDetails
-  ) => {
-    onValueChange?.(nextValue, eventDetails);
-
-    if (value === undefined && !eventDetails.isCanceled) {
-      setUncontrolledValue(nextValue);
-    }
-  };
-  const handleValueCommitted = (
-    nextValue: SliderValue,
-    eventDetails: SliderPrimitive.Root.CommitEventDetails
-  ) => {
-    onValueCommitted?.(nextValue, eventDetails);
-  };
-
   const sliderContent = (
-    <>
+    <SliderPrimitive.Root<SliderValue>
+      {...remainingRootProps}
+      aria-labelledby={mergeIds(labelId, ariaLabelledBy)}
+      className={cn(
+        "grid gap-2 data-vertical:h-full data-horizontal:w-full",
+        className
+      )}
+      data-slot="slider"
+      defaultValue={value === undefined ? defaultValue : undefined}
+      minStepsBetweenValues={minStepsBetweenValues}
+      onValueChange={onValueChange}
+      onValueCommitted={onValueCommitted}
+      thumbAlignment={thumbAlignment ?? "edge"}
+      thumbCollisionBehavior={thumbCollisionBehavior}
+      value={value}
+    >
       <div className="flex items-center justify-between gap-2">
         <span
           className={cn("font-medium text-sm", labelClassName)}
@@ -255,34 +253,20 @@ const SliderAdapter = ({
           {label}
         </span>
         {showValue ? (
-          <span
+          <SliderPrimitive.Value
             className={cn("text-muted-foreground text-sm", valueClassName)}
             data-slot="slider-value"
           >
-            {displayedText}
-          </span>
+            {(_formatted, values) => values.join(" – ")}
+          </SliderPrimitive.Value>
         ) : null}
       </div>
-      <SliderPrimitive.Root<SliderValue>
-        {...remainingRootProps}
-        aria-labelledby={mergeIds(labelId, ariaLabelledBy)}
-        className={cn("data-vertical:h-full data-horizontal:w-full", className)}
-        data-slot="slider"
-        defaultValue={value === undefined ? defaultValue : undefined}
-        minStepsBetweenValues={minStepsBetweenValues}
-        onValueChange={handleValueChange}
-        onValueCommitted={handleValueCommitted}
-        thumbAlignment={thumbAlignment ?? "edge"}
-        thumbCollisionBehavior={thumbCollisionBehavior}
-        value={value}
-      >
-        <SliderParts
-          multiple={multiple}
-          thumbCount={thumbCount}
-          thumbLabels={thumbLabels}
-        />
-      </SliderPrimitive.Root>
-    </>
+      <SliderParts
+        multiple={multiple}
+        thumbCount={thumbCount}
+        thumbLabels={thumbLabels}
+      />
+    </SliderPrimitive.Root>
   );
 
   return <div className="grid gap-2">{sliderContent}</div>;

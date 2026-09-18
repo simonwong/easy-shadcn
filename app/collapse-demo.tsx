@@ -296,7 +296,7 @@ export function CollapseDemo() {
                   },
                 }}
               >
-                <span className="mr-4 w-5 select-none text-right text-[var(--platform)]/35">
+                <span className="mr-4 w-5 select-none text-right text-[var(--platform)]/60">
                   {row.n}
                 </span>
                 <CodeLine row={row} />

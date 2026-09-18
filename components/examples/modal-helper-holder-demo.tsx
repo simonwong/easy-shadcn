@@ -36,7 +36,9 @@ const Demo = () => {
   const countRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleClick = () => {
-    countRef.current && clearInterval(countRef.current);
+    if (countRef.current) {
+      clearInterval(countRef.current);
+    }
     action.show();
 
     countRef.current = setInterval(() => {

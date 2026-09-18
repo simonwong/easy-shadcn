@@ -13,6 +13,12 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     include: ["registry/**/*.test.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      include: ["registry/**/*.{ts,tsx}"],
+      exclude: ["registry/**/*.test.{ts,tsx}", "registry/**/*.test-d.tsx"],
+      thresholds: { lines: 90, statements: 90, functions: 90, branches: 85 },
+    },
     setupFiles: ["./vitest.setup.ts"],
   },
 });

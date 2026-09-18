@@ -3,14 +3,14 @@
   "version": "0.3.0",
   "description": "use modal by command",
   "type": "module",
-  "main": "./lib/index.js",
+  "main": "./lib/index.cjs",
   "module": "./es/index.js",
   "types": "./es/index.d.ts",
   "exports": {
     ".": {
       "require": {
-        "types": "./lib/index.d.ts",
-        "default": "./lib/index.js"
+        "types": "./lib/index.d.cts",
+        "default": "./lib/index.cjs"
       },
       "import": {
         "types": "./es/index.d.ts",
@@ -19,8 +19,8 @@
     },
     "./antd": {
       "require": {
-        "types": "./lib/antd.d.ts",
-        "default": "./lib/antd.js"
+        "types": "./lib/antd.d.cts",
+        "default": "./lib/antd.cjs"
       },
       "import": {
         "types": "./es/antd.d.ts",
@@ -48,17 +48,18 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.0.0",
-    "@testing-library/react": "^16.0.0",
-    "@types/react": "^19.0.0",
-    "@vitejs/plugin-react": "^4.0.0",
-    "jsdom": "^24.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tsdown": "^0.20.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "@vitest/coverage-v8": "^4.1.11",
+    "jsdom": "^24.1.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "tsdown": "^0.20.3",
     "typescript": "^5.9.3",
-    "vitest": "^2.0.0",
-    "@vitest/coverage-v8": "^2.0.0"
+    "vitest": "^4.1.11"
   },
   "peerDependencies": {
     "react": ">=18"

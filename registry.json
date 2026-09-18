@@ -433,7 +433,8 @@
       "registryDependencies": [
         "dialog",
         "alert-dialog",
-        "@easy-shadcn/async-button"
+        "@easy-shadcn/async-button",
+        "@easy-shadcn/use-dialog-action"
       ],
       "dependencies": ["@easy-shadcn/command-modal"],
       "files": [
@@ -464,7 +465,11 @@
       "type": "registry:component",
       "title": "Integrated Alert Dialog",
       "description": "Flat-props AlertDialog built on shadcn's base-ui AlertDialog: title / description slots, confirm / cancel footer with async handlers, controlled or uncontrolled open state, destructive variant sugar, and a full footer override.",
-      "registryDependencies": ["alert-dialog", "@easy-shadcn/async-button"],
+      "registryDependencies": [
+        "alert-dialog",
+        "@easy-shadcn/async-button",
+        "@easy-shadcn/use-dialog-action"
+      ],
       "files": [
         {
           "path": "registry/ui/alert-dialog.tsx",
@@ -626,6 +631,19 @@
           "path": "registry/ui/table-filter.tsx",
           "type": "registry:component",
           "target": "components/easy/table-filter.tsx"
+        }
+      ]
+    },
+    {
+      "name": "use-dialog-action",
+      "type": "registry:hook",
+      "title": "useDialogAction",
+      "description": "Runs async dialog actions within the current open session.",
+      "files": [
+        {
+          "path": "registry/hooks/use-dialog-action.ts",
+          "type": "registry:hook",
+          "target": "hooks/use-dialog-action.ts"
         }
       ]
     }
