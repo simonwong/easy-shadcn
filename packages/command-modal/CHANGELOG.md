@@ -1,5 +1,11 @@
 # @easy-shadcn/command-modal
 
+## 0.4.0
+
+### Minor Changes
+
+- [#288](https://github.com/simonwong/easy-shadcn/pull/288) [`5c53aab`](https://github.com/simonwong/easy-shadcn/commit/5c53aab5dc9b1a7ef6241a1dae4e46d1cb4ae569) Thanks [@simonwong](https://github.com/simonwong)! - Isolate modal result and close promises by Provider, and settle pending operations when their Provider unmounts. Show result types now include `undefined` for dismissal; consumers must narrow the result before accessing it. Publish valid CommonJS runtime and declaration entries alongside ESM, including the antd adapter.
+
 ## 0.3.0
 
 ### Minor Changes
