@@ -66,7 +66,7 @@ Non-state ARIA attributes, root data attributes, `style`, `tabIndex`, and Base U
 
 ## Native forms and refs
 
-`name`, `form`, `value`, `uncheckedValue`, and `required` retain Base UI's native form behavior. A disabled checked checkbox submits nothing. A disabled unchecked checkbox with `uncheckedValue` retains the Primitive's separate fallback-input behavior.
+`name`, `form`, `value`, `uncheckedValue`, and `required` retain Base UI's native form behavior. A disabled checkbox submits nothing, whether checked or unchecked, including its `uncheckedValue`.
 
 The root `ref` points to the visible element with checkbox semantics. `inputRef` points only to the hidden `input[type="checkbox"]`, so native validity and form APIs remain reachable without confusing the two elements.
 

@@ -331,6 +331,13 @@ describe("Pagination — route navigation", () => {
 
     expectNativeKeyDown("Enter");
     expectNativeKeyDown(" ");
+
+    const onClick = vi.fn();
+    pageTwo.addEventListener("click", onClick);
+    pageTwo.dispatchEvent(
+      new KeyboardEvent("keyup", { bubbles: true, cancelable: true, key: " " })
+    );
+    expect(onClick).not.toHaveBeenCalled();
   });
 });
 

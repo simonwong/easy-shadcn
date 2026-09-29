@@ -97,7 +97,7 @@ Base UI exposes two separate cancellation points:
 
 ## Native forms and refs
 
-`name`, `form`, `value`, `uncheckedValue`, and `required` retain Base UI's native form behavior. A disabled checked checkbox submits nothing. A disabled unchecked switch with both `name` and `uncheckedValue` still submits that value because the primitive renders it through a separate hidden input that is not disabled.
+`name`, `form`, `value`, `uncheckedValue`, and `required` retain Base UI's native form behavior. A disabled switch submits nothing, whether checked or unchecked, including its `uncheckedValue`.
 
 `readOnly` is an ARIA and primitive state contract, not a native checkbox `readonly` attribute. It blocks pointer, label, description, and keyboard changes while keeping the checkbox enabled.
 
