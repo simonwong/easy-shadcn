@@ -4,6 +4,7 @@
   "title": "Integrated Alert Dialog",
   "description": "Flat-props AlertDialog built on shadcn's base-ui AlertDialog: title / description slots, confirm / cancel footer with async handlers, controlled or uncontrolled open state, destructive variant sugar, and a full footer override.",
   "dependencies": [
+    "@base-ui/react",
     "cn"
   ],
   "registryDependencies": [

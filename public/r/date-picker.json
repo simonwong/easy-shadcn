@@ -4,6 +4,9 @@
   "title": "Integrated Date Picker",
   "description": "Single, multiple, and range date picker built on shadcn Popover + the Integrated Calendar, with an optional inline-input mode.",
   "dependencies": [
+    "@base-ui/react",
+    "@hugeicons/core-free-icons",
+    "@hugeicons/react",
     "cn",
     "date-fns",
     "react-day-picker"

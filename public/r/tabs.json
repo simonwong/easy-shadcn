@@ -4,6 +4,7 @@
   "title": "Integrated Tabs",
   "description": "",
   "dependencies": [
+    "@base-ui/react",
     "cn"
   ],
   "registryDependencies": [

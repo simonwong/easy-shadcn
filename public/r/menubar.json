@@ -4,6 +4,7 @@
   "title": "Integrated Menubar",
   "description": "Application command bar with an items tree, actions, groups, submenus, controlled checkbox and radio settings, and primitive-owned focus, keyboard navigation, and dismissal.",
   "dependencies": [
+    "@base-ui/react",
     "cn"
   ],
   "registryDependencies": [

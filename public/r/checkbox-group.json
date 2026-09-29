@@ -4,6 +4,7 @@
   "title": "Integrated Checkbox Group",
   "description": "Flat items-driven multi-select CheckboxGroup built on shadcn's base-ui Checkbox: per-option label, description, and disabled, with accessible label/description wiring and class overrides.",
   "dependencies": [
+    "@base-ui/react",
     "cn"
   ],
   "registryDependencies": [

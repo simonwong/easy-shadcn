@@ -4,6 +4,7 @@
   "title": "Integrated Context Menu",
   "description": "Thin flat action-menu wrapper with a composed context target, primitive-owned pointer, touch, keyboard and coordinate behavior, controlled requests, and explicit presentation hooks.",
   "dependencies": [
+    "@base-ui/react",
     "cn"
   ],
   "registryDependencies": [

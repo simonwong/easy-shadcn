@@ -4,6 +4,7 @@
   "title": "Integrated Slider",
   "description": "Accessible scalar and multi-thumb Slider with a discriminated number/array API, live values, distinct thumb names, collision and spacing controls, and primitive-owned interaction and form behavior.",
   "dependencies": [
+    "@base-ui/react",
     "cn"
   ],
   "registryDependencies": [

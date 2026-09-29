@@ -4,6 +4,7 @@
   "title": "Integrated Accordion",
   "description": "Flat items-driven Accordion built on shadcn's base-ui Accordion: single or multiple open panels, controlled / uncontrolled, with per-item disabled and class overrides.",
   "dependencies": [
+    "@base-ui/react",
     "cn"
   ],
   "registryDependencies": [

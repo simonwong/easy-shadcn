@@ -23,7 +23,7 @@
       "type": "registry:component",
       "title": "Integrated Tabs",
       "description": "",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["tabs"],
       "files": [
         {
@@ -38,7 +38,7 @@
       "type": "registry:component",
       "title": "Integrated Accordion",
       "description": "Flat items-driven Accordion built on shadcn's base-ui Accordion: single or multiple open panels, controlled / uncontrolled, with per-item disabled and class overrides.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["accordion"],
       "files": [
         {
@@ -97,7 +97,7 @@
       "type": "registry:component",
       "title": "Integrated Dropdown Menu",
       "description": "Thin flat action-menu wrapper with a composed trigger, homogeneous items, primitive-owned state and keyboard behavior, ordinary positioning, and explicit presentation hooks.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["dropdown-menu"],
       "files": [
         {
@@ -112,7 +112,7 @@
       "type": "registry:component",
       "title": "Integrated Menubar",
       "description": "Application command bar with an items tree, actions, groups, submenus, controlled checkbox and radio settings, and primitive-owned focus, keyboard navigation, and dismissal.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["menubar"],
       "files": [
         {
@@ -127,7 +127,7 @@
       "type": "registry:component",
       "title": "Integrated Navigation Menu",
       "description": "Website navigation from direct links and one level of dropdown links, with caller-owned current-page state and primitive-owned popup interaction.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["navigation-menu"],
       "files": [
         {
@@ -142,7 +142,7 @@
       "type": "registry:component",
       "title": "Integrated Context Menu",
       "description": "Thin flat action-menu wrapper with a composed context target, primitive-owned pointer, touch, keyboard and coordinate behavior, controlled requests, and explicit presentation hooks.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["context-menu"],
       "files": [
         {
@@ -216,7 +216,7 @@
       "type": "registry:component",
       "title": "Integrated Radio Group",
       "description": "Flat items-driven RadioGroup built on shadcn's base-ui RadioGroup: per-option label, description, and disabled, with accessible label/description wiring and class overrides.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["radio-group"],
       "files": [
         {
@@ -231,7 +231,7 @@
       "type": "registry:component",
       "title": "Integrated Checkbox Group",
       "description": "Flat items-driven multi-select CheckboxGroup built on shadcn's base-ui Checkbox: per-option label, description, and disabled, with accessible label/description wiring and class overrides.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["checkbox"],
       "files": [
         {
@@ -381,7 +381,7 @@
       "type": "registry:component",
       "title": "Integrated Slider",
       "description": "Accessible scalar and multi-thumb Slider with a discriminated number/array API, live values, distinct thumb names, collision and spacing controls, and primitive-owned interaction and form behavior.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["slider"],
       "files": [
         {
@@ -410,7 +410,7 @@
       "type": "registry:component",
       "title": "Integrated Sheet",
       "description": "Thin accessible application-panel Sheet wrapper with required title and content, optional trigger, description and footer slots, native Dialog lifecycle details, scroll-safe layout, and explicit popup ownership.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["sheet"],
       "files": [
         {
@@ -488,7 +488,7 @@
       "type": "registry:component",
       "title": "Integrated Alert Dialog",
       "description": "Flat-props AlertDialog built on shadcn's base-ui AlertDialog: title / description slots, confirm / cancel footer with async handlers, controlled or uncontrolled open state, destructive variant sugar, and a full footer override.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": [
         "alert-dialog",
         "@easy-shadcn/async-button",
@@ -537,7 +537,12 @@
       "type": "registry:component",
       "title": "Integrated Calendar",
       "description": "Calendar with three-view month/year navigation (days / months / years), replacing the native dropdowns with button-grid panels.",
-      "dependencies": ["@hugeicons/core-free-icons", "@hugeicons/react", "cn"],
+      "dependencies": [
+        "@hugeicons/core-free-icons",
+        "@hugeicons/react",
+        "cn",
+        "react-day-picker"
+      ],
       "registryDependencies": ["calendar", "button"],
       "files": [
         {
@@ -552,7 +557,14 @@
       "type": "registry:component",
       "title": "Integrated Date Picker",
       "description": "Single, multiple, and range date picker built on shadcn Popover + the Integrated Calendar, with an optional inline-input mode.",
-      "dependencies": ["cn", "date-fns", "react-day-picker"],
+      "dependencies": [
+        "@base-ui/react",
+        "@hugeicons/core-free-icons",
+        "@hugeicons/react",
+        "cn",
+        "date-fns",
+        "react-day-picker"
+      ],
       "registryDependencies": [
         "popover",
         "button",
@@ -600,7 +612,12 @@
       "type": "registry:component",
       "title": "Integrated Select",
       "description": "Flat-props Select covering dropdown, searchable, multi-select, and remote-loading modes in a single component. Built on shadcn's Combobox primitive.",
-      "dependencies": ["cn"],
+      "dependencies": [
+        "@base-ui/react",
+        "@hugeicons/core-free-icons",
+        "@hugeicons/react",
+        "cn"
+      ],
       "registryDependencies": [
         "combobox",
         "button",
