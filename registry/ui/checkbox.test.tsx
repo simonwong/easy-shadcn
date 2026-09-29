@@ -413,7 +413,7 @@ describe("Checkbox", () => {
     );
 
     expect(data.get("checked")).toBeNull();
-    expect(data.get("unchecked")).toBe("no");
+    expect(data.get("unchecked")).toBeNull();
   });
 
   it("exposes distinct refs for the visible control and hidden input", () => {

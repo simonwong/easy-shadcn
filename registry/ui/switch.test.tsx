@@ -420,7 +420,7 @@ describe("Switch", () => {
     expect(input?.checkValidity()).toBe(true);
   });
 
-  it("preserves the primitive disabled submission asymmetry", () => {
+  it("submits nothing for disabled switches", () => {
     render(
       <form data-testid="disabled-form">
         <Switch
@@ -443,7 +443,7 @@ describe("Switch", () => {
     );
 
     expect(data.has("checked")).toBe(false);
-    expect(data.get("unchecked")).toBe("off");
+    expect(data.has("unchecked")).toBe(false);
   });
 
   it("forwards root and input refs to their distinct primitive targets", () => {

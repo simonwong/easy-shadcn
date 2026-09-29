@@ -1,5 +1,6 @@
 "use client";
 
+import type { BaseUIEvent } from "@base-ui/react/types";
 import type { ClassValue } from "clsx";
 import type { ComponentProps, KeyboardEvent } from "react";
 import { useEffect, useState } from "react";
@@ -101,6 +102,16 @@ export type PaginationProps = PaginationSharedProps &
   );
 
 const MAX_WINDOW_COUNT = 100;
+
+// Base UI's non-native Button activates `<a href>` on Space; a genuine link
+// leaves Space to the browser (page scroll).
+const yieldSpaceToBrowser = (
+  event: BaseUIEvent<KeyboardEvent<HTMLAnchorElement>>
+) => {
+  if (event.key === " ") {
+    event.preventBaseUIHandler();
+  }
+};
 
 const normalizeSafeInteger = (
   value: number,
@@ -248,6 +259,8 @@ export const Pagination = ({
       return {
         "aria-disabled": isUnavailable ? true : undefined,
         href: isUnavailable ? undefined : getPageHref(target),
+        onKeyDown: yieldSpaceToBrowser,
+        onKeyUp: yieldSpaceToBrowser,
         role: "link",
         tabIndex: isUnavailable ? -1 : undefined,
       };

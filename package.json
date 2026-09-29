@@ -23,7 +23,7 @@
     "test:browser": "playwright test"
   },
   "dependencies": {
-    "@base-ui/react": "^1.4.0",
+    "@base-ui/react": "^1.8.0",
     "@easy-shadcn/command-modal": "workspace:*",
     "@hookform/resolvers": "^5.9.1",
     "@hugeicons/core-free-icons": "^4.3.3",

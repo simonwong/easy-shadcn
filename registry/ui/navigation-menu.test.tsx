@@ -188,7 +188,9 @@ describe("NavigationMenu", () => {
     await waitFor(() => expect(document.activeElement).toBe(resources));
     fireEvent.keyDown(resources, { key: "ArrowDown" });
     const link = await screen.findByRole("link", { name: "Documentation" });
-    await waitFor(() => expect(document.activeElement).toBe(link));
+    // Base UI keeps focus on the trigger when opening; Tab enters the panel.
+    expect(document.activeElement).toBe(resources);
+    act(() => link.focus());
     fireEvent.keyDown(link, { key: "Escape" });
     await waitFor(() =>
       expect(screen.queryByRole("link", { name: "Documentation" })).toBeNull()
