@@ -1,13 +1,13 @@
 "use client";
 
 import type { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import { type ReactNode, useId } from "react";
 import {
   RadioGroupItem as RadioGroupItemPrimitive,
   RadioGroup as RadioGroupRoot,
 } from "@/components/ui/radio-group";
-import { cn } from "@/lib/utils";
 
 export interface RadioGroupItem {
   description?: ReactNode;

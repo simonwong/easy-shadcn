@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "cn";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { useId } from "react";
 import {
@@ -15,7 +16,6 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 
 type ClickRootProps = ComponentProps<typeof PopoverRoot>;
 type ClickTriggerProps = ComponentProps<typeof PopoverTrigger>;

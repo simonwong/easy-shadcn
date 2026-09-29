@@ -135,7 +135,7 @@ The sketch is normative about ownership and concepts, not final syntax for
 native prop inheritance:
 
 ```tsx
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
 import type { ReactNode } from "react";
 export interface SidebarProps {
   // Frozen base case: the navigation model and the main pane.

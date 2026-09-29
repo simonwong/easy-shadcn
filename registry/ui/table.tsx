@@ -9,7 +9,8 @@ import {
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type React from "react";
 import type {
   ComponentProps,
@@ -27,7 +28,6 @@ import {
   Table as TableRoot,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 import { Pagination } from "./pagination";
 import {
   type TableColumnFilter,

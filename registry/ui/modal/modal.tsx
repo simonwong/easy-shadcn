@@ -1,6 +1,7 @@
 "use client";
 
 import type { ClassValue } from "class-variance-authority/types";
+import { cn } from "cn";
 import type React from "react";
 import {
   type ComponentProps,
@@ -17,7 +18,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 import { useDialogAction } from "@/registry/hooks/use-dialog-action";
 import { AsyncButton } from "../async-button";
 

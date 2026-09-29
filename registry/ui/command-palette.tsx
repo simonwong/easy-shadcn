@@ -1,6 +1,7 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import {
   type AriaAttributes,
   type DOMAttributes,
@@ -29,7 +30,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 
 const MAC_PLATFORM_PATTERN = /Mac/;
 

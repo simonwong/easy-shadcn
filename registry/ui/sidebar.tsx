@@ -1,6 +1,7 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import {
@@ -24,7 +25,6 @@ import {
   SidebarTrigger as SidebarTriggerPrimitive,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
 
 interface SidebarItemMetadata {
   className?: ClassValue;

@@ -1,7 +1,8 @@
 "use client";
 
 import type { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ReactElement, ReactNode } from "react";
 import {
   ContextMenuContent,
@@ -10,7 +11,6 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { cn } from "@/lib/utils";
 
 export interface ContextMenuItem {
   content: ReactNode;

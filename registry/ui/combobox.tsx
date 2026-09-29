@@ -1,6 +1,6 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
 import type { AriaAttributes, ReactNode } from "react";
 import { Select } from "@/registry/ui/select";
 

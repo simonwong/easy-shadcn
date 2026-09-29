@@ -1,13 +1,13 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ComponentProps, ReactNode } from "react";
 import {
   InputGroupAddon,
   InputGroupInput,
   InputGroup as InputGroupRoot,
 } from "@/components/ui/input-group";
-import { cn } from "@/lib/utils";
 
 interface InputGroupOwnedInputProps {
   children?: never;

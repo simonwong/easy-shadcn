@@ -1,6 +1,7 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ComponentProps, ReactNode } from "react";
 import {
   CarouselContent,
@@ -10,7 +11,6 @@ import {
   Carousel as CarouselRoot,
   type CarouselApi as PrimitiveCarouselApi,
 } from "@/components/ui/carousel";
-import { cn } from "@/lib/utils";
 
 type CarouselRootProps = ComponentProps<typeof CarouselRoot>;
 type PrimitiveOptions = NonNullable<CarouselRootProps["opts"]>;

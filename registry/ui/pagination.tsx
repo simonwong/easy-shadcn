@@ -1,7 +1,8 @@
 "use client";
 
 import type { BaseUIEvent } from "@base-ui/react/types";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ComponentProps, KeyboardEvent } from "react";
 import { useEffect, useState } from "react";
 import {
@@ -13,7 +14,6 @@ import {
   PaginationPrevious,
   Pagination as PaginationRoot,
 } from "@/components/ui/pagination";
-import { cn } from "@/lib/utils";
 
 type PaginationRootProps = ComponentProps<typeof PaginationRoot>;
 

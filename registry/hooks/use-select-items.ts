@@ -1,6 +1,6 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 

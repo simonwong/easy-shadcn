@@ -3,7 +3,8 @@
 
 import { ArrowDown01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import {
   type ComponentProps,
   type KeyboardEvent,
@@ -14,7 +15,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { cn } from "@/lib/utils";
 
 interface MenuItemBase {
   className?: ClassValue;

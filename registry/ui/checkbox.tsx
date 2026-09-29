@@ -1,10 +1,10 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ComponentProps, ReactNode } from "react";
 import { useId } from "react";
 import { Checkbox as CheckboxControl } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils";
 
 const WHITESPACE_PATTERN = /\s+/;
 

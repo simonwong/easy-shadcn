@@ -7,7 +7,8 @@ import {
   SearchList01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { AriaAttributes, FocusEvent, ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,6 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { cn } from "@/lib/utils";
 // biome-ignore lint/style/noExportedImports: shadcn rewrites export-from hook paths incorrectly.
 import type { SelectItem } from "@/registry/hooks/use-select-items";
 import { useSelectItems } from "@/registry/hooks/use-select-items";

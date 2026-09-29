@@ -2,9 +2,9 @@ import { RootProvider } from "fumadocs-ui/provider/next";
 import type { ReactNode } from "react";
 import { baseUrl, createMetadata } from "@/lib/metadata";
 import "./globals.css";
+import { cn } from "cn";
 import type { Viewport } from "next";
 import { Figtree, Geist_Mono } from "next/font/google";
-import { cn } from "@/lib/utils";
 
 export const metadata = createMetadata({
   title: {

@@ -4,7 +4,8 @@ import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 
 import { Calendar03Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { Locale } from "date-fns";
 import { format as formatDate, isValid, parse } from "date-fns";
 import type React from "react";
@@ -19,7 +20,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import { Calendar } from "@/registry/ui/calendar";
 
 // ---------- Types ----------

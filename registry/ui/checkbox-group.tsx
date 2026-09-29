@@ -1,10 +1,10 @@
 "use client";
 
 import { CheckboxGroup as CheckboxGroupRoot } from "@base-ui/react/checkbox-group";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import { type ReactNode, useId } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils";
 
 export interface CheckboxGroupItem {
   description?: ReactNode;
