@@ -4,6 +4,7 @@
   "title": "Integrated Sheet",
   "description": "Thin accessible application-panel Sheet wrapper with required title and content, optional trigger, description and footer slots, native Dialog lifecycle details, scroll-safe layout, and explicit popup ownership.",
   "dependencies": [
+    "@base-ui/react",
     "cn"
   ],
   "registryDependencies": [

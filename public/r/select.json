@@ -4,6 +4,9 @@
   "title": "Integrated Select",
   "description": "Flat-props Select covering dropdown, searchable, multi-select, and remote-loading modes in a single component. Built on shadcn's Combobox primitive.",
   "dependencies": [
+    "@base-ui/react",
+    "@hugeicons/core-free-icons",
+    "@hugeicons/react",
     "cn"
   ],
   "registryDependencies": [

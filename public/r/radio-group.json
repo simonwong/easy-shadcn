@@ -4,6 +4,7 @@
   "title": "Integrated Radio Group",
   "description": "Flat items-driven RadioGroup built on shadcn's base-ui RadioGroup: per-option label, description, and disabled, with accessible label/description wiring and class overrides.",
   "dependencies": [
+    "@base-ui/react",
     "cn"
   ],
   "registryDependencies": [

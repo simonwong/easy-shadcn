@@ -6,7 +6,8 @@
   "dependencies": [
     "@hugeicons/core-free-icons",
     "@hugeicons/react",
-    "cn"
+    "cn",
+    "react-day-picker"
   ],
   "registryDependencies": [
     "calendar",
