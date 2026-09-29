@@ -43,6 +43,11 @@
   "keywords": [],
   "author": "Simon <wsj_simon@163.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simonwong/easy-shadcn.git",
+    "directory": "packages/command-modal"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
