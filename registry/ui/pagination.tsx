@@ -103,9 +103,10 @@ export type PaginationProps = PaginationSharedProps &
 
 const MAX_WINDOW_COUNT = 100;
 
-// Base UI's non-native Button activates `<a href>` on Space; a genuine link
-// leaves Space to the browser (page scroll).
-const yieldSpaceToBrowser = (
+// Base UI's non-native Button handles Space itself: it prevents the keydown on
+// `<a href>` and clicks on keyup. Pagination owns Space instead — genuine links
+// leave it to the browser (page scroll), client controls activate on keydown.
+const skipBaseUISpace = (
   event: BaseUIEvent<KeyboardEvent<HTMLAnchorElement>>
 ) => {
   if (event.key === " ") {
@@ -259,8 +260,8 @@ export const Pagination = ({
       return {
         "aria-disabled": isUnavailable ? true : undefined,
         href: isUnavailable ? undefined : getPageHref(target),
-        onKeyDown: yieldSpaceToBrowser,
-        onKeyUp: yieldSpaceToBrowser,
+        onKeyDown: skipBaseUISpace,
+        onKeyUp: skipBaseUISpace,
         role: "link",
         tabIndex: isUnavailable ? -1 : undefined,
       };
@@ -281,6 +282,7 @@ export const Pagination = ({
           }
         }
       },
+      onKeyUp: skipBaseUISpace,
       role: "button",
       tabIndex: isUnavailable ? -1 : 0,
     };
