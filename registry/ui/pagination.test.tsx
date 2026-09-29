@@ -50,6 +50,17 @@ describe("Pagination — client paging", () => {
     expect(onValueChange).toHaveBeenLastCalledWith(2);
   });
 
+  it("activates once per Space press", () => {
+    const onValueChange = vi.fn();
+    render(<Pagination onValueChange={onValueChange} total={30} />);
+
+    const next = screen.getByRole("button", { name: "Go to next page" });
+    fireEvent.keyDown(next, { key: " " });
+    fireEvent.keyUp(next, { key: " " });
+
+    expect(onValueChange.mock.calls).toEqual([[2]]);
+  });
+
   it("keeps controlled values authoritative until the caller rerenders", () => {
     const onValueChange = vi.fn();
     const view = render(

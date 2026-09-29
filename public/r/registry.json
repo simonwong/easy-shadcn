@@ -351,7 +351,7 @@
       "type": "registry:component",
       "title": "Integrated Pagination",
       "description": "Thin item-total Pagination wrapper with mutually exclusive client and route-navigation modes, normalized controlled or uncontrolled values, compact boundary and sibling ranges, and explicit primitive-part class ownership.",
-      "dependencies": ["cn"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["pagination"],
       "files": [
         {
