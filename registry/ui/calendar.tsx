@@ -2,7 +2,8 @@
 
 import { ArrowLeftIcon, ArrowRightIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type React from "react";
 import {
   type ButtonHTMLAttributes,
@@ -29,7 +30,6 @@ import {
 } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarPrimitive } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
 
 export type CalendarView = "days" | "months" | "years";
 

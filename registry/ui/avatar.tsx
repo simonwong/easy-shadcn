@@ -1,6 +1,7 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ComponentProps, ReactNode } from "react";
 import {
   AvatarBadge,
@@ -8,7 +9,6 @@ import {
   AvatarImage,
   Avatar as AvatarRoot,
 } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
 
 type AvatarRootProps = ComponentProps<typeof AvatarRoot>;
 type AvatarImageProps = ComponentProps<typeof AvatarImage>;

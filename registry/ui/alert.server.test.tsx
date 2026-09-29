@@ -8,12 +8,7 @@ const CLIENT_DIRECTIVE_PATTERN = /^["']use client["'];?/m;
 const IMPORT_SPECIFIER_PATTERN = /from\s+["']([^"']+)["']/g;
 const REACT_HOOK_PATTERN =
   /\buse(?:Callback|Effect|LayoutEffect|Memo|Reducer|Ref|State)\b/;
-const SERVER_SAFE_IMPORTS = [
-  "@/components/ui/alert",
-  "@/lib/utils",
-  "clsx",
-  "react",
-];
+const SERVER_SAFE_IMPORTS = ["@/components/ui/alert", "cn", "react"];
 
 describe("Alert server compatibility", () => {
   it("renders without a browser environment", () => {
@@ -32,10 +27,9 @@ describe("Alert server compatibility", () => {
     expect(source).not.toMatch(CLIENT_DIRECTIVE_PATTERN);
     expect(source).not.toMatch(REACT_HOOK_PATTERN);
     expect(source).not.toMatch(BROWSER_API_PATTERN);
-    const imports = Array.from(
-      source.matchAll(IMPORT_SPECIFIER_PATTERN),
-      (match) => match[1]
+    const imports = new Set(
+      Array.from(source.matchAll(IMPORT_SPECIFIER_PATTERN), (match) => match[1])
     );
-    expect(imports.toSorted()).toEqual(SERVER_SAFE_IMPORTS);
+    expect([...imports].toSorted()).toEqual(SERVER_SAFE_IMPORTS);
   });
 });

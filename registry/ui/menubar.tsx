@@ -1,7 +1,8 @@
 "use client";
 
 import type { Menu as MenuPrimitive } from "@base-ui/react/menu";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ReactNode, Ref } from "react";
 import {
   MenubarItem as ActionItem,
@@ -20,7 +21,6 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { cn } from "@/lib/utils";
 
 interface ItemContent {
   /** Non-interactive content providing a meaningful accessible name. */

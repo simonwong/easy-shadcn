@@ -1,6 +1,7 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type React from "react";
 import type { ReactNode } from "react";
 import { cloneElement, Fragment, isValidElement, useId } from "react";
@@ -12,7 +13,6 @@ import {
   FieldLabel as BaseFieldLabel,
   FieldTitle as BaseFieldTitle,
 } from "@/components/ui/field";
-import { cn } from "@/lib/utils";
 
 export type FieldErrorItem = { message?: string } | undefined;
 

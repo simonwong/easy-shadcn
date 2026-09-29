@@ -1,7 +1,8 @@
 "use client";
 
 import type { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ReactNode } from "react";
 import {
   TabsContent,
@@ -9,7 +10,6 @@ import {
   Tabs as TabsRoot,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 
 export interface TabsItem {
   content: ReactNode;

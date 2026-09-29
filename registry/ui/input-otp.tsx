@@ -1,6 +1,7 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import { type ComponentProps, Fragment } from "react";
 import {
   InputOTPGroup,
@@ -8,7 +9,6 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { cn } from "@/lib/utils";
 
 export type InputOTPProps = Omit<
   ComponentProps<typeof InputOTPPrimitive>,

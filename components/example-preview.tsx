@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "cn";
 import {
   CodeBlockTab,
   CodeBlockTabs,
@@ -10,7 +11,6 @@ import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import type React from "react";
 import type { PropsWithChildren } from "react";
 import ExampleSet from "@/components/examples";
-import { cn } from "@/lib/utils";
 
 export interface ExamplePreviewProps {
   name: keyof typeof ExampleSet;

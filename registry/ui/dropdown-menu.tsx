@@ -1,7 +1,8 @@
 "use client";
 
 import type { Menu as MenuPrimitive } from "@base-ui/react/menu";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ReactElement, ReactNode } from "react";
 import {
   DropdownMenuContent,
@@ -10,7 +11,6 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
 
 export interface DropdownMenuItem {
   content: ReactNode;

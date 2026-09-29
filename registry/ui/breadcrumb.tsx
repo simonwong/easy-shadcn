@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import { type ComponentProps, Fragment, type ReactNode } from "react";
 import {
   BreadcrumbEllipsis,
@@ -8,7 +9,6 @@ import {
   Breadcrumb as BreadcrumbRoot,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { cn } from "@/lib/utils";
 
 export interface BreadcrumbItem {
   current?: boolean;

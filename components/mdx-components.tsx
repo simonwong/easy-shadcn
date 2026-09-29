@@ -1,7 +1,7 @@
+import { cn } from "cn";
 import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
-import { cn } from "@/lib/utils";
 import { ExamplePreview } from "./example-preview";
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {

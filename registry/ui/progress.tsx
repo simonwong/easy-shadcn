@@ -1,6 +1,7 @@
 "use client";
 
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ComponentProps, ReactNode } from "react";
 import { useId } from "react";
 import {
@@ -8,7 +9,6 @@ import {
   ProgressLabel,
   ProgressValue,
 } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
 
 type ProgressControlProps = ComponentProps<typeof ProgressControl>;
 

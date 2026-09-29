@@ -39,7 +39,6 @@ try {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
   await mkdir(path.join(consumer, "app"));
-  await mkdir(path.join(consumer, "lib"));
   const manifest = JSON.parse(await readFile("package.json", "utf8"));
   const packed = JSON.parse(
     execFileSync("pnpm", ["pack", "--json", "--pack-destination", consumer], {
@@ -57,10 +56,8 @@ try {
         "@easy-shadcn/command-modal": `file:${packed.filename}`,
         react: manifest.dependencies.react,
         "react-dom": manifest.dependencies["react-dom"],
-        clsx: manifest.dependencies.clsx,
         "class-variance-authority":
           manifest.dependencies["class-variance-authority"],
-        "tailwind-merge": manifest.dependencies["tailwind-merge"],
       },
       devDependencies: {
         "@types/node": manifest.devDependencies["@types/node"],
@@ -97,10 +94,6 @@ try {
   await writeFile(
     path.join(consumer, "app/globals.css"),
     '@import "tailwindcss";\n'
-  );
-  await writeFile(
-    path.join(consumer, "lib/utils.ts"),
-    await readFile("lib/utils.ts")
   );
   await run("pnpm", ["install", "--ignore-scripts"], consumer);
   await run(path.join(root, "node_modules/.bin/shadcn"), [

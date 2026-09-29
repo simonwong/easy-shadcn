@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import type React from "react";
 import type { ReactNode } from "react";
 import {
@@ -9,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 interface CardOwnedRootProps {
   dangerouslySetInnerHTML?: never;

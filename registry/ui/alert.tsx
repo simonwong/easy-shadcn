@@ -1,4 +1,5 @@
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ComponentProps, ReactNode } from "react";
 import {
   AlertAction,
@@ -6,7 +7,6 @@ import {
   Alert as AlertRoot,
   AlertTitle,
 } from "@/components/ui/alert";
-import { cn } from "@/lib/utils";
 
 interface AlertOwnedRootProps {
   children?: never;

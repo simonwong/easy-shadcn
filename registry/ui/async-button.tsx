@@ -1,10 +1,10 @@
 "use client";
 
+import { cn } from "cn";
 import type React from "react";
 import type { MouseEvent, MouseEventHandler } from "react";
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useDelayLoading } from "@/registry/hooks/use-delay-loading";
 
 const LoadingIcon = (props: React.SVGProps<SVGSVGElement>) => (

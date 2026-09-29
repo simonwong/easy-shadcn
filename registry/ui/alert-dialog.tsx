@@ -1,7 +1,8 @@
 "use client";
 
 import type { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type React from "react";
 import {
   type ComponentProps,
@@ -18,7 +19,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { cn } from "@/lib/utils";
 import { useDialogAction } from "@/registry/hooks/use-dialog-action";
 import { AsyncButton } from "./async-button";
 

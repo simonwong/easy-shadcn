@@ -1,7 +1,8 @@
 "use client";
 
 import type { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import {
   SheetContent,
@@ -12,7 +13,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
 
 const hasNode = (node: ReactNode): boolean =>
   node !== null && node !== undefined && typeof node !== "boolean";

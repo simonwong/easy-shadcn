@@ -8,6 +8,7 @@
       "type": "registry:component",
       "title": "Integrated Card",
       "description": "",
+      "dependencies": ["cn"],
       "registryDependencies": ["card"],
       "files": [
         {
@@ -22,6 +23,7 @@
       "type": "registry:component",
       "title": "Integrated Tabs",
       "description": "",
+      "dependencies": ["cn"],
       "registryDependencies": ["tabs"],
       "files": [
         {
@@ -36,6 +38,7 @@
       "type": "registry:component",
       "title": "Integrated Accordion",
       "description": "Flat items-driven Accordion built on shadcn's base-ui Accordion: single or multiple open panels, controlled / uncontrolled, with per-item disabled and class overrides.",
+      "dependencies": ["cn"],
       "registryDependencies": ["accordion"],
       "files": [
         {
@@ -50,6 +53,7 @@
       "type": "registry:component",
       "title": "Integrated Breadcrumb",
       "description": "Flat items-driven Breadcrumb built on shadcn's Breadcrumb markup: automatic current-page detection, optional ellipsis collapsing via maxItems, and a customizable separator.",
+      "dependencies": ["cn"],
       "registryDependencies": ["breadcrumb"],
       "files": [
         {
@@ -78,6 +82,7 @@
       "type": "registry:component",
       "title": "Integrated Popover",
       "description": "One rich floating-content API with click Popover and hover/focus Preview Card adapters, shared title / description / content / footer slots, and side/align positioning.",
+      "dependencies": ["cn"],
       "registryDependencies": ["popover", "hover-card"],
       "files": [
         {
@@ -92,6 +97,7 @@
       "type": "registry:component",
       "title": "Integrated Dropdown Menu",
       "description": "Thin flat action-menu wrapper with a composed trigger, homogeneous items, primitive-owned state and keyboard behavior, ordinary positioning, and explicit presentation hooks.",
+      "dependencies": ["cn"],
       "registryDependencies": ["dropdown-menu"],
       "files": [
         {
@@ -106,7 +112,7 @@
       "type": "registry:component",
       "title": "Integrated Menubar",
       "description": "Application command bar with an items tree, actions, groups, submenus, controlled checkbox and radio settings, and primitive-owned focus, keyboard navigation, and dismissal.",
-      "dependencies": ["clsx"],
+      "dependencies": ["cn"],
       "registryDependencies": ["menubar"],
       "files": [
         {
@@ -121,7 +127,7 @@
       "type": "registry:component",
       "title": "Integrated Navigation Menu",
       "description": "Website navigation from direct links and one level of dropdown links, with caller-owned current-page state and primitive-owned popup interaction.",
-      "dependencies": ["clsx"],
+      "dependencies": ["cn"],
       "registryDependencies": ["navigation-menu"],
       "files": [
         {
@@ -136,6 +142,7 @@
       "type": "registry:component",
       "title": "Integrated Context Menu",
       "description": "Thin flat action-menu wrapper with a composed context target, primitive-owned pointer, touch, keyboard and coordinate behavior, controlled requests, and explicit presentation hooks.",
+      "dependencies": ["cn"],
       "registryDependencies": ["context-menu"],
       "files": [
         {
@@ -150,7 +157,7 @@
       "type": "registry:component",
       "title": "Integrated Menu",
       "description": "Persistent Ant Design-style navigation menu with a recursive item tree, action and link leaves, submenus, groups, separators, controlled or uncontrolled selection and open state, three layout modes, and roving keyboard focus.",
-      "dependencies": ["@hugeicons/core-free-icons", "@hugeicons/react"],
+      "dependencies": ["@hugeicons/core-free-icons", "@hugeicons/react", "cn"],
       "files": [
         {
           "path": "registry/ui/menu.tsx",
@@ -164,6 +171,7 @@
       "type": "registry:component",
       "title": "Integrated Sidebar",
       "description": "Responsive application navigation shell with a finite items tree, controlled or uncontrolled selection and submenus, desktop offcanvas collapse, mobile Sheet dismissal, and a generated main inset.",
+      "dependencies": ["cn"],
       "registryDependencies": ["sidebar"],
       "files": [
         {
@@ -178,6 +186,7 @@
       "type": "registry:component",
       "title": "Integrated Command Palette",
       "description": "Task-level searchable action palette with Mod+K invocation, grouped static actions, controlled or uncontrolled Dialog state, and single-flight async success, error, retry, and stale-settlement handling.",
+      "dependencies": ["cn"],
       "registryDependencies": ["command"],
       "files": [
         {
@@ -192,7 +201,7 @@
       "type": "registry:component",
       "title": "Integrated Choice Group",
       "description": "One items and value model for single or multiple selection through radio, checkbox, or toggle presentation, with invalid mode combinations rejected by TypeScript.",
-      "dependencies": ["@base-ui/react"],
+      "dependencies": ["@base-ui/react", "cn"],
       "registryDependencies": ["checkbox", "radio-group", "toggle-group"],
       "files": [
         {
@@ -207,6 +216,7 @@
       "type": "registry:component",
       "title": "Integrated Radio Group",
       "description": "Flat items-driven RadioGroup built on shadcn's base-ui RadioGroup: per-option label, description, and disabled, with accessible label/description wiring and class overrides.",
+      "dependencies": ["cn"],
       "registryDependencies": ["radio-group"],
       "files": [
         {
@@ -221,6 +231,7 @@
       "type": "registry:component",
       "title": "Integrated Checkbox Group",
       "description": "Flat items-driven multi-select CheckboxGroup built on shadcn's base-ui Checkbox: per-option label, description, and disabled, with accessible label/description wiring and class overrides.",
+      "dependencies": ["cn"],
       "registryDependencies": ["checkbox"],
       "files": [
         {
@@ -235,6 +246,7 @@
       "type": "registry:component",
       "title": "Integrated Checkbox",
       "description": "Thin labeled Checkbox wrapper with optional description, accessible ID and ARIA wiring, delegated controlled or uncontrolled state, and native form behavior.",
+      "dependencies": ["cn"],
       "registryDependencies": ["checkbox"],
       "files": [
         {
@@ -249,6 +261,7 @@
       "type": "registry:component",
       "title": "Integrated Field",
       "description": "Flat form-field wrapper for label, control, description, required marker, and validation message patterns.",
+      "dependencies": ["cn"],
       "registryDependencies": ["field"],
       "files": [
         {
@@ -263,6 +276,7 @@
       "type": "registry:component",
       "title": "Integrated Input Group",
       "description": "Thin native-input wrapper over shadcn InputGroup with flat logical start and end addon slots, explicit root/input class ownership, and native input props and ref forwarding.",
+      "dependencies": ["cn"],
       "registryDependencies": ["input-group"],
       "files": [
         {
@@ -277,6 +291,7 @@
       "type": "registry:component",
       "title": "Integrated Input OTP",
       "description": "Thin single-input OTP wrapper with generated indexed slots, optional uniform groups and separators, primitive-owned value and interaction, and explicit class ownership.",
+      "dependencies": ["cn"],
       "registryDependencies": ["input-otp"],
       "files": [
         {
@@ -291,6 +306,7 @@
       "type": "registry:component",
       "title": "Integrated Avatar",
       "description": "Thin flat-props Avatar wrapper with caller-owned fallback and badge slots, optional image source, primitive sizes, and explicit per-part class ownership.",
+      "dependencies": ["cn"],
       "registryDependencies": ["avatar"],
       "files": [
         {
@@ -305,6 +321,7 @@
       "type": "registry:component",
       "title": "Integrated Switch",
       "description": "Thin labeled Switch wrapper with optional description, accessible label and description wiring, primitive state and form behavior, and explicit control, option, and text class ownership.",
+      "dependencies": ["cn"],
       "registryDependencies": ["switch"],
       "files": [
         {
@@ -319,6 +336,7 @@
       "type": "registry:component",
       "title": "Integrated Progress",
       "description": "Thin labeled percentage Progress wrapper with SSR-stable naming, primitive-derived determinate and indeterminate states, visible value formatting, and explicit root, label, and value class ownership.",
+      "dependencies": ["cn"],
       "registryDependencies": ["progress"],
       "files": [
         {
@@ -333,6 +351,7 @@
       "type": "registry:component",
       "title": "Integrated Pagination",
       "description": "Thin item-total Pagination wrapper with mutually exclusive client and route-navigation modes, normalized controlled or uncontrolled values, compact boundary and sibling ranges, and explicit primitive-part class ownership.",
+      "dependencies": ["cn"],
       "registryDependencies": ["pagination"],
       "files": [
         {
@@ -347,6 +366,7 @@
       "type": "registry:component",
       "title": "Integrated Carousel",
       "description": "Thin accessible items-driven Carousel wrapper with primitive-owned Embla scrolling, selection, plugins, API and control boundaries, plus explicit orientation and class ownership.",
+      "dependencies": ["cn"],
       "registryDependencies": ["carousel"],
       "files": [
         {
@@ -361,6 +381,7 @@
       "type": "registry:component",
       "title": "Integrated Slider",
       "description": "Accessible scalar and multi-thumb Slider with a discriminated number/array API, live values, distinct thumb names, collision and spacing controls, and primitive-owned interaction and form behavior.",
+      "dependencies": ["cn"],
       "registryDependencies": ["slider"],
       "files": [
         {
@@ -389,6 +410,7 @@
       "type": "registry:component",
       "title": "Integrated Sheet",
       "description": "Thin accessible application-panel Sheet wrapper with required title and content, optional trigger, description and footer slots, native Dialog lifecycle details, scroll-safe layout, and explicit popup ownership.",
+      "dependencies": ["cn"],
       "registryDependencies": ["sheet"],
       "files": [
         {
@@ -416,6 +438,7 @@
       "type": "registry:component",
       "title": "Async Button",
       "description": "Button that auto-manages loading state when onClick returns a Promise.",
+      "dependencies": ["cn"],
       "registryDependencies": ["button", "@easy-shadcn/use-delay-loading"],
       "files": [
         {
@@ -430,13 +453,13 @@
       "type": "registry:component",
       "title": "Integrated Modal",
       "description": "Composable Modal and AlertModal built on shadcn base-ui Dialog / AlertDialog, plus imperative alert / confirm helpers powered by @easy-shadcn/command-modal.",
+      "dependencies": ["@easy-shadcn/command-modal", "cn"],
       "registryDependencies": [
         "dialog",
         "alert-dialog",
         "@easy-shadcn/async-button",
         "@easy-shadcn/use-dialog-action"
       ],
-      "dependencies": ["@easy-shadcn/command-modal"],
       "files": [
         {
           "path": "registry/ui/modal/index.tsx",
@@ -465,6 +488,7 @@
       "type": "registry:component",
       "title": "Integrated Alert Dialog",
       "description": "Flat-props AlertDialog built on shadcn's base-ui AlertDialog: title / description slots, confirm / cancel footer with async handlers, controlled or uncontrolled open state, destructive variant sugar, and a full footer override.",
+      "dependencies": ["cn"],
       "registryDependencies": [
         "alert-dialog",
         "@easy-shadcn/async-button",
@@ -483,6 +507,7 @@
       "type": "registry:component",
       "title": "Integrated Alert",
       "description": "Flat-props Alert built on shadcn's Alert primitive: optional icon, title, description, and caller-owned action slots with primitive variants and per-slot class overrides.",
+      "dependencies": ["cn"],
       "registryDependencies": ["alert"],
       "files": [
         {
@@ -497,6 +522,7 @@
       "type": "registry:component",
       "title": "Integrated Empty",
       "description": "Thin flat-props Empty wrapper built on shadcn's Empty primitive: optional media, title, description, and caller-owned content slots with fixed primitive hierarchy, media variants, and per-slot class overrides.",
+      "dependencies": ["cn"],
       "registryDependencies": ["empty"],
       "files": [
         {
@@ -511,8 +537,8 @@
       "type": "registry:component",
       "title": "Integrated Calendar",
       "description": "Calendar with three-view month/year navigation (days / months / years), replacing the native dropdowns with button-grid panels.",
+      "dependencies": ["@hugeicons/core-free-icons", "@hugeicons/react", "cn"],
       "registryDependencies": ["calendar", "button"],
-      "dependencies": ["@hugeicons/core-free-icons", "@hugeicons/react"],
       "files": [
         {
           "path": "registry/ui/calendar.tsx",
@@ -526,13 +552,13 @@
       "type": "registry:component",
       "title": "Integrated Date Picker",
       "description": "Single, multiple, and range date picker built on shadcn Popover + the Integrated Calendar, with an optional inline-input mode.",
+      "dependencies": ["cn", "date-fns", "react-day-picker"],
       "registryDependencies": [
         "popover",
         "button",
         "input",
         "@easy-shadcn/calendar"
       ],
-      "dependencies": ["date-fns", "react-day-picker"],
       "files": [
         {
           "path": "registry/ui/date-picker.tsx",
@@ -546,6 +572,7 @@
       "type": "registry:hook",
       "title": "useSelectItems",
       "description": "Pure derivation hook for Select-like UIs. Turns a flat SelectItem[] into stringItems, findItem, itemToStringLabel, and a default contains filter.",
+      "dependencies": ["cn"],
       "files": [
         {
           "path": "registry/hooks/use-select-items.ts",
@@ -573,6 +600,7 @@
       "type": "registry:component",
       "title": "Integrated Select",
       "description": "Flat-props Select covering dropdown, searchable, multi-select, and remote-loading modes in a single component. Built on shadcn's Combobox primitive.",
+      "dependencies": ["cn"],
       "registryDependencies": [
         "combobox",
         "button",
@@ -593,6 +621,7 @@
       "type": "registry:component",
       "title": "Integrated Combobox",
       "description": "Always-searchable, single-select autocomplete. A thin, opinionated preset over the Integrated Select with searchable forced on and multiple unavailable.",
+      "dependencies": ["cn"],
       "registryDependencies": ["@easy-shadcn/select"],
       "files": [
         {
@@ -607,6 +636,12 @@
       "type": "registry:component",
       "title": "Integrated Table",
       "description": "Flat-props Table with columns + dataSource + rowKey, loading, empty, caption, row styling, selection, column option filtering, single-column sorting, and local or external pagination.",
+      "dependencies": [
+        "@base-ui/react",
+        "@hugeicons/core-free-icons",
+        "@hugeicons/react",
+        "cn"
+      ],
       "registryDependencies": [
         "table",
         "button",
@@ -614,12 +649,6 @@
         "popover",
         "radio-group",
         "@easy-shadcn/pagination"
-      ],
-      "dependencies": [
-        "@base-ui/react",
-        "@hugeicons/core-free-icons",
-        "@hugeicons/react",
-        "clsx"
       ],
       "files": [
         {

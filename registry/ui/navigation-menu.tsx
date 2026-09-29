@@ -1,7 +1,8 @@
 "use client";
 
 import type { NavigationMenu as NavigationMenuPrimitive } from "@base-ui/react/navigation-menu";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ReactNode, Ref } from "react";
 import {
   NavigationMenuContent,
@@ -12,7 +13,6 @@ import {
   navigationMenuTriggerStyle,
   NavigationMenuItem as PrimitiveItem,
 } from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
 
 export interface NavigationMenuLinkItem {
   /** Caller-owned current-page state; independent of the expanded panel. */

@@ -1,4 +1,5 @@
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ComponentProps, ReactNode } from "react";
 import {
   EmptyContent,
@@ -8,7 +9,6 @@ import {
   Empty as EmptyRoot,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { cn } from "@/lib/utils";
 
 interface EmptyOwnedProps {
   children?: never;

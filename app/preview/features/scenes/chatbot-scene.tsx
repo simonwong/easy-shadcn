@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "cn";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import { AsyncButton } from "@/registry/ui/async-button";
 import { Card } from "@/registry/ui/card";
 import { Select, type SelectItem } from "@/registry/ui/select";

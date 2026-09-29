@@ -1,7 +1,8 @@
 "use client";
 
 import type { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ReactNode } from "react";
 import {
   AccordionContent,
@@ -9,7 +10,6 @@ import {
   Accordion as AccordionRoot,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { cn } from "@/lib/utils";
 
 export interface AccordionItem {
   content: ReactNode;

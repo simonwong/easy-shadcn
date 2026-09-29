@@ -3,10 +3,10 @@
 "use client";
 
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";
-import type { ClassValue } from "clsx";
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
-import { cn } from "@/lib/utils";
 
 type SliderValue = number | number[];
 type SliderRootProps = SliderPrimitive.Root.Props<SliderValue>;
