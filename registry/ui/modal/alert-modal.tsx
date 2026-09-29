@@ -1,6 +1,6 @@
 "use client";
 
-import type { ClassValue } from "class-variance-authority/types";
+import type { ClassValue } from "cn";
 import { cn } from "cn";
 import type React from "react";
 import {
