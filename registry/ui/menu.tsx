@@ -108,6 +108,9 @@ export interface MenuMultipleProps extends MenuBaseProps {
 
 export type MenuProps = MenuMultipleProps | MenuSingleProps;
 
+const hasNode = (node: ReactNode): boolean =>
+  node !== null && node !== undefined && typeof node !== "boolean";
+
 const isSubmenu = (item: MenuItem): item is MenuSubmenuItem =>
   item.type !== "group" && item.type !== "separator" && "children" in item;
 
@@ -438,19 +441,19 @@ export const Menu = (props: MenuProps) => {
 
   const renderContent = (item: MenuItemBase) => (
     <>
-      {item.icon === undefined ? null : (
+      {hasNode(item.icon) ? (
         <span className={cn(iconClassName, item.iconClassName)}>
           {item.icon}
         </span>
-      )}
+      ) : null}
       <span className={cn(labelClassName, item.labelClassName)}>
         {item.label}
       </span>
-      {item.extra === undefined ? null : (
+      {hasNode(item.extra) ? (
         <span className={cn("ml-auto", extraClassName, item.extraClassName)}>
           {item.extra}
         </span>
-      )}
+      ) : null}
     </>
   );
 

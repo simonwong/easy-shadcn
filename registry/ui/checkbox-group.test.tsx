@@ -321,3 +321,28 @@ describe("CheckboxGroup", () => {
     expect(nativeOnChange).not.toHaveBeenCalled();
   });
 });
+
+describe("CheckboxGroup empty descriptions", () => {
+  it("skips the description element and relationship for null and false", () => {
+    render(
+      <CheckboxGroup
+        aria-label="Channels"
+        items={[
+          { description: null, label: "Email", value: "email" },
+          { description: false, label: "SMS", value: "sms" },
+          { description: "Mobile only", label: "Push", value: "push" },
+        ]}
+      />
+    );
+
+    const [email, sms, push] = screen.getAllByRole("checkbox");
+    expect(email.getAttribute("aria-describedby")).toBeNull();
+    expect(sms.getAttribute("aria-describedby")).toBeNull();
+    const describedBy = push.getAttribute("aria-describedby");
+    expect(describedBy).toBeTruthy();
+    expect(document.getElementById(describedBy ?? "")?.textContent).toBe(
+      "Mobile only"
+    );
+    expect(document.querySelectorAll('[id$="-description"]')).toHaveLength(1);
+  });
+});

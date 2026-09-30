@@ -153,6 +153,56 @@ function useHasOpenPanel() {
   );
 }
 
+// Shared by the caption and the month/year panels of one displayed month, so
+// both derive bounds, labels, and navigation from the same DayPicker state.
+function useMonthPanel(calendarMonth: CalendarMonth, displayIndex: number) {
+  const ctx = useContext(CaptionCtx)!;
+  const { dateLib, formatters, labels } = useCalendarFormatting();
+  const { dayPickerProps, goToMonth, months } = useDayPicker();
+  const navigationDisabled = Boolean(dayPickerProps.disableNavigation);
+  const startYear = dayPickerProps.startMonth
+    ? dateLib.getYear(dayPickerProps.startMonth)
+    : dateLib.getYear(dateLib.today()) - 100;
+  const endYear = dayPickerProps.endMonth
+    ? dateLib.getYear(dayPickerProps.endMonth)
+    : dateLib.getYear(dateLib.today()) + 100;
+  const monthOffset = getMonthOffset(
+    displayIndex,
+    months.length,
+    dayPickerProps.reverseMonths
+  );
+  const yr = dateLib.getYear(calendarMonth.date);
+  const navigateToPanelMonth = (date: Date) => {
+    if (navigationDisabled) {
+      return;
+    }
+    const nextPanelMonth = clampMonth(
+      date,
+      dateLib,
+      dayPickerProps.startMonth,
+      dayPickerProps.endMonth
+    );
+    goToMonth(dateLib.addMonths(nextPanelMonth, -monthOffset));
+  };
+
+  return {
+    ctx,
+    dateLib,
+    dayPickerProps,
+    decadeStart: Math.floor(yr / DECADE_SIZE) * DECADE_SIZE,
+    endYear,
+    formatters,
+    monthLabel: labels.labelMonthDropdown(dateLib.options),
+    navigateToPanelMonth,
+    navigationDisabled,
+    setView: (view: CalendarView) => ctx.setViewForIndex(displayIndex, view),
+    startYear,
+    view: ctx.views[displayIndex] ?? "days",
+    yearLabel: labels.labelYearDropdown(dateLib.options),
+    yr,
+  };
+}
+
 function CalendarMonths(props: HTMLAttributes<HTMLDivElement>) {
   const ctx = useContext(CaptionCtx)!;
   const { months } = useDayPicker();
@@ -253,42 +303,23 @@ function MonthCaption({
   displayIndex,
   ...captionProps
 }: MonthCaptionProps) {
-  const ctx = useContext(CaptionCtx)!;
-  const { dateLib, formatters, labels } = useCalendarFormatting();
-  const { dayPickerProps, goToMonth, months } = useDayPicker();
-  const view = ctx.views[displayIndex] ?? "days";
-  const setView = (v: CalendarView) => ctx.setViewForIndex(displayIndex, v);
-  const navigationDisabled = Boolean(dayPickerProps.disableNavigation);
-  const startYear = dayPickerProps.startMonth
-    ? dateLib.getYear(dayPickerProps.startMonth)
-    : dateLib.getYear(dateLib.today()) - 100;
-  const endYear = dayPickerProps.endMonth
-    ? dateLib.getYear(dayPickerProps.endMonth)
-    : dateLib.getYear(dateLib.today()) + 100;
-  const monthOffset = getMonthOffset(
-    displayIndex,
-    months.length,
-    dayPickerProps.reverseMonths
-  );
-
-  const yr = dateLib.getYear(calendarMonth.date);
-  const decadeStart = Math.floor(yr / DECADE_SIZE) * DECADE_SIZE;
-  const monthLabel = labels.labelMonthDropdown(dateLib.options);
-  const yearLabel = labels.labelYearDropdown(dateLib.options);
+  const {
+    ctx,
+    dateLib,
+    decadeStart,
+    endYear,
+    formatters,
+    monthLabel,
+    navigateToPanelMonth,
+    navigationDisabled,
+    setView,
+    startYear,
+    view,
+    yearLabel,
+    yr,
+  } = useMonthPanel(calendarMonth, displayIndex);
   const formatYear = (year: number) =>
     formatters.formatYearDropdown(dateLib.newDate(year, 0, 1), dateLib);
-  const navigateToPanelMonth = (date: Date) => {
-    if (navigationDisabled) {
-      return;
-    }
-    const nextPanelMonth = clampMonth(
-      date,
-      dateLib,
-      dayPickerProps.startMonth,
-      dayPickerProps.endMonth
-    );
-    goToMonth(dateLib.addMonths(nextPanelMonth, -monthOffset));
-  };
 
   const changeYear = (delta: number) => {
     const next = yr + delta;
@@ -405,11 +436,23 @@ function MonthGrid({
   className,
   ...rest
 }: TableHTMLAttributes<HTMLTableElement>) {
-  const ctx = useContext(CaptionCtx)!;
-  const { dateLib, formatters, labels } = useCalendarFormatting();
-  const { dayPickerProps, goToMonth, months } = useDayPicker();
   const { calendarMonth, displayIndex } = useContext(MonthSlotCtx)!;
-  const view = ctx.views[displayIndex] ?? "days";
+  const {
+    ctx,
+    dateLib,
+    dayPickerProps,
+    decadeStart,
+    endYear,
+    formatters,
+    monthLabel,
+    navigateToPanelMonth,
+    navigationDisabled,
+    setView,
+    startYear,
+    view,
+    yearLabel,
+    yr,
+  } = useMonthPanel(calendarMonth, displayIndex);
 
   if (view === "days") {
     return (
@@ -420,37 +463,7 @@ function MonthGrid({
   }
 
   const monthDate = calendarMonth.date;
-  const yr = dateLib.getYear(monthDate);
   const mo = dateLib.getMonth(monthDate);
-  const decadeStart = Math.floor(yr / DECADE_SIZE) * DECADE_SIZE;
-  const monthLabel = labels.labelMonthDropdown(dateLib.options);
-  const yearLabel = labels.labelYearDropdown(dateLib.options);
-
-  const setView = (v: CalendarView) => ctx.setViewForIndex(displayIndex, v);
-  const navigationDisabled = Boolean(dayPickerProps.disableNavigation);
-  const startYear = dayPickerProps.startMonth
-    ? dateLib.getYear(dayPickerProps.startMonth)
-    : dateLib.getYear(dateLib.today()) - 100;
-  const endYear = dayPickerProps.endMonth
-    ? dateLib.getYear(dayPickerProps.endMonth)
-    : dateLib.getYear(dateLib.today()) + 100;
-  const monthOffset = getMonthOffset(
-    displayIndex,
-    months.length,
-    dayPickerProps.reverseMonths
-  );
-  const navigateToPanelMonth = (date: Date) => {
-    if (navigationDisabled) {
-      return;
-    }
-    const nextPanelMonth = clampMonth(
-      date,
-      dateLib,
-      dayPickerProps.startMonth,
-      dayPickerProps.endMonth
-    );
-    goToMonth(dateLib.addMonths(nextPanelMonth, -monthOffset));
-  };
   const isMonthDisabled = (m: number) => {
     if (navigationDisabled) {
       return true;

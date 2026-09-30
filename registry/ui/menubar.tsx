@@ -117,14 +117,17 @@ export interface MenubarProps {
   triggerClassName?: ClassValue;
 }
 
+const hasNode = (node: ReactNode): boolean =>
+  node !== null && node !== undefined && typeof node !== "boolean";
+
 function ItemLabel({ content, icon, shortcut }: ItemContent) {
   return (
     <>
-      {icon == null ? null : <span aria-hidden="true">{icon}</span>}
+      {hasNode(icon) ? <span aria-hidden="true">{icon}</span> : null}
       {content}
-      {shortcut == null ? null : (
+      {hasNode(shortcut) ? (
         <MenubarShortcut aria-hidden="true">{shortcut}</MenubarShortcut>
-      )}
+      ) : null}
     </>
   );
 }

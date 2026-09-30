@@ -67,6 +67,9 @@ export interface NavigationMenuProps {
   value?: string | null;
 }
 
+const hasNode = (node: ReactNode): boolean =>
+  node !== null && node !== undefined && typeof node !== "boolean";
+
 function LinkItem({
   item,
   className,
@@ -88,7 +91,7 @@ function LinkItem({
       target={item.target}
     >
       <span className="font-medium">{item.content}</span>
-      {item.description == null ? null : (
+      {hasNode(item.description) ? (
         <span
           className={cn(
             "text-muted-foreground text-sm",
@@ -97,7 +100,7 @@ function LinkItem({
         >
           {item.description}
         </span>
-      )}
+      ) : null}
     </NavigationMenuLink>
   );
 }

@@ -611,12 +611,7 @@ export const Select = (props: SelectProps) => {
   const handleInputValueChange = useCallback(
     (next: string, details: { reason: string }) => {
       if (QUERY_UPDATE_REASONS.has(details.reason)) {
-        setQuery((current) => {
-          if (current === next) {
-            return current;
-          }
-          return next;
-        });
+        setQuery(next);
       }
     },
     []

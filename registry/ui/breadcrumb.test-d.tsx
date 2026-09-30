@@ -18,3 +18,13 @@ acceptProps({ dangerouslySetInnerHTML: { __html: "Bypass" }, items: [] });
 
 // @ts-expect-error The primitive root slot is Compose-owned.
 acceptProps({ "data-slot": "bypass", items: [] });
+
+acceptProps({
+  className: ["root-x", { "root-y": true }],
+  itemClassName: ["item-x"],
+  items: [{ label: "Current" }],
+  linkClassName: { "link-x": true },
+  listClassName: ["list-x", false],
+  pageClassName: ["page-x"],
+  separatorClassName: ["separator-x"],
+});

@@ -136,6 +136,9 @@ interface ChoiceContentProps {
   labelId: string;
 }
 
+const hasNode = (node: ReactNode): boolean =>
+  node !== null && node !== undefined && typeof node !== "boolean";
+
 const ChoiceContent = ({
   description,
   descriptionClassName,
@@ -148,14 +151,14 @@ const ChoiceContent = ({
     <span className={cn("font-medium text-sm", labelClassName)} id={labelId}>
       {label}
     </span>
-    {description === undefined ? null : (
+    {hasNode(description) ? (
       <span
         className={cn("text-muted-foreground text-sm", descriptionClassName)}
         id={descriptionId}
       >
         {description}
       </span>
-    )}
+    ) : null}
   </span>
 );
 
@@ -236,7 +239,7 @@ const RadioChoiceGroup = (props: ChoiceGroupSingleRadioProps) => {
         const { descriptionId, labelId } = getChoiceIds(
           baseId,
           index,
-          item.description !== undefined
+          hasNode(item.description)
         );
 
         return (
@@ -332,7 +335,7 @@ const CheckboxChoiceGroup = (props: ChoiceGroupMultipleCheckboxProps) => {
         const { descriptionId, labelId } = getChoiceIds(
           baseId,
           index,
-          item.description !== undefined
+          hasNode(item.description)
         );
 
         return (
@@ -484,7 +487,7 @@ const ToggleChoiceGroup = (props: ToggleChoiceGroupProps) => {
         const { descriptionId, labelId } = getChoiceIds(
           baseId,
           index,
-          item.description !== undefined
+          hasNode(item.description)
         );
 
         return (
@@ -493,9 +496,8 @@ const ToggleChoiceGroup = (props: ToggleChoiceGroupProps) => {
             aria-label={item.ariaLabel}
             aria-labelledby={item.ariaLabel ? "" : labelId}
             className={cn(
-              item.description === undefined
-                ? undefined
-                : "h-auto items-start whitespace-normal px-3 py-2 text-left",
+              hasNode(item.description) &&
+                "h-auto items-start whitespace-normal px-3 py-2 text-left",
               optionClassName,
               item.optionClassName,
               controlClassName,

@@ -1,3 +1,4 @@
+import type { ClassValue } from "cn";
 import { cn } from "cn";
 import type React from "react";
 import type { ReactNode } from "react";
@@ -18,20 +19,24 @@ interface CardOwnedRootProps {
 }
 
 export interface CardProps
-  extends Omit<React.ComponentProps<"div">, "title" | keyof CardOwnedRootProps>,
+  extends Omit<
+      React.ComponentProps<"div">,
+      "className" | "title" | keyof CardOwnedRootProps
+    >,
     CardOwnedRootProps {
   action?: ReactNode;
-  actionClassName?: string;
-  contentClassName?: string;
+  actionClassName?: ClassValue;
+  className?: ClassValue;
+  contentClassName?: ClassValue;
   description?: ReactNode;
-  descriptionClassName?: string;
+  descriptionClassName?: ClassValue;
   dividers?: boolean | { header?: boolean; footer?: boolean };
   footer?: ReactNode;
-  footerClassName?: string;
-  headerClassName?: string;
+  footerClassName?: ClassValue;
+  headerClassName?: ClassValue;
   size?: "default" | "sm";
   title?: ReactNode;
-  titleClassName?: string;
+  titleClassName?: ClassValue;
 }
 
 // Mirrors React's own rendering rules: null/undefined/boolean render nothing,
@@ -68,26 +73,26 @@ export const Card: React.FC<CardProps> = ({
         };
 
   return (
-    <CardBase className={className} size={size} {...restProps}>
+    <CardBase className={cn(className)} size={size} {...restProps}>
       {(hasNode(title) || hasNode(description) || hasNode(action)) && (
         <CardHeader
           className={cn(showHeaderDivider && "border-b", headerClassName)}
         >
           {hasNode(title) && (
-            <CardTitle className={titleClassName}>{title}</CardTitle>
+            <CardTitle className={cn(titleClassName)}>{title}</CardTitle>
           )}
           {hasNode(description) && (
-            <CardDescription className={descriptionClassName}>
+            <CardDescription className={cn(descriptionClassName)}>
               {description}
             </CardDescription>
           )}
           {hasNode(action) && (
-            <CardAction className={actionClassName}>{action}</CardAction>
+            <CardAction className={cn(actionClassName)}>{action}</CardAction>
           )}
         </CardHeader>
       )}
       {hasNode(children) && (
-        <CardContent className={contentClassName}>{children}</CardContent>
+        <CardContent className={cn(contentClassName)}>{children}</CardContent>
       )}
       {hasNode(footer) && (
         <CardFooter

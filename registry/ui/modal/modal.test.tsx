@@ -361,3 +361,29 @@ describe("AlertModal helpers", () => {
     });
   });
 });
+
+describe("Modal falsy nodes", () => {
+  it("renders a numeric zero title and body instead of swallowing them", () => {
+    render(
+      <Modal open title={0}>
+        {0}
+      </Modal>
+    );
+
+    expect(screen.getByRole("heading").textContent).toBe("0");
+    expect(
+      document.querySelector('[data-slot="dialog-content"]')?.textContent
+    ).toContain("00");
+  });
+
+  it("keeps the header out of the tree for an empty string title", () => {
+    render(
+      <Modal open title="">
+        Body
+      </Modal>
+    );
+
+    expect(screen.queryByRole("heading")).toBeNull();
+    expect(document.querySelector('[data-slot="dialog-header"]')).toBeNull();
+  });
+});

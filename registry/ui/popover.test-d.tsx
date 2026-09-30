@@ -90,3 +90,13 @@ acceptProps({
   // @ts-expect-error The popup slot marker is Compose-owned.
   "data-slot": "bypass",
 });
+
+acceptProps({
+  children: trigger,
+  content: "Editable content",
+  contentClassName: ["content-x", { "content-y": true }],
+  descriptionClassName: ["description-x"],
+  footerClassName: { "footer-x": true },
+  headerClassName: ["header-x", false],
+  titleClassName: ["title-x"],
+});

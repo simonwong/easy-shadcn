@@ -1,5 +1,7 @@
 "use client";
 
+import type { ClassValue } from "cn";
+import { cn } from "cn";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import {
   TooltipContent,
@@ -18,7 +20,7 @@ export interface TooltipProps
     Pick<ProviderProps, "closeDelay" | "delay"> {
   children: ReactElement;
   content: ReactNode;
-  contentClassName?: string;
+  contentClassName?: ClassValue;
 }
 
 export const Tooltip = ({
@@ -47,7 +49,7 @@ export const Tooltip = ({
       <TooltipContent
         align={align}
         alignOffset={alignOffset}
-        className={contentClassName}
+        className={cn(contentClassName)}
         side={side}
         sideOffset={sideOffset}
       >

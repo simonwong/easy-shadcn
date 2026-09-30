@@ -75,3 +75,21 @@ describe("Tooltip", () => {
     expect(screen.queryByText("Helpful tip")).toBeNull();
   });
 });
+
+describe("Tooltip class values", () => {
+  it("accepts a ClassValue for contentClassName", async () => {
+    renderTooltip({
+      contentClassName: [
+        "content-x",
+        { "content-y": true, "content-z": false },
+      ],
+      defaultOpen: true,
+    });
+
+    await waitFor(() => expect(screen.getByText("Helpful tip")).toBeTruthy());
+    const content = document.querySelector('[data-slot="tooltip-content"]');
+    expect(content?.classList.contains("content-x")).toBe(true);
+    expect(content?.classList.contains("content-y")).toBe(true);
+    expect(content?.classList.contains("content-z")).toBe(false);
+  });
+});

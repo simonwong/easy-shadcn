@@ -208,3 +208,28 @@ describe("RadioGroup", () => {
     expect(nativeOnChange).not.toHaveBeenCalled();
   });
 });
+
+describe("RadioGroup empty descriptions", () => {
+  it("skips the description element and relationship for null and false", () => {
+    render(
+      <RadioGroup
+        aria-label="Plan"
+        items={[
+          { description: null, label: "Free", value: "free" },
+          { description: false, label: "Pro", value: "pro" },
+          { description: "Custom limits", label: "Team", value: "team" },
+        ]}
+      />
+    );
+
+    const [free, pro, team] = screen.getAllByRole("radio");
+    expect(free.getAttribute("aria-describedby")).toBeNull();
+    expect(pro.getAttribute("aria-describedby")).toBeNull();
+    const describedBy = team.getAttribute("aria-describedby");
+    expect(describedBy).toBeTruthy();
+    expect(document.getElementById(describedBy ?? "")?.textContent).toBe(
+      "Custom limits"
+    );
+    expect(document.querySelectorAll('[id$="-description"]')).toHaveLength(1);
+  });
+});

@@ -27,11 +27,11 @@ pnpm dlx shadcn@latest add https://easy-shadcn.vercel.app/r/breadcrumb.json
 | `items`               | `BreadcrumbItem[]` | -       | Trail definitions — see the table below.                                             |
 | `separator`           | `ReactNode`        | chevron | Overrides the content rendered between items.                                        |
 | `maxItems`            | `number`           | -       | Maximum items to display. When `items.length` exceeds it, the breadcrumb shows the first item, an ellipsis, and the last `maxItems - 1` items. |
-| `listClassName`       | `string`           | -       | Class override for `BreadcrumbList`.                                                 |
-| `itemClassName`       | `string`           | -       | Class override applied to every `BreadcrumbItem`.                                    |
-| `linkClassName`       | `string`           | -       | Class override applied to every `BreadcrumbLink`.                                    |
-| `pageClassName`       | `string`           | -       | Class override for the current `BreadcrumbPage`.                                     |
-| `separatorClassName`  | `string`           | -       | Class override applied to every `BreadcrumbSeparator`.                               |
+| `listClassName`       | `ClassValue`       | -       | Class override for `BreadcrumbList`.                                                 |
+| `itemClassName`       | `ClassValue`       | -       | Class override applied to every `BreadcrumbItem`.                                    |
+| `linkClassName`       | `ClassValue`       | -       | Class override applied to every `BreadcrumbLink`.                                    |
+| `pageClassName`       | `ClassValue`       | -       | Class override for the current `BreadcrumbPage`.                                     |
+| `separatorClassName`  | `ClassValue`       | -       | Class override applied to every `BreadcrumbSeparator`.                               |
 
 Other safe nav props (`className`, `aria-label`, `role`, style, event handlers, and non-owned data attributes) are forwarded to the underlying `nav`. The Compose layer owns its generated list children and `data-slot="breadcrumb"`; `children`, raw HTML, and `data-slot` are rejected by TypeScript and stripped at runtime.
 

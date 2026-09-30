@@ -1,3 +1,4 @@
+import type { ClassValue } from "cn";
 import { cn } from "cn";
 import { type ComponentProps, Fragment, type ReactNode } from "react";
 import {
@@ -23,16 +24,20 @@ interface BreadcrumbOwnedRootProps {
 }
 
 export interface BreadcrumbProps
-  extends Omit<ComponentProps<"nav">, keyof BreadcrumbOwnedRootProps>,
+  extends Omit<
+      ComponentProps<"nav">,
+      "className" | keyof BreadcrumbOwnedRootProps
+    >,
     BreadcrumbOwnedRootProps {
-  itemClassName?: string;
+  className?: ClassValue;
+  itemClassName?: ClassValue;
   items: BreadcrumbItem[];
-  linkClassName?: string;
-  listClassName?: string;
+  linkClassName?: ClassValue;
+  listClassName?: ClassValue;
   maxItems?: number;
-  pageClassName?: string;
+  pageClassName?: ClassValue;
   separator?: ReactNode;
-  separatorClassName?: string;
+  separatorClassName?: ClassValue;
 }
 
 interface Entry {
@@ -58,6 +63,7 @@ const toKey = (item: BreadcrumbItem, index: number): string => {
 
 export const Breadcrumb = ({
   children: _ignoredChildren,
+  className,
   "data-slot": _ignoredDataSlot,
   dangerouslySetInnerHTML: _ignoredDangerouslySetInnerHTML,
   items,
@@ -117,7 +123,7 @@ export const Breadcrumb = ({
   };
 
   return (
-    <BreadcrumbRoot {...navProps}>
+    <BreadcrumbRoot className={cn(className)} {...navProps}>
       <BreadcrumbList className={cn(listClassName)}>
         {nodes.map((node, position) => (
           <Fragment key={node.key}>
