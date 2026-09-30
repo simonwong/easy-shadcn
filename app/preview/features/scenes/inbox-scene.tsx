@@ -129,7 +129,7 @@ export function InboxScene() {
         <FormRow label="Schedule">
           <DatePicker
             mode="single"
-            onChange={setScheduledAt}
+            onValueChange={setScheduledAt}
             placeholder="Send immediately"
             value={scheduledAt}
           />

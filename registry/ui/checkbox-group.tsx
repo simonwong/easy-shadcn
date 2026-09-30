@@ -56,6 +56,9 @@ export interface CheckboxGroupProps
   value?: string[];
 }
 
+const hasNode = (node: ReactNode): boolean =>
+  node !== null && node !== undefined && typeof node !== "boolean";
+
 export const CheckboxGroup = ({
   "aria-disabled": _ignoredAriaDisabled,
   children: _ignoredChildren,
@@ -97,10 +100,10 @@ export const CheckboxGroup = ({
         // whitespace, which would break the space-separated aria-labelledby /
         // aria-describedby token lists and drop the accessible name.
         const labelId = `${baseId}-${index}-label`;
-        const descriptionId =
-          item.description === undefined
-            ? undefined
-            : `${baseId}-${index}-description`;
+        const hasDescription = hasNode(item.description);
+        const descriptionId = hasDescription
+          ? `${baseId}-${index}-description`
+          : undefined;
 
         return (
           // biome-ignore lint/a11y/noLabelWithoutControl: the checkbox control is rendered inside.
@@ -130,7 +133,7 @@ export const CheckboxGroup = ({
               >
                 {item.label}
               </span>
-              {item.description !== undefined && (
+              {hasDescription && (
                 <span
                   className={cn(
                     "text-muted-foreground text-sm",

@@ -29,13 +29,13 @@ describe("DatePicker", () => {
       Date | undefined
     >();
     expectTypeOf<
-      Parameters<NonNullable<DatePickerSingleProps["onChange"]>>[0]
+      Parameters<NonNullable<DatePickerSingleProps["onValueChange"]>>[0]
     >().toEqualTypeOf<Date | undefined>();
     expectTypeOf<DatePickerMultipleProps["value"]>().toEqualTypeOf<
       Date[] | undefined
     >();
     expectTypeOf<
-      Parameters<NonNullable<DatePickerMultipleProps["onChange"]>>[0]
+      Parameters<NonNullable<DatePickerMultipleProps["onValueChange"]>>[0]
     >().toEqualTypeOf<Date[] | undefined>();
     expectTypeOf<DatePickerRangeProps["value"]>().toEqualTypeOf<
       DateRange | undefined
@@ -61,22 +61,22 @@ describe("DatePicker", () => {
   });
 
   it("keeps value={undefined} controlled instead of mutating internal state", () => {
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
     render(
       <DatePicker
         defaultMonth={JAN_2026}
         defaultOpen
         format="MM/dd/yyyy"
-        onChange={onChange}
+        onValueChange={onValueChange}
         value={undefined}
       />
     );
 
     fireEvent.click(getDayButton(JAN_15_2026));
 
-    expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange.mock.calls[0]?.[0]).toEqual(JAN_15_2026);
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange.mock.calls[0]?.[0]).toEqual(JAN_15_2026);
     expect(screen.getByRole("button", { name: "Pick a date" })).toBeTruthy();
     expect(screen.queryByText("01/15/2026")).toBeNull();
   });
@@ -94,27 +94,29 @@ describe("DatePicker", () => {
   });
 
   it("does not commit calendar selections while disabled", () => {
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
     render(
       <DatePicker
         defaultMonth={JAN_2026}
         defaultOpen
         disabled
-        onChange={onChange}
+        onValueChange={onValueChange}
       />
     );
 
     fireEvent.click(getDayButton(JAN_15_2026));
 
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onValueChange).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Pick a date" })).toBeTruthy();
   });
 
   it("commits a valid typed single date on Enter", () => {
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
-    render(<DatePicker format="MM/dd/yyyy" onChange={onChange} withInput />);
+    render(
+      <DatePicker format="MM/dd/yyyy" onValueChange={onValueChange} withInput />
+    );
 
     const input = screen.getByPlaceholderText(
       "Pick a date"
@@ -122,20 +124,20 @@ describe("DatePicker", () => {
     fireEvent.change(input, { target: { value: "01/15/2026" } });
     fireEvent.keyDown(input, { key: "Enter" });
 
-    expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange.mock.calls[0]?.[0]).toEqual(JAN_15_2026);
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange.mock.calls[0]?.[0]).toEqual(JAN_15_2026);
     expect(input.value).toBe("01/15/2026");
   });
 
   it("lets calendar selection win over a pending valid input draft", () => {
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
     render(
       <DatePicker
         defaultMonth={JAN_2026}
         defaultOpen
         format="yyyy-MM-dd"
-        onChange={onChange}
+        onValueChange={onValueChange}
         withInput
       />
     );
@@ -149,18 +151,18 @@ describe("DatePicker", () => {
     const day = getDayButton(JAN_15_2026);
     fireEvent.click(day);
 
-    expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange.mock.calls[0]?.[0]).toEqual(JAN_15_2026);
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange.mock.calls[0]?.[0]).toEqual(JAN_15_2026);
   });
 
   it("discards invalid typed input on blur", () => {
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
     render(
       <DatePicker
         defaultValue={JAN_15_2026}
         format="MM/dd/yyyy"
-        onChange={onChange}
+        onValueChange={onValueChange}
         withInput
       />
     );
@@ -169,18 +171,18 @@ describe("DatePicker", () => {
     fireEvent.change(input, { target: { value: "not a date" } });
     fireEvent.blur(input);
 
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onValueChange).not.toHaveBeenCalled();
     expect(input.value).toBe("01/15/2026");
   });
 
   it("clears single input when the typed draft is emptied", () => {
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
     render(
       <DatePicker
         defaultValue={JAN_15_2026}
         format="MM/dd/yyyy"
-        onChange={onChange}
+        onValueChange={onValueChange}
         withInput
       />
     );
@@ -189,12 +191,12 @@ describe("DatePicker", () => {
     fireEvent.change(input, { target: { value: "" } });
     fireEvent.blur(input);
 
-    expect(onChange).toHaveBeenCalledWith(undefined);
+    expect(onValueChange).toHaveBeenCalledWith(undefined);
     expect(input.value).toBe("");
   });
 
   it("disables out-of-range days in the calendar via minDate/maxDate", () => {
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
     render(
       <DatePicker
@@ -202,7 +204,7 @@ describe("DatePicker", () => {
         defaultOpen
         maxDate={JAN_20_2026}
         minDate={JAN_15_2026}
-        onChange={onChange}
+        onValueChange={onValueChange}
       />
     );
 
@@ -215,17 +217,17 @@ describe("DatePicker", () => {
     expect(getDayButton(JAN_15_2026).hasAttribute("disabled")).toBe(false);
 
     fireEvent.click(getDayButton(new Date(2026, 0, 10)));
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onValueChange).not.toHaveBeenCalled();
   });
 
   it("discards typed input that violates minDate", () => {
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
     render(
       <DatePicker
         format="MM/dd/yyyy"
         minDate={JAN_15_2026}
-        onChange={onChange}
+        onValueChange={onValueChange}
         withInput
       />
     );
@@ -236,18 +238,18 @@ describe("DatePicker", () => {
     fireEvent.change(input, { target: { value: "01/10/2026" } });
     fireEvent.keyDown(input, { key: "Enter" });
 
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onValueChange).not.toHaveBeenCalled();
     expect(input.value).toBe("");
   });
 
   it("discards typed input matching disabledDates", () => {
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
     render(
       <DatePicker
         disabledDates={{ dayOfWeek: [0, 6] }}
         format="MM/dd/yyyy"
-        onChange={onChange}
+        onValueChange={onValueChange}
         withInput
       />
     );
@@ -258,12 +260,12 @@ describe("DatePicker", () => {
     // 2026-01-17 is a Saturday.
     fireEvent.change(input, { target: { value: "01/17/2026" } });
     fireEvent.keyDown(input, { key: "Enter" });
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onValueChange).not.toHaveBeenCalled();
 
     // 2026-01-15 is a Thursday.
     fireEvent.change(input, { target: { value: "01/15/2026" } });
     fireEvent.keyDown(input, { key: "Enter" });
-    expect(onChange).toHaveBeenCalledWith(JAN_15_2026);
+    expect(onValueChange).toHaveBeenCalledWith(JAN_15_2026);
   });
 
   it("forwards id, name, and aria props to the input trigger", () => {
@@ -294,13 +296,13 @@ describe("DatePicker", () => {
   });
 
   it("cancels the pending draft when the popover closes via Escape", () => {
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
     render(
       <DatePicker
         defaultValue={JAN_15_2026}
         format="MM/dd/yyyy"
-        onChange={onChange}
+        onValueChange={onValueChange}
         withInput
       />
     );
@@ -310,20 +312,20 @@ describe("DatePicker", () => {
     fireEvent.change(input, { target: { value: "01/20/2026" } });
     fireEvent.keyDown(input, { key: "Escape" });
 
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onValueChange).not.toHaveBeenCalled();
     expect(input.value).toBe("01/15/2026");
   });
 
   it("fires onOpenChange once when closing commits a pending draft", () => {
     const onOpenChange = vi.fn();
-    const onChange = vi.fn();
+    const onValueChange = vi.fn();
 
     render(
       <DatePicker
         defaultOpen
         format="MM/dd/yyyy"
-        onChange={onChange}
         onOpenChange={onOpenChange}
+        onValueChange={onValueChange}
         withInput
       />
     );
@@ -334,8 +336,8 @@ describe("DatePicker", () => {
     fireEvent.change(input, { target: { value: "01/15/2026" } });
     fireEvent.click(screen.getByRole("button", { name: "Open calendar" }));
 
-    expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange).toHaveBeenCalledWith(JAN_15_2026);
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange).toHaveBeenCalledWith(JAN_15_2026);
     const closeCalls = onOpenChange.mock.calls.filter(
       ([next]) => next === false
     );

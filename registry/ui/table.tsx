@@ -28,7 +28,7 @@ import {
   Table as TableRoot,
   TableRow,
 } from "@/components/ui/table";
-import { Pagination } from "./pagination";
+import { normalizeSafeInteger, Pagination } from "./pagination";
 import {
   type TableColumnFilter,
   TableFilterButton,
@@ -352,15 +352,6 @@ export type TablePagination =
   | TablePaginationLocal
   | TablePaginationExternal;
 
-const normalizePaginationInteger = (
-  value: number,
-  fallback: number,
-  minimum: number
-) =>
-  Number.isFinite(value)
-    ? Math.min(Number.MAX_SAFE_INTEGER, Math.max(minimum, Math.trunc(value)))
-    : fallback;
-
 function useTablePagination(
   pagination: TablePagination,
   sourceTotal: number,
@@ -369,15 +360,11 @@ function useTablePagination(
   const config = typeof pagination === "object" ? pagination : undefined;
   const enabled = Boolean(pagination);
   const local = config?.mode !== "external";
-  const total = normalizePaginationInteger(
-    local ? sourceTotal : config.total,
-    0,
-    0
-  );
-  const pageSize = normalizePaginationInteger(config?.pageSize ?? 10, 10, 1);
+  const total = normalizeSafeInteger(local ? sourceTotal : config.total, 0, 0);
+  const pageSize = normalizeSafeInteger(config?.pageSize ?? 10, 10, 1);
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const [internalPage, setInternalPage] = useState(() =>
-    normalizePaginationInteger(local ? (config?.defaultValue ?? 1) : 1, 1, 1)
+    normalizeSafeInteger(local ? (config?.defaultValue ?? 1) : 1, 1, 1)
   );
   const controlled = config?.value !== undefined;
   const [previousFilterKey, setPreviousFilterKey] = useState(filterKey);
@@ -387,11 +374,7 @@ function useTablePagination(
     setPreviousFilterKey(filterKey);
   }
   const value = Math.min(
-    normalizePaginationInteger(
-      config?.value ?? (reset ? 1 : internalPage),
-      1,
-      1
-    ),
+    normalizeSafeInteger(config?.value ?? (reset ? 1 : internalPage), 1, 1),
     pageCount
   );
   if (enabled && local && !controlled && internalPage !== value) {
@@ -608,6 +591,24 @@ function widthStyle(
   return { width };
 }
 
+const hasCaption = (caption: React.ReactNode): boolean =>
+  caption !== null && caption !== undefined && typeof caption !== "boolean";
+
+// Fingerprint of the duplicated keys — `null` when every key is unique. Lets a
+// warning re-fire when the offending set changes, but stay quiet otherwise.
+function duplicateFingerprint(keys: string[]): string | null {
+  const seen = new Set<string>();
+  const dupes = new Set<string>();
+  for (const key of keys) {
+    if (seen.has(key)) {
+      dupes.add(key);
+    } else {
+      seen.add(key);
+    }
+  }
+  return dupes.size === 0 ? null : JSON.stringify(Array.from(dupes).sort());
+}
+
 // Heuristic: a table needs an accessible name. Caption, aria-label, or
 // aria-labelledby all count. Anything truthy passes the audit.
 function hasAccessibleName(
@@ -618,7 +619,7 @@ function hasAccessibleName(
   if (ariaLabel || ariaLabelledBy) {
     return true;
   }
-  if (caption === undefined || caption === null || caption === false) {
+  if (!hasCaption(caption)) {
     return false;
   }
   if (typeof caption === "string") {
@@ -855,11 +856,6 @@ export function Table<T>({
   const displayedRows = pageRows(sortedRows, paging);
   const visibleKeys = new Set(displayedRows.map((meta) => meta.key));
 
-  const metaByKey = new Map<string, (typeof rowMeta)[number]>();
-  for (const meta of rowMeta) {
-    metaByKey.set(meta.key, meta);
-  }
-
   const selectableRows: typeof rowMeta = [];
   let selectedSelectableCount = 0;
   for (const meta of rowMeta) {
@@ -882,41 +878,12 @@ export function Table<T>({
   const someSelected =
     selectedSelectableCount > 0 && selectedSelectableCount < selectableCount;
 
-  // Fingerprint of the currently-duplicated key set — `null` when no dupes.
-  // Lets us re-warn when the offending dataset changes shape, but stay quiet
-  // when the same dupes scroll past.
-  const dupKeyFingerprint = (() => {
-    if (metaByKey.size === data.length) {
-      return null;
-    }
-    const seen = new Set<string>();
-    const dupes = new Set<string>();
-    for (const m of rowMeta) {
-      if (seen.has(m.key)) {
-        dupes.add(m.key);
-      } else {
-        seen.add(m.key);
-      }
-    }
-    return JSON.stringify(Array.from(dupes).sort());
-  })();
-
-  // Fingerprint of duplicate column keys — same pattern.
-  const dupColumnKeyFingerprint = (() => {
-    const seen = new Set<string>();
-    const dupes = new Set<string>();
-    for (const c of columns) {
-      if (seen.has(c.key)) {
-        dupes.add(c.key);
-      } else {
-        seen.add(c.key);
-      }
-    }
-    if (dupes.size === 0) {
-      return null;
-    }
-    return JSON.stringify(Array.from(dupes).sort());
-  })();
+  const dupKeyFingerprint = duplicateFingerprint(
+    rowMeta.map((meta) => meta.key)
+  );
+  const dupColumnKeyFingerprint = duplicateFingerprint(
+    columns.map((column) => column.key)
+  );
 
   // ---- Dev-only warnings ----
   // Each warn lives in its own useEffect so the dependency list stays
@@ -1056,16 +1023,12 @@ export function Table<T>({
       setInternalSelected(nextKeys);
     }
     if (onSelectedRowKeysChange) {
-      const rows: T[] = [];
-      // Walk data so the emitted rows array stays in source order.
+      // Walk rowMeta so the emitted rows array stays in source order.
       const set = new Set(nextKeys);
-      for (let i = 0; i < data.length; i++) {
-        const { key } = resolveRowKey(data[i], i, rowKey);
-        if (set.has(key)) {
-          rows.push(data[i]);
-        }
-      }
-      onSelectedRowKeysChange(nextKeys, rows);
+      onSelectedRowKeysChange(
+        nextKeys,
+        rowMeta.filter((meta) => set.has(meta.key)).map((meta) => meta.record)
+      );
     }
   };
 
@@ -1145,7 +1108,7 @@ export function Table<T>({
         className={cn(className)}
         data-slot="easy-table"
       >
-        {caption && (
+        {hasCaption(caption) && (
           <TableCaption className={cn(captionClassName)}>
             {caption}
           </TableCaption>

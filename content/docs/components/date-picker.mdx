@@ -32,7 +32,7 @@ import { DatePicker } from "@/components/easy/date-picker"
 
 const [date, setDate] = useState<Date>()
 
-<DatePicker value={date} onChange={setDate} />
+<DatePicker value={date} onValueChange={setDate} />
 ```
 
 ### Multiple
@@ -45,7 +45,7 @@ import { DatePicker } from "@/components/easy/date-picker"
 
 const [dates, setDates] = useState<Date[]>()
 
-<DatePicker mode="multiple" value={dates} onChange={setDates} />
+<DatePicker mode="multiple" value={dates} onValueChange={setDates} />
 ```
 
 ### Range
@@ -59,7 +59,7 @@ import { DatePicker } from "@/components/easy/date-picker"
 
 const [range, setRange] = useState<DateRange>()
 
-<DatePicker mode="range" value={range} onChange={setRange} />
+<DatePicker mode="range" value={range} onValueChange={setRange} />
 ```
 
 ### With input
@@ -71,7 +71,7 @@ Enables a text input alongside the calendar trigger. Users can type a date strin
   format="yyyy-MM-dd"
   withInput
   value={date}
-  onChange={setDate}
+  onValueChange={setDate}
 />
 ```
 
@@ -79,10 +79,10 @@ Enables a text input alongside the calendar trigger. Users can type a date strin
 
 | Prop                  | Type                                                                | Default                                          | Description                                                                          |
 | --------------------- | ------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------ |
-| `mode`                | `"single" \| "multiple" \| "range"`                                  | `"single"`                                       | Selection mode. Controls the type of `value` / `defaultValue` / `onChange`.          |
+| `mode`                | `"single" \| "multiple" \| "range"`                                  | `"single"`                                       | Selection mode. Controls the type of `value` / `defaultValue` / `onValueChange`.     |
 | `value`               | `Date \| Date[] \| DateRange`                                        | -                                                | Controlled selected value. Type narrows from `mode`.                                 |
 | `defaultValue`        | `Date \| Date[] \| DateRange`                                        | -                                                | Uncontrolled initial value.                                                          |
-| `onChange`            | `(value: Date \| Date[] \| DateRange \| undefined) => void`          | -                                                | Called when the selection changes.                                                   |
+| `onValueChange`       | `(value: Date \| Date[] \| DateRange \| undefined) => void`          | -                                                | Called when the selection changes.                                                   |
 | `format`              | `string`                                                             | `"PPP"`                                          | `date-fns` format token applied to the displayed value and used to parse user input. |
 | `locale`              | `Locale`                                                             | -                                                | `date-fns` locale forwarded to both the formatter and the Calendar.                  |
 | `placeholder`         | `string`                                                             | mode-dependent                                   | Trigger / input placeholder.                                                         |

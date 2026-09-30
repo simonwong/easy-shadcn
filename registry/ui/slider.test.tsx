@@ -499,3 +499,13 @@ it("keeps uncontrolled thumb count when defaultValue changes", async () => {
   );
   warning.mockRestore();
 });
+
+describe("Slider root", () => {
+  it("renders the slider root without an extra layout wrapper", () => {
+    const { container } = render(<Slider label="Volume" />);
+
+    expect(
+      (container.firstElementChild as HTMLElement | null)?.dataset.slot
+    ).toBe("slider");
+  });
+});

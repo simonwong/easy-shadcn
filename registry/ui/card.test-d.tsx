@@ -19,3 +19,12 @@ acceptProps({ "data-slot": "bypass" });
 
 // @ts-expect-error The size marker is derived from size.
 acceptProps({ "data-size": "sm" });
+
+acceptProps({
+  actionClassName: ["action-x"],
+  className: ["root-x", { "root-y": true }],
+  contentClassName: { "content-x": true },
+  descriptionClassName: ["description-x"],
+  title: "Usage",
+  titleClassName: ["title-x", false],
+});

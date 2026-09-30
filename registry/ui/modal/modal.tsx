@@ -21,6 +21,14 @@ import {
 import { useDialogAction } from "@/registry/hooks/use-dialog-action";
 import { AsyncButton } from "../async-button";
 
+// null/undefined/boolean/"" render nothing in React, so their slot wrappers are
+// skipped; 0 is a visible node and must not be swallowed by a truthiness check.
+const hasNode = (node: ReactNode): boolean =>
+  node !== null &&
+  node !== undefined &&
+  typeof node !== "boolean" &&
+  node !== "";
+
 type ModalActionProps = Omit<
   ComponentProps<typeof AsyncButton>,
   "children" | "onClick"
@@ -167,12 +175,12 @@ export const Modal: React.FC<ModalProps> = ({
         className={cn(className)}
         showCloseButton={showCloseButton}
       >
-        {(title || description) && (
+        {(hasNode(title) || hasNode(description)) && (
           <DialogHeader className={cn(headerClassName)}>
-            {title && (
+            {hasNode(title) && (
               <DialogTitle className={cn(titleClassName)}>{title}</DialogTitle>
             )}
-            {description && (
+            {hasNode(description) && (
               <DialogDescription
                 className={cn(descriptionClassName)}
                 render={<div />}
@@ -182,10 +190,10 @@ export const Modal: React.FC<ModalProps> = ({
             )}
           </DialogHeader>
         )}
-        {children && (
+        {hasNode(children) && (
           <div className={cn("text-sm", contentClassName)}>{children}</div>
         )}
-        {footerNode && (
+        {hasNode(footerNode) && (
           <DialogFooter className={cn(footerClassName)}>
             {footerNode}
           </DialogFooter>

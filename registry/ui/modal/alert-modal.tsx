@@ -21,6 +21,14 @@ import {
 import { useDialogAction } from "@/registry/hooks/use-dialog-action";
 import { AsyncButton } from "../async-button";
 
+// null/undefined/boolean/"" render nothing in React, so their slot wrappers are
+// skipped; 0 is a visible node and must not be swallowed by a truthiness check.
+const hasNode = (node: ReactNode): boolean =>
+  node !== null &&
+  node !== undefined &&
+  typeof node !== "boolean" &&
+  node !== "";
+
 type AlertModalActionProps = Omit<
   ComponentProps<typeof AsyncButton>,
   "children" | "onClick"
@@ -133,14 +141,14 @@ export const AlertModal: React.FC<AlertModalProps> = ({
     >
       {trigger && <AlertDialogTrigger render={trigger} />}
       <AlertDialogContent className={cn(className)} size={size}>
-        {(title || description) && (
+        {(hasNode(title) || hasNode(description)) && (
           <AlertDialogHeader className={cn(headerClassName)}>
-            {title && (
+            {hasNode(title) && (
               <AlertDialogTitle className={cn(titleClassName)}>
                 {title}
               </AlertDialogTitle>
             )}
-            {description && (
+            {hasNode(description) && (
               <AlertDialogDescription
                 className={cn(descriptionClassName)}
                 render={<div />}

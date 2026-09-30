@@ -80,7 +80,7 @@ export type DatePickerSingleProps = DatePickerBaseProps & {
   mode?: "single";
   value?: Date;
   defaultValue?: Date;
-  onChange?: (value: Date | undefined) => void;
+  onValueChange?: (value: Date | undefined) => void;
   /**
    * Render an `<Input />` trigger that supports manual typing in addition to
    * the calendar popover. Only available in `mode="single"`.
@@ -92,7 +92,7 @@ export type DatePickerMultipleProps = DatePickerBaseProps & {
   mode: "multiple";
   value?: Date[];
   defaultValue?: Date[];
-  onChange?: (value: Date[] | undefined) => void;
+  onValueChange?: (value: Date[] | undefined) => void;
   /** Manual input is single-mode only. */
   withInput?: false;
 };
@@ -101,7 +101,7 @@ export type DatePickerRangeProps = DatePickerBaseProps & {
   mode: "range";
   value?: DateRange;
   defaultValue?: DateRange;
-  onChange?: (value: DateRange | undefined) => void;
+  onValueChange?: (value: DateRange | undefined) => void;
   /** Manual input is single-mode only. */
   withInput?: false;
 };
@@ -254,7 +254,7 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
     | Date[]
     | DateRange
     | undefined;
-  const onChange = props.onChange as
+  const onValueChange = props.onValueChange as
     | ((next: Date | Date[] | DateRange | undefined) => void)
     | undefined;
   const isValueControlled = "value" in props;
@@ -365,7 +365,7 @@ export const DatePicker: React.FC<DatePickerProps> = (props) => {
     if (!isValueControlled) {
       setInternalValue(next);
     }
-    onChange?.(next);
+    onValueChange?.(next);
     setDraft(null);
     // Skip the auto-close when the popover is already closed (blur commits)
     // or closing (so onOpenChange fires exactly once per close).

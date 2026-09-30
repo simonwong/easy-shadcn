@@ -1,5 +1,6 @@
 "use client";
 
+import type { ClassValue } from "cn";
 import { cn } from "cn";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { useId } from "react";
@@ -27,14 +28,14 @@ type HoverContentProps = ComponentProps<typeof HoverCardContent>;
 interface PopoverSlotProps {
   children: ReactElement;
   content: ReactNode;
-  contentClassName?: string;
+  contentClassName?: ClassValue;
   description?: ReactNode;
-  descriptionClassName?: string;
+  descriptionClassName?: ClassValue;
   footer?: ReactNode;
-  footerClassName?: string;
-  headerClassName?: string;
+  footerClassName?: ClassValue;
+  headerClassName?: ClassValue;
   title?: ReactNode;
-  titleClassName?: string;
+  titleClassName?: ClassValue;
 }
 
 interface PopoverOwnedContentProps {
@@ -93,12 +94,12 @@ const PopoverBody = ({
 >) => (
   <>
     {hasNode(content) && (
-      <div className={contentClassName} data-slot="popover-body">
+      <div className={cn(contentClassName)} data-slot="popover-body">
         {content}
       </div>
     )}
     {hasNode(footer) && (
-      <div className={footerClassName} data-slot="popover-footer">
+      <div className={cn(footerClassName)} data-slot="popover-footer">
         {footer}
       </div>
     )}
@@ -134,12 +135,12 @@ const ClickPopover = ({
     <PopoverTrigger disabled={disabled} render={children} />
     <PopoverContent {...contentProps}>
       {(hasNode(title) || hasNode(description)) && (
-        <PopoverHeader className={headerClassName}>
+        <PopoverHeader className={cn(headerClassName)}>
           {hasNode(title) && (
-            <PopoverTitle className={titleClassName}>{title}</PopoverTitle>
+            <PopoverTitle className={cn(titleClassName)}>{title}</PopoverTitle>
           )}
           {hasNode(description) && (
-            <PopoverDescription className={descriptionClassName}>
+            <PopoverDescription className={cn(descriptionClassName)}>
               {description}
             </PopoverDescription>
           )}

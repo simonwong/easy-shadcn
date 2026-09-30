@@ -197,7 +197,7 @@ const filterOpenKeys = (
 ) => [...new Set(openKeys.filter((key) => submenuKeys.has(key)))];
 
 const hasContent = (value: ReactNode) =>
-  value !== undefined && value !== null && value !== false;
+  value !== undefined && value !== null && typeof value !== "boolean";
 
 export const SidebarTrigger = ({
   className,

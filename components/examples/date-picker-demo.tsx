@@ -17,7 +17,7 @@ const Demo = () => {
         <span className="text-muted-foreground text-sm">
           Single (default trigger, format=&quot;PPP&quot;)
         </span>
-        <DatePicker onChange={setSingle} value={single} />
+        <DatePicker onValueChange={setSingle} value={single} />
       </div>
 
       <div className="flex flex-col gap-2">
@@ -27,7 +27,7 @@ const Demo = () => {
         <DatePicker
           format="LLL dd, y"
           mode="multiple"
-          onChange={setMultiple}
+          onValueChange={setMultiple}
           value={multiple}
         />
       </div>
@@ -39,7 +39,7 @@ const Demo = () => {
         <DatePicker
           format="LLL dd, y"
           mode="range"
-          onChange={setRange}
+          onValueChange={setRange}
           value={range}
         />
       </div>
@@ -50,7 +50,7 @@ const Demo = () => {
         </span>
         <DatePicker
           format="yyyy-MM-dd"
-          onChange={setTyped}
+          onValueChange={setTyped}
           value={typed}
           withInput
         />
@@ -63,7 +63,7 @@ const Demo = () => {
         <DatePicker
           disabledDates={{ dayOfWeek: [0, 6] }}
           minDate={new Date()}
-          onChange={setAppointment}
+          onValueChange={setAppointment}
           value={appointment}
         />
       </div>

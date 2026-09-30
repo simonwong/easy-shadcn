@@ -68,6 +68,7 @@
       "type": "registry:component",
       "title": "Integrated Tooltip",
       "description": "Drop-anywhere Tooltip that collapses shadcn's base-ui Provider / Root / Trigger / Portal / Positioner / Popup into one component: wrap an element and pass content, with side/align and delay controls.",
+      "dependencies": ["cn"],
       "registryDependencies": ["tooltip"],
       "files": [
         {

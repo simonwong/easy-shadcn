@@ -384,3 +384,21 @@ describe("Menu", () => {
     expect(callbackNodes).toHaveLength(mountedCallbackCount + 1);
   });
 });
+
+describe("Menu empty slots", () => {
+  it("renders no icon or extra wrapper for null and false nodes", () => {
+    render(
+      <Menu
+        aria-label="Workspace"
+        items={[
+          { extra: false, icon: null, key: "overview", label: "Overview" },
+          { extra: 0, icon: "*", key: "reports", label: "Reports" },
+        ]}
+      />
+    );
+
+    const [overview, reports] = screen.getAllByRole("menuitem");
+    expect(overview.querySelectorAll("span")).toHaveLength(1);
+    expect(reports.querySelectorAll("span")).toHaveLength(3);
+  });
+});

@@ -63,6 +63,9 @@ export interface RadioGroupProps
   value?: string;
 }
 
+const hasNode = (node: ReactNode): boolean =>
+  node !== null && node !== undefined && typeof node !== "boolean";
+
 export const RadioGroup = ({
   "aria-disabled": _ignoredAriaDisabled,
   "aria-readonly": _ignoredAriaReadonly,
@@ -108,10 +111,10 @@ export const RadioGroup = ({
         // whitespace, which would break the space-separated aria-labelledby /
         // aria-describedby token lists and drop the accessible name.
         const labelId = `${baseId}-${index}-label`;
-        const descriptionId =
-          item.description === undefined
-            ? undefined
-            : `${baseId}-${index}-description`;
+        const hasDescription = hasNode(item.description);
+        const descriptionId = hasDescription
+          ? `${baseId}-${index}-description`
+          : undefined;
 
         return (
           // biome-ignore lint/a11y/noLabelWithoutControl: the radio control is rendered inside.
@@ -141,7 +144,7 @@ export const RadioGroup = ({
               >
                 {item.label}
               </span>
-              {item.description !== undefined && (
+              {hasDescription && (
                 <span
                   className={cn(
                     "text-muted-foreground text-sm",
