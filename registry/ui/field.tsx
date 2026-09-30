@@ -65,6 +65,14 @@ const mergeIds = (...values: (string | undefined)[]): string | undefined => {
   return merged || undefined;
 };
 
+// null/undefined/boolean/"" render nothing in React, so their slot wrappers are
+// skipped; 0 is a visible node and must not be swallowed by a truthiness check.
+const hasContent = (node: ReactNode): boolean =>
+  node !== null &&
+  node !== undefined &&
+  typeof node !== "boolean" &&
+  node !== "";
+
 // RHF/zod issue arrays are plain objects, never renderable nodes — they get
 // routed through the primitive's deduplicating errors list.
 const toMessageArray = (
@@ -133,7 +141,9 @@ const FlatFieldBody = ({
   const childId = childElement?.props.id;
   const controlId =
     htmlFor ?? childId ?? (childElement ? `${autoId}-control` : undefined);
-  const descriptionId = description ? `${autoId}-description` : undefined;
+  const descriptionId = hasContent(description)
+    ? `${autoId}-description`
+    : undefined;
   const errorId = hasError ? `${autoId}-error` : undefined;
   const describedBy = mergeIds(
     descriptionId,
@@ -149,14 +159,14 @@ const FlatFieldBody = ({
       })
     : children;
 
-  const labelNode = label ? (
+  const labelNode = hasContent(label) ? (
     <BaseFieldLabel className={cn(labelClassName)} htmlFor={controlId}>
       {label}
       {required && <RequiredMark />}
     </BaseFieldLabel>
   ) : null;
 
-  const descriptionNode = description ? (
+  const descriptionNode = hasContent(description) ? (
     <BaseFieldDescription
       className={cn(descriptionClassName)}
       id={descriptionId}
@@ -165,13 +175,15 @@ const FlatFieldBody = ({
     </BaseFieldDescription>
   ) : null;
 
+  const renderableError = error === 0 ? "0" : error;
   const errorNode = hasError ? (
     <BaseFieldError
       className={cn(errorClassName)}
       errors={messageArray ?? undefined}
       id={errorId}
     >
-      {messageArray ? undefined : error}
+      {/* The primitive drops falsy children, so a numeric 0 goes in as text. */}
+      {messageArray ? undefined : renderableError}
     </BaseFieldError>
   ) : null;
 
@@ -216,7 +228,7 @@ export const Field: React.FC<FieldProps> = ({
   const messageArray = toMessageArray(error);
   const hasError = messageArray
     ? messageArray.some((item) => item?.message)
-    : Boolean(error);
+    : error === 0 || Boolean(error);
   const isInvalid = invalid ?? hasError;
   // Only content slots switch to the flat layout; bare styling/marker props
   // must not restructure composition-mode children.

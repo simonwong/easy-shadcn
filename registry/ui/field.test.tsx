@@ -337,3 +337,41 @@ describe("Field", () => {
     expect(root.children).toHaveLength(2);
   });
 });
+
+describe("Field falsy nodes", () => {
+  it("renders numeric zero slots instead of swallowing them", () => {
+    const { container } = render(
+      <Field description={0} error={0} htmlFor="count" label={0}>
+        <input id="count" />
+      </Field>
+    );
+
+    expect(container.querySelector('[data-slot="field-label"]')).toBeTruthy();
+    expect(
+      container.querySelector('[data-slot="field-description"]')?.textContent
+    ).toBe("0");
+    expect(
+      container.querySelector('[data-slot="field-error"]')?.textContent
+    ).toBe("0");
+    expect(screen.getByRole("textbox").getAttribute("aria-invalid")).toBe(
+      "true"
+    );
+  });
+
+  it("keeps empty string slots out of the tree", () => {
+    const { container } = render(
+      <Field description="" error="" htmlFor="name" label="">
+        <input id="name" />
+      </Field>
+    );
+
+    expect(container.querySelector('[data-slot="field-label"]')).toBeNull();
+    expect(
+      container.querySelector('[data-slot="field-description"]')
+    ).toBeNull();
+    expect(container.querySelector('[data-slot="field-error"]')).toBeNull();
+    expect(
+      screen.getByRole("textbox").getAttribute("aria-describedby")
+    ).toBeNull();
+  });
+});

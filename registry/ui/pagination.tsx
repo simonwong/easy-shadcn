@@ -114,7 +114,8 @@ const skipBaseUISpace = (
   }
 };
 
-const normalizeSafeInteger = (
+/** Truncates to a safe integer no lower than `minimum`; non-finite input yields `fallback`. */
+export const normalizeSafeInteger = (
   value: number,
   fallback: number,
   minimum: number

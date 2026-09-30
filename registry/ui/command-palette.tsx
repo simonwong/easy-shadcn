@@ -262,8 +262,12 @@ export const CommandPalette = ({
     [onOpenChange, openControlled]
   );
 
+  // Async action continuations read the latest callback through this ref; it
+  // is synced in an effect because refs must not be written during render.
   const requestOpenRef = useRef(requestOpen);
-  requestOpenRef.current = requestOpen;
+  useEffect(() => {
+    requestOpenRef.current = requestOpen;
+  }, [requestOpen]);
 
   useEffect(() => {
     mounted.current = true;

@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { Pagination } from "./pagination";
+import { normalizeSafeInteger, Pagination } from "./pagination";
 
 const PAGE_NUMBER_PATTERN = /^\d+$/;
 
@@ -870,5 +870,14 @@ describe("Pagination — root integration and ownership", () => {
     expect(renderToStaticMarkup(<Pagination {...props} />)).toBe(
       renderToStaticMarkup(<Pagination {...props} />)
     );
+  });
+});
+
+describe("normalizeSafeInteger", () => {
+  it("truncates, clamps to the minimum, and falls back for non-finite input", () => {
+    expect(normalizeSafeInteger(3.9, 10, 1)).toBe(3);
+    expect(normalizeSafeInteger(-4, 10, 1)).toBe(1);
+    expect(normalizeSafeInteger(Number.NaN, 10, 1)).toBe(10);
+    expect(normalizeSafeInteger(Number.POSITIVE_INFINITY, 10, 1)).toBe(10);
   });
 });

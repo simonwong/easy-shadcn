@@ -227,7 +227,7 @@ const SliderAdapter = ({
   const thumbCount =
     value === undefined ? defaultThumbCount : controlledThumbCount;
   const { thumbAlignment, ...remainingRootProps } = rootProps;
-  const sliderContent = (
+  return (
     <SliderPrimitive.Root<SliderValue>
       {...remainingRootProps}
       aria-labelledby={mergeIds(labelId, ariaLabelledBy)}
@@ -268,8 +268,6 @@ const SliderAdapter = ({
       />
     </SliderPrimitive.Root>
   );
-
-  return <div className="grid gap-2">{sliderContent}</div>;
 };
 
 const SingleSlider = ({
