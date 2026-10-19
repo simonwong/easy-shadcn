@@ -10,3 +10,9 @@ auditConfig:
     # only via fast-glob/micromatch in shadcn and @changesets/cli, which expand
     # repo-authored glob patterns at build time, never untrusted input.
     - GHSA-vfj7-8cjw-p6xm
+# pnpm 10 skipped these scripts with a warning; pnpm 11+ fails install unless
+# each is listed. Neither is needed: esbuild ships its binary as an optional
+# platform package, and msw's script copies a service worker we never serve.
+allowBuilds:
+  esbuild: false
+  msw: false
