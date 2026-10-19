@@ -6,6 +6,7 @@ import {
 } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 import { getMDXComponents } from "@/components/mdx-components";
+import { createMetadata } from "@/lib/metadata";
 import { source } from "@/lib/source";
 
 export default async function Page(props: {
@@ -43,8 +44,10 @@ export async function generateMetadata(props: {
     notFound();
   }
 
-  return {
+  return createMetadata({
     title: page.data.title,
     description: page.data.description,
-  };
+    alternates: { canonical: page.url },
+    openGraph: { type: "article" },
+  });
 }

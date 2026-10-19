@@ -11,7 +11,8 @@ export const metadata = createMetadata({
     template: "%s | Easy Shadcn",
     default: "Easy Shadcn",
   },
-  description: "Use Shadcn UI with ease",
+  description:
+    "Flat-props React components built on shadcn/ui, installed with the shadcn CLI. Copy-in source, TypeScript, Tailwind CSS.",
   metadataBase: baseUrl,
 });
 

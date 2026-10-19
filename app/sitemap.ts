@@ -1,14 +1,12 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/metadata";
 import { source } from "@/lib/source";
 
-const SITE_URL = "https://easy-shadcn.vercel.app";
-
+// No `lastModified`: a build timestamp would claim every page changed on every
+// deploy, which teaches crawlers to ignore the field.
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-
   const docsPages = source.getPages().map((page) => ({
     url: `${SITE_URL}${page.url}`,
-    lastModified: now,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
@@ -16,13 +14,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: SITE_URL,
-      lastModified: now,
       changeFrequency: "weekly",
       priority: 1,
     },
     {
       url: `${SITE_URL}/preview`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.5,
     },
