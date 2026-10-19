@@ -1,5 +1,6 @@
 ---
 title: Async Button
+description: "A shadcn/ui Button that shows a spinner and disables itself while its onClick Promise is pending."
 ---
 
 AsyncButton extends shadcn's `Button`: when `onClick` returns a `Promise`, the component automatically manages the loading state — the button is disabled and a spinner is shown until the promise settles. You can also drive the loading state manually via the `loading` prop, and decorate the button with `startIcon` / `endIcon` slots that the spinner slides into while loading.

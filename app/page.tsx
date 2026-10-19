@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Barlow, Barlow_Semi_Condensed } from "next/font/google";
 import Link from "next/link";
-import { createMetadata } from "@/lib/metadata";
+import { createMetadata, SITE_URL } from "@/lib/metadata";
 import { CollapseDemo } from "./collapse-demo";
 
 export const metadata: Metadata = createMetadata({
@@ -363,8 +363,8 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": "https://easy-shadcn.vercel.app/#website",
-      url: "https://easy-shadcn.vercel.app/",
+      "@id": `${SITE_URL}/#website`,
+      url: `${SITE_URL}/`,
       name: "easy/shadcn",
       description:
         "Hand-stitched wrappers over shadcn/ui that swap nested children for flat props.",
@@ -372,7 +372,7 @@ const jsonLd = {
     },
     {
       "@type": "SoftwareSourceCode",
-      "@id": "https://easy-shadcn.vercel.app/#library",
+      "@id": `${SITE_URL}/#library`,
       name: "easy-shadcn",
       description:
         "A compose layer over shadcn/ui — flat props, no render-prop carnival, your code in your repo.",
