@@ -4,3 +4,9 @@ packages:
 overrides:
   # Newer nwsapi native selector fallbacks recurse through jsdom Element.matches.
   "jsdom>nwsapi": "2.2.23"
+auditConfig:
+  ignoreGhsas:
+    # braces <=3.0.3 stack-exhaustion DoS has no patched release. It is reached
+    # only via fast-glob/micromatch in shadcn and @changesets/cli, which expand
+    # repo-authored glob patterns at build time, never untrusted input.
+    - GHSA-vfj7-8cjw-p6xm
